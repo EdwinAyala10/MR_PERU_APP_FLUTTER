@@ -6,8 +6,8 @@ import 'package:go_router/go_router.dart';
 
 import 'package:crm_app/features/shared/shared.dart';
 
-class CompaniesScreen extends StatelessWidget {
-  const CompaniesScreen({super.key});
+class ContactsScreen extends StatelessWidget {
+  const ContactsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,17 +16,17 @@ class CompaniesScreen extends StatelessWidget {
     return Scaffold(
       drawer: SideMenu(scaffoldKey: scaffoldKey),
       appBar: AppBar(
-        title: const Text('Empresas'),
+        title: const Text('Contacto'),
         actions: [
           IconButton(onPressed: () {}, icon: const Icon(Icons.search_rounded))
         ],
       ),
       body: const _CompaniesView(),
       floatingActionButton: FloatingActionButton.extended(
-        label: const Text('Nueva empresa'),
+        label: const Text('Nuevo contacto'),
         icon: const Icon(Icons.add),
         onPressed: () {
-          context.push('/company');
+          context.push('/contact');
         },
       ),
     );
@@ -75,8 +75,8 @@ class _CompaniesViewState extends ConsumerState {
     final List<Company> companies = List.generate(
       50,
       (index) => Company(
+          'Contacto $index',
           'Empresa $index',
-          'Ubicación $index',
           Random().nextDouble() * 1000000, // Random revenue
           Random()
               .nextBool()), // Generate randomly if the company is active or inactive
@@ -94,21 +94,14 @@ class _CompaniesViewState extends ConsumerState {
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Ubicación: ${company.location}'),
-                Text(
-                    'Venta Anual: \$${company.annualRevenue.toStringAsFixed(2)}'),
+                Text('Empresa: ${company.location}'),
               ],
             ),
-            trailing: Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: company.active ? Colors.green : Colors.red,
-              ),
+            leading: CircleAvatar(
+                child: Text('A'),
             ),
             onTap: () {
-              context.go('/company');
+              context.go('/contact');
             },
           );
         },

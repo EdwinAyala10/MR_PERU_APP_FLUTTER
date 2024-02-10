@@ -28,7 +28,20 @@ class SideMenuState extends ConsumerState<SideMenu> {
             navDrawerIndex = value;
           });
 
-          // final menuItem = appMenuItems[value];
+          //final menuItem = appMenuItems[value];
+          print('VALUE');
+          print(value);
+
+          switch (value) {
+            case 0:
+              context.go('/companies');
+              break;
+            case 1:
+              context.go('/contacts');
+              break;
+            
+          }
+
           // context.push( menuItem.link );
           widget.scaffoldKey.currentState?.closeDrawer();
         },
