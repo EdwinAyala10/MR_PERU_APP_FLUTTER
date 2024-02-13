@@ -29,17 +29,34 @@ class SideMenuState extends ConsumerState<SideMenu> {
           });
 
           //final menuItem = appMenuItems[value];
-          print('VALUE');
-          print(value);
 
           switch (value) {
             case 0:
-              context.go('/companies');
+              context.go('/dashboard');
               break;
             case 1:
+              context.go('/companies');
+              break;
+            case 2:
               context.go('/contacts');
               break;
-            
+            case 3:
+              context.go('/opportunities');
+              break;
+            case 4:
+              context.go('/activities');
+              break;
+            case 5:
+              context.go('/agenda');
+              break;
+            case 6:
+              context.go('/tasks');
+              break;
+            case 7:
+              context.go('/documents');
+              break;
+            default:
+              context.go('/dashboard');
           }
 
           // context.push( menuItem.link );
@@ -53,6 +70,10 @@ class SideMenuState extends ConsumerState<SideMenu> {
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 16, 10),
             child: Text('Tony Stark', style: textStyles.titleSmall),
+          ),
+          const NavigationDrawerDestination(
+            icon: Icon(Icons.dashboard_outlined),
+            label: Text('Dashboard'),
           ),
           const NavigationDrawerDestination(
             icon: Icon(Icons.account_balance_rounded),

@@ -3,15 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class ContactScreen extends ConsumerWidget {
-  const ContactScreen({super.key});
+class OpportunityScreen extends ConsumerWidget {
+  const OpportunityScreen({super.key});
 
   void showSnackbar(BuildContext context) {
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Empresa creada correctamente.')));
+        const SnackBar(content: Text('Oportunidad creada correctamente.')));
   }
-
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -19,15 +18,15 @@ class ContactScreen extends ConsumerWidget {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Crear Contacto'),
+          title: const Text('Crear Oportunidad'),
           leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
-              context.go('/contacts');
+              context.go('/opportunities');
             },
           ),
         ),
-        body: const _CompanyView(),
+        body: const _OpportunityView(),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             showSnackbar(context);
@@ -39,8 +38,8 @@ class ContactScreen extends ConsumerWidget {
   }
 }
 
-class _CompanyView extends ConsumerWidget {
-  const _CompanyView();
+class _OpportunityView extends ConsumerWidget {
+  const _OpportunityView();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -49,99 +48,100 @@ class _CompanyView extends ConsumerWidget {
     return ListView(
       children: const [
         SizedBox(height: 10),
-        CompanyInformation(),
+        OpportunityInformation(),
       ],
     );
   }
 }
 
-class CompanyInformation extends ConsumerWidget {
-  const CompanyInformation({super.key});
+class OpportunityInformation extends ConsumerWidget {
+  const OpportunityInformation({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var scores = ['A', 'B', 'C', 'D'];
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Generales'),
-          const SizedBox(height: 20),
+          SizedBox(height: 10),
 
-        const CustomCompanyField(
+          CustomCompanyField(
             isTopField: true,
-            label: 'Empresa *',
+            label: 'Nombre de la oportunidad *',
             initialValue: '',
           ),
-          const SizedBox(height: 10 ),
+          SizedBox(height: 10 ),
 
-          const CustomCompanyField(
-            isTopField: true,
-            label: 'Nombre *',
+          Text('DATOS DE OPORTUNIDAD'),
+          SizedBox(height: 20),
+          CustomCompanyField(
+            label: 'Entorno',
             initialValue: '',
           ),
-          const SizedBox(height: 10 ),
+          SizedBox(height: 10 ),
+          CustomCompanyField(
+            label: 'Estado de oportunidad *',
+            initialValue: '',
+          ),
+          SizedBox(height: 10 ),
+          CustomCompanyField(
+            label: 'Probabilidad de venta (%)',
+            initialValue: '',
+          ),
+          SizedBox(height: 10 ),
+          CustomCompanyField(
+            label: 'Divisa',
+            initialValue: '',
+          ),
+          SizedBox(height: 10 ),
+          CustomCompanyField(
+            label: 'Importe total',
+            initialValue: '',
+          ),
+          SizedBox(height: 10 ),
+          CustomCompanyField(
+            label: 'Fecha prevista de venta',
+            initialValue: '',
+          ),
+          SizedBox(height: 10 ),
+        
+          Text('REFERENCIAS'),
+          SizedBox(height: 20),
 
-          const CustomCompanyField(
-            label: 'Apellidos *',
+          SizedBox(height: 10 ),
+          CustomCompanyField(
+            label: 'Responsable *',
             initialValue: '',
           ),
-          const SizedBox(height: 10 ),
-          const Text('DATOS DE CONTACTO'),
-          const SizedBox(height: 20),
-          const CustomCompanyField(
-            label: 'Teléfono *',
-            initialValue: '',
-          ),
-          const SizedBox(height: 10 ),
-          const CustomCompanyField(
-            label: 'Móvil *',
-            initialValue: '',
-          ),
-          const SizedBox(height: 10 ),
-          const CustomCompanyField(
-            label: 'Email *',
-            initialValue: '',
-          ),
-          const SizedBox(height: 10 ),
-          const CustomCompanyField(
-            label: 'Skype *',
-            initialValue: '',
-          ),
-          const SizedBox(height: 10 ),
-          const CustomCompanyField(
-            label: 'Linkedin *',
-            initialValue: '',
-          ),
-          const SizedBox(height: 10 ),
-          const CustomCompanyField(
-            label: 'Cargo',
-            initialValue: '',
-          ),
-          const SizedBox(height: 10 ),
-          const Padding(
-            padding: EdgeInsets.only(left: 10),
-            child: Text(
-              'Género', 
-              style: TextStyle( fontSize: 11, color: Colors.black, fontWeight: FontWeight.bold ),
-            ),
-          ),
-          const SizedBox(height: 5 ),
-          _TypeSelector(
-            selectedType: 'Cliente',
-            onTypeChanged: (String text) =>  print('change ${text}'),
-          ),
-          const SizedBox(height: 10 ),
-          const Text('IMAGENES'),
-          const SizedBox(height: 10 ),
+          SizedBox(height: 10 ),
 
-          const Icon(
-            Icons.camera_alt_rounded,
-            size: 70,
+          CustomCompanyField(
+            label: 'Empresa principal',
+            initialValue: '',
+          ),
+          SizedBox(height: 10 ),
+          
+          CustomCompanyField(
+            label: 'Intermediario',
+            initialValue: '',
+          ),
+          SizedBox(height: 10 ),
+
+          CustomCompanyField(
+            label: 'Otros',
+            initialValue: '',
+          ),
+          SizedBox(height: 20 ),
+
+          CustomCompanyField(
+            label: 'Comentarios',
+            maxLines: 2,
           ),
           
+          SizedBox(height: 10),
           /*Center(
           child: DropdownButton<String>(
             value: scores.first,
@@ -157,14 +157,8 @@ class CompanyInformation extends ConsumerWidget {
           ),
         ),*/
 
-          const SizedBox(height: 10 ),
-          const CustomCompanyField(
-            label: 'Comentarios',
-            initialValue: '',
-            maxLines: 2,
-          ),
+          SizedBox(height: 10 ),
           
-          const SizedBox(height: 100),
         ],
       ),
     );

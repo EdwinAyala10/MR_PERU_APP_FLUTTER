@@ -83,7 +83,7 @@ class _LoginForm extends ConsumerWidget {
             height: 60,
             child: CustomFilledButton(
               text: 'Ingresar',
-              onPressed: () => context.go('/companies'),
+              onPressed: () => context.go('/dashboard'),
               buttonColor: Colors.blue,
             ),
           ),

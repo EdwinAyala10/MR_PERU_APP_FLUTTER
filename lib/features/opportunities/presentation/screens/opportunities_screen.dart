@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,8 +6,8 @@ import 'package:go_router/go_router.dart';
 
 import 'package:crm_app/features/shared/shared.dart';
 
-class ContactsScreen extends StatelessWidget {
-  const ContactsScreen({super.key});
+class OpportunitiesScreen extends StatelessWidget {
+  const OpportunitiesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,40 +16,41 @@ class ContactsScreen extends StatelessWidget {
     return Scaffold(
       drawer: SideMenu(scaffoldKey: scaffoldKey),
       appBar: AppBar(
-        title: const Text('Contacto'),
+        title: const Text('Oportunidades'),
         actions: [
           IconButton(onPressed: () {}, icon: const Icon(Icons.search_rounded))
         ],
       ),
-      body: const _ContactsView(),
+      body: const _OpportunitiesView(),
       floatingActionButton: FloatingActionButton.extended(
-        label: const Text('Nuevo contacto'),
+        label: const Text('Nuevo Oportunidad'),
         icon: const Icon(Icons.add),
         onPressed: () {
-          context.push('/contact');
+          context.push('/opportunity');
         },
       ),
     );
   }
 }
 
-class _ContactsView extends ConsumerStatefulWidget {
-  const _ContactsView();
+class _OpportunitiesView extends ConsumerStatefulWidget {
+  const _OpportunitiesView();
 
   @override
-  _ContactsViewState createState() => _ContactsViewState();
+  _OpportunitiesViewState createState() => _OpportunitiesViewState();
 }
 
-class Contact {
+class Opportunity {
   final String name;
   final String nameCompany;
   final String comment;
   final String namePosition;
+  final String price;
 
-  Contact(this.name, this.nameCompany, this.comment, this.namePosition);
+  Opportunity(this.name, this.nameCompany, this.comment, this.namePosition, this.price);
 }
 
-class _ContactsViewState extends ConsumerState {
+class _OpportunitiesViewState extends ConsumerState {
   final ScrollController scrollController = ScrollController();
 
   @override
@@ -72,13 +73,14 @@ class _ContactsViewState extends ConsumerState {
 
   @override
   Widget build(BuildContext context) {
-    final List<Contact> contacts = List.generate(
+    final List<Opportunity> contacts = List.generate(
       50,
-      (index) => Contact(
-          'Pepito $index',
-          'Empresa $index',
-          'Comentario xxx',
-          'Cargo $index' // Random revenue
+      (index) => Opportunity(
+          'Oportunidad $index',
+          'Estado: Oferta enviada $index',
+          'Empresa xxx',
+          '20 %',
+          '1500 \$' // Random revenue
           ), // Generate randomly if the company is active or inactive
     );
 
@@ -98,19 +100,23 @@ class _ContactsViewState extends ConsumerState {
                 Text(contact.comment),
               ],
             ),
-            trailing: Text(
-              contact.namePosition
+            trailing:  Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(contact.namePosition, textAlign: TextAlign.right, style: const TextStyle(
+                    fontSize: 16,
+                    color: Colors.redAccent
+                  )),
+                Text(contact.price, style: const TextStyle(
+                    fontSize: 16,
+                  )),
+              ],
             ),
-            leading: const CircleAvatar(
-                child: Text(
-                  'A',
-                  style: TextStyle(
-                    fontSize: 16
-                  ),
-                  ),
+            leading: const Icon(
+              Icons.work_rounded
             ),
             onTap: () {
-              context.go('/contact');
+              context.go('/opportunity');
             },
           );
         },

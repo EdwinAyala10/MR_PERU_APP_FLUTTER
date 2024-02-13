@@ -29,6 +29,7 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   cupertino_icons: ^1.0.2
+  floating_action_bubble_custom: ^1.0.0+2
   flutter:
     sdk: flutter
   flutter_riverpod: ^2.4.10
@@ -36,6 +37,7 @@ dependencies:
   go_router: ^13.1.0
   google_fonts: ^6.1.0
   shared_preferences: ^2.2.2
+  syncfusion_flutter_calendar: ^24.2.4
 
 dev_dependencies:
   flutter_lints: ^2.0.0
@@ -52,7 +54,8 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   # To add assets to your application, add an assets section, like this:
-  # assets:
+  assets:
+    - google_fonts/montserrat_alternates/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
   # An image asset can refer to one or more resolution-specific "variants", see
