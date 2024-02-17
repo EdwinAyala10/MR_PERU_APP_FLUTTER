@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class ContactScreen extends ConsumerWidget {
-  const ContactScreen({super.key});
+  final String contactId;
+
+  const ContactScreen({super.key, required this.contactId});
 
   void showSnackbar(BuildContext context) {
     ScaffoldMessenger.of(context).clearSnackBars();
@@ -23,7 +25,7 @@ class ContactScreen extends ConsumerWidget {
           leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
-              context.go('/contacts');
+              context.pop();
             },
           ),
         ),

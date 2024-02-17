@@ -26,7 +26,7 @@ class ContactsScreen extends StatelessWidget {
         label: const Text('Nuevo contacto'),
         icon: const Icon(Icons.add),
         onPressed: () {
-          context.push('/contact');
+          context.push('/contact/no-id');
         },
       ),
     );
@@ -110,7 +110,7 @@ class _ContactsViewState extends ConsumerState {
                   ),
             ),
             onTap: () {
-              context.go('/contact');
+              context.push('/contact/no-id');
             },
           );
         },

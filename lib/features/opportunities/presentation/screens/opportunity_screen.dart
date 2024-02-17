@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class OpportunityScreen extends ConsumerWidget {
-  const OpportunityScreen({super.key});
+  final String opportunityId;
+
+  const OpportunityScreen({super.key, required this.opportunityId});
 
   void showSnackbar(BuildContext context) {
     ScaffoldMessenger.of(context).clearSnackBars();
@@ -22,7 +24,7 @@ class OpportunityScreen extends ConsumerWidget {
           leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
-              context.go('/opportunities');
+              context.pop();
             },
           ),
         ),

@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class ActivityScreen extends ConsumerWidget {
-  const ActivityScreen({super.key});
+  final String activityId;
+
+  const ActivityScreen({super.key, required this.activityId});
 
   void showSnackbar(BuildContext context) {
     ScaffoldMessenger.of(context).clearSnackBars();
@@ -22,7 +24,7 @@ class ActivityScreen extends ConsumerWidget {
           leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
-              context.go('/activities');
+              context.pop();
             },
           ),
         ),

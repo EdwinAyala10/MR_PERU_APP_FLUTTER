@@ -26,7 +26,7 @@ class OpportunitiesScreen extends StatelessWidget {
         label: const Text('Nuevo Oportunidad'),
         icon: const Icon(Icons.add),
         onPressed: () {
-          context.push('/opportunity');
+          context.push('/opportunity/no-id');
         },
       ),
     );
@@ -116,7 +116,7 @@ class _OpportunitiesViewState extends ConsumerState {
               Icons.work_rounded
             ),
             onTap: () {
-              context.go('/opportunity');
+              context.push('/opportunity/no-id');
             },
           );
         },

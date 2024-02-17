@@ -26,7 +26,7 @@ class AgendaScreen extends StatelessWidget {
         label: const Text('Crear evento'),  
         icon: const Icon(Icons.add),
         onPressed: () {
-          context.push('/event');
+          context.push('/event/no-id');
         },
       ),
     );

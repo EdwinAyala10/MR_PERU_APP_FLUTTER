@@ -4,7 +4,9 @@ import 'package:crm_app/features/shared/shared.dart';
 import 'package:flutter/material.dart';
 
 class DocumentScreen extends StatelessWidget {
-  const DocumentScreen({super.key});
+  final String documentId;
+
+  const DocumentScreen({super.key, required this.documentId});
 
   @override
   Widget build(BuildContext context) {

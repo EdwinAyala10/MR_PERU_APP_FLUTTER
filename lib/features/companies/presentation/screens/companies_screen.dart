@@ -26,7 +26,7 @@ class CompaniesScreen extends StatelessWidget {
         label: const Text('Nueva empresa'),
         icon: const Icon(Icons.add),
         onPressed: () {
-          context.push('/company');
+          context.push('/company/no-id');
         },
       ),
     );
@@ -108,7 +108,7 @@ class _CompaniesViewState extends ConsumerState {
               ),
             ),
             onTap: () {
-              context.go('/company');
+              context.push('/company/no-id');
             },
           );
         },

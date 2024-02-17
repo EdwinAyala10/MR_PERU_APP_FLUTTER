@@ -47,7 +47,7 @@ class ActivitiesScreen extends StatelessWidget {
                       onTap: () {
                         // Acción cuando se presiona esta opción
                         Navigator.pop(context); // Cierra el modal
-                        context.push('/activity');
+                        context.push('/activity/no-id');
 
                       },
                     ),
@@ -130,7 +130,7 @@ class _ActivitiesViewState extends ConsumerState {
         itemCount: activities.length,
         separatorBuilder: (BuildContext context, int index) => const Divider(),
         itemBuilder: (context, index) {
-          final contact = activities[index];
+          final activity = activities[index];
           return ListTile(
             title: const Text('Empresa XXX'),
             subtitle: const Column(
@@ -167,7 +167,7 @@ class _ActivitiesViewState extends ConsumerState {
               Icons.airline_stops_sharp
             ),
             onTap: () {
-              context.go('/activity');
+              context.push('/activity/no-id');
             },
           );
         },

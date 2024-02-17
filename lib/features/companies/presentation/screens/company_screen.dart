@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class CompanyScreen extends ConsumerWidget {
-  const CompanyScreen({super.key});
+  final String companyId;
+
+  const CompanyScreen({super.key, required this.companyId});
 
   void showSnackbar(BuildContext context) {
     ScaffoldMessenger.of(context).clearSnackBars();
@@ -23,7 +25,7 @@ class CompanyScreen extends ConsumerWidget {
           leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
-              context.go('/companies');
+              context.pop();
             },
           ),
         ),

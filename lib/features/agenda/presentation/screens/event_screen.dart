@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class EventScreen extends ConsumerWidget {
-  const EventScreen({super.key});
+  final String eventId;
+
+  const EventScreen({super.key, required this.eventId});
 
   void showSnackbar(BuildContext context) {
     ScaffoldMessenger.of(context).clearSnackBars();
@@ -22,7 +24,7 @@ class EventScreen extends ConsumerWidget {
           leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
-              context.go('/agenda');
+              context.pop();
             },
           ),
         ),
