@@ -20,14 +20,14 @@ final goRouterProvider = Provider((ref) {
   final goRouterNotifier = ref.read(goRouterNotifierProvider);
 
   return GoRouter(
-    initialLocation: '/splash',
+    initialLocation: '/login',
     refreshListenable: goRouterNotifier,
     routes: [
       ///* Primera pantalla
-      GoRoute(
+      /*GoRoute(
         path: '/splash',
         builder: (context, state) => const CheckAuthStatusScreen(),
-      ),
+      ),*/
 
       ///* Auth Routes
       GoRoute(

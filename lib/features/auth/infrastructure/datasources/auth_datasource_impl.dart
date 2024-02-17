@@ -28,18 +28,11 @@ class AuthDataSourceImpl extends AuthDataSource {
 
   @override
   Future<User> login(String email, String password) async {
-    print('LOGIN INIT');
-    print('email: ${email}');
-    print('password: ${password}');
     try {
       final response = await dio
           .post('/login', data: {'email': email, 'password': password});
 
-      print('LLEGO AQUI');
-      print('RESPONSE DATA:${response.data}');
-
       final user = UserMapper.userJsonToEntity(response.data);
-      print('USER: ${user}');
 
       return user;
     } on DioException catch (e) {
