@@ -1,0 +1,4 @@
+
+
+
+class ResourceDetailNotFound implements Exception {}

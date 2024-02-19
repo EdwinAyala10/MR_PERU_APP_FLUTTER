@@ -3,7 +3,7 @@
 
 class User {
 
-  final int id;
+  final String id;
   final String code;
   final String email;
   final String name;

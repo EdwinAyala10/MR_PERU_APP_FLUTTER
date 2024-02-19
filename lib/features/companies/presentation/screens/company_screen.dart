@@ -89,33 +89,61 @@ class CompanyInformation extends ConsumerWidget {
             initialValue: '',
           ),
           const SizedBox(height: 10 ),
-          const Padding(
-            padding: EdgeInsets.only(left: 10),
-            child: Text(
-              'Tipo', 
-              style: TextStyle( fontSize: 11, color: Colors.black, fontWeight: FontWeight.bold ),
-            ),
+
+          Padding(
+            padding: const EdgeInsets.all(6.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text('Tipo:', style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500)),
+                  DropdownButton<String>(
+                    value: 'Cliente',
+                    onChanged: (String? newValue) {
+                      print(newValue);
+                    },
+                    style: const TextStyle(
+                      fontSize: 16.0,
+                      color: Color.fromRGBO(0, 0, 0, 1)
+                    ),
+                    items: <String>['Proveedor', 'Distribuidor', 'Prospecto', 'Cliente']
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
           ),
-          const SizedBox(height: 5 ),
-          _TypeSelector(
-            selectedType: 'Cliente',
-            onTypeChanged: (String text) =>  print('change ${text}'),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text('Estado:', style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500)),
+                  DropdownButton<String>(
+                    value: 'Activo',
+                    onChanged: (String? newValue) {
+                      print(newValue);
+                    },
+                    style: const TextStyle(
+                      fontSize: 16.0,
+                      color: Color.fromRGBO(0, 0, 0, 1)
+                    ),
+                    items: <String>['Activo', 'No Cliente']
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
           ),
          
-          const SizedBox(height: 10 ),
-          const Padding(
-            padding: EdgeInsets.only(left: 10),
-            child: Text(
-              'Estado', 
-              style: TextStyle( fontSize: 11, color: Colors.black, fontWeight: FontWeight.bold ),
-            ),
-          ),
-          const SizedBox(height: 5 ),
-          _StateSelector(
-            selectedState: 'Activo',
-            onStateChanged: (String text) =>  print('change ${text}'),
-          ),
-          
           const SizedBox(height: 10 ),
           const Padding(
             padding: EdgeInsets.only(left: 10),
