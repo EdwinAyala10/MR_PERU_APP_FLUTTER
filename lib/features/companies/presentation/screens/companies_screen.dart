@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:crm_app/features/companies/presentation/providers/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -26,7 +27,7 @@ class CompaniesScreen extends StatelessWidget {
         label: const Text('Nueva empresa'),
         icon: const Icon(Icons.add),
         onPressed: () {
-          context.push('/company/no-id');
+          context.push('/company/new');
         },
       ),
     );
@@ -82,21 +83,24 @@ class _CompaniesViewState extends ConsumerState {
               .nextBool()), // Generate randomly if the company is active or inactive
     );
 
+    final companiesState = ref.watch( companiesProvider );
+
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: ListView.separated(
-        itemCount: companies.length,
+        itemCount: companiesState.companies.length,
         separatorBuilder: (BuildContext context, int index) => Divider(),
         itemBuilder: (context, index) {
-          final company = companies[index];
+          final company = companiesState.companies[index];
+
           return ListTile(
-            title: Text(company.name),
+            title: Text(company.razon),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Ubicación: ${company.location}'),
-                Text(
-                    'Venta Anual: \$${company.annualRevenue.toStringAsFixed(2)}'),
+                Text('Tipo: ${company.tipocliente}'),
+                Text('Calificación: ${company.calificacion}'),
               ],
             ),
             trailing: Container(
@@ -104,11 +108,11 @@ class _CompaniesViewState extends ConsumerState {
               height: 24,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: company.active ? Colors.green : Colors.red,
+                color: company.estado == 'ACTIVO' ? Colors.green : Colors.red,
               ),
             ),
             onTap: () {
-              context.push('/company/no-id');
+              context.push('/company_detail/${company.ruc}');
             },
           );
         },

@@ -1,0 +1,4 @@
+
+
+
+class CompanyNotFound implements Exception {}

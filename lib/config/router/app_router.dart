@@ -3,6 +3,7 @@ import 'package:crm_app/features/activities/presentation/screens/activity_screen
 import 'package:crm_app/features/agenda/presentation/screens/agenda_screen.dart';
 import 'package:crm_app/features/agenda/presentation/screens/event_screen.dart';
 import 'package:crm_app/features/companies/companies.dart';
+import 'package:crm_app/features/companies/presentation/screens/company_detail_screen.dart';
 import 'package:crm_app/features/contacts/contacts.dart';
 import 'package:crm_app/features/dashboard/dashboard.dart';
 import 'package:crm_app/features/documents/documents.dart';
@@ -75,9 +76,15 @@ final goRouterProvider = Provider((ref) {
         builder: (context, state) => const CompaniesScreen(),
       ),
       GoRoute(
+        path: '/company_detail/:id', // /company/new
+        builder: (context, state) => CompanyDetailScreen(
+          companyId: state.pathParameters['id'] ?? 'no-id',
+        ),
+      ),
+      GoRoute(
         path: '/company/:id', // /company/new
         builder: (context, state) => CompanyScreen(
-          companyId: state.pathParameters['id'] ?? 'no-id',
+          ruc: state.pathParameters['ruc'] ?? 'no-id',
         ),
       ),
 
