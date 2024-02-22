@@ -84,7 +84,7 @@ final goRouterProvider = Provider((ref) {
       GoRoute(
         path: '/company/:id', // /company/new
         builder: (context, state) => CompanyScreen(
-          ruc: state.pathParameters['ruc'] ?? 'no-id',
+          id: state.pathParameters['id'] ?? 'no-id',
         ),
       ),
 

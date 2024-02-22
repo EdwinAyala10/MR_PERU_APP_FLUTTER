@@ -25,6 +25,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
     this.onSubmitCallback,
     required Company company,
   }) : super(CompanyFormState(
+          id: company.id,
           ruc: Ruc.dirty(company.ruc),
           razon: Razon.dirty(company.razon),
           direccion: company.direccion,
@@ -67,7 +68,8 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
     if (onSubmitCallback == null) return false;
 
     final companyLike = {
-      'ruc': (state.ruc == 'new') ? null : state.ruc,
+      'id': (state.id == 'new') ? null : state.id,
+      'ruc': state.ruc,
       'razon': state.razon,
       'direccion': state.direccion,
       'telefono': state.telefono,
@@ -179,6 +181,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
 
 class CompanyFormState {
   final bool isFormValid;
+  final String? id;
   final Ruc ruc;
   final Razon razon;
   final String direccion;
@@ -215,6 +218,7 @@ class CompanyFormState {
 
   CompanyFormState(
       {this.isFormValid = false,
+      this.id,
       this.ruc = const Ruc.dirty(''),
       this.razon = const Razon.dirty(''),
       this.direccion = '',

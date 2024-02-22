@@ -6,6 +6,7 @@ import 'package:crm_app/features/companies/domain/domain.dart';
 class CompanyMapper {
 
   static jsonToEntity( Map<dynamic, dynamic> json ) => Company(
+    id: '',
     ruc: json['RUC'],
     razon:  json['RAZON'],
     direccion: json['DIRECCION'],

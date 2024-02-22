@@ -30,21 +30,21 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
   Future<bool> createOrUpdateCompany( Map<String,dynamic> companyLike ) async {
 
     try {
-      final company = await companiesRepository.createUpdateCompany(companyLike);
-      final isCompanyInList = state.companies.any((element) => element.ruc == company.ruc );
+      final companyBool = await companiesRepository.createUpdateCompany(companyLike);
+      //final isCompanyInList = state.companies.any((element) => element.id == company.id );
 
-      if ( !isCompanyInList ) {
-        state = state.copyWith(
+      //if ( !isCompanyInList ) {
+        /*state = state.copyWith(
           companies: [...state.companies, company]
-        );
-        return true;
-      }
+        );*/
+        //return true;
+      //}
 
-      state = state.copyWith(
+      /*state = state.copyWith(
         companies: state.companies.map(
           (element) => ( element.ruc == company.ruc ) ? company : element,
         ).toList()
-      );
+      );*/
       return true;
 
     } catch (e) {

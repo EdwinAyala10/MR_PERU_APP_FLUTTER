@@ -1,5 +1,7 @@
 
 
+import 'dart:ffi';
+
 import '../entities/company.dart';
 
 abstract class CompaniesRepository {
@@ -7,7 +9,7 @@ abstract class CompaniesRepository {
   Future<List<Company>> getCompanies();
   Future<Company> getCompanyById(String ruc);
 
-  Future<Company> createUpdateCompany( Map<String,dynamic> companyLike );
+  Future<Bool> createUpdateCompany( Map<String,dynamic> companyLike );
 
 }
 

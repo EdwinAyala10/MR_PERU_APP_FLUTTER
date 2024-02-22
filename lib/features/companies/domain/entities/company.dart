@@ -5,6 +5,7 @@ Company companyFromJson(String str) => Company.fromJson(json.decode(str));
 String companyToJson(Company data) => json.encode(data.toJson());
 
 class Company {
+  String id;
   String ruc;
   String razon;
   String direccion;
@@ -42,6 +43,7 @@ class Company {
   String? localDistritoDesc;
 
   Company({
+    required this.id,
     required this.ruc,
     required this.razon,
     required this.direccion,
@@ -80,28 +82,30 @@ class Company {
   });
 
   factory Company.fromJson(Map<String, dynamic> json) => Company(
-        ruc: json["RUC"],
-        razon: json["RAZON"],
-        direccion: json["DIRECCION"],
-        telefono: json["TELEFONO"],
-        email: json["EMAIL"],
-        tipocliente: json["TIPOCLIENTE"],
-        observaciones: json["OBSERVACIONES"],
-        usuarioActualizacion: json["USUARIO_ACTUALIZACION"],
-        estado: json["ESTADO"],
-        departamento: json["DEPARTAMENTO"],
-        provincia: json["PROVINCIA"],
-        distrito: json["DISTRITO"],
-        seguimientoComentario: json["SEGUIMIENTO_COMENTARIO"],
-        website: json["WEBSITE"],
-        calificacion: json["CALIFICACION"],
-        visibleTodos: json["VISIBLE_TODOS"],
-        codigoPostal: json["CODIGO_POSTAL"],
-        usuarioRegistro: json["USUARIO_REGISTRO"],
-        fechaActualizacion: DateTime.parse(json["FECHA_ACTUALIZACION"]),
-      );
+      id: json['id'],
+      ruc: json["RUC"],
+      razon: json["RAZON"],
+      direccion: json["DIRECCION"],
+      telefono: json["TELEFONO"],
+      email: json["EMAIL"],
+      tipocliente: json["TIPOCLIENTE"],
+      observaciones: json["OBSERVACIONES"],
+      usuarioActualizacion: json["USUARIO_ACTUALIZACION"],
+      estado: json["ESTADO"],
+      departamento: json["DEPARTAMENTO"],
+      provincia: json["PROVINCIA"],
+      distrito: json["DISTRITO"],
+      seguimientoComentario: json["SEGUIMIENTO_COMENTARIO"],
+      website: json["WEBSITE"],
+      calificacion: json["CALIFICACION"],
+      visibleTodos: json["VISIBLE_TODOS"],
+      codigoPostal: json["CODIGO_POSTAL"],
+      usuarioRegistro: json["USUARIO_REGISTRO"],
+      fechaActualizacion: DateTime.parse(json["FECHA_ACTUALIZACION"]),
+    );
 
   Map<String, dynamic> toJson() => {
+        "ID": id,
         "RUC": ruc,
         "RAZON": razon,
         "DIRECCION": direccion,

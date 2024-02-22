@@ -1,15 +1,14 @@
 import 'package:crm_app/features/companies/domain/domain.dart';
 import 'package:crm_app/features/companies/presentation/providers/providers.dart';
 import 'package:crm_app/features/shared/shared.dart';
-import 'package:crm_app/features/shared/widgets/custom_company_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class CompanyScreen extends ConsumerWidget {
-  final String ruc;
+  final String id;
 
-  const CompanyScreen({super.key, required this.ruc});
+  const CompanyScreen({super.key, required this.id});
 
   void showSnackbar(BuildContext context) {
     ScaffoldMessenger.of(context).clearSnackBars();
@@ -17,11 +16,9 @@ class CompanyScreen extends ConsumerWidget {
         const SnackBar(content: Text('Empresa creada correctamente.')));
   }
 
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
-    final companyState = ref.watch( companyProvider(ruc) );
+    final companyState = ref.watch(companyProvider(id));
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -35,10 +32,21 @@ class CompanyScreen extends ConsumerWidget {
             },
           ),
         ),
-        body: _CompanyView(ruc: ruc),
+        body: companyState.isLoading
+            ? const FullScreenLoader()
+            : _CompanyView(company: companyState.company!),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            showSnackbar(context);
+            if ( companyState.company == null ) return;
+    
+            ref.read(
+              companyFormProvider(companyState.company!).notifier
+            ).onFormSubmit()
+              .then((value) {
+                if ( !value ) return;
+                showSnackbar(context);
+              });
+    
           },
           child: const Icon(Icons.save),
         ),
@@ -48,138 +56,107 @@ class CompanyScreen extends ConsumerWidget {
 }
 
 class _CompanyView extends ConsumerWidget {
-  final String ruc;
-  
-  const _CompanyView({required this.ruc});
+  final Company company;
+
+  const _CompanyView({required this.company});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final textStyles = Theme.of(context).textTheme;
 
-    final companyState = ref.watch( companyProvider(ruc) );
-
-    return companyState.isLoading 
-      ? const FullScreenLoader()
-      : ListView(
+    return ListView(
       children: [
         SizedBox(height: 10),
-        CompanyInformation(company: companyState.company! ),
+        _CompanyInformation(company: company),
       ],
     );
   }
 }
 
-class CompanyInformation extends ConsumerWidget {
-  
+class _CompanyInformation extends ConsumerWidget {
   final Company company;
 
-  const CompanyInformation({required this.company});
+  const _CompanyInformation({required this.company});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var scores = ['A', 'B', 'C', 'D'];
     List<String> tags = ['Responsable 1', 'Responsable 2', 'Responsable 3'];
 
-    final companyForm = ref.watch( companyFormProvider(company) );
+    List<DropdownOption> _optionsTipoCliente = [
+      DropdownOption('01', 'Proveedor'),
+      DropdownOption('02', 'Distribuidor'),
+      DropdownOption('03', 'Prospecto'),
+      DropdownOption('04', 'Cliente'),
+    ];
 
+    List<DropdownOption> _optionsEstado = [
+      DropdownOption('A', 'ACTIVO'),
+      DropdownOption('B', 'NO CLIENTE'),
+    ];
+
+    List<DropdownOption> _optionsCalificacion = [
+      DropdownOption('A', 'A'),
+      DropdownOption('B', 'B'),
+      DropdownOption('C', 'C'),
+      DropdownOption('D', 'D'),
+    ];
+
+    final companyForm = ref.watch(companyFormProvider(company));
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('Generales'),
           const SizedBox(height: 20),
-          const CustomCompanyField(
-            isTopField: true,
+          CustomCompanyField(
             label: 'Nombre de la empresa *',
-            initialValue: '',
+            initialValue: companyForm.razon.value,
+            onChanged:
+                ref.read(companyFormProvider(company).notifier).onRazonChanged,
+            errorMessage: companyForm.razon.errorMessage,
           ),
-          const SizedBox(height: 10 ),
-
-          const CustomCompanyField(
+          const SizedBox(height: 10),
+          CustomCompanyField(
             label: 'RUC *',
-            initialValue: '',
+            initialValue:
+                companyForm.ruc.value == 'new' ? '' : companyForm.ruc.value,
+            onChanged:
+                ref.read(companyFormProvider(company).notifier).onRucChanged,
+            errorMessage: companyForm.ruc.errorMessage,
           ),
-          const SizedBox(height: 10 ),
-          
+          const SizedBox(height: 10),
+
+
           Padding(
             padding: const EdgeInsets.all(6.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  const Text('Tipo:', style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500)),
-                  DropdownButton<String>(
-                    value: 'Cliente',
-                    onChanged: (String? newValue) {
-                      print(newValue);
-                    },
-                    style: const TextStyle(
-                      fontSize: 16.0,
-                      color: Color.fromRGBO(0, 0, 0, 1)
-                    ),
-                    items: <String>['Proveedor', 'Distribuidor', 'Prospecto', 'Cliente']
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ),
-          ),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  const Text('Estado:', style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500)),
-                  DropdownButton<String>(
-                    value: 'Activo',
-                    onChanged: (String? newValue) {
-                      print(newValue);
-                    },
-                    style: const TextStyle(
-                      fontSize: 16.0,
-                      color: Color.fromRGBO(0, 0, 0, 1)
-                    ),
-                    items: <String>['Activo', 'No Cliente']
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ),
-          ),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                const Text('Calificación:', style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500)),
+                const Text('Tipo:',
+                    style:
+                        TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500)),
                 SizedBox(
-                  width: 150, // Ancho específico para el DropdownButton
+                  width: 200,
                   child: DropdownButton<String>(
-                    value: 'A',
+                    // Valor seleccionado
+                    value: companyForm.tipoCliente,
                     onChanged: (String? newValue) {
-                      print(newValue);
+                      ref
+                          .read(companyFormProvider(company).notifier)
+                          .onTipoChanged(newValue!);
                     },
                     isExpanded: true,
                     style: const TextStyle(
                       fontSize: 16.0,
-                      color: Color.fromRGBO(0, 0, 0, 1)
+                      color: Color.fromRGBO(0, 0, 0, 1),
                     ),
-                    items: <String>['A', 'B', 'C', 'D']
-                        .map<DropdownMenuItem<String>>((String value) {
+                    // Mapeo de las opciones a elementos de menú desplegable
+                    items: _optionsTipoCliente.map((option) {
                       return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
+                        value: option.id,
+                        child: Text(option.name),
                       );
                     }).toList(),
                   ),
@@ -188,9 +165,81 @@ class CompanyInformation extends ConsumerWidget {
             ),
           ),
 
-          const SizedBox(height: 15),
-          const Text('Responsable *'),
+          Padding(
+            padding: const EdgeInsets.all(6.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                const Text('Estado:',
+                    style:
+                        TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500)),
+                SizedBox(
+                  width: 180, // Ancho específico para el DropdownButton
+                  child: DropdownButton<String>(
+                    // Valor seleccionado
+                    value: companyForm.estado,
+                    onChanged: (String? newValue) {
+                      ref
+                          .read(companyFormProvider(company).notifier)
+                          .onEstadoChanged(newValue!);
+                    },
+                    isExpanded: true,
+                    style: const TextStyle(
+                      fontSize: 16.0,
+                      color: Color.fromRGBO(0, 0, 0, 1),
+                    ),
+                    // Mapeo de las opciones a elementos de menú desplegable
+                    items: _optionsEstado.map((option) {
+                      return DropdownMenuItem<String>(
+                        value: option.id,
+                        child: Text(option.name),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+            ),
+          ),
 
+          Padding(
+            padding: const EdgeInsets.all(6.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                const Text('Calificación:',
+                    style:
+                        TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500)),
+                SizedBox(
+                  width: 100, // Ancho específico para el DropdownButton
+                  child: DropdownButton<String>(
+                    // Valor seleccionado
+                    value: companyForm.calificacion,
+                    onChanged: (String? newValue) {
+                      ref
+                          .read(companyFormProvider(company).notifier)
+                          .onEstadoChanged(newValue!);
+                    },
+                    isExpanded: true,
+                    style: const TextStyle(
+                      fontSize: 16.0,
+                      color: Color.fromRGBO(0, 0, 0, 1),
+                    ),
+                    // Mapeo de las opciones a elementos de menú desplegable
+                    items: _optionsCalificacion.map((option) {
+                      return DropdownMenuItem<String>(
+                        value: option.id,
+                        child: Text(option.name),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          const SizedBox(height: 15),
+
+          const Text('Responsable *'),
           Row(
             children: [
               Expanded(
@@ -200,17 +249,13 @@ class CompanyInformation extends ConsumerWidget {
                     tags.length,
                     (index) => Chip(
                       label: Text(tags[index]),
-                      onDeleted: () {
-                       
-                      },
+                      onDeleted: () {},
                     ),
                   ),
                 ),
               ),
               ElevatedButton(
-                onPressed: () {
-                 
-                },
+                onPressed: () {},
                 child: const Row(
                   children: [
                     Icon(Icons.add),
@@ -219,9 +264,7 @@ class CompanyInformation extends ConsumerWidget {
               ),
             ],
           ),
-
           const SizedBox(height: 10),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
@@ -231,86 +274,85 @@ class CompanyInformation extends ConsumerWidget {
               ),
               const SizedBox(height: 10.0),
               Switch(
-                value: true,
-                onChanged: (bool newValue) {
+                value: companyForm.visibleTodos == '1' ? true : false,
+                onChanged: (bool? newValue) {
+                      ref.read(companyFormProvider(company).notifier)
+                          .onVisibleTodosChanged(newValue! ? '1' : '0');
                   
                 },
               ),
             ],
           ),
-
           const SizedBox(height: 20),
-
-          const CustomCompanyField(
+          CustomCompanyField(
             maxLines: 2,
             label: 'Comentarios',
             keyboardType: TextInputType.multiline,
-            initialValue: '',
+            initialValue: companyForm.seguimientoComentario,
+            onChanged:
+                ref.read(companyFormProvider(company).notifier).onComentarioChanged,
           ),
-          
           const SizedBox(height: 20),
-
-          const CustomCompanyField(
+          CustomCompanyField(
             maxLines: 3,
             label: 'Recomendación',
             keyboardType: TextInputType.multiline,
-            initialValue: '',
+            initialValue: companyForm.observaciones,
+            onChanged:
+                ref.read(companyFormProvider(company).notifier).onRecomendacionChanged,
           ),
-
           const SizedBox(height: 15),
           const Text('Datos de contacto'),
-
           const SizedBox(height: 15),
-          const CustomCompanyField(
+          CustomCompanyField(
             isTopField: true,
             label: 'Email',
-            initialValue: '',
+            initialValue: companyForm.email,
+            onChanged:
+                ref.read(companyFormProvider(company).notifier).onEmailChanged,
           ),
           const SizedBox(height: 10),
-
-          const CustomCompanyField(
+          CustomCompanyField(
             isTopField: true,
             label: 'Web',
-            initialValue: '',
+            initialValue: companyForm.website,
+            onChanged:
+                ref.read(companyFormProvider(company).notifier).onWebChanged,
           ),
           const SizedBox(height: 10),
-
-
           const SizedBox(height: 15),
           const Text('Dirección'),
-
           const SizedBox(height: 15),
-          const CustomCompanyField(
+          CustomCompanyField(
             isTopField: true,
             label: 'Dirección',
-            initialValue: '',
+            initialValue: companyForm.direccion,
+            onChanged:
+                ref.read(companyFormProvider(company).notifier).onDireccionChanged,
           ),
           const SizedBox(height: 10),
-
           const CustomCompanyField(
             isTopField: true,
             label: 'Detalle de la dirección',
             initialValue: '',
           ),
           const SizedBox(height: 10),
-
           const CustomCompanyField(
             label: 'Población',
             initialValue: '',
           ),
           const SizedBox(height: 10),
-
           const CustomCompanyField(
             label: 'Prov. / Reg.',
             initialValue: '',
           ),
           const SizedBox(height: 10),
-
-          const CustomCompanyField(
+          CustomCompanyField(
             label: 'Codigo Postal',
-            initialValue: '',
+            initialValue: companyForm.codigoPostal,
+            onChanged:
+                ref.read(companyFormProvider(company).notifier).onCodigoPostaChanged,
           ),
-          
           const SizedBox(height: 100),
         ],
       ),
@@ -318,122 +360,9 @@ class CompanyInformation extends ConsumerWidget {
   }
 }
 
-class _TypeSelector extends StatelessWidget {
-  final String selectedType;
-  final void Function(String selectedType) onTypeChanged;
+class DropdownOption {
+  final String id;
+  final String name;
 
-  final List<String> types = const [
-    'Proveedor',
-    'Distribuidor',
-    'Prospecto',
-    'Cliente'
-  ];
-  final List<IconData> genderIcons = const [
-    Icons.man,
-    Icons.woman,
-    Icons.boy,
-  ];
-
-  const _TypeSelector(
-      {required this.selectedType, required this.onTypeChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: SegmentedButton(
-        multiSelectionEnabled: false,
-        showSelectedIcon: false,
-        style: const ButtonStyle(visualDensity: VisualDensity.compact),
-        segments: types.map((size) {
-          return ButtonSegment(
-              //icon: Icon( genderIcons[ types.indexOf(size) ] ),
-              value: size,
-              label: Text(size, style: const TextStyle(fontSize: 12)));
-        }).toList(),
-        selected: {selectedType},
-        onSelectionChanged: (newSelection) {
-          FocusScope.of(context).unfocus();
-          onTypeChanged(newSelection.first);
-        },
-      ),
-    );
-  }
-}
-
-
-class _StateSelector extends StatelessWidget {
-  final String selectedState;
-  final void Function(String selectedState) onStateChanged;
-
-  final List<String> states = const [
-    'Activo',
-    'No Cliente',
-  ];
-  final List<IconData> stateIcons = const [
-    Icons.circle,
-    Icons.circle,
-  ];
-
-  const _StateSelector(
-      {required this.selectedState, required this.onStateChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: SegmentedButton(
-        multiSelectionEnabled: false,
-        showSelectedIcon: false,
-        style: const ButtonStyle(visualDensity: VisualDensity.compact),
-        segments: states.map((size) {
-          return ButtonSegment(
-              //icon: Icon( genderIcons[ types.indexOf(size) ] ),
-              value: size,
-              label: Text(size, style: const TextStyle(fontSize: 12)));
-        }).toList(),
-        selected: {selectedState},
-        onSelectionChanged: (newSelection) {
-          FocusScope.of(context).unfocus();
-          onStateChanged(newSelection.first);
-        },
-      ),
-    );
-  }
-}
-
-
-class _ScoreSelector extends StatelessWidget {
-  final String selectedScore;
-  final void Function(String selectedScore) onScoreChanged;
-
-  final List<String> states = const [
-    'A',
-    'B',
-    'C',
-    'D',
-  ];
-
-  const _ScoreSelector(
-      {required this.selectedScore, required this.onScoreChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: SegmentedButton(
-        multiSelectionEnabled: false,
-        showSelectedIcon: false,
-        style: const ButtonStyle(visualDensity: VisualDensity.compact),
-        segments: states.map((size) {
-          return ButtonSegment(
-              //icon: Icon( genderIcons[ types.indexOf(size) ] ),
-              value: size,
-              label: Text(size, style: const TextStyle(fontSize: 12)));
-        }).toList(),
-        selected: {selectedScore},
-        onSelectionChanged: (newSelection) {
-          FocusScope.of(context).unfocus();
-          onScoreChanged(newSelection.first);
-        },
-      ),
-    );
-  }
+  DropdownOption(this.id, this.name);
 }

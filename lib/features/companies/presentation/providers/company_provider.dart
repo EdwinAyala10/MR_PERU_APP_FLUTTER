@@ -5,13 +5,13 @@ import 'companies_repository_provider.dart';
 
 
 final companyProvider = StateNotifierProvider.autoDispose.family<CompanyNotifier, CompanyState, String>(
-  (ref, ruc ) {
+  (ref, id ) {
     
     final companiesRepository = ref.watch(companiesRepositoryProvider);
   
     return CompanyNotifier(
       companiesRepository: companiesRepository, 
-      ruc: ruc
+      id: id
     );
 });
 
@@ -24,13 +24,14 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
 
   CompanyNotifier({
     required this.companiesRepository,
-    required String ruc,
-  }): super(CompanyState(ruc: ruc )) {
+    required String id,
+  }): super(CompanyState(id: id )) {
     loadCompany();
   }
 
   Company newEmptyCompany() {
     return Company(
+      id: 'new',
       razon: '',
       ruc: '',
       direccion: '',
@@ -41,13 +42,13 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
       distrito: '',
       seguimientoComentario: '',
       website: '',
-      calificacion: '',
+      calificacion: 'A',
       usuarioRegistro: '',
       visibleTodos: '1',
       email: '',
       codigoPostal: '',
-      tipocliente: '',
-      estado: '',
+      tipocliente: '04',
+      estado: 'A',
       localNombre: '',
       usuarioActualizacion: '',
       coordenadasGeo: '',
@@ -70,9 +71,11 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
 
   Future<void> loadCompany() async {
 
+    print('state ID: ${state.id}');
+
     try {
 
-      if ( state.ruc == 'new' ) {
+      if ( state.id == 'new' ) {
         state = state.copyWith(
           isLoading: false,
           company: newEmptyCompany(),
@@ -80,7 +83,7 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
         return;
       }
 
-      final company = await companiesRepository.getCompanyById(state.ruc);
+      final company = await companiesRepository.getCompanyById(state.id);
 
       state = state.copyWith(
         isLoading: false,
@@ -101,13 +104,13 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
 
 class CompanyState {
 
-  final String ruc;
+  final String id;
   final Company? company;
   final bool isLoading;
   final bool isSaving;
 
   CompanyState({
-    required this.ruc, 
+    required this.id, 
     this.company, 
     this.isLoading = true, 
     this.isSaving = false,
@@ -119,7 +122,7 @@ class CompanyState {
     bool? isLoading,
     bool? isSaving,
   }) => CompanyState(
-    ruc: ruc ?? this.ruc,
+    id: ruc ?? this.id,
     company: company ?? this.company,
     isLoading: isLoading ?? this.isLoading,
     isSaving: isSaving ?? this.isSaving,
