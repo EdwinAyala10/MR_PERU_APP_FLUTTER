@@ -1,13 +1,11 @@
-import 'dart:ffi';
-
-import '../entities/company.dart';
+import 'package:crm_app/features/companies/domain/domain.dart';
 
 abstract class CompaniesDatasource {
 
   Future<List<Company>> getCompanies();
-  Future<Company> getCompanyById(String ruc);
+  Future<Company> getCompanyById(String rucId);
 
-  Future<Bool> createUpdateCompany( Map<String,dynamic> companytLike );
+  Future<CompanyResponse> createUpdateCompany( Map<dynamic,dynamic> companyLike );
 
 }
 

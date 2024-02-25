@@ -1,5 +1,4 @@
-import 'dart:math';
-
+import 'package:crm_app/features/companies/domain/domain.dart';
 import 'package:crm_app/features/companies/presentation/providers/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,15 +40,6 @@ class _CompaniesView extends ConsumerStatefulWidget {
   _CompaniesViewState createState() => _CompaniesViewState();
 }
 
-class Company {
-  final String name;
-  final String location;
-  final double annualRevenue;
-  final bool active;
-
-  Company(this.name, this.location, this.annualRevenue, this.active);
-}
-
 class _CompaniesViewState extends ConsumerState {
   final ScrollController scrollController = ScrollController();
 
@@ -73,26 +63,26 @@ class _CompaniesViewState extends ConsumerState {
 
   @override
   Widget build(BuildContext context) {
-    final List<Company> companies = List.generate(
-      50,
-      (index) => Company(
-          'Empresa $index',
-          'Ubicación $index',
-          Random().nextDouble() * 1000000, // Random revenue
-          Random()
-              .nextBool()), // Generate randomly if the company is active or inactive
-    );
+    final companiesState = ref.watch(companiesProvider);
 
-    final companiesState = ref.watch( companiesProvider );
+    return companiesState.companies.length > 0 
+    ? _ListCompanies(companies: companiesState.companies) : const _NoExistData();
+  }
+}
 
+class _ListCompanies extends StatelessWidget {
+  final List<Company> companies;
+  const _ListCompanies({super.key, required this.companies});
 
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: ListView.separated(
-        itemCount: companiesState.companies.length,
-        separatorBuilder: (BuildContext context, int index) => Divider(),
+        itemCount: companies.length,
+        separatorBuilder: (BuildContext context, int index) => const Divider(),
         itemBuilder: (context, index) {
-          final company = companiesState.companies[index];
+          final company = companies[index];
 
           return ListTile(
             title: Text(company.razon),
@@ -112,11 +102,43 @@ class _CompaniesViewState extends ConsumerState {
               ),
             ),
             onTap: () {
-              context.push('/company_detail/${company.ruc}');
+              context.push('/company/${company.ruc}');
             },
           );
         },
       ),
     );
+  }
+}
+
+class _NoExistData extends StatelessWidget {
+  const _NoExistData({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+        child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Icon(
+          Icons.business,
+          size: 100,
+          color: Colors.grey,
+        ),
+        const SizedBox(height: 20),
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.grey.withOpacity(0.1),
+          ),
+          child: const Text(
+            'No hay empresas registradas',
+            style: TextStyle(fontSize: 20, color: Colors.grey),
+          ),
+        ),
+        
+      ],
+    ));
   }
 }

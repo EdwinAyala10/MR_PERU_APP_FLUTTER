@@ -1,7 +1,4 @@
-import 'dart:ffi';
-
 import 'package:crm_app/features/companies/domain/domain.dart';
-
 
 class CompaniesRepositoryImpl extends CompaniesRepository {
 
@@ -9,15 +6,14 @@ class CompaniesRepositoryImpl extends CompaniesRepository {
 
   CompaniesRepositoryImpl(this.datasource);
 
-
   @override
-  Future<Bool> createUpdateCompany(Map<String, dynamic> companyLike) {
+  Future<CompanyResponse> createUpdateCompany(Map<dynamic, dynamic> companyLike) {
     return datasource.createUpdateCompany(companyLike);
   }
 
   @override
-  Future<Company> getCompanyById(String ruc) {
-    return datasource.getCompanyById(ruc);
+  Future<Company> getCompanyById(String rucId) {
+    return datasource.getCompanyById(rucId);
   }
 
   @override

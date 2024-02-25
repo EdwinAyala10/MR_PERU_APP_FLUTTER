@@ -18,18 +18,18 @@ final companyFormProvider = StateNotifierProvider.autoDispose
 });
 
 class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
-  final Future<bool> Function(Map<String, dynamic> companyLike)?
-      onSubmitCallback;
+  final Future<CreateUpdateCompanyResponse> Function(
+      Map<dynamic, dynamic> companyLike)? onSubmitCallback;
 
   CompanyFormNotifier({
     this.onSubmitCallback,
     required Company company,
   }) : super(CompanyFormState(
-          id: company.id,
+          rucId: company.rucId,
           ruc: Ruc.dirty(company.ruc),
           razon: Razon.dirty(company.razon),
-          direccion: company.direccion,
-          telefono: company.telefono,
+          direccion: Address.dirty(company.direccion),
+          telefono: Phone.dirty(company.telefono),
           observaciones: company.observaciones,
           departamento: company.departamento,
           provincia: company.provincia,
@@ -37,7 +37,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           seguimientoComentario: company.seguimientoComentario,
           website: company.website,
           calificacion: company.calificacion,
-          usuarioRegistro: company.usuarioRegistro,
+          usuarioRegistro: company.usuarioRegistro ?? '',
           visibleTodos: company.visibleTodos,
           email: company.email,
           codigoPostal: company.codigoPostal,
@@ -61,53 +61,57 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           localDistritoDesc: '',
         ));
 
-  Future<bool> onFormSubmit() async {
+  Future<CreateUpdateCompanyResponse> onFormSubmit() async {
     _touchedEverything();
-    if (!state.isFormValid) return false;
+    if (!state.isFormValid)
+      return CreateUpdateCompanyResponse(
+          response: false, message: 'Campos requeridos.');
 
-    if (onSubmitCallback == null) return false;
+    if (onSubmitCallback == null)
+      return CreateUpdateCompanyResponse(response: false, message: '');
 
     final companyLike = {
-      'id': (state.id == 'new') ? null : state.id,
-      'ruc': state.ruc,
-      'razon': state.razon,
-      'direccion': state.direccion,
-      'telefono': state.telefono,
-      'observaciones': state.observaciones,
-      'departamento': state.departamento,
-      'provincia': state.provincia,
-      'distrito': state.distrito,
-      'seguimientoComentario': state.seguimientoComentario,
-      'website': state.website,
-      'calificacion': state.calificacion,
-      'usuarioRegistro': state.usuarioRegistro,
-      'visibleTodos': state.visibleTodos,
-      'email': state.email,
-      'codigoPostal': state.codigoPostal,
-      'tipoCliente': state.tipoCliente,
-      'estado': state.estado,
-      'localNombre': state.localNombre,
-      'localDireccion': state.localDireccion,
-      'localDepartamento': state.localDepartamento,
-      'localProvincia': state.localProvincia,
-      'localDistrito': state.localDistrito,
-      'voltajeTension': state.voltajeTension,
-      'enviarNotificacion': state.enviarNotificacion,
-      'orden': state.orden,
-      'localTipo': state.localTipo,
-      'coordenadasGeo': state.coordenadasGeo,
-      'coordenadasLongitud': state.coordenadasLongitud,
-      'coordenadasLatitud': state.coordenadasLatitud,
-      'ubigeoCodigo': state.ubigeoCodigo,
-      'localDepartamentoDesc': state.localDepartamentoDesc,
-      'localProvinciaDesc': state.localProvinciaDesc,
-      'localDistritoDesc': state.localDistritoDesc,
+      'A': state.rucId,
+      'RUCID': (state.rucId == 'new') ? null : state.rucId,
+      'RUC': state.ruc.value,
+      'RAZON': state.razon.value,
+      'DIRECCION': state.direccion.value,
+      'TELEFONO': state.telefono.value,
+      'OBSERVACIONES': state.observaciones,
+      'DEPARTAMENTO': state.departamento,
+      'PROVINCIA': state.provincia,
+      'DISTRITO': state.distrito,
+      'SEGUIMIENTO_COMENTARIO': state.seguimientoComentario,
+      'WEBSITE': state.website,
+      'CALIFICACION': state.calificacion,
+      'USUARIO_REGISTRO': state.usuarioRegistro,
+      'VISIBLE_TODOS': state.visibleTodos,
+      'EMAIL': state.email,
+      'CODIGO_POSTAL': state.codigoPostal,
+      'TIPOCLIENTE': state.tipoCliente,
+      'ESTADO': state.estado,
+      'LOCAL_NOMBRE': state.localNombre,
+      'LOCAL_DIRECCION': state.localDireccion,
+      'LOCAL_DEPARTAMENTO': state.localDepartamento,
+      'LOCAL_PROVINCIA': state.localProvincia,
+      'LOCAL_DISTRITO': state.localDistrito,
+      'VOLTAJE_TENSION': state.voltajeTension,
+      'ENVIAR_NOTIFICACION': state.enviarNotificacion,
+      'ORDEN': state.orden,
+      'LOCAL_TIPO': state.localTipo,
+      'COORDENADAS_GEO': state.coordenadasGeo,
+      'COORDENADAS_LONGITUD': state.coordenadasLongitud,
+      'COORDENADAS_LATITUD': state.coordenadasLatitud,
+      'UBIGEO_CODIGO': state.ubigeoCodigo,
+      'LOCAL_DEPARTAMENTO_DESC': state.localDepartamentoDesc,
+      'LOCAL_PROVINCIA_DESC': state.localProvinciaDesc,
+      'LOCAL_DISTRITO_DESC': state.localDistritoDesc,
     };
 
     try {
       return await onSubmitCallback!(companyLike);
     } catch (e) {
-      return false;
+      return CreateUpdateCompanyResponse(response: false, message: '');
     }
   }
 
@@ -115,77 +119,100 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
     state = state.copyWith(
       isFormValid: Formz.validate([
         Ruc.dirty(state.ruc.value),
+        Razon.dirty(state.razon.value),
+        Phone.dirty(state.telefono.value),
+        Address.dirty(state.direccion.value),
       ]),
     );
   }
 
   void onRucChanged(String value) {
     state = state.copyWith(
-      ruc: Ruc.dirty(value),
-      isFormValid: Formz.validate([
-        Ruc.dirty(value),
-        Razon.dirty(state.razon.value),
-      ]));
+        ruc: Ruc.dirty(value),
+        isFormValid: Formz.validate([
+          Ruc.dirty(value),
+          Razon.dirty(state.razon.value),
+          Phone.dirty(state.telefono.value),
+          Address.dirty(state.direccion.value),
+        ]));
   }
 
   void onRazonChanged(String value) {
     state = state.copyWith(
-      razon: Razon.dirty(value),
-      isFormValid: Formz.validate([
-        Ruc.dirty(state.ruc.value),
-        Razon.dirty(value)
-      ]));
+        razon: Razon.dirty(value),
+        isFormValid: Formz.validate([
+          Ruc.dirty(state.ruc.value),
+          Razon.dirty(value),
+          Phone.dirty(state.telefono.value),
+          Address.dirty(state.direccion.value),
+        ]));
   }
 
   void onTipoChanged(String tipoId) {
-    state = state.copyWith(tipoCliente:tipoId);
+    state = state.copyWith(tipoCliente: tipoId);
   }
 
   void onEstadoChanged(String estadoId) {
-    state = state.copyWith(estado:estadoId);
+    state = state.copyWith(estado: estadoId);
   }
 
   void onCalificacionChanged(String calificacionId) {
-    state = state.copyWith(calificacion:calificacionId);
+    state = state.copyWith(calificacion: calificacionId);
   }
 
   void onVisibleTodosChanged(String visible) {
-    state = state.copyWith(visibleTodos:visible);
+    state = state.copyWith(visibleTodos: visible);
   }
 
   void onComentarioChanged(String comentario) {
-    state = state.copyWith(seguimientoComentario:comentario);
+    state = state.copyWith(seguimientoComentario: comentario);
   }
 
   void onRecomendacionChanged(String observacion) {
-    state = state.copyWith(observaciones:observacion);
+    state = state.copyWith(observaciones: observacion);
   }
 
   void onEmailChanged(String email) {
-    state = state.copyWith(email:email);
+    state = state.copyWith(email: email);
   }
 
   void onWebChanged(String web) {
-    state = state.copyWith(website:web);
+    state = state.copyWith(website: web);
   }
 
-  void onDireccionChanged(String direccion) {
-    state = state.copyWith(direccion:direccion);
+  void onTelefonoChanged(String value) {
+    state = state.copyWith(
+        telefono: Phone.dirty(value),
+        isFormValid: Formz.validate([
+          Ruc.dirty(state.ruc.value),
+          Razon.dirty(state.razon.value),
+          Phone.dirty(value),
+        ]));
+  }
+
+  void onDireccionChanged(String value) {
+    state = state.copyWith(
+        direccion: Address.dirty(value),
+        isFormValid: Formz.validate([
+          Ruc.dirty(state.ruc.value),
+          Razon.dirty(state.razon.value),
+          Phone.dirty(state.telefono.value),
+          Address.dirty(value),
+        ]));
   }
 
   void onCodigoPostaChanged(String codigoPostal) {
-    state = state.copyWith(codigoPostal:codigoPostal);
+    state = state.copyWith(codigoPostal: codigoPostal);
   }
-
 }
 
 class CompanyFormState {
   final bool isFormValid;
-  final String? id;
+  final String? rucId;
   final Ruc ruc;
   final Razon razon;
-  final String direccion;
-  final String telefono;
+  final Address direccion;
+  final Phone telefono;
   final String observaciones;
   final String departamento;
   final String provincia;
@@ -218,11 +245,11 @@ class CompanyFormState {
 
   CompanyFormState(
       {this.isFormValid = false,
-      this.id,
+      this.rucId,
       this.ruc = const Ruc.dirty(''),
       this.razon = const Razon.dirty(''),
-      this.direccion = '',
-      this.telefono = '',
+      this.direccion = const Address.dirty(''),
+      this.telefono = const Phone.dirty(''),
       this.observaciones = '',
       this.departamento = '',
       this.provincia = '',
@@ -251,15 +278,15 @@ class CompanyFormState {
       this.ubigeoCodigo = '',
       this.localDepartamentoDesc = '',
       this.localProvinciaDesc = '',
-      this.localDistritoDesc = ''
-  });
+      this.localDistritoDesc = ''});
 
   CompanyFormState copyWith({
     bool? isFormValid,
     Ruc? ruc,
+    String? rucId,
     Razon? razon,
-    String? direccion,
-    String? telefono,
+    Address? direccion,
+    Phone? telefono,
     String? observaciones,
     String? departamento,
     String? provincia,
@@ -292,6 +319,7 @@ class CompanyFormState {
       CompanyFormState(
         isFormValid: isFormValid ?? this.isFormValid,
         ruc: ruc ?? this.ruc,
+        rucId: rucId ?? this.rucId,
         razon: razon ?? this.razon,
         direccion: direccion ?? this.direccion,
         telefono: telefono ?? this.telefono,
@@ -299,7 +327,8 @@ class CompanyFormState {
         departamento: departamento ?? this.departamento,
         provincia: provincia ?? this.provincia,
         distrito: distrito ?? this.distrito,
-        seguimientoComentario: seguimientoComentario ?? this.seguimientoComentario,
+        seguimientoComentario:
+            seguimientoComentario ?? this.seguimientoComentario,
         website: website ?? this.website,
         calificacion: calificacion ?? this.calificacion,
         usuarioRegistro: usuarioRegistro ?? this.usuarioRegistro,
@@ -320,7 +349,8 @@ class CompanyFormState {
         coordenadasLongitud: coordenadasLongitud ?? this.coordenadasLongitud,
         coordenadasLatitud: coordenadasLatitud ?? this.coordenadasLatitud,
         ubigeoCodigo: ubigeoCodigo ?? this.ubigeoCodigo,
-        localDepartamentoDesc: localDepartamentoDesc ?? this.localDepartamentoDesc,
+        localDepartamentoDesc:
+            localDepartamentoDesc ?? this.localDepartamentoDesc,
         localProvinciaDesc: localProvinciaDesc ?? this.localProvinciaDesc,
         localDistritoDesc: localDistritoDesc ?? this.localDistritoDesc,
       );

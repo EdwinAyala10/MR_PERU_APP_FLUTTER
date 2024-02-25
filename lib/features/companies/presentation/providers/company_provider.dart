@@ -3,35 +3,27 @@ import 'package:crm_app/features/companies/domain/domain.dart';
 
 import 'companies_repository_provider.dart';
 
+final companyProvider = StateNotifierProvider.autoDispose
+    .family<CompanyNotifier, CompanyState, String>((ref, rucId) {
+  final companiesRepository = ref.watch(companiesRepositoryProvider);
 
-final companyProvider = StateNotifierProvider.autoDispose.family<CompanyNotifier, CompanyState, String>(
-  (ref, id ) {
-    
-    final companiesRepository = ref.watch(companiesRepositoryProvider);
-  
-    return CompanyNotifier(
-      companiesRepository: companiesRepository, 
-      id: id
-    );
+  return CompanyNotifier(
+      companiesRepository: companiesRepository, rucId: rucId);
 });
 
-
-
 class CompanyNotifier extends StateNotifier<CompanyState> {
-
   final CompaniesRepository companiesRepository;
-
 
   CompanyNotifier({
     required this.companiesRepository,
-    required String id,
-  }): super(CompanyState(id: id )) {
+    required String rucId,
+  }) : super(CompanyState(rucId: rucId)) {
     loadCompany();
   }
 
   Company newEmptyCompany() {
     return Company(
-      id: 'new',
+      rucId: 'new',
       razon: '',
       ruc: '',
       direccion: '',
@@ -68,65 +60,50 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
     );
   }
 
-
   Future<void> loadCompany() async {
-
-    print('state ID: ${state.id}');
-
     try {
-
-      if ( state.id == 'new' ) {
+      if (state.rucId == 'new') {
         state = state.copyWith(
           isLoading: false,
           company: newEmptyCompany(),
-        );  
+        );
         return;
       }
 
-      final company = await companiesRepository.getCompanyById(state.id);
+      final company = await companiesRepository.getCompanyById(state.rucId);
+      company.rucId = company.ruc;
 
-      state = state.copyWith(
-        isLoading: false,
-        company: company
-      );
-
+      state = state.copyWith(isLoading: false, company: company);
     } catch (e) {
       // 404 product not found
       print(e);
     }
-
   }
-
 }
 
-
-
-
 class CompanyState {
-
-  final String id;
+  final String rucId;
   final Company? company;
   final bool isLoading;
   final bool isSaving;
 
   CompanyState({
-    required this.id, 
-    this.company, 
-    this.isLoading = true, 
+    required this.rucId,
+    this.company,
+    this.isLoading = true,
     this.isSaving = false,
   });
 
   CompanyState copyWith({
-    String? ruc,
+    String? rucId,
     Company? company,
     bool? isLoading,
     bool? isSaving,
-  }) => CompanyState(
-    id: ruc ?? this.id,
-    company: company ?? this.company,
-    isLoading: isLoading ?? this.isLoading,
-    isSaving: isSaving ?? this.isSaving,
-  );
-  
+  }) =>
+      CompanyState(
+        rucId: rucId ?? this.rucId,
+        company: company ?? this.company,
+        isLoading: isLoading ?? this.isLoading,
+        isSaving: isSaving ?? this.isSaving,
+      );
 }
-

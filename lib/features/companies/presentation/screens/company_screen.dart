@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:crm_app/features/companies/domain/domain.dart';
 import 'package:crm_app/features/companies/presentation/providers/providers.dart';
 import 'package:crm_app/features/shared/shared.dart';
@@ -6,19 +8,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class CompanyScreen extends ConsumerWidget {
-  final String id;
+  final String rucId;
 
-  const CompanyScreen({super.key, required this.id});
+  const CompanyScreen({super.key, required this.rucId});
 
-  void showSnackbar(BuildContext context) {
+  void showSnackbar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Empresa creada correctamente.')));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final companyState = ref.watch(companyProvider(id));
+    final companyState = ref.watch(companyProvider(rucId));
+
+    print(
+        'company Stae screen: ${companyState.rucId}, ${companyState.company?.rucId}');
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -37,16 +42,20 @@ class CompanyScreen extends ConsumerWidget {
             : _CompanyView(company: companyState.company!),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            if ( companyState.company == null ) return;
-    
-            ref.read(
-              companyFormProvider(companyState.company!).notifier
-            ).onFormSubmit()
-              .then((value) {
-                if ( !value ) return;
-                showSnackbar(context);
-              });
-    
+            if (companyState.company == null) return;
+
+            ref
+                .read(companyFormProvider(companyState.company!).notifier)
+                .onFormSubmit()
+                .then((CreateUpdateCompanyResponse value) {
+              //if ( !value.response ) return;
+              if (value.message != '') {
+                showSnackbar(context, value.message);
+                Timer(const Duration(seconds: 3), () {
+                  context.push('/companies');
+                });
+              }
+            });
           },
           child: const Icon(Icons.save),
         ),
@@ -62,11 +71,10 @@ class _CompanyView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final textStyles = Theme.of(context).textTheme;
 
     return ListView(
       children: [
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         _CompanyInformation(company: company),
       ],
     );
@@ -82,19 +90,19 @@ class _CompanyInformation extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     List<String> tags = ['Responsable 1', 'Responsable 2', 'Responsable 3'];
 
-    List<DropdownOption> _optionsTipoCliente = [
+    List<DropdownOption> optionsTipoCliente = [
       DropdownOption('01', 'Proveedor'),
       DropdownOption('02', 'Distribuidor'),
       DropdownOption('03', 'Prospecto'),
       DropdownOption('04', 'Cliente'),
     ];
 
-    List<DropdownOption> _optionsEstado = [
+    List<DropdownOption> optionsEstado = [
       DropdownOption('A', 'ACTIVO'),
       DropdownOption('B', 'NO CLIENTE'),
     ];
 
-    List<DropdownOption> _optionsCalificacion = [
+    List<DropdownOption> optionsCalificacion = [
       DropdownOption('A', 'A'),
       DropdownOption('B', 'B'),
       DropdownOption('C', 'C'),
@@ -127,8 +135,6 @@ class _CompanyInformation extends ConsumerWidget {
             errorMessage: companyForm.ruc.errorMessage,
           ),
           const SizedBox(height: 10),
-
-
           Padding(
             padding: const EdgeInsets.all(6.0),
             child: Row(
@@ -153,7 +159,7 @@ class _CompanyInformation extends ConsumerWidget {
                       color: Color.fromRGBO(0, 0, 0, 1),
                     ),
                     // Mapeo de las opciones a elementos de menú desplegable
-                    items: _optionsTipoCliente.map((option) {
+                    items: optionsTipoCliente.map((option) {
                       return DropdownMenuItem<String>(
                         value: option.id,
                         child: Text(option.name),
@@ -164,7 +170,6 @@ class _CompanyInformation extends ConsumerWidget {
               ],
             ),
           ),
-
           Padding(
             padding: const EdgeInsets.all(6.0),
             child: Row(
@@ -189,7 +194,7 @@ class _CompanyInformation extends ConsumerWidget {
                       color: Color.fromRGBO(0, 0, 0, 1),
                     ),
                     // Mapeo de las opciones a elementos de menú desplegable
-                    items: _optionsEstado.map((option) {
+                    items: optionsEstado.map((option) {
                       return DropdownMenuItem<String>(
                         value: option.id,
                         child: Text(option.name),
@@ -200,7 +205,6 @@ class _CompanyInformation extends ConsumerWidget {
               ],
             ),
           ),
-
           Padding(
             padding: const EdgeInsets.all(6.0),
             child: Row(
@@ -217,7 +221,7 @@ class _CompanyInformation extends ConsumerWidget {
                     onChanged: (String? newValue) {
                       ref
                           .read(companyFormProvider(company).notifier)
-                          .onEstadoChanged(newValue!);
+                          .onCalificacionChanged(newValue!);
                     },
                     isExpanded: true,
                     style: const TextStyle(
@@ -225,7 +229,7 @@ class _CompanyInformation extends ConsumerWidget {
                       color: Color.fromRGBO(0, 0, 0, 1),
                     ),
                     // Mapeo de las opciones a elementos de menú desplegable
-                    items: _optionsCalificacion.map((option) {
+                    items: optionsCalificacion.map((option) {
                       return DropdownMenuItem<String>(
                         value: option.id,
                         child: Text(option.name),
@@ -236,9 +240,7 @@ class _CompanyInformation extends ConsumerWidget {
               ],
             ),
           ),
-          
           const SizedBox(height: 15),
-
           const Text('Responsable *'),
           Row(
             children: [
@@ -276,9 +278,9 @@ class _CompanyInformation extends ConsumerWidget {
               Switch(
                 value: companyForm.visibleTodos == '1' ? true : false,
                 onChanged: (bool? newValue) {
-                      ref.read(companyFormProvider(company).notifier)
-                          .onVisibleTodosChanged(newValue! ? '1' : '0');
-                  
+                  ref
+                      .read(companyFormProvider(company).notifier)
+                      .onVisibleTodosChanged(newValue! ? '1' : '0');
                 },
               ),
             ],
@@ -289,8 +291,9 @@ class _CompanyInformation extends ConsumerWidget {
             label: 'Comentarios',
             keyboardType: TextInputType.multiline,
             initialValue: companyForm.seguimientoComentario,
-            onChanged:
-                ref.read(companyFormProvider(company).notifier).onComentarioChanged,
+            onChanged: ref
+                .read(companyFormProvider(company).notifier)
+                .onComentarioChanged,
           ),
           const SizedBox(height: 20),
           CustomCompanyField(
@@ -298,11 +301,22 @@ class _CompanyInformation extends ConsumerWidget {
             label: 'Recomendación',
             keyboardType: TextInputType.multiline,
             initialValue: companyForm.observaciones,
-            onChanged:
-                ref.read(companyFormProvider(company).notifier).onRecomendacionChanged,
+            onChanged: ref
+                .read(companyFormProvider(company).notifier)
+                .onRecomendacionChanged,
           ),
           const SizedBox(height: 15),
           const Text('Datos de contacto'),
+          const SizedBox(height: 15),
+          CustomCompanyField(
+            isTopField: true,
+            label: 'Teléfono',
+            initialValue: companyForm.telefono.value,
+            onChanged: ref
+                .read(companyFormProvider(company).notifier)
+                .onTelefonoChanged,
+            errorMessage: companyForm.telefono.errorMessage,
+          ),
           const SizedBox(height: 15),
           CustomCompanyField(
             isTopField: true,
@@ -326,9 +340,11 @@ class _CompanyInformation extends ConsumerWidget {
           CustomCompanyField(
             isTopField: true,
             label: 'Dirección',
-            initialValue: companyForm.direccion,
-            onChanged:
-                ref.read(companyFormProvider(company).notifier).onDireccionChanged,
+            initialValue: companyForm.direccion.value,
+            onChanged: ref
+                .read(companyFormProvider(company).notifier)
+                .onDireccionChanged,
+            errorMessage: companyForm.direccion.errorMessage,
           ),
           const SizedBox(height: 10),
           const CustomCompanyField(
@@ -350,8 +366,9 @@ class _CompanyInformation extends ConsumerWidget {
           CustomCompanyField(
             label: 'Codigo Postal',
             initialValue: companyForm.codigoPostal,
-            onChanged:
-                ref.read(companyFormProvider(company).notifier).onCodigoPostaChanged,
+            onChanged: ref
+                .read(companyFormProvider(company).notifier)
+                .onCodigoPostaChanged,
           ),
           const SizedBox(height: 100),
         ],

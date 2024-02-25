@@ -25,7 +25,7 @@ class LoginScreen extends StatelessWidget {
                 const SizedBox( height: 80 ),
                 // Icon Banner
                 const Icon( 
-                  Icons.production_quantity_limits_rounded, 
+                  Icons.data_usage_sharp, 
                   color: Colors.white,
                   size: 100,
                 ),

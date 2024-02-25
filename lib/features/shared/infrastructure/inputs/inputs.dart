@@ -7,3 +7,5 @@ export 'stock.dart';
 export 'title.dart';
 export 'ruc.dart';
 export 'razon.dart';
+export 'phone.dart';
+export 'address.dart';

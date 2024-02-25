@@ -1,6 +1,4 @@
-import 'dart:ffi';
-
-import 'package:crm_app/features/companies/infrastructure/mappers/company_get_mapper.dart';
+import 'package:crm_app/features/companies/infrastructure/mappers/company_response_mapper.dart';
 import 'package:dio/dio.dart';
 import 'package:crm_app/config/config.dart';
 import 'package:crm_app/features/companies/domain/domain.dart';
@@ -18,33 +16,46 @@ class CompaniesDatasourceImpl extends CompaniesDatasource {
             headers: {'Authorization': 'Bearer $accessToken'}));
 
   @override
-  Future<Bool> createUpdateCompany(Map<String, dynamic> companyLike) async {
+  Future<CompanyResponse> createUpdateCompany(
+      Map<dynamic, dynamic> companyLike) async {
     try {
-      print('ID CREATE UPDATE: ${companyLike['id']}');
+      final String? rucId = companyLike['RUCID'];
+      final String method = (rucId == null) ? 'POST' : 'POST';
+      final String url = (rucId == null)
+          ? '/cliente/create-cliente'
+          : '/cliente/update-cliente';
 
-      final String? id = companyLike['id'];
-      final String method = (id == null) ? 'POST' : 'POST';
-      final String url =
-          (id == null) ? '/cliente/create-cliente' : '/cliente/update-cliente';
-
-      companyLike.remove('id');
+      //companyLike.remove('rucId');
 
       final response = await dio.request(url,
-        data: companyLike, options: Options(method: method));
+          data: companyLike, options: Options(method: method));
 
-      //final company = CompanyMapper.jsonToEntity(response.data);
-      //return company;
-      return response.data;
+      final CompanyResponse companyResponse =
+          CompanyResponseMapper.jsonToEntity(response.data);
+
+      if (companyResponse.status == true) {
+        companyResponse.company =
+            CompanyMapper.jsonToEntity(response.data['data']);
+      }
+
+      return companyResponse;
+    } on DioException catch (e) {
+      if (e.response!.statusCode == 404) throw CompanyNotFound();
+      throw Exception();
     } catch (e) {
       throw Exception();
     }
   }
 
   @override
-  Future<Company> getCompanyById(String ruc) async {
+  Future<Company> getCompanyById(String rucId) async {
     try {
-      final response = await dio.get('/cliente/cliente-by-ruc/$ruc');
-      final company = CompanyGetMapper.jsonToEntity(response.data['data']);
+      final response = await dio.get('/cliente/cliente-by-ruc/$rucId');
+      final Company company = CompanyMapper.jsonToEntity(response.data['data']);
+
+      if (rucId != 'new') {
+        company.rucId = company.ruc;
+      }
       return company;
     } on DioException catch (e) {
       if (e.response!.statusCode == 404) throw CompanyNotFound();
