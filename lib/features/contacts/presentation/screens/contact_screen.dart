@@ -60,24 +60,28 @@ class _CompanyView extends ConsumerWidget {
 class CompanyInformation extends ConsumerWidget {
   const CompanyInformation({super.key});
 
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var scores = ['A', 'B', 'C', 'D'];
+
+    List<DropdownOption> optionsGenero = [
+      DropdownOption('01', 'Mujer'),
+      DropdownOption('02', 'Hombre'),
+    ];
+
+    List<DropdownOption> optionsCargo = [
+      DropdownOption('01', 'ADMINISTRADOR'),
+      DropdownOption('02', 'VENDEDOR'),
+    ];
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Generales'),
+          const Text('Información'),
           const SizedBox(height: 20),
-
-        const CustomCompanyField(
-            isTopField: true,
-            label: 'Empresa *',
-            initialValue: '',
-          ),
-          const SizedBox(height: 10 ),
 
           const CustomCompanyField(
             isTopField: true,
@@ -91,6 +95,82 @@ class CompanyInformation extends ConsumerWidget {
             initialValue: '',
           ),
           const SizedBox(height: 10 ),
+
+          Padding(
+            padding: const EdgeInsets.all(6.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                const Text('Género:',
+                    style:
+                        TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500)),
+                SizedBox(
+                  width: 180, // Ancho específico para el DropdownButton
+                  child: DropdownButton<String>(
+                    // Valor seleccionado
+                    value: '02',
+                    onChanged: (String? newValue) {
+                      
+                    },
+                    isExpanded: true,
+                    style: const TextStyle(
+                      fontSize: 16.0,
+                      color: Color.fromRGBO(0, 0, 0, 1),
+                    ),
+                    // Mapeo de las opciones a elementos de menú desplegable
+                    items: optionsGenero.map((option) {
+                      return DropdownMenuItem<String>(
+                        value: option.id,
+                        child: Text(option.name),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          Padding(
+            padding: const EdgeInsets.all(6.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                const Text('Cargo:',
+                    style:
+                        TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500)),
+                SizedBox(
+                  width: 180, // Ancho específico para el DropdownButton
+                  child: DropdownButton<String>(
+                    // Valor seleccionado
+                    value: '02',
+                    onChanged: (String? newValue) {
+                      
+                    },
+                    isExpanded: true,
+                    style: const TextStyle(
+                      fontSize: 16.0,
+                      color: Color.fromRGBO(0, 0, 0, 1),
+                    ),
+                    // Mapeo de las opciones a elementos de menú desplegable
+                    items: optionsCargo.map((option) {
+                      return DropdownMenuItem<String>(
+                        value: option.id,
+                        child: Text(option.name),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const CustomCompanyField(
+            isTopField: true,
+            label: 'Empresa *',
+            initialValue: '',
+          ),
+          const SizedBox(height: 10 ),
+
           const Text('DATOS DE CONTACTO'),
           const SizedBox(height: 20),
           const CustomCompanyField(
@@ -117,47 +197,6 @@ class CompanyInformation extends ConsumerWidget {
             label: 'Linkedin *',
             initialValue: '',
           ),
-          const SizedBox(height: 10 ),
-          const CustomCompanyField(
-            label: 'Cargo',
-            initialValue: '',
-          ),
-          const SizedBox(height: 10 ),
-          const Padding(
-            padding: EdgeInsets.only(left: 10),
-            child: Text(
-              'Género', 
-              style: TextStyle( fontSize: 11, color: Colors.black, fontWeight: FontWeight.bold ),
-            ),
-          ),
-          const SizedBox(height: 5 ),
-          _TypeSelector(
-            selectedType: 'Cliente',
-            onTypeChanged: (String text) =>  print('change ${text}'),
-          ),
-          const SizedBox(height: 10 ),
-          const Text('IMAGENES'),
-          const SizedBox(height: 10 ),
-
-          const Icon(
-            Icons.camera_alt_rounded,
-            size: 70,
-          ),
-          
-          /*Center(
-          child: DropdownButton<String>(
-            value: scores.first,
-            onChanged: (String? newValue) {
-              print('Nuevo valor seleccionado: $newValue');
-            },
-            items: scores.map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-          ),
-        ),*/
 
           const SizedBox(height: 10 ),
           const CustomCompanyField(
@@ -290,4 +329,11 @@ class _ScoreSelector extends StatelessWidget {
       ),
     );
   }
+}
+
+class DropdownOption {
+  final String id;
+  final String name;
+
+  DropdownOption(this.id, this.name);
 }
