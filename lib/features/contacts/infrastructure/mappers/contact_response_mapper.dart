@@ -1,0 +1,12 @@
+import 'package:crm_app/features/contacts/domain/domain.dart';
+
+class ContactResponseMapper {
+
+  static jsonToEntity( Map<dynamic, dynamic> json ) => ContactResponse(
+    icon: json['icon'],
+    message: json['message'],
+    status: json['status'],
+    type: json['type'],
+  );
+
+}

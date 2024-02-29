@@ -1,4 +1,8 @@
-import 'package:crm_app/features/shared/widgets/custom_company_field.dart';
+import 'dart:async';
+
+import 'package:crm_app/features/contacts/domain/domain.dart';
+import 'package:crm_app/features/contacts/presentation/providers/providers.dart';
+import 'package:crm_app/features/shared/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -8,15 +12,16 @@ class ContactScreen extends ConsumerWidget {
 
   const ContactScreen({super.key, required this.contactId});
 
-  void showSnackbar(BuildContext context) {
+  void showSnackbar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Empresa creada correctamente.')));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
-
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final contactState = ref.watch(contactProvider(contactId));
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -29,10 +34,29 @@ class ContactScreen extends ConsumerWidget {
             },
           ),
         ),
-        body: const _CompanyView(),
+        body: contactState.isLoading
+            ? const FullScreenLoader()
+            : _ContactView(contact: contactState.contact!),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            showSnackbar(context);
+            if (contactState.contact == null) return;
+
+            ref
+                .read(contactFormProvider(contactState.contact!).notifier)
+                .onFormSubmit()
+                .then((CreateUpdateContactResponse value) {
+              //if ( !value.response ) return;
+              if (value.message != '') {
+                showSnackbar(context, value.message);
+
+                if (value.response) {
+                  Timer(const Duration(seconds: 3), () {
+                    context.push('/contacts');
+                  });
+                }
+                
+              }
+            });
           },
           child: const Icon(Icons.save),
         ),
@@ -41,94 +65,66 @@ class ContactScreen extends ConsumerWidget {
   }
 }
 
-class _CompanyView extends ConsumerWidget {
-  const _CompanyView();
+class _ContactView extends ConsumerWidget {
+  final Contact contact;
+
+  const _ContactView({required this.contact});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final textStyles = Theme.of(context).textTheme;
 
     return ListView(
-      children: const [
+      children: [
         SizedBox(height: 10),
-        CompanyInformation(),
+        _ContactInformation(contact: contact),
       ],
     );
   }
 }
 
-class CompanyInformation extends ConsumerWidget {
-  const CompanyInformation({super.key});
+class _ContactInformation extends ConsumerWidget {
+  final Contact contact;
 
+  const _ContactInformation({required this.contact});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var scores = ['A', 'B', 'C', 'D'];
-
-    List<DropdownOption> optionsGenero = [
-      DropdownOption('01', 'Mujer'),
-      DropdownOption('02', 'Hombre'),
-    ];
-
     List<DropdownOption> optionsCargo = [
+      DropdownOption('', '--SELECCIONE--'),
       DropdownOption('01', 'ADMINISTRADOR'),
       DropdownOption('02', 'VENDEDOR'),
     ];
+
+    final contactForm = ref.watch(contactFormProvider(contact));
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          CustomCompanyField(
+            isTopField: true,
+            label: 'Empresa *',
+            initialValue: contactForm.ruc.value,
+            onChanged:
+                ref.read(contactFormProvider(contact).notifier).onRucChanged,
+            errorMessage: contactForm.ruc.errorMessage,
+          ),
+          const SizedBox(height: 10 ),
           const Text('Información'),
           const SizedBox(height: 20),
 
-          const CustomCompanyField(
+          const SizedBox(height: 10 ),
+
+          CustomCompanyField(
             isTopField: true,
             label: 'Nombre *',
-            initialValue: '',
+            initialValue: contactForm.contactoDesc.value,
+            onChanged:
+                ref.read(contactFormProvider(contact).notifier).onNameChanged,
+            errorMessage: contactForm.contactoDesc.errorMessage,
           ),
           const SizedBox(height: 10 ),
-
-          const CustomCompanyField(
-            label: 'Apellidos *',
-            initialValue: '',
-          ),
-          const SizedBox(height: 10 ),
-
-          Padding(
-            padding: const EdgeInsets.all(6.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                const Text('Género:',
-                    style:
-                        TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500)),
-                SizedBox(
-                  width: 180, // Ancho específico para el DropdownButton
-                  child: DropdownButton<String>(
-                    // Valor seleccionado
-                    value: '02',
-                    onChanged: (String? newValue) {
-                      
-                    },
-                    isExpanded: true,
-                    style: const TextStyle(
-                      fontSize: 16.0,
-                      color: Color.fromRGBO(0, 0, 0, 1),
-                    ),
-                    // Mapeo de las opciones a elementos de menú desplegable
-                    items: optionsGenero.map((option) {
-                      return DropdownMenuItem<String>(
-                        value: option.id,
-                        child: Text(option.name),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ],
-            ),
-          ),
 
           Padding(
             padding: const EdgeInsets.all(6.0),
@@ -142,9 +138,16 @@ class CompanyInformation extends ConsumerWidget {
                   width: 180, // Ancho específico para el DropdownButton
                   child: DropdownButton<String>(
                     // Valor seleccionado
-                    value: '02',
+                    value: contactForm.contactoIdCargo,
                     onChanged: (String? newValue) {
+                      DropdownOption searchCargo = optionsCargo.where((option) => option.id == newValue!).first;
                       
+                      ref
+                          .read(contactFormProvider(contact).notifier)
+                          .onCargoChanged(newValue!);
+                      ref
+                          .read(contactFormProvider(contact).notifier)
+                          .onNombreCargoChanged(searchCargo.name);
                     },
                     isExpanded: true,
                     style: const TextStyle(
@@ -164,168 +167,50 @@ class CompanyInformation extends ConsumerWidget {
             ),
           ),
 
-          const CustomCompanyField(
-            isTopField: true,
-            label: 'Empresa *',
-            initialValue: '',
-          ),
-          const SizedBox(height: 10 ),
-
           const Text('DATOS DE CONTACTO'),
           const SizedBox(height: 20),
-          const CustomCompanyField(
+          CustomCompanyField(
             label: 'Teléfono *',
-            initialValue: '',
+            initialValue: contactForm.contactoTelefonof.value,
+            onChanged:
+                ref.read(contactFormProvider(contact).notifier).onPhoneChanged,
+            errorMessage: contactForm.contactoTelefonof.errorMessage,
           ),
           const SizedBox(height: 10 ),
-          const CustomCompanyField(
+          CustomCompanyField(
             label: 'Móvil *',
-            initialValue: '',
+            initialValue: contactForm.contactoTelefonoc,
+            onChanged: (String? newValue) {
+              ref
+                  .read(contactFormProvider(contact).notifier)
+                  .onTelefonoNocChanged(newValue!);
+            },
           ),
           const SizedBox(height: 10 ),
-          const CustomCompanyField(
+          CustomCompanyField(
             label: 'Email *',
-            initialValue: '',
-          ),
-          const SizedBox(height: 10 ),
-          const CustomCompanyField(
-            label: 'Skype *',
-            initialValue: '',
-          ),
-          const SizedBox(height: 10 ),
-          const CustomCompanyField(
-            label: 'Linkedin *',
-            initialValue: '',
+            initialValue: contactForm.contactoEmail,
+            onChanged: (String? newValue) {
+              ref
+                  .read(contactFormProvider(contact).notifier)
+                  .onEmailChanged(newValue!);
+            },
           ),
 
           const SizedBox(height: 10 ),
-          const CustomCompanyField(
+          CustomCompanyField(
             label: 'Comentarios',
-            initialValue: '',
+            initialValue: contactForm.contactoNotas,
+            onChanged: (String? newValue) {
+              ref
+                  .read(contactFormProvider(contact).notifier)
+                  .onComentarioChanged(newValue!);
+            },
             maxLines: 2,
           ),
           
           const SizedBox(height: 100),
         ],
-      ),
-    );
-  }
-}
-
-class _TypeSelector extends StatelessWidget {
-  final String selectedType;
-  final void Function(String selectedType) onTypeChanged;
-
-  final List<String> types = const [
-    'Hombre',
-    'Mujer',
-    'Otros'
-  ];
-  final List<IconData> genderIcons = const [
-    Icons.man,
-    Icons.woman,
-    Icons.boy,
-  ];
-
-  const _TypeSelector(
-      {required this.selectedType, required this.onTypeChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: SegmentedButton(
-        multiSelectionEnabled: false,
-        showSelectedIcon: false,
-        style: const ButtonStyle(visualDensity: VisualDensity.compact),
-        segments: types.map((size) {
-          return ButtonSegment(
-              //icon: Icon( genderIcons[ types.indexOf(size) ] ),
-              value: size,
-              label: Text(size, style: const TextStyle(fontSize: 12)));
-        }).toList(),
-        selected: {selectedType},
-        onSelectionChanged: (newSelection) {
-          FocusScope.of(context).unfocus();
-          onTypeChanged(newSelection.first);
-        },
-      ),
-    );
-  }
-}
-
-
-class _StateSelector extends StatelessWidget {
-  final String selectedState;
-  final void Function(String selectedState) onStateChanged;
-
-  final List<String> states = const [
-    'Activo',
-    'No Cliente',
-  ];
-  final List<IconData> stateIcons = const [
-    Icons.circle,
-    Icons.circle,
-  ];
-
-  const _StateSelector(
-      {required this.selectedState, required this.onStateChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: SegmentedButton(
-        multiSelectionEnabled: false,
-        showSelectedIcon: false,
-        style: const ButtonStyle(visualDensity: VisualDensity.compact),
-        segments: states.map((size) {
-          return ButtonSegment(
-              //icon: Icon( genderIcons[ types.indexOf(size) ] ),
-              value: size,
-              label: Text(size, style: const TextStyle(fontSize: 12)));
-        }).toList(),
-        selected: {selectedState},
-        onSelectionChanged: (newSelection) {
-          FocusScope.of(context).unfocus();
-          onStateChanged(newSelection.first);
-        },
-      ),
-    );
-  }
-}
-
-
-class _ScoreSelector extends StatelessWidget {
-  final String selectedScore;
-  final void Function(String selectedScore) onScoreChanged;
-
-  final List<String> states = const [
-    'A',
-    'B',
-    'C',
-    'D',
-  ];
-
-  const _ScoreSelector(
-      {required this.selectedScore, required this.onScoreChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: SegmentedButton(
-        multiSelectionEnabled: false,
-        showSelectedIcon: false,
-        style: const ButtonStyle(visualDensity: VisualDensity.compact),
-        segments: states.map((size) {
-          return ButtonSegment(
-              //icon: Icon( genderIcons[ types.indexOf(size) ] ),
-              value: size,
-              label: Text(size, style: const TextStyle(fontSize: 12)));
-        }).toList(),
-        selected: {selectedScore},
-        onSelectionChanged: (newSelection) {
-          FocusScope.of(context).unfocus();
-          onScoreChanged(newSelection.first);
-        },
       ),
     );
   }

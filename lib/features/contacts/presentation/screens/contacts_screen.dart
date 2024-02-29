@@ -1,5 +1,5 @@
-import 'dart:math';
-
+import 'package:crm_app/features/contacts/domain/domain.dart';
+import 'package:crm_app/features/contacts/presentation/providers/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -26,7 +26,7 @@ class ContactsScreen extends StatelessWidget {
         label: const Text('Nuevo contacto'),
         icon: const Icon(Icons.add),
         onPressed: () {
-          context.push('/contact/no-id');
+          context.push('/contact/new');
         },
       ),
     );
@@ -38,15 +38,6 @@ class _ContactsView extends ConsumerStatefulWidget {
 
   @override
   _ContactsViewState createState() => _ContactsViewState();
-}
-
-class Contact {
-  final String name;
-  final String nameCompany;
-  final String comment;
-  final String namePosition;
-
-  Contact(this.name, this.nameCompany, this.comment, this.namePosition);
 }
 
 class _ContactsViewState extends ConsumerState {
@@ -72,16 +63,20 @@ class _ContactsViewState extends ConsumerState {
 
   @override
   Widget build(BuildContext context) {
-    final List<Contact> contacts = List.generate(
-      50,
-      (index) => Contact(
-          'Pepito $index',
-          'Empresa $index',
-          'Comentario xxx',
-          'Cargo $index' // Random revenue
-          ), // Generate randomly if the company is active or inactive
-    );
+    
+    final contactsState = ref.watch(contactsProvider);
 
+    return contactsState.contacts.length > 0 
+    ? _ListContacts(contacts: contactsState.contacts) : const _NoExistData();
+  }
+}
+
+class _ListContacts extends StatelessWidget {
+  final List<Contact> contacts;
+  const _ListContacts({super.key, required this.contacts});
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: ListView.separated(
@@ -89,32 +84,88 @@ class _ContactsViewState extends ConsumerState {
         separatorBuilder: (BuildContext context, int index) => const Divider(),
         itemBuilder: (context, index) {
           final contact = contacts[index];
+
           return ListTile(
-            title: Text(contact.name),
+            title: Text(contact.contactoDesc),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(contact.nameCompany),
-                Text(contact.comment),
+                contact.contactoTelefonof != '' ? Row(
+                  children: [
+                    const Icon(Icons.phone, size: 14),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Text(contact.contactoTelefonof),
+                  ],
+                ) : Container(),
+                contact.contactoNombreCargo != '' ? Row(
+                  children: [
+                    const Icon(Icons.account_balance, size: 14),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Text(contact.contactoNombreCargo ?? ''),
+                  ],
+                ) : Container(),
+                contact.contactoEmail != '' ? Row(
+                  children: [
+                    const Icon(Icons.mail, size: 14),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Text(contact.contactoEmail ?? ''),
+                  ],
+                ) : Container(),
               ],
             ),
-            trailing: Text(
-              contact.namePosition
-            ),
-            leading: const CircleAvatar(
+            //trailing: Text(contact.contactoCargo),
+            leading: CircleAvatar(
                 child: Text(
-                  'A',
-                  style: TextStyle(
+                  contact.contactoDesc[0].toUpperCase(),
+                  style: const TextStyle(
                     fontSize: 16
                   ),
                   ),
             ),
             onTap: () {
-              context.push('/contact/no-id');
+              context.push('/contact/${contact.id}');
             },
           );
         },
       ),
     );
+  }
+}
+
+class _NoExistData extends StatelessWidget {
+  const _NoExistData({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+        child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Icon(
+          Icons.business,
+          size: 100,
+          color: Colors.grey,
+        ),
+        const SizedBox(height: 20),
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.grey.withOpacity(0.1),
+          ),
+          child: const Text(
+            'No hay contactos registradas',
+            style: TextStyle(fontSize: 20, color: Colors.grey),
+          ),
+        ),
+        
+      ],
+    ));
   }
 }

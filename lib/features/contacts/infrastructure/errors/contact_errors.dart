@@ -1,0 +1,4 @@
+
+
+
+class ContactNotFound implements Exception {}

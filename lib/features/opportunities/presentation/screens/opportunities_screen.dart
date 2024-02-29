@@ -1,3 +1,5 @@
+import 'package:crm_app/features/opportunities/domain/domain.dart';
+import 'package:crm_app/features/opportunities/presentation/providers/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -24,7 +26,7 @@ class OpportunitiesScreen extends StatelessWidget {
         label: const Text('Nuevo Oportunidad'),
         icon: const Icon(Icons.add),
         onPressed: () {
-          context.push('/opportunity/no-id');
+          context.push('/opportunity/new');
         },
       ),
     );
@@ -36,16 +38,6 @@ class _OpportunitiesView extends ConsumerStatefulWidget {
 
   @override
   _OpportunitiesViewState createState() => _OpportunitiesViewState();
-}
-
-class Opportunity {
-  final String name;
-  final String nameCompany;
-  final String comment;
-  final String namePosition;
-  final String price;
-
-  Opportunity(this.name, this.nameCompany, this.comment, this.namePosition, this.price);
 }
 
 class _OpportunitiesViewState extends ConsumerState {
@@ -71,54 +63,85 @@ class _OpportunitiesViewState extends ConsumerState {
 
   @override
   Widget build(BuildContext context) {
-    final List<Opportunity> contacts = List.generate(
-      50,
-      (index) => Opportunity(
-          'Oportunidad $index',
-          'Estado: Oferta enviada $index',
-          'Empresa xxx',
-          '20 %',
-          '1500 \$' // Random revenue
-          ), // Generate randomly if the company is active or inactive
-    );
 
+    final opportunitiesState = ref.watch(opportunitiesProvider);
+
+    return opportunitiesState.opportunities.length > 0
+        ? _ListOpportunities(opportunities: opportunitiesState.opportunities)
+        : const _NoExistData();
+  }
+}
+
+class _ListOpportunities extends StatelessWidget {
+  final List<Opportunity> opportunities;
+
+  const _ListOpportunities({super.key, required this.opportunities});
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: ListView.separated(
-        itemCount: contacts.length,
+        itemCount: opportunities.length,
         separatorBuilder: (BuildContext context, int index) => const Divider(),
         itemBuilder: (context, index) {
-          final contact = contacts[index];
+          final opportunity = opportunities[index];
           return ListTile(
-            title: Text(contact.name),
+            title: Text(opportunity.oprtNombre),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(contact.nameCompany),
-                Text(contact.comment),
+                Text('Estado: ${opportunity.oprtNobbreEstadoOportunidad ?? ''}'),
+                Text('Ruc: ${opportunity.oprtRuc ?? ''}'),
               ],
             ),
-            trailing:  Column(
+            trailing: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(contact.namePosition, textAlign: TextAlign.right, style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.redAccent
-                  )),
-                Text(contact.price, style: const TextStyle(
-                    fontSize: 16,
-                  )),
+                Text('${opportunity.oprtProbabilidad ?? ''}%',
+                    textAlign: TextAlign.right,
+                    style:
+                        const TextStyle(fontSize: 16, color: Colors.green)),
               ],
             ),
-            leading: const Icon(
-              Icons.work_rounded
-            ),
+            leading: const Icon(Icons.work_rounded),
             onTap: () {
-              context.push('/opportunity/no-id');
+              context.push('/opportunity/${opportunity.id}');
             },
           );
         },
       ),
     );
+  }
+}
+
+class _NoExistData extends StatelessWidget {
+  const _NoExistData({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+        child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Icon(
+          Icons.business,
+          size: 100,
+          color: Colors.grey,
+        ),
+        const SizedBox(height: 20),
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.grey.withOpacity(0.1),
+          ),
+          child: const Text(
+            'No hay oportunidades registradas',
+            style: TextStyle(fontSize: 20, color: Colors.grey),
+          ),
+        ),
+      ],
+    ));
   }
 }

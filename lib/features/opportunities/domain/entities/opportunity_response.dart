@@ -1,17 +1,17 @@
-import 'package:crm_app/features/contacts/domain/domain.dart';
+import 'package:crm_app/features/opportunities/domain/domain.dart';
 
-class ContactResponse {
+class OpportunityResponse {
     String type;
     String icon;
     bool status;
     String message;
-    Contact? contact;
+    Opportunity? opportunity;
 
-    ContactResponse({
+    OpportunityResponse({
         required this.type,
         required this.icon,
         required this.status,
         required this.message,
-        this.contact,
+        this.opportunity,
     });
 }

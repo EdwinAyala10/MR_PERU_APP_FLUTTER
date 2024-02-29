@@ -22,9 +22,6 @@ class CompanyScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final companyState = ref.watch(companyProvider(rucId));
 
-    print(
-        'company Stae screen: ${companyState.rucId}, ${companyState.company?.rucId}');
-
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -51,9 +48,11 @@ class CompanyScreen extends ConsumerWidget {
               //if ( !value.response ) return;
               if (value.message != '') {
                 showSnackbar(context, value.message);
-                Timer(const Duration(seconds: 3), () {
-                  context.push('/companies');
-                });
+                if (value.response) {
+                  Timer(const Duration(seconds: 3), () {
+                    context.push('/companies');
+                  });
+                }
               }
             });
           },
@@ -74,7 +73,7 @@ class _CompanyView extends ConsumerWidget {
 
     return ListView(
       children: [
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
         _CompanyInformation(company: company),
       ],
     );

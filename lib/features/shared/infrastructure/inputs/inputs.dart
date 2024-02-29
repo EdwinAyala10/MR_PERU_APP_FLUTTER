@@ -9,3 +9,5 @@ export 'ruc.dart';
 export 'razon.dart';
 export 'phone.dart';
 export 'address.dart';
+export 'name.dart';
+export 'entorno.dart';

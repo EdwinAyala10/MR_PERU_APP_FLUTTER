@@ -1,9 +1,10 @@
+
 import 'package:crm_app/features/contacts/domain/domain.dart';
 
-abstract class ContactsDatasource {
+abstract class ContactsRepository {
 
   Future<List<Contact>> getContacts();
-  Future<Contact> getContactById(String id);
+  Future<Contact> getContactById(String rucId);
 
   Future<ContactResponse> createUpdateContact( Map<dynamic,dynamic> contactLike );
 
