@@ -37,7 +37,7 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
           oprtIdValor: opportunity.oprtIdValor ?? '',
           oprtNobbreEstadoOportunidad: opportunity.oprtNobbreEstadoOportunidad ?? '',
           oprtNombreValor: opportunity.oprtNombreValor ?? '',
-          oprtProbabilidad: opportunity.oprtProbabilidad ?? 0,
+          oprtProbabilidad: opportunity.oprtProbabilidad ?? '',
           oprtRuc: opportunity.oprtRuc ?? '',
           oprtRucIntermediario01: opportunity.oprtRucIntermediario01 ?? '',
           oprtRucIntermediario02: opportunity.oprtRucIntermediario02 ?? '',
@@ -105,7 +105,7 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
   }
 
   void onProbabilidadChanged(String probabilidad) {
-    state = state.copyWith(oprtProbabilidad: int.parse(probabilidad));
+    state = state.copyWith(oprtProbabilidad: probabilidad);
   }
 
   void onIdValorChanged(String idValor) {
@@ -148,7 +148,7 @@ class OpportunityFormState {
   final Name oprtNombre;
   final String oprtEntorno;
   final String oprtIdEstadoOportunidad;
-  final int oprtProbabilidad;
+  final String oprtProbabilidad;
   final String oprtIdValor;
   final String oprtFechaPrevistaVenta;
   final String oprtRuc;
@@ -167,7 +167,7 @@ class OpportunityFormState {
       this.oprtNombre = const Name.dirty(''),
       this.oprtEntorno = 'MR PERU',
       this.oprtIdEstadoOportunidad = '',
-      this.oprtProbabilidad = 0,
+      this.oprtProbabilidad = '1',
       this.oprtIdValor = '01',
       this.oprtFechaPrevistaVenta = '',
       this.oprtRuc = '',
@@ -186,7 +186,7 @@ class OpportunityFormState {
     Name? oprtNombre,
     String? oprtEntorno,
     String? oprtIdEstadoOportunidad,
-    int? oprtProbabilidad,
+    String? oprtProbabilidad,
     String? oprtIdValor,
     String? oprtFechaPrevistaVenta,
     String? oprtRuc,
