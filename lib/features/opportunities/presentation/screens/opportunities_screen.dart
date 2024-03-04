@@ -18,7 +18,7 @@ class OpportunitiesScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Oportunidades'),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.search_rounded))
+          IconButton(onPressed: () {}, icon: const Icon(Icons.search_rounded)),
         ],
       ),
       body: const _OpportunitiesView(),

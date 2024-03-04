@@ -124,16 +124,16 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
     state = state.copyWith(oprtFechaPrevistaVenta: fecha);
   }
 
-  void onRucChanged(String ruc) {
-    state = state.copyWith(oprtRuc: ruc);
+  void onRucChanged(String ruc, String razon) {
+    state = state.copyWith(oprtRuc: ruc, oprtRazon: razon);
   }
 
-  void onRucIntermediario01Changed(String ruc) {
-    state = state.copyWith(oprtRucIntermediario01: ruc);
+  void onRucIntermediario01Changed(String ruc, String razon) {
+    state = state.copyWith(oprtRucIntermediario01: ruc, oprtRazonIntermediario01: razon);
   }
 
-  void onRucIntermediario02Changed(String ruc) {
-    state = state.copyWith(oprtRucIntermediario02: ruc);
+  void onRucIntermediario02Changed(String ruc, String razon) {
+    state = state.copyWith(oprtRucIntermediario02: ruc, oprtRazonIntermediario02: razon);
   }
 
   void onComentarioChanged(String comentario) {
@@ -152,8 +152,11 @@ class OpportunityFormState {
   final String oprtIdValor;
   final String oprtFechaPrevistaVenta;
   final String oprtRuc;
+  final String oprtRazon;
   final String oprtRucIntermediario01;
+  final String oprtRazonIntermediario01;
   final String oprtRucIntermediario02;
+  final String oprtRazonIntermediario02;
   final String oprtComentario;
   final String oprtIdUsuarioRegistro;
   final String oprtNobbreEstadoOportunidad;
@@ -171,8 +174,11 @@ class OpportunityFormState {
       this.oprtIdValor = '01',
       this.oprtFechaPrevistaVenta = '',
       this.oprtRuc = '',
+      this.oprtRazon = '',
+      this.oprtRazonIntermediario01 = '',
       this.oprtRucIntermediario01 = '',
       this.oprtRucIntermediario02 = '',
+      this.oprtRazonIntermediario02 = '',
       this.oprtComentario = '',
       this.oprtIdUsuarioRegistro = '',
       this.oprtNobbreEstadoOportunidad = '',
@@ -190,8 +196,11 @@ class OpportunityFormState {
     String? oprtIdValor,
     String? oprtFechaPrevistaVenta,
     String? oprtRuc,
+    String? oprtRazon,
     String? oprtRucIntermediario01,
+    String? oprtRazonIntermediario01,
     String? oprtRucIntermediario02,
+    String? oprtRazonIntermediario02,
     String? oprtComentario,
     String? oprtIdUsuarioRegistro,
     String? oprtNobbreEstadoOportunidad,
@@ -209,8 +218,11 @@ class OpportunityFormState {
         oprtIdValor: oprtIdValor ?? this.oprtIdValor,
         oprtFechaPrevistaVenta: oprtFechaPrevistaVenta ?? this.oprtFechaPrevistaVenta,
         oprtRuc: oprtRuc ?? this.oprtRuc,
+        oprtRazon: oprtRazon ?? this.oprtRazon,
         oprtRucIntermediario01: oprtRucIntermediario01 ?? this.oprtRucIntermediario01,
+        oprtRazonIntermediario01: oprtRazonIntermediario01 ?? this.oprtRazonIntermediario01,
         oprtRucIntermediario02: oprtRucIntermediario02 ?? this.oprtRucIntermediario02,
+        oprtRazonIntermediario02: oprtRazonIntermediario02 ?? this.oprtRazonIntermediario02,
         oprtComentario: oprtComentario ?? this.oprtComentario,
         oprtIdUsuarioRegistro: oprtIdUsuarioRegistro ?? this.oprtIdUsuarioRegistro,
         oprtNobbreEstadoOportunidad: oprtNobbreEstadoOportunidad ?? this.oprtNobbreEstadoOportunidad,

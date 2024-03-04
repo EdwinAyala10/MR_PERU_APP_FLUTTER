@@ -15,11 +15,11 @@ class AppTheme {
     ///* Texts
     textTheme: TextTheme(
       titleLarge: GoogleFonts.montserratAlternates()
-        .copyWith( fontSize: 40, fontWeight: FontWeight.bold ),
+        .copyWith( fontSize: 21, fontWeight: FontWeight.bold ),
       titleMedium: GoogleFonts.montserratAlternates()
-        .copyWith( fontSize: 30, fontWeight: FontWeight.bold ),
+        .copyWith( fontSize: 17, fontWeight: FontWeight.bold ),
       titleSmall: GoogleFonts.montserratAlternates()
-        .copyWith( fontSize: 20 )
+        .copyWith( fontSize: 10 )
     ),
 
     ///* Scaffold Background Color

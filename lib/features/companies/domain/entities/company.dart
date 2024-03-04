@@ -2,21 +2,21 @@ class Company {
   String rucId;
   String ruc;
   String razon;
-  String direccion;
-  String telefono;
-  String email;
-  String tipocliente;
-  String observaciones;
-  String usuarioActualizacion;
-  String estado;
-  String departamento;
-  String provincia;
-  String distrito;
-  String seguimientoComentario;
-  String website;
-  String calificacion;
-  String visibleTodos;
-  String codigoPostal;
+  String? direccion;
+  String? telefono;
+  String? email;
+  String? tipocliente;
+  String? observaciones;
+  String? usuarioActualizacion;
+  String? estado;
+  String? departamento;
+  String? provincia;
+  String? distrito;
+  String? seguimientoComentario;
+  String? website;
+  String? calificacion;
+  String? visibleTodos;
+  String? codigoPostal;
   String? usuarioRegistro;
   String? idUsuarioRegistro;
   DateTime? fechaActualizacion;
@@ -41,21 +41,21 @@ class Company {
     required this.rucId,
     required this.ruc,
     required this.razon,
-    required this.direccion,
-    required this.telefono,
-    required this.email,
-    required this.tipocliente,
-    required this.observaciones,
-    required this.usuarioActualizacion,
-    required this.estado,
-    required this.departamento,
-    required this.provincia,
-    required this.distrito,
-    required this.seguimientoComentario,
-    required this.website,
-    required this.calificacion,
-    required this.visibleTodos,
-    required this.codigoPostal,
+    this.direccion,
+    this.telefono,
+    this.email,
+    this.tipocliente,
+    this.observaciones,
+    this.usuarioActualizacion,
+    this.estado,
+    this.departamento,
+    this.provincia,
+    this.distrito,
+    this.seguimientoComentario,
+    this.website,
+    this.calificacion,
+    this.visibleTodos,
+    this.codigoPostal,
     this.fechaActualizacion,
     this.localNombre,
     this.coordenadasGeo,

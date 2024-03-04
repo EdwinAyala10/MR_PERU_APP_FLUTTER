@@ -1,6 +1,9 @@
 import 'dart:async';
 
+import 'package:crm_app/features/companies/domain/domain.dart';
+import 'package:crm_app/features/companies/presentation/search/search_companies_active_provider.dart';
 import 'package:crm_app/features/contacts/domain/domain.dart';
+import 'package:crm_app/features/contacts/presentation/delegates/search_company_active_delegate.dart';
 import 'package:crm_app/features/contacts/presentation/providers/providers.dart';
 import 'package:crm_app/features/shared/shared.dart';
 import 'package:flutter/material.dart';
@@ -54,7 +57,6 @@ class ContactScreen extends ConsumerWidget {
                     context.push('/contacts');
                   });
                 }
-                
               }
             });
           },
@@ -72,10 +74,9 @@ class _ContactView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     return ListView(
       children: [
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         _ContactInformation(contact: contact),
       ],
     );
@@ -102,20 +103,73 @@ class _ContactInformation extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CustomCompanyField(
-            isTopField: true,
-            label: 'Empresa *',
-            initialValue: contactForm.ruc.value,
-            onChanged:
-                ref.read(contactFormProvider(contact).notifier).onRucChanged,
-            errorMessage: contactForm.ruc.errorMessage,
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Empresa:',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: contactForm.ruc.errorMessage != null
+                        ? Theme.of(context).colorScheme.error
+                        : null,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                GestureDetector(
+                  onTap: () {
+                    _openSearch(context, ref);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        //color: Colors.grey,
+                        color: contactForm.ruc.errorMessage != null ? Theme.of(context).colorScheme.error : Colors.grey
+                      ),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            contactForm.ruc.value == '' ? 'Seleccione empresa' : contactForm.razon,
+                            //_selectedCompany.isEmpty ? 'Seleccione una empresa' : _selectedCompany,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: contactForm.ruc.errorMessage != null
+                                ? Theme.of(context).colorScheme.error
+                                : null
+                              ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.search),
+                          onPressed: () {
+                            _openSearch(context, ref);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                if (contactForm.ruc.errorMessage != null)
+                Text(
+                  contactForm.ruc.errorMessage ?? 'Requerido',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 10 ),
+          const SizedBox(height: 10),
           const Text('Información'),
-          const SizedBox(height: 20),
-
-          const SizedBox(height: 10 ),
-
+          const SizedBox(height: 10),
           CustomCompanyField(
             isTopField: true,
             label: 'Nombre *',
@@ -124,8 +178,7 @@ class _ContactInformation extends ConsumerWidget {
                 ref.read(contactFormProvider(contact).notifier).onNameChanged,
             errorMessage: contactForm.contactoDesc.errorMessage,
           ),
-          const SizedBox(height: 10 ),
-
+          const SizedBox(height: 10),
           Padding(
             padding: const EdgeInsets.all(6.0),
             child: Row(
@@ -140,8 +193,10 @@ class _ContactInformation extends ConsumerWidget {
                     // Valor seleccionado
                     value: contactForm.contactoIdCargo,
                     onChanged: (String? newValue) {
-                      DropdownOption searchCargo = optionsCargo.where((option) => option.id == newValue!).first;
-                      
+                      DropdownOption searchCargo = optionsCargo
+                          .where((option) => option.id == newValue!)
+                          .first;
+
                       ref
                           .read(contactFormProvider(contact).notifier)
                           .onCargoChanged(newValue!);
@@ -166,9 +221,8 @@ class _ContactInformation extends ConsumerWidget {
               ],
             ),
           ),
-
           const Text('DATOS DE CONTACTO'),
-          const SizedBox(height: 20),
+          const SizedBox(height: 15),
           CustomCompanyField(
             label: 'Teléfono *',
             initialValue: contactForm.contactoTelefonof.value,
@@ -176,7 +230,7 @@ class _ContactInformation extends ConsumerWidget {
                 ref.read(contactFormProvider(contact).notifier).onPhoneChanged,
             errorMessage: contactForm.contactoTelefonof.errorMessage,
           ),
-          const SizedBox(height: 10 ),
+          const SizedBox(height: 10),
           CustomCompanyField(
             label: 'Móvil *',
             initialValue: contactForm.contactoTelefonoc,
@@ -186,7 +240,7 @@ class _ContactInformation extends ConsumerWidget {
                   .onTelefonoNocChanged(newValue!);
             },
           ),
-          const SizedBox(height: 10 ),
+          const SizedBox(height: 10),
           CustomCompanyField(
             label: 'Email *',
             initialValue: contactForm.contactoEmail,
@@ -196,8 +250,7 @@ class _ContactInformation extends ConsumerWidget {
                   .onEmailChanged(newValue!);
             },
           ),
-
-          const SizedBox(height: 10 ),
+          const SizedBox(height: 10),
           CustomCompanyField(
             label: 'Comentarios',
             initialValue: contactForm.contactoNotas,
@@ -208,12 +261,33 @@ class _ContactInformation extends ConsumerWidget {
             },
             maxLines: 2,
           ),
-          
           const SizedBox(height: 100),
         ],
       ),
     );
   }
+
+  void _openSearch(BuildContext context, WidgetRef ref) async {
+    final searchedCompanies = ref.read(searchedCompaniesProvider);
+    final searchQuery = ref.read(searchQueryProvider);
+
+    showSearch<Company?>(
+            query: searchQuery,
+            context: context,
+            delegate: SearchCompanyDelegate(
+                initialCompanies: searchedCompanies,
+                searchCompanies: ref
+                    .read(searchedCompaniesProvider.notifier)
+                    .searchCompaniesByQuery))
+        .then((company) {
+      if (company == null) return;
+
+      ref.read(contactFormProvider(contact).notifier).onRucChanged(company.ruc);
+      ref.read(contactFormProvider(contact).notifier).onRazonChanged(company.razon);
+
+    });
+  }
+  
 }
 
 class DropdownOption {

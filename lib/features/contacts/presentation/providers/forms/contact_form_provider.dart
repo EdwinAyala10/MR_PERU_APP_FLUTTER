@@ -95,6 +95,10 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
         ]));
   }
 
+  void onRazonChanged(String razon) {
+    state = state.copyWith(razon: razon);
+  }
+
   void onNameChanged(String value) {
     state = state.copyWith(
         contactoDesc: Name.dirty(value),
@@ -141,6 +145,7 @@ class ContactFormState {
   final bool isFormValid;
   final String? id;
   final Ruc ruc;
+  final String razon;
 
   final String contactoTitulo;
   final Name contactoDesc;
@@ -159,6 +164,7 @@ class ContactFormState {
       {this.isFormValid = false,
       this.id,
       this.ruc = const Ruc.dirty(''),
+      this.razon = '',
       this.contactoTitulo = '',
       this.contactoDesc = const Name.dirty(''),
       this.contactoCargo = '',
@@ -175,8 +181,8 @@ class ContactFormState {
   ContactFormState copyWith({
     bool? isFormValid,
     Ruc? ruc,
+    String? razon,
     String? id,
-
     String? contactoTitulo,
     Name? contactoDesc,
     String? contactoCargo,
@@ -194,6 +200,7 @@ class ContactFormState {
         isFormValid: isFormValid ?? this.isFormValid,
         ruc: ruc ?? this.ruc,
         id: id ?? this.id,
+        razon: razon ?? this.razon,
         contactoTitulo: contactoTitulo ?? this.contactoTitulo,
         contactoDesc: contactoDesc ?? this.contactoDesc,
         contactoCargo: contactoCargo ?? this.contactoCargo,

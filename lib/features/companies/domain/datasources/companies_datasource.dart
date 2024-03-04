@@ -6,6 +6,8 @@ abstract class CompaniesDatasource {
   Future<Company> getCompanyById(String rucId);
 
   Future<CompanyResponse> createUpdateCompany( Map<dynamic,dynamic> companyLike );
+  
+  Future<List<Company>> searchCompaniesActive(String dni, String query);
 
 }
 

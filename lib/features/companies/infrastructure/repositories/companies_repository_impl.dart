@@ -20,5 +20,10 @@ class CompaniesRepositoryImpl extends CompaniesRepository {
   Future<List<Company>> getCompanies() {
     return datasource.getCompanies();
   }
+  
+  @override
+  Future<List<Company>> searchCompaniesActive(String dni, String query) {
+    return datasource.searchCompaniesActive(dni, query);
+  }
 
 }

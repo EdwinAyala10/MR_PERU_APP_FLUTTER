@@ -54,13 +54,13 @@ class _CompanyDetailView extends StatelessWidget {
             ),
             actions: <Widget>[
               IconButton(
-                icon: Icon(Icons.edit),
+                icon: const Icon(Icons.edit),
                 onPressed: () {
                   // Acción para editar
                 },
               ),
               IconButton(
-                icon: Icon(Icons.delete),
+                icon: const Icon(Icons.delete),
                 onPressed: () {
                   // Acción para eliminar
                 },
@@ -70,19 +70,19 @@ class _CompanyDetailView extends StatelessWidget {
           SliverList(
             delegate: SliverChildListDelegate([
               Container(
-                padding: EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(20.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    Text(
+                    const Text(
                       'Detalles de la empresa aquí',
                       style: TextStyle(fontSize: 24.0),
                     ),
-                    SizedBox(height: 20.0),
+                    const SizedBox(height: 20.0),
                     for (int i = 0; i < 20; i++)
                       Text(
                         'Detalle $i: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse scelerisque urna eget mi commodo tincidunt.',
-                        style: TextStyle(fontSize: 16.0),
+                        style: const TextStyle(fontSize: 16.0),
                       ),
                   ],
                 ),

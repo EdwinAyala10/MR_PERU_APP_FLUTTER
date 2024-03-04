@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:crm_app/features/companies/domain/domain.dart';
+import 'package:crm_app/features/companies/presentation/search/search_companies_active_provider.dart';
+import 'package:crm_app/features/contacts/presentation/delegates/search_company_active_delegate.dart';
 import 'package:crm_app/features/opportunities/domain/domain.dart';
 import 'package:crm_app/features/opportunities/presentation/providers/providers.dart';
 import 'package:crm_app/features/shared/shared.dart';
@@ -253,22 +256,105 @@ class _OpportunityInformation extends ConsumerWidget {
           DateField(),
           const SizedBox(height: 10 ),
         
-          const SizedBox(height: 10 ),
-          CustomCompanyField(
-            label: 'Empresa principal',
-            initialValue: opportunityForm.oprtRuc,
-            onChanged:
-                ref.read(opportunityFormProvider(opportunity).notifier).onRucChanged,
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Empresa principal:',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                GestureDetector(
+                  onTap: () {
+                    _openSearch(context, ref, 'ruc');
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Colors.grey,
+                      ),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            opportunityForm.oprtRuc == '' ? 'Seleccione empresa' : opportunityForm.oprtRazon,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.search),
+                          onPressed: () {
+                            _openSearch(context, ref, 'ruc');
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
+
           const SizedBox(height: 10 ),
 
-          CustomCompanyField(
-            label: 'Intermediario',
-            initialValue: opportunityForm.oprtRucIntermediario01,
-            onChanged:
-                ref.read(opportunityFormProvider(opportunity).notifier).onRucIntermediario01Changed,
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Intermediario:',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                GestureDetector(
+                  onTap: () {
+                    _openSearch(context, ref, 'intermediario1');
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Colors.grey,
+                      ),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            opportunityForm.oprtRucIntermediario01 == '' ? 'Seleccione intermediario' : opportunityForm.oprtRazonIntermediario01,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.search),
+                          onPressed: () {
+                            _openSearch(context, ref, 'intermediario1');
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-
 
           const SizedBox(height: 15),
           const Text('Responsable *'),
@@ -327,6 +413,35 @@ class _OpportunityInformation extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  void _openSearch(BuildContext context, WidgetRef ref, String type) async {
+    final searchedCompanies = ref.read(searchedCompaniesProvider);
+    final searchQuery = ref.read(searchQueryProvider);
+
+    showSearch<Company?>(
+            query: searchQuery,
+            context: context,
+            delegate: SearchCompanyDelegate(
+                initialCompanies: searchedCompanies,
+                searchCompanies: ref
+                    .read(searchedCompaniesProvider.notifier)
+                    .searchCompaniesByQuery))
+        .then((company) {
+      if (company == null) return;
+
+      if (type == 'ruc') {
+        print('ES RUC');
+        ref.read(opportunityFormProvider(opportunity).notifier).onRucChanged(company.ruc, company.razon);
+      }
+
+      if (type == 'intermediario1') {
+        print('ES INTERMEDIARIO 1');
+        ref.read(opportunityFormProvider(opportunity).notifier).onRucIntermediario01Changed(company.ruc, company.razon);
+      }
+
+
+    });
   }
 }
 
