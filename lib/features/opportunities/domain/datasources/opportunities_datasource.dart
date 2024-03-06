@@ -7,5 +7,6 @@ abstract class OpportunitiesDatasource {
 
   Future<OpportunityResponse> createUpdateOpportunity( Map<dynamic,dynamic> opportunityLike );
 
+  Future<List<Opportunity>> searchOpportunities(String query);
 }
 

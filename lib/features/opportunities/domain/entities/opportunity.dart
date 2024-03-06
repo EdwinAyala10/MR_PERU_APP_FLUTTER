@@ -2,8 +2,8 @@
 class Opportunity {
     String id;
     String oprtNombre;
-    String oprtEntorno;
-    String oprtIdEstadoOportunidad;
+    String? oprtEntorno;
+    String? oprtIdEstadoOportunidad;
     String? oprtProbabilidad;
     String? oprtIdValor;
     String? oprtFechaPrevistaVenta;
@@ -20,8 +20,8 @@ class Opportunity {
     Opportunity({
         required this.id,
         required this.oprtNombre,
-        required this.oprtEntorno,
-        required this.oprtIdEstadoOportunidad,
+        this.oprtEntorno,
+        this.oprtIdEstadoOportunidad,
         this.oprtProbabilidad,
         this.oprtIdValor,
         this.oprtFechaPrevistaVenta,

@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:crm_app/features/companies/domain/domain.dart';
+import 'package:crm_app/features/companies/presentation/delegates/search_company_active_delegate.dart';
 import 'package:crm_app/features/companies/presentation/search/search_companies_active_provider.dart';
 import 'package:crm_app/features/contacts/domain/domain.dart';
-import 'package:crm_app/features/contacts/presentation/delegates/search_company_active_delegate.dart';
 import 'package:crm_app/features/contacts/presentation/providers/providers.dart';
 import 'package:crm_app/features/shared/shared.dart';
 import 'package:flutter/material.dart';
@@ -93,7 +93,11 @@ class _ContactInformation extends ConsumerWidget {
     List<DropdownOption> optionsCargo = [
       DropdownOption('', '--SELECCIONE--'),
       DropdownOption('01', 'ADMINISTRADOR'),
-      DropdownOption('02', 'VENDEDOR'),
+      DropdownOption('02', 'COMPRADOR'),
+      DropdownOption('03', 'JEFE DE MANTENIMIENTO'),
+      DropdownOption('04', 'JEFE DE PLANTA/ PRODUCCIÓN'),
+      DropdownOption('05', 'OPERARIO/ TÉCNICO DE MANTENIMIENTO'),
+      DropdownOption('06', 'GERENTE GENERAL'),
     ];
 
     final contactForm = ref.watch(contactFormProvider(contact));
@@ -188,7 +192,7 @@ class _ContactInformation extends ConsumerWidget {
                     style:
                         TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500)),
                 SizedBox(
-                  width: 180, // Ancho específico para el DropdownButton
+                  width: 280, // Ancho específico para el DropdownButton
                   child: DropdownButton<String>(
                     // Valor seleccionado
                     value: contactForm.contactoIdCargo,
@@ -269,7 +273,7 @@ class _ContactInformation extends ConsumerWidget {
 
   void _openSearch(BuildContext context, WidgetRef ref) async {
     final searchedCompanies = ref.read(searchedCompaniesProvider);
-    final searchQuery = ref.read(searchQueryProvider);
+    final searchQuery = ref.read(searchQueryCompaniesProvider);
 
     showSearch<Company?>(
             query: searchQuery,

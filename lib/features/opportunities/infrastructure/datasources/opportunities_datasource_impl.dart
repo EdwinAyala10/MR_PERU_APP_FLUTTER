@@ -73,4 +73,23 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
 
     return opportunities;
   }
+  
+  @override
+  Future<List<Opportunity>> searchOpportunities(String query) async {
+
+    final data = {
+      "OPRT_NOMBRE": query,
+    };
+
+    final response =
+        await dio.post('/oportunidad/listar-oportunidades-by-nombre', data: data);
+
+        print(response);
+    final List<Opportunity> opportunities = [];
+    for (final opportunity in response.data['data'] ?? []) {
+      opportunities.add(OpportunityMapper.jsonToEntity(opportunity));
+    }
+
+    return opportunities;
+  }
 }

@@ -7,6 +7,7 @@ abstract class OpportunitiesRepository {
   Future<Opportunity> getOpportunityById(String id);
 
   Future<OpportunityResponse> createUpdateOpportunity( Map<dynamic,dynamic> opportunityLike );
-
+  
+  Future<List<Opportunity>> searchOpportunities(String query);
 }
 

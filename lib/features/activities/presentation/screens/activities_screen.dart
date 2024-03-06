@@ -1,8 +1,12 @@
+import 'package:crm_app/features/activities/domain/domain.dart';
+import 'package:crm_app/features/activities/presentation/providers/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:crm_app/features/shared/shared.dart';
+
+import 'package:intl/intl.dart';
 
 class ActivitiesScreen extends StatelessWidget {
   const ActivitiesScreen({super.key});
@@ -14,7 +18,7 @@ class ActivitiesScreen extends StatelessWidget {
     return Scaffold(
       drawer: SideMenu(scaffoldKey: scaffoldKey),
       appBar: AppBar(
-        title: const Text('Actividad'),
+        title: const Text('Actividades'),
         actions: [
           IconButton(onPressed: () {}, icon: const Icon(Icons.search_rounded))
         ],
@@ -24,7 +28,9 @@ class ActivitiesScreen extends StatelessWidget {
         label: const Text('Nuevo Actividad'),
         icon: const Icon(Icons.add),
         onPressed: () {
-          showModalBottomSheet(
+          context.push('/activity/new');
+
+          /*showModalBottomSheet(
             context: context,
             builder: (BuildContext context) {
               return Container(
@@ -65,7 +71,7 @@ class ActivitiesScreen extends StatelessWidget {
                 ),
               );
             },
-          );
+          );*/
 
         },
       ),
@@ -78,16 +84,6 @@ class _ActivitiesView extends ConsumerStatefulWidget {
 
   @override
   _ActivitiesViewState createState() => _ActivitiesViewState();
-}
-
-class Activity {
-  final String name;
-  final String nameCompany;
-  final String comment;
-  final String namePosition;
-  final String price;
-
-  Activity(this.name, this.nameCompany, this.comment, this.namePosition, this.price);
 }
 
 class _ActivitiesViewState extends ConsumerState {
@@ -113,17 +109,21 @@ class _ActivitiesViewState extends ConsumerState {
 
   @override
   Widget build(BuildContext context) {
-    final List<Activity> activities = List.generate(
-      50,
-      (index) => Activity(
-          'Oportunidad $index',
-          'Estado: Oferta enviada $index',
-          'Empresa xxx',
-          '20 %',
-          '1500 \$' // Random revenue
-          ), // Generate randomly if the company is active or inactive
-    );
+    final activitiesState = ref.watch(activitiesProvider);
+    
+    return activitiesState.activities.length > 0
+        ? _ListActivities(activities: activitiesState.activities)
+        : const _NoExistData();
+  }
+}
 
+class _ListActivities extends StatelessWidget {
+  final List<Activity> activities;
+
+  const _ListActivities({super.key, required this.activities});
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: ListView.separated(
@@ -131,47 +131,89 @@ class _ActivitiesViewState extends ConsumerState {
         separatorBuilder: (BuildContext context, int index) => const Divider(),
         itemBuilder: (context, index) {
           final activity = activities[index];
+
+          //DateTime fechaHora = DateTime.parse(DateTime.now());
+
+          // Formatear la fecha
+          //String fechaFormat = DateFormat('dd MMM yyyy').format(activity.actiFechaActividad);
+
+          // Formatear la hora
+          //String horaFormat = DateFormat('h:mm a').format(DateTime.now());
+
           return ListTile(
-            title: const Text('Empresa XXX'),
-            subtitle: const Column(
+            title: Text(activity.actiRuc),
+            subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Llamada Telefónica'),
-                Text('Comentario va aqui'),
+                Text(activity.actiNombreOportunidad),
+                Text(activity.actiComentario),
               ],
             ),
-            trailing:  const Column(
+            trailing: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text('12 feb. 2024 1:51 a.m.', 
+                Text(
+                  '',
+                    //fechaFormat+' '+horaFormat, 
                     textAlign: TextAlign.right, 
                     style: TextStyle(
                       fontSize: 12,
-                    )
+                  )
                 ),
-                Text(
+                /*Text(
                   'Evans Arias', 
                   style: TextStyle(
                     fontSize: 13,
                   )
-                ),
-                Text(
+                ),*/
+                /*Text(
                   'Hace 10 minutos', 
                   style: TextStyle(
                     fontSize: 12,
                   )
-                ),
+                ),*/
               ],
             ),
             leading: const Icon(
               Icons.airline_stops_sharp
             ),
             onTap: () {
-              context.push('/activity/no-id');
+              context.push('/activity/${activity.id}');
             },
           );
         },
       ),
     );
+  }
+}
+
+class _NoExistData extends StatelessWidget {
+  const _NoExistData({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+        child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Icon(
+          Icons.business,
+          size: 100,
+          color: Colors.grey,
+        ),
+        const SizedBox(height: 20),
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.grey.withOpacity(0.1),
+          ),
+          child: const Text(
+            'No hay actividades registradas',
+            style: TextStyle(fontSize: 20, color: Colors.grey),
+          ),
+        ),
+      ],
+    ));
   }
 }

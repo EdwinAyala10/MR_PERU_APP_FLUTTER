@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:crm_app/features/companies/domain/domain.dart';
+import 'package:crm_app/features/companies/presentation/delegates/search_company_active_delegate.dart';
 import 'package:crm_app/features/companies/presentation/search/search_companies_active_provider.dart';
-import 'package:crm_app/features/contacts/presentation/delegates/search_company_active_delegate.dart';
 import 'package:crm_app/features/opportunities/domain/domain.dart';
 import 'package:crm_app/features/opportunities/presentation/providers/providers.dart';
 import 'package:crm_app/features/shared/shared.dart';
@@ -417,7 +417,7 @@ class _OpportunityInformation extends ConsumerWidget {
 
   void _openSearch(BuildContext context, WidgetRef ref, String type) async {
     final searchedCompanies = ref.read(searchedCompaniesProvider);
-    final searchQuery = ref.read(searchQueryProvider);
+    final searchQuery = ref.read(searchQueryCompaniesProvider);
 
     showSearch<Company?>(
             query: searchQuery,

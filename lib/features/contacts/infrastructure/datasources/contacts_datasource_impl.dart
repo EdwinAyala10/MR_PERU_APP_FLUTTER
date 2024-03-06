@@ -75,4 +75,22 @@ class ContactsDatasourceImpl extends ContactsDatasource {
 
     return contacts;
   }
+
+  
+  @override
+  Future<List<Contact>> searchContacts(String query) async {
+
+    final data = {
+      "SEARCH": query,
+    };
+
+    final response =
+        await dio.post('/contacto/listar-contacto-by-nombre', data: data);
+    final List<Contact> contacts = [];
+    for (final contact in response.data['data'] ?? []) {
+      contacts.add(ContactMapper.jsonToEntity(contact));
+    }
+
+    return contacts;
+  }
 }

@@ -3,7 +3,7 @@ import 'package:crm_app/features/companies/presentation/providers/providers.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
-final searchQueryProvider = StateProvider<String>((ref) => '');
+final searchQueryCompaniesProvider = StateProvider<String>((ref) => '');
 
 final searchedCompaniesProvider = StateNotifierProvider<SearchedCompaniesNotifier, List<Company>>((ref) {
 
@@ -31,8 +31,10 @@ class SearchedCompaniesNotifier extends StateNotifier<List<Company>> {
 
   Future<List<Company>> searchCompaniesByQuery( String query ) async{
     
+    print('SEARCH COMP');
+
     final List<Company> companies = await searchCompaniesActive('10722843', query);
-    ref.read(searchQueryProvider.notifier).update((state) => query);
+    ref.read(searchQueryCompaniesProvider.notifier).update((state) => query);
 
     state = companies;
     return companies;

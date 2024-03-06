@@ -21,4 +21,9 @@ class ContactsRepositoryImpl extends ContactsRepository {
     return datasource.getContacts();
   }
 
+  @override
+  Future<List<Contact>> searchContacts(String query) {
+    return datasource.searchContacts(query);
+  }
+
 }

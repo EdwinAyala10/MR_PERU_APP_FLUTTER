@@ -80,8 +80,12 @@ class CompaniesDatasourceImpl extends CompaniesDatasource {
   @override
   Future<List<Company>> searchCompaniesActive(String dni, String query) async {
 
+    final data = {
+      "SEARCH": query,
+    };
+
     final response =
-        await dio.get('/cliente/clientes-activo/$dni');
+        await dio.get('/cliente/clientes-activo/$dni', data: data);
     final List<Company> companies = [];
     for (final company in response.data['data'] ?? []) {
       companies.add(CompanyMapper.jsonToEntity(company));
