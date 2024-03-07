@@ -5,6 +5,7 @@ import 'package:crm_app/features/activities/presentation/providers/providers.dar
 import 'package:crm_app/features/companies/domain/domain.dart';
 import 'package:crm_app/features/contacts/domain/domain.dart';
 import 'package:crm_app/features/opportunities/domain/domain.dart';
+import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
 import 'package:crm_app/features/shared/shared.dart';
 
 import 'package:crm_app/features/contacts/presentation/search/search_contacts_active_provider.dart';
@@ -343,7 +344,7 @@ class _ActivityInformation extends ConsumerWidget {
                         IconButton(
                           icon: const Icon(Icons.search),
                           onPressed: () {
-                            //_openSearch(context, ref);
+                            _openSearchOportunities(context, ref);
                           },
                         ),
                       ],
@@ -394,7 +395,7 @@ class _ActivityInformation extends ConsumerWidget {
                         IconButton(
                           icon: const Icon(Icons.search),
                           onPressed: () {
-                            //_openSearch(context, ref);
+                            _openSearchContacts(context, ref);
                           },
                         ),
                       ],
@@ -635,11 +636,4 @@ class _StateSelector extends StatelessWidget {
       ),
     );
   }
-}
-
-class DropdownOption {
-  final String id;
-  final String name;
-
-  DropdownOption(this.id, this.name);
 }

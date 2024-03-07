@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:crm_app/features/companies/domain/domain.dart';
 import 'package:crm_app/features/companies/presentation/providers/providers.dart';
+import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
 import 'package:crm_app/features/shared/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -374,11 +375,4 @@ class _CompanyInformation extends ConsumerWidget {
       ),
     );
   }
-}
-
-class DropdownOption {
-  final String id;
-  final String name;
-
-  DropdownOption(this.id, this.name);
 }

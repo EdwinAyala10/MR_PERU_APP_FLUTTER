@@ -26,7 +26,7 @@ class AgendaScreen extends StatelessWidget {
         label: const Text('Crear evento'),  
         icon: const Icon(Icons.add),
         onPressed: () {
-          context.push('/event/no-id');
+          context.push('/event/new');
         },
       ),
     );
@@ -87,7 +87,7 @@ class _AgendaViewState extends ConsumerState {
       length: 2, // Cambia este valor al número de pestañas que desees
       child: Column(
         children: [
-          TabBar(
+          const TabBar(
             tabs: [
               Tab(text: 'POR MES'),
               Tab(text: 'POR DÍA'),
@@ -96,7 +96,7 @@ class _AgendaViewState extends ConsumerState {
           Expanded(
             child: TabBarView(
               children: [
-                _buildCalendarView(CalendarView.month),
+                _buildMonthView(),
                 _buildCalendarView(CalendarView.day),
               ],
             ),
@@ -106,9 +106,31 @@ class _AgendaViewState extends ConsumerState {
     );
   }
 
+  Widget _buildMonthView() {
+    return Column(
+      children: [
+        Expanded(
+          child: _buildCalendarView(CalendarView.month),
+        ),
+        SizedBox(
+          height: 300, // Altura del listado de eventos
+          child: ListView.builder(
+            itemCount: 10, // Número de eventos
+            itemBuilder: (context, index) {
+              // Aquí puedes construir tu elemento de lista de eventos
+              return ListTile(
+                title: Text('Evento $index'),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildCalendarView(CalendarView view) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       child: SfCalendar(
         view: view,
         dataSource: MeetingDataSource(_getDataSource()),

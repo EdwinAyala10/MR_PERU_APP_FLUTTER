@@ -40,7 +40,7 @@ class ActivityNotifier extends StateNotifier<ActivityState> {
       actiIdOportunidad: '',
       actiIdTipoGestion: '',
       actiIdUsuarioRegistro: user.code,
-      actiIdUsuarioResponsable: '10229837',
+      actiIdUsuarioResponsable: user.code,
       actiNombreArchivo: '',
       actiNombreOportunidad: '',
       actiNombreTipoGestion: '',

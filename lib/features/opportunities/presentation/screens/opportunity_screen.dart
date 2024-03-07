@@ -5,6 +5,7 @@ import 'package:crm_app/features/companies/presentation/delegates/search_company
 import 'package:crm_app/features/companies/presentation/search/search_companies_active_provider.dart';
 import 'package:crm_app/features/opportunities/domain/domain.dart';
 import 'package:crm_app/features/opportunities/presentation/providers/providers.dart';
+import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
 import 'package:crm_app/features/shared/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -444,15 +445,6 @@ class _OpportunityInformation extends ConsumerWidget {
     });
   }
 }
-
-class DropdownOption {
-  final String id;
-  final String name;
-
-  DropdownOption(this.id, this.name);
-}
-
-
 
 class DateField extends StatefulWidget {
   @override

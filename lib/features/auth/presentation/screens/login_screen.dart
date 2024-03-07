@@ -36,7 +36,7 @@ class LoginScreen extends StatelessWidget {
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: scaffoldBackgroundColor,
-                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(100)),
+                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(80), topRight: Radius.circular(80)),
                   ),
                   child: const _LoginForm(),
                 )
@@ -76,7 +76,7 @@ class _LoginForm extends ConsumerWidget {
       child: Column(
         children: [
           const SizedBox( height: 50 ),
-          Text('Login', style: textStyles.titleLarge ),
+          Text('Acceso', style: textStyles.titleLarge ),
           const SizedBox( height: 90 ),
 
           CustomTextFormField(

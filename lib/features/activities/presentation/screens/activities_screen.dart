@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 
 import 'package:crm_app/features/shared/shared.dart';
 
-import 'package:intl/intl.dart';
 
 class ActivitiesScreen extends StatelessWidget {
   const ActivitiesScreen({super.key});
@@ -149,7 +148,7 @@ class _ListActivities extends StatelessWidget {
                 Text(activity.actiComentario),
               ],
             ),
-            trailing: Column(
+            trailing: const Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(

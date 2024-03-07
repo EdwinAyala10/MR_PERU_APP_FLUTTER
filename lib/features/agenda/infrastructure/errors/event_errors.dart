@@ -1,0 +1,4 @@
+
+
+
+class EventNotFound implements Exception {}
