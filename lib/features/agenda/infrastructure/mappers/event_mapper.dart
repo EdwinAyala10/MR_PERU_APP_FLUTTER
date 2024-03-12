@@ -5,7 +5,7 @@ import 'package:crm_app/features/contacts/domain/entities/contact_array.dart';
 class EventMapper {
 
   static jsonToEntity( Map<dynamic, dynamic> json ) => Event(
-    id: json['ACTI_ID_ACTIVIDAD'] ?? '',
+    id: json['EVNT_ID_EVENTO'] ?? '',
 
     arraycontacto: json["ARRAYCONTACTO"] != null ? List<ContactArray>.from(json["ARRAYCONTACTO"].map((x) => ContactArray.fromJson(x))) : [],
     arraycontactoElimimar: json["ARRAYCONTACTO_ELIMIMAR"] != null ? List<ContactArray>.from(json["ARRAYCONTACTO_ELIMIMAR"].map((x) => ContactArray.fromJson(x))) : [],
@@ -22,7 +22,7 @@ class EventMapper {
     evntHoraRecordatorio: json['EVNT_HORA_RECORDATORIO'] ?? '',
     evntIdEventoIn: json['EVNT_ID_EVENTO_IN'] ?? '',
     evntIdOportunidad: json['EVNT_ID_OPORTUNIDAD'] ?? '',
-    evntIdRecordatorio: json['EVNT_ID_RECORDATORIO'] ?? '',
+    evntIdRecordatorio: int.parse(json['EVNT_ID_RECORDATORIO']) ?? 0,
     evntIdTipoGestion: json['EVNT_ID_TIPO_GESTION'] ?? '',
     evntIdUsuarioRegistro: json['EVNT_ID_USUARIO_REGISTRO'] ?? '',
     evntIdUsuarioResponsable: json['EVNT_ID_USUARIO_RESPONSABLE'] ?? '',

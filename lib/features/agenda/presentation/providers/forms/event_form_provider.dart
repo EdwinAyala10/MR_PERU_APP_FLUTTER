@@ -1,5 +1,4 @@
 import 'package:crm_app/features/contacts/domain/domain.dart';
-import 'package:crm_app/features/contacts/domain/entities/contact_array.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
 

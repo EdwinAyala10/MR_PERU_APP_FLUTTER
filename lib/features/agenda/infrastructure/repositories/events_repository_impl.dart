@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:crm_app/features/agenda/domain/domain.dart';
 
 class EventsRepositoryImpl extends EventsRepository {
@@ -17,7 +19,7 @@ class EventsRepositoryImpl extends EventsRepository {
   }
 
   @override
-  Future<List<Event>> getEvents() {
+  Future<LinkedHashMap<DateTime, List<Event>>> getEvents() {
     return datasource.getEvents();
   }
 

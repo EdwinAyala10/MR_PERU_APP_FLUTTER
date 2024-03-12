@@ -40,7 +40,7 @@ class EventScreen extends ConsumerWidget {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Crear Evento'),
+          title: Text('${eventState.id == 'new' ? 'Crear' : 'Editar'} Evento'),
           leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
@@ -115,11 +115,6 @@ class _EventInformation extends ConsumerWidget {
 
     final eventForm = ref.watch(eventFormProvider(event));
 
-    print('${eventForm}');
-    print('evntIdUsuarioRegistro:${eventForm.evntIdUsuarioRegistro}');
-    print('evntIdUsuarioResponsable:${eventForm.evntIdUsuarioResponsable}');
-    print('evntNombreUsuarioResponsable:${eventForm.evntNombreUsuarioResponsable}');
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -153,7 +148,7 @@ class _EventInformation extends ConsumerWidget {
                           BorderRadius.circular(5.0), // Bordes redondeados
                     ),
                     child: DropdownButton<String>(
-                      value: eventForm.evntIdTipoGestion,
+                      value: eventForm.evntIdTipoGestion!.trim(),
                       onChanged: (String? newValue) {
                         DropdownOption searchTipoGestion = optionsTipoGestion
                             .where((option) => option.id == newValue!)
@@ -442,6 +437,7 @@ class _EventInformation extends ConsumerWidget {
                   ],
                 ),
               ),
+              
             ],
           ),
           const SizedBox(height: 20),

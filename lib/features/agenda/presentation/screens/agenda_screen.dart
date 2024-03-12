@@ -1,10 +1,15 @@
+import 'package:crm_app/features/agenda/domain/domain.dart';
+import 'package:crm_app/features/agenda/presentation/providers/events_provider.dart';
+import 'package:crm_app/features/agenda/presentation/widgets/table_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:crm_app/features/shared/shared.dart';
+import 'package:intl/intl.dart';
 
 import 'package:syncfusion_flutter_calendar/calendar.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class AgendaScreen extends StatelessWidget {
   const AgendaScreen({Key? key});
@@ -17,14 +22,15 @@ class AgendaScreen extends StatelessWidget {
       drawer: SideMenu(scaffoldKey: scaffoldKey),
       appBar: AppBar(
         title: const Text('Calendario'),
-        actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.search_rounded))
-        ],
+        /*actions: [
+          IconButton(onPressed: () {
+            
+          }, icon: const Icon(Icons.refresh))
+        ],*/
       ),
       body: const _AgendaView(),
-      floatingActionButton: FloatingActionButton.extended(
-        label: const Text('Crear evento'),  
-        icon: const Icon(Icons.add),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
         onPressed: () {
           context.push('/event/new');
         },
@@ -40,50 +46,169 @@ class _AgendaView extends ConsumerStatefulWidget {
   _AgendaViewState createState() => _AgendaViewState();
 }
 
-class Agenda {
-  final String name;
-  final String nameCompany;
-  final String comment;
-  final String namePosition;
-  final String price;
-
-  Agenda(this.name, this.nameCompany, this.comment, this.namePosition, this.price);
-}
-
 class _AgendaViewState extends ConsumerState {
-  final ScrollController scrollController = ScrollController();
+  //late final ValueNotifier<List<EventMock>> _selectedEvents;
+  //final ValueNotifier<DateTime> _focusedDay = ValueNotifier(DateTime.now());
+  late PageController _pageController;
+  //DateTime? _selectedDay;
 
   @override
   void initState() {
     super.initState();
 
-    scrollController.addListener(() {
-      if ((scrollController.position.pixels + 400) >=
-          scrollController.position.maxScrollExtent) {
-        //ref.read(productsProvider.notifier).loadNextPage();
-      }
-    });
+    //_selectedEvents = ValueNotifier(_getEventsForDay(_focusedDay.value));
+    ref.read(eventsProvider.notifier).onSelectedEvents(DateTime.now());
   }
 
   @override
   void dispose() {
-    scrollController.dispose();
+    //_focusedDay.dispose();
+    //_selectedEvents.dispose();
     super.dispose();
   }
 
-  List<Meeting> _getDataSource() {
-    final List<Meeting> meetings = <Meeting>[];
-    final DateTime today = DateTime.now();
-    final DateTime startTime = DateTime(today.year, today.month, today.day, 9);
-    final DateTime endTime = startTime.add(const Duration(hours: 2));
-    meetings.add(Meeting(
-        'Conference', startTime, endTime, const Color(0xFF0F8644), false));
-    return meetings;
+  List<EventMock> _getEventsForDay(DateTime day) {
+    return kEvents[day] ?? [];
+  }
+
+  void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
+    //if (!isSameDay(eventState, selectedDay)) {
+      /*setState(() {
+        _selectedDay = selectedDay;
+        _focusedDay.value = focusedDay;
+        _selectedEvents.value = _getEventsForDay(selectedDay);
+      });*/
+
+      ref.read(eventsProvider.notifier).onChangeSelectedDay(selectedDay);
+      ref.read(eventsProvider.notifier).onChangeFocusedDay(focusedDay);
+      ref.read(eventsProvider.notifier).onSelectedEvents(selectedDay);
+    //}
   }
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
+    final eventsState = ref.watch(eventsProvider);
+
+    return Center(
+      child: Column(
+        children: [
+          ValueListenableBuilder<DateTime>(
+            valueListenable: ValueNotifier(eventsState.focusedDay),
+            builder: (context, value, _) {
+              return _CalendarHeader(
+                focusedDay: value,
+                onRefresh: () {
+                  ref.read(eventsProvider.notifier).loadNextPage();
+                },
+                onTodayButtonTap: () {
+                  //setState(() => _focusedDay.value = DateTime.now());
+                  ref
+                      .read(eventsProvider.notifier)
+                      .onChangeFocusedDay(DateTime.now());
+                },
+                onLeftArrowTap: () {
+                  _pageController.previousPage(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOut,
+                  );
+                },
+                onRightArrowTap: () {
+                  _pageController.nextPage(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOut,
+                  );
+                },
+              );
+            },
+          ),
+          TableCalendar<Event>(
+              firstDay: kFirstDay,
+              lastDay: kLastDay,
+              focusedDay: ValueNotifier(eventsState.focusedDay).value,
+              //focusedDay: _focusedDay.value,
+              locale: 'es_ES',
+              startingDayOfWeek: StartingDayOfWeek.monday,
+              headerVisible: false,
+              selectedDayPredicate: (day) {
+                return isSameDay(eventsState.selectedDay, day);
+              },
+              calendarFormat: CalendarFormat.week,
+              //eventLoader: _getEventsForDay,
+              eventLoader: (day) {
+                return eventsState
+                        .linkedEvents[DateTime(day.year, day.month, day.day)] ??
+                    [];
+              },
+              onDaySelected: _onDaySelected,
+              onCalendarCreated: (controller) => _pageController = controller,
+              onPageChanged: (focusedDay) {
+                //_focusedDay.value = focusedDay;
+                ref
+                    .read(eventsProvider.notifier)
+                    .onChangeFocusedDay(focusedDay);
+              }),
+          const SizedBox(height: 8.0),
+          Expanded(
+            child: ValueListenableBuilder<List<Event>>(
+              //valueListenable: _selectedEvents,
+              valueListenable: ValueNotifier(eventsState.selectedEvents),
+              builder: (context, value, _) {
+                return value.length > 0
+                    ? ListView.builder(
+                        itemCount: value.length,
+                        itemBuilder: (context, index) {
+                          return Container(
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 12.0,
+                              vertical: 4.0,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border.all(),
+                              borderRadius: BorderRadius.circular(6.0),
+                            ),
+                            child: ListTile(
+                              onTap: () {
+                                context.push('/event/${value[index].id}');
+                              },
+                              leading: Column(
+                                children: [
+                                  Text(''),
+                                  Text(DateFormat('hh:mm a').format(
+                                        value[index].evntHoraInicioEvento != null
+                                            ? DateFormat('HH:mm:ss').parse(
+                                                value[index].evntHoraInicioEvento ?? '')
+                                            : DateTime.now()), 
+                                    style: TextStyle(fontWeight: FontWeight.w600)),
+                                  Text(DateFormat('hh:mm a').format(
+                                        value[index].evntHoraFinEvento != null
+                                            ? DateFormat('HH:mm:ss').parse(
+                                                value[index].evntHoraInicioEvento ?? '')
+                                            : DateTime.now()), 
+                                    style: TextStyle(fontWeight: FontWeight.w600)),
+                                ],
+                              ),
+                              title: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('${value[index].evntAsunto}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                                  Text('${value[index].evntNombreTipoGestion}', style: TextStyle(fontSize: 14))
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                    : const Center(
+                      child: Text('Sin eventos', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500) ),
+                    );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+    /*return DefaultTabController(
       length: 2, // Cambia este valor al número de pestañas que desees
       child: Column(
         children: [
@@ -97,98 +222,69 @@ class _AgendaViewState extends ConsumerState {
             child: TabBarView(
               children: [
                 _buildMonthView(),
-                _buildCalendarView(CalendarView.day),
+                _buildCalendarView(CalendarView.week),
               ],
             ),
           ),
         ],
       ),
-    );
+    );*/
   }
+}
 
-  Widget _buildMonthView() {
-    return Column(
-      children: [
-        Expanded(
-          child: _buildCalendarView(CalendarView.month),
-        ),
-        SizedBox(
-          height: 300, // Altura del listado de eventos
-          child: ListView.builder(
-            itemCount: 10, // Número de eventos
-            itemBuilder: (context, index) {
-              // Aquí puedes construir tu elemento de lista de eventos
-              return ListTile(
-                title: Text('Evento $index'),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
+class _CalendarHeader extends StatelessWidget {
+  final DateTime focusedDay;
+  final VoidCallback onLeftArrowTap;
+  final VoidCallback onRightArrowTap;
+  final VoidCallback onTodayButtonTap;
+  final VoidCallback onRefresh;
 
-  Widget _buildCalendarView(CalendarView view) {
+  const _CalendarHeader({
+    Key? key,
+    required this.focusedDay,
+    required this.onLeftArrowTap,
+    required this.onRightArrowTap,
+    required this.onTodayButtonTap,
+    required this.onRefresh,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final headerText = DateFormat.yMMM().format(focusedDay);
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: SfCalendar(
-        view: view,
-        dataSource: MeetingDataSource(_getDataSource()),
-        monthViewSettings: const MonthViewSettings(
-          appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
-        ), 
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          const SizedBox(width: 16.0),
+          SizedBox(
+            width: 120.0,
+            child: Text(
+              headerText,
+              style: TextStyle(fontSize: 26.0),
+            ),
+          ),
+          IconButton(
+            icon: Icon(Icons.calendar_today, size: 20.0),
+            visualDensity: VisualDensity.compact,
+            onPressed: onTodayButtonTap,
+          ),
+          IconButton(
+            icon: Icon(Icons.refresh, size: 20.0),
+            visualDensity: VisualDensity.compact,
+            onPressed: onRefresh,
+          ),
+          const Spacer(),
+          IconButton(
+            icon: Icon(Icons.chevron_left),
+            onPressed: onLeftArrowTap,
+          ),
+          IconButton(
+            icon: Icon(Icons.chevron_right),
+            onPressed: onRightArrowTap,
+          ),
+        ],
       ),
     );
   }
-}
-
-class MeetingDataSource extends CalendarDataSource {
-  MeetingDataSource(List<Meeting> source) {
-    appointments = source;
-  }
-
-  @override
-  DateTime getStartTime(int index) {
-    return _getMeetingData(index).from;
-  }
-
-  @override
-  DateTime getEndTime(int index) {
-    return _getMeetingData(index).to;
-  }
-
-  @override
-  String getSubject(int index) {
-    return _getMeetingData(index).eventName;
-  }
-
-  @override
-  Color getColor(int index) {
-    return _getMeetingData(index).background;
-  }
-
-  @override
-  bool isAllDay(int index) {
-    return _getMeetingData(index).isAllDay;
-  }
-
-  Meeting _getMeetingData(int index) {
-    final dynamic meeting = appointments![index];
-    late final Meeting meetingData;
-    if (meeting is Meeting) {
-      meetingData = meeting;
-    }
-
-    return meetingData;
-  }
-}
-
-class Meeting {
-  Meeting(this.eventName, this.from, this.to, this.background, this.isAllDay);
-
-  String eventName;
-  DateTime from;
-  DateTime to;
-  Color background;
-  bool isAllDay;
 }

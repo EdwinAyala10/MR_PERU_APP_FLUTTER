@@ -81,6 +81,7 @@ class _LoginForm extends ConsumerWidget {
 
           CustomTextFormField(
             label: 'Correo',
+            initialValue: 'aldo.mori@mrperu.com.pe0',
             keyboardType: TextInputType.emailAddress,
             onChanged: ref.read(loginFormProvider.notifier).onEmailChange,
             errorMessage: loginForm.isFormPosted ?
@@ -92,6 +93,7 @@ class _LoginForm extends ConsumerWidget {
           CustomTextFormField(
             label: 'Contraseña',
             obscureText: true,
+            initialValue: '102298370',
             onChanged: ref.read(loginFormProvider.notifier).onPasswordChanged,
             onFieldSubmitted: ( _ ) => ref.read(loginFormProvider.notifier).onFormSubmit(),
             errorMessage: loginForm.isFormPosted ?

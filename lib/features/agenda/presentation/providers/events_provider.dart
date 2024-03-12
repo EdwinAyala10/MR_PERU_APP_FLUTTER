@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:crm_app/features/agenda/domain/domain.dart';
 
@@ -12,23 +14,23 @@ final eventsProvider =
 class EventsNotifier extends StateNotifier<EventsState> {
   final EventsRepository eventsRepository;
 
-  EventsNotifier({required this.eventsRepository})
-      : super(EventsState()) {
+  EventsNotifier({required this.eventsRepository}) : super(EventsState()) {
     loadNextPage();
   }
 
   Future<CreateUpdateEventResponse> createOrUpdateEvent(
       Map<dynamic, dynamic> eventLike) async {
     try {
-      final eventResponse =
-          await eventsRepository.createUpdateEvent(eventLike);
+      final eventResponse = await eventsRepository.createUpdateEvent(eventLike);
 
       final message = eventResponse.message;
 
       if (eventResponse.status) {
-
         final event = eventResponse.event as Event;
-        final isEventInList =
+
+        print('ASUNTO: ${event.evntAsunto}');
+
+        /*final isEventInList =
             state.events.any((element) => element.id == event.id);
 
         if (!isEventInList) {
@@ -41,15 +43,28 @@ class EventsNotifier extends StateNotifier<EventsState> {
                 .map(
                   (element) => (element.id == event.id) ? event : element,
                 )
-                .toList());
+                .toList());*/
 
         return CreateUpdateEventResponse(response: true, message: message);
       }
 
       return CreateUpdateEventResponse(response: false, message: message);
     } catch (e) {
-      return CreateUpdateEventResponse(response: false, message: 'Error, revisar con su administrador.');
+      return CreateUpdateEventResponse(
+          response: false, message: 'Error, revisar con su administrador.');
     }
+  }
+
+  Future onChangeSelectedDay(DateTime date) async {
+    state = state.copyWith(selectedDay: date);
+  }
+
+  Future onChangeFocusedDay(DateTime date) async {
+    state = state.copyWith(focusedDay: date);
+  }
+
+  Future onSelectedEvents(DateTime date) async {
+    state = state.copyWith(selectedEvents: state.linkedEvents[DateTime(date.year, date.month, date.day)] ?? []);
   }
 
   Future loadNextPage() async {
@@ -57,9 +72,9 @@ class EventsNotifier extends StateNotifier<EventsState> {
 
     state = state.copyWith(isLoading: true);
 
-    final events = await eventsRepository.getEvents();
+    final linkedEvents = await eventsRepository.getEvents();
 
-    if (events.isEmpty) {
+    if (linkedEvents.isEmpty) {
       state = state.copyWith(isLoading: false, isLastPage: true);
       return;
     }
@@ -68,7 +83,9 @@ class EventsNotifier extends StateNotifier<EventsState> {
         isLastPage: false,
         isLoading: false,
         offset: state.offset + 10,
-        events: [...state.events, ...events]);
+        //linkedEvents: [...state.linkedEvents, ...linkedEvents]
+        linkedEvents: LinkedHashMap.from(state.linkedEvents)
+          ..addAll(linkedEvents));
   }
 }
 
@@ -78,13 +95,24 @@ class EventsState {
   final int offset;
   final bool isLoading;
   final List<Event> events;
+  final DateTime selectedDay;
+  final DateTime focusedDay;
+  final List<Event> selectedEvents;
+  final LinkedHashMap<DateTime, List<Event>> linkedEvents;
 
   EventsState(
       {this.isLastPage = false,
       this.limit = 10,
       this.offset = 0,
       this.isLoading = false,
-      this.events = const []});
+      this.events = const [],
+      this.selectedEvents = const [],
+      DateTime? selectedDay,
+      DateTime? focusedDay,
+      LinkedHashMap<DateTime, List<Event>>? linkedEvents})
+      : this.selectedDay = selectedDay ?? DateTime.now(),
+       this.focusedDay = focusedDay ?? DateTime.now(),
+        linkedEvents = linkedEvents ?? LinkedHashMap<DateTime, List<Event>>();
 
   EventsState copyWith({
     bool? isLastPage,
@@ -92,6 +120,10 @@ class EventsState {
     int? offset,
     bool? isLoading,
     List<Event>? events,
+    List<Event>? selectedEvents,
+    DateTime? selectedDay,
+    DateTime? focusedDay,
+    LinkedHashMap<DateTime, List<Event>>? linkedEvents,
   }) =>
       EventsState(
         isLastPage: isLastPage ?? this.isLastPage,
@@ -99,5 +131,9 @@ class EventsState {
         offset: offset ?? this.offset,
         isLoading: isLoading ?? this.isLoading,
         events: events ?? this.events,
+        selectedEvents: selectedEvents ?? this.selectedEvents,
+        selectedDay: selectedDay ?? this.selectedDay,
+        focusedDay: focusedDay ?? this.focusedDay,
+        linkedEvents: linkedEvents ?? this.linkedEvents,
       );
 }

@@ -1,3 +1,4 @@
+import 'package:crm_app/features/agenda/presentation/providers/events_provider.dart';
 import 'package:crm_app/features/auth/domain/domain.dart';
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,17 +11,25 @@ final eventProvider = StateNotifierProvider.autoDispose
     .family<EventNotifier, EventState, String>((ref, id) {
   final eventsRepository = ref.watch(eventsRepositoryProvider);
   final user = ref.watch(authProvider).user;
+  final selectDay = ref.watch(eventsProvider).selectedDay;
 
-  return EventNotifier(eventsRepository: eventsRepository, user: user!, id: id);
+  return EventNotifier(
+    eventsRepository: eventsRepository, 
+    user: user!, 
+    selectDay: selectDay,
+    id: id
+  );
 });
 
 class EventNotifier extends StateNotifier<EventState> {
   final EventsRepository eventsRepository;
   final User user;
+  final DateTime selectDay;
 
   EventNotifier({
     required this.eventsRepository,
     required this.user,
+    required this.selectDay,
     required String id,
   }) : super(EventState(id: id)) {
     loadEvent();
@@ -33,7 +42,6 @@ class EventNotifier extends StateNotifier<EventState> {
 
     return Event(
       id: 'new',
-
       evntAsunto: '',
       evntComentario: '',
       evntIdEventoIn: '',
@@ -44,7 +52,7 @@ class EventNotifier extends StateNotifier<EventState> {
       evntDireccionMapa: '',
       evntCoordenadaLatitud: '',
       evntCoordenadaLongitud: '',
-      evntFechaInicioEvento: DateTime.now(),
+      evntFechaInicioEvento: selectDay,
       evntHoraInicioEvento: DateFormat('HH:mm:ss').format(DateTime.now()),
       evntHoraRecordatorio: '',
       evntIdOportunidad: '',

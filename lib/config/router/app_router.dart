@@ -1,5 +1,6 @@
 import 'package:crm_app/features/activities/presentation/screens/activities_screen.dart';
 import 'package:crm_app/features/activities/presentation/screens/activity_screen.dart';
+import 'package:crm_app/features/agenda/presentation/screens/agenda_complex.dart';
 import 'package:crm_app/features/agenda/presentation/screens/agenda_screen.dart';
 import 'package:crm_app/features/agenda/presentation/screens/event_screen.dart';
 import 'package:crm_app/features/companies/companies.dart';
@@ -61,8 +62,14 @@ final goRouterProvider = Provider((ref) {
       ///* Agenda Routes
       GoRoute(
         path: '/agenda',
-        builder: (context, state) => const AgendaScreen(),
+        builder: (context, state) => AgendaScreen(),
       ),
+
+      GoRoute(
+        path: '/agenda2',
+        builder: (context, state) => TableComplexExample(),
+      ),
+
       GoRoute(
         path: '/event/:id', // /event/new
         builder: (context, state) => EventScreen(
