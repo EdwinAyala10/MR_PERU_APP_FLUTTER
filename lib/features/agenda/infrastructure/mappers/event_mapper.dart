@@ -22,7 +22,7 @@ class EventMapper {
     evntHoraRecordatorio: json['EVNT_HORA_RECORDATORIO'] ?? '',
     evntIdEventoIn: json['EVNT_ID_EVENTO_IN'] ?? '',
     evntIdOportunidad: json['EVNT_ID_OPORTUNIDAD'] ?? '',
-    evntIdRecordatorio: int.parse(json['EVNT_ID_RECORDATORIO']) ?? 0,
+    evntIdRecordatorio: int.parse(json['EVNT_ID_RECORDATORIO'].toString()),
     evntIdTipoGestion: json['EVNT_ID_TIPO_GESTION'] ?? '',
     evntIdUsuarioRegistro: json['EVNT_ID_USUARIO_REGISTRO'] ?? '',
     evntIdUsuarioResponsable: json['EVNT_ID_USUARIO_RESPONSABLE'] ?? '',

@@ -1,5 +1,8 @@
 import 'dart:collection';
 
+import 'package:crm_app/features/agenda/presentation/widgets/add_event_not_exist.dart';
+import 'package:crm_app/features/agenda/presentation/widgets/exist_event.dart';
+import 'package:crm_app/features/agenda/presentation/widgets/replace_event_exist.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:crm_app/features/agenda/domain/domain.dart';
 
@@ -30,8 +33,20 @@ class EventsNotifier extends StateNotifier<EventsState> {
 
         print('ASUNTO: ${event.evntAsunto}');
 
-        /*final isEventInList =
-            state.events.any((element) => element.id == event.id);
+        final isEventInList = eventItExist(state.linkedEvents, event.id);
+
+        if (!isEventInList) {
+          final linkedEvents = addEventIfNotExist(state.linkedEvents, event);
+          state = state.copyWith(linkedEvents: linkedEvents);
+          return CreateUpdateEventResponse(response: true, message: message);
+        }
+
+        final linkedEvents = replaceEventExist(state.linkedEvents, event);
+        state = state.copyWith(linkedEvents: linkedEvents);
+
+        /*
+        final isEventInList = state.events.any((element) => element.id == event.id);
+
 
         if (!isEventInList) {
           state = state.copyWith(events: [...state.events, event]);
@@ -64,7 +79,10 @@ class EventsNotifier extends StateNotifier<EventsState> {
   }
 
   Future onSelectedEvents(DateTime date) async {
-    state = state.copyWith(selectedEvents: state.linkedEvents[DateTime(date.year, date.month, date.day)] ?? []);
+    state = state.copyWith(
+        selectedEvents:
+            state.linkedEvents[DateTime(date.year, date.month, date.day)] ??
+                []);
   }
 
   Future loadNextPage() async {
@@ -111,7 +129,7 @@ class EventsState {
       DateTime? focusedDay,
       LinkedHashMap<DateTime, List<Event>>? linkedEvents})
       : this.selectedDay = selectedDay ?? DateTime.now(),
-       this.focusedDay = focusedDay ?? DateTime.now(),
+        this.focusedDay = focusedDay ?? DateTime.now(),
         linkedEvents = linkedEvents ?? LinkedHashMap<DateTime, List<Event>>();
 
   EventsState copyWith({
