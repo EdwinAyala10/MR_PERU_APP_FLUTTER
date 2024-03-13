@@ -48,7 +48,10 @@ class EventScreen extends ConsumerWidget {
             },
           ),
         ),
-        body: _EventView(event: eventState.event!),
+        body: eventState.isLoading
+            ? const FullScreenLoader()
+            : _EventView(event: eventState.event!),
+        //_EventView(event: eventState.event!),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             if (eventState.event == null) return;
@@ -415,10 +418,10 @@ class _EventInformation extends ConsumerWidget {
             children: [
               Expanded(
                 child: eventForm.arraycontacto != null ? Wrap(
-                  spacing: 8.0,
+                  spacing: 6.0,
                   children: eventForm.arraycontacto != null
                   ? List<Widget>.from(eventForm.arraycontacto!.map((item) => Chip(
-                    label: Text(item.nombre ?? ''), // Aquí deberías colocar el texto que deseas mostrar en el chip para cada elemento de la lista
+                    label: Text(item.nombre ?? '', style: TextStyle( fontSize: 12 )), // Aquí deberías colocar el texto que deseas mostrar en el chip para cada elemento de la lista
                     onDeleted: () {
                       // Aquí puedes manejar la eliminación del chip si es necesario
                     },
@@ -429,7 +432,66 @@ class _EventInformation extends ConsumerWidget {
               ),
               ElevatedButton(
                 onPressed: () {
-                  _openSearchContacts(context, ref);
+
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return Container(
+                        padding: const EdgeInsets.all(16.0),
+                        height: 320,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            const Center(
+                              child: Text(
+                                'Añadir participantes',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                            const Center(
+                              child: Text(
+                                'Añadir invitados a través de...',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            const Divider(),
+                            ListTile(
+                              title: const Center(child: Text('Invitar contactos de la empresa')),
+                              onTap: () {
+                                Navigator.pop(context);
+                                _openSearchContacts(context, ref);
+
+                              },
+                            ),
+                            const Divider(),
+                            ListTile(
+                              title: const Center(child: Text('Invitar personas de MRPERUSA')),
+                              onTap: () {
+                                Navigator.pop(context); // Cierra el modal
+                                //_openSearchContacts(context, ref);
+                              },
+                            ),
+                            const Divider(),
+                            const SizedBox(height: 10),
+                            ListTile(
+                              title: const Center(child: Text('CANCELAR', style: TextStyle( fontWeight: FontWeight.w600 ),),),
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+
                 },
                 child: const Row(
                   children: [
