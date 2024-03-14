@@ -37,13 +37,14 @@ class EventsNotifier extends StateNotifier<EventsState> {
 
         if (!isEventInList) {
           final linkedEvents = addEventIfNotExist(state.linkedEvents, event);
-          state = state.copyWith(linkedEvents: linkedEvents);
+          state = state.copyWith(linkedEvents: linkedEvents, focusedDay: event.evntFechaInicioEvento);
           return CreateUpdateEventResponse(response: true, message: message);
         }
 
         final linkedEvents = replaceEventExist(state.linkedEvents, event);
-        state = state.copyWith(linkedEvents: linkedEvents);
+        state = state.copyWith(linkedEvents: linkedEvents, focusedDay: event.evntFechaInicioEvento);
 
+    
         /*
         final isEventInList = state.events.any((element) => element.id == event.id);
 

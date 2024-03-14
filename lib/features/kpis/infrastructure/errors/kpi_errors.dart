@@ -1,0 +1,4 @@
+
+
+
+class KpiNotFound implements Exception {}

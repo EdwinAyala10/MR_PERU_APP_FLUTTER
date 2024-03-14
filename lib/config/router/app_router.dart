@@ -8,6 +8,7 @@ import 'package:crm_app/features/companies/presentation/screens/company_detail_s
 import 'package:crm_app/features/contacts/contacts.dart';
 import 'package:crm_app/features/dashboard/dashboard.dart';
 import 'package:crm_app/features/documents/documents.dart';
+import 'package:crm_app/features/kpis/kpis.dart';
 import 'package:crm_app/features/opportunities/presentation/screens/opportunities_screen.dart';
 import 'package:crm_app/features/opportunities/presentation/screens/opportunity_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -62,12 +63,19 @@ final goRouterProvider = Provider((ref) {
       ///* Agenda Routes
       GoRoute(
         path: '/agenda',
-        builder: (context, state) => AgendaScreen(),
+        builder: (context, state) => const AgendaScreen(),
       ),
 
       GoRoute(
-        path: '/agenda2',
-        builder: (context, state) => TableComplexExample(),
+        path: '/kpis',
+        builder: (context, state) => const KpisScreen(),
+      ),
+
+      GoRoute(
+        path: '/kpi/:id', // /event/new
+        builder: (context, state) => KpiScreen(
+          kpiId: state.pathParameters['id'] ?? 'no-id',
+        ),
       ),
 
       GoRoute(

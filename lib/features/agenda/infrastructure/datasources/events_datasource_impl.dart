@@ -53,7 +53,9 @@ class EventsDatasourceImpl extends EventsDatasource {
   @override
   Future<Event> getEventById(String id) async {
     try {
+      print('ID: ${id}');
       final response = await dio.get('/evento/listar-evento-by-id/$id');
+      print('RES GETEVENTBYID: ${response}');
       final Event event = EventMapper.jsonToEntity(response.data['data']);
 
       return event;

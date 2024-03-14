@@ -50,13 +50,10 @@ class SideMenuState extends ConsumerState<SideMenu> {
               context.push('/agenda');
               break;
             case 6:
-              context.push('/objects');
+              context.push('/kpis');
               break;
             case 7:
               context.push('/documents');
-              break;
-            case 8:
-              context.push('/agenda2');
               break;
             default:
               context.push('/dashboard');
@@ -113,10 +110,6 @@ class SideMenuState extends ConsumerState<SideMenu> {
           const NavigationDrawerDestination(
             icon: Icon(Icons.document_scanner_sharp),
             label: Text('Documentos'),
-          ),
-          const NavigationDrawerDestination(
-            icon: Icon(Icons.document_scanner_sharp),
-            label: Text('Agenda 2'),
           ),
           const Padding(
             padding: EdgeInsets.fromLTRB(28, 16, 28, 10),
