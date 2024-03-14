@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 
 import 'package:crm_app/features/shared/shared.dart';
 
-
 class KpisScreen extends StatelessWidget {
   const KpisScreen({super.key});
 
@@ -27,50 +26,6 @@ class KpisScreen extends StatelessWidget {
         child: const Icon(Icons.add),
         onPressed: () {
           context.push('/kpi/new');
-
-          /*showModalBottomSheet(
-            context: context,
-            builder: (BuildContext context) {
-              return Container(
-                padding: const EdgeInsets.all(16.0),
-                height: 200,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    const Text(
-                      '¿Qué deseas?',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    ListTile(
-                      leading: const Icon(Icons.airline_stops_sharp),
-                      title: const Text('Crear nueva Actividad'),
-                      onTap: () {
-                        // Acción cuando se presiona esta opción
-                        Navigator.pop(context); // Cierra el modal
-                        context.push('/activity/no-id');
-
-                      },
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.chat),
-                      title: const Text('Nueva Actividad Whatsapp'),
-                      onTap: () {
-                        // Acción cuando se presiona esta opción
-                        //Navigator.pop(context);
-                        context.push('/activity');
-                         // Cierra el modal
-                      },
-                    ),
-                  ],
-                ),
-              );
-            },
-          );*/
-
         },
       ),
     );
@@ -105,69 +60,78 @@ class _KpisViewState extends ConsumerState {
     super.dispose();
   }
 
+    Future<void> _refresh() async {
+    // Simula una operación asíncrona de actualización de datos
+    //await Future.delayed(Duration(seconds: 1));
+    //setState(() {
+      // Simula la adición de nuevos datos o actualización de los existentes
+      //items = List.generate(20, (index) => "Item ${index + 100}");
+      ref.read(kpisProvider.notifier).loadNextPage();
+
+    //});
+  }
+
   @override
   Widget build(BuildContext context) {
     final kpisState = ref.watch(kpisProvider);
     
     return kpisState.kpis.length > 0
-        ? _ListKpis(kpis: kpisState.kpis)
+        ? _ListKpis(kpis: kpisState.kpis, onRefreshCallback: _refresh)
         : const _NoExistData();
   }
 }
 
 class _ListKpis extends StatelessWidget {
   final List<Kpi> kpis;
+  final Future<void> Function() onRefreshCallback;
 
-  const _ListKpis({super.key, required this.kpis});
+  const _ListKpis({super.key, required this.kpis, required this.onRefreshCallback});
+
+
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: ListView.separated(
-        itemCount: kpis.length,
-        separatorBuilder: (BuildContext context, int index) => const Divider(),
-        itemBuilder: (context, index) {
-          final kpi = kpis[index];
-
-          //DateTime fechaHora = DateTime.parse(DateTime.now());
-
-          // Formatear la fecha
-          //String fechaFormat = DateFormat('dd MMM yyyy').format(activity.actiFechaActividad);
-
-          // Formatear la hora
-          //String horaFormat = DateFormat('h:mm a').format(DateTime.now());
-
-          return ListTile(
-            title: Text(kpi.objrNombre),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(kpi.objrNombreCategoria ?? ''),
-                Text(kpi.objrNombreTipo ?? ''),
-              ],
-            ),
-            trailing: const Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  '',
-                    //fechaFormat+' '+horaFormat, 
-                    textAlign: TextAlign.right, 
-                    style: TextStyle(
-                      fontSize: 12,
-                  )
-                ),
-              ],
-            ),
-            leading: const Icon(
-              Icons.airline_stops_sharp
-            ),
-            onTap: () {
-              context.push('/kpi/${kpi.id}');
-            },
-          );
-        },
+      child: RefreshIndicator(
+        onRefresh: onRefreshCallback,
+        child: ListView.separated(
+          itemCount: kpis.length,
+          separatorBuilder: (BuildContext context, int index) => const Divider(),
+          itemBuilder: (context, index) {
+            final kpi = kpis[index];
+        
+            return ListTile(
+              title: Text(kpi.objrNombre),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(kpi.objrNombreCategoria ?? ''),
+                  Text(kpi.objrNombreTipo ?? ''),
+                ],
+              ),
+              trailing: const Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    '',
+                      //fechaFormat+' '+horaFormat, 
+                      textAlign: TextAlign.right, 
+                      style: TextStyle(
+                        fontSize: 12,
+                    )
+                  ),
+                ],
+              ),
+              leading: const Icon(
+                Icons.airline_stops_sharp
+              ),
+              onTap: () {
+                context.push('/kpi/${kpi.id}');
+              },
+            );
+          },
+        ),
       ),
     );
   }

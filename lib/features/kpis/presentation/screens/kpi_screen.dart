@@ -1,28 +1,13 @@
 import 'dart:async';
 
-import 'package:crm_app/features/activities/presentation/providers/providers.dart';
-import 'package:crm_app/features/companies/domain/domain.dart';
-import 'package:crm_app/features/contacts/domain/domain.dart';
 import 'package:crm_app/features/kpis/domain/domain.dart';
 import 'package:crm_app/features/kpis/presentation/providers/providers.dart';
-import 'package:crm_app/features/opportunities/domain/domain.dart';
 import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
 import 'package:crm_app/features/shared/shared.dart';
-
-import 'package:crm_app/features/contacts/presentation/search/search_contacts_active_provider.dart';
-import 'package:crm_app/features/contacts/presentation/delegates/search_contact_active_delegate.dart';
-
-import 'package:crm_app/features/companies/presentation/search/search_companies_active_provider.dart';
-import 'package:crm_app/features/companies/presentation/delegates/search_company_active_delegate.dart';
-
-import 'package:crm_app/features/opportunities/presentation/search/search_opportunities_active_provider.dart';
-import 'package:crm_app/features/opportunities/presentation/delegates/search_opportunity_active_delegate.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
-
 class KpiScreen extends ConsumerWidget {
   final String kpiId;
 
@@ -134,30 +119,16 @@ class _KpiInformation extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          CustomCompanyField(
+            label: 'Nombre de objetivo *',
+            initialValue: kpiForm.objrNombre.value,
+            onChanged: ref
+                .read(kpiFormProvider(kpi).notifier)
+                .onNombreChanged,
+            errorMessage: kpiForm.objrNombre.errorMessage,
+          ),
           const SizedBox(height: 10),
-          const SizedBox(height: 20),
-          const Text(
-            'Responsable',
-            style: TextStyle(fontWeight: FontWeight.w500),
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: Wrap(
-                  spacing: 8.0,
-                  children: [
-                    Chip(label: Text(kpiForm.objrNombreUsuarioResponsable ?? ''))
-                  ],
-                  /*List.generate(
-                    tags.length,
-                    (index) => Chip(
-                      label: Text(tags[index]),
-                    ),
-                  ),*/
-                ),
-              ),
-            ],
-          ),
+          
           Padding(
             padding: const EdgeInsets.all(2.0),
             child: Column(
@@ -318,15 +289,7 @@ class _KpiInformation extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: 30),
-          CustomCompanyField(
-            label: 'Nombre de objetivo *',
-            initialValue: kpiForm.objrNombre.value,
-            onChanged: ref
-                .read(kpiFormProvider(kpi).notifier)
-                .onNombreChanged,
-            errorMessage: kpiForm.objrNombre.errorMessage,
-          ),
+          
           const SizedBox(height: 10),
           Padding(
             padding: const EdgeInsets.all(2.0),
@@ -378,6 +341,23 @@ class _KpiInformation extends ConsumerWidget {
                 ),
               ],
             ),
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            'Responsable',
+            style: TextStyle(fontWeight: FontWeight.w500),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: Wrap(
+                  spacing: 8.0,
+                  children: [
+                    Chip(label: Text(kpiForm.objrNombreUsuarioResponsable ?? ''))
+                  ],
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 20),
           CustomCompanyField(

@@ -36,9 +36,17 @@ class KpiFormNotifier extends StateNotifier<KpiFormState> {
           objrIdUsuarioResponsable: kpi.objrIdUsuarioResponsable ?? '',
           objrNombre: Name.dirty(kpi.objrNombre),
           objrObservaciones: kpi.objrObservaciones ?? '',
+          objrNombreAsignacion: kpi.objrNombreAsignacion ?? '',
+          objrNombreCategoria: kpi.objrNombreCategoria ?? '',
+          objrNombrePeriodicidad: kpi.objrNombrePeriodicidad ?? '',
+          objrNombreTipo: kpi.objrNombreTipo ?? '',
+          objrNombreUsuarioRegistro: kpi.objrNombreUsuarioRegistro ?? '',
+          objrNombreUsuarioResponsable: kpi.objrNombreUsuarioResponsable ?? '',
         ));
 
   Future<CreateUpdateKpiResponse> onFormSubmit() async {
+
+    print('LLEGO ONFORMSUBMIT');
     _touchedEverything();
     if (!state.isFormValid) {
       return CreateUpdateKpiResponse(
@@ -50,7 +58,7 @@ class KpiFormNotifier extends StateNotifier<KpiFormState> {
     }
 
     final kpiLike = {
-      'OBJR_ID_OBJETIVO': (state.id == 'new') ? '' : state.id,
+      'OBJR_ID_OBJETIVO': (state.id == 'new') ? null : state.id,
       'OBJR_NOMBRE': state.objrNombre.value,
       'OBJR_ID_USUARIO_RESPONSABLE': state.objrIdUsuarioResponsable,
       'OBJR_ID_ASIGNACION': state.objrIdAsignacion,
@@ -59,6 +67,10 @@ class KpiFormNotifier extends StateNotifier<KpiFormState> {
       'OBJR_OBSERVACIONES': state.objrObservaciones,
       'OBJR_ID_USUARIO_REGISTRO': state.objrIdUsuarioRegistro,
       'OBJR_ID_CATEGORIA': state.objrIdCategoria,
+      'OBJR_NOMNRE_ASIGNACION': state.objrNombreAsignacion,
+      'OBJR_NOMNRE_CATEGORIA': state.objrIdCategoria,
+      'OBJR_NOMNRE_TIPO': state.objrNombreTipo,
+      'OBJR_NOMNRE_PERIODICIDAD': state.objrNombrePeriodicidad,
     };
 
     try {

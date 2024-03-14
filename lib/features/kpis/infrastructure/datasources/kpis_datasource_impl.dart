@@ -21,13 +21,17 @@ class KpisDatasourceImpl extends KpisDatasource {
       final String? id = kpiLike['OBJR_ID_OBJETIVO'];
       print('ID CREATE: ${id}');
       final String method = 'POST';
-      final String url = (id == "")
+      final String url = (id == null)
           ? '/objetivo/create-objetivo'
           : '/objetivo/edit-objetivo';
 
       print('KPILIKE: ${kpiLike}');
 
       print('URL: ${url}');
+
+      if (id == null) {
+        kpiLike.remove('OBJR_ID_OBJETIVO');
+      }
 
       final response = await dio.request(url,
           data: kpiLike, options: Options(method: method));

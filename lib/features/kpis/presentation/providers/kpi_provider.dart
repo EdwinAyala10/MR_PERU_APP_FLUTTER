@@ -8,12 +8,9 @@ import 'kpis_repository_provider.dart';
 final kpiProvider = StateNotifierProvider.autoDispose
     .family<KpiNotifier, KpiState, String>((ref, id) {
   final kpisRepository = ref.watch(kpisRepositoryProvider);
-  final user = ref.watch( authProvider ).user;
+  final user = ref.watch(authProvider).user;
 
-  return KpiNotifier(
-    kpisRepository: kpisRepository,
-    user: user!,
-    id: id);
+  return KpiNotifier(kpisRepository: kpisRepository, user: user!, id: id);
 });
 
 class KpiNotifier extends StateNotifier<KpiState> {
@@ -35,9 +32,9 @@ class KpiNotifier extends StateNotifier<KpiState> {
       objrIdCategoria: '',
       objrIdPeriodicidad: '',
       objrIdTipo: '',
-      objrIdUsuarioRegistro: user.id,
+      objrIdUsuarioRegistro: user.code,
       objrNombreUsuarioRegistro: user.name,
-      objrIdUsuarioResponsable: user.id,
+      objrIdUsuarioResponsable: user.code,
       objrNombreUsuarioResponsable: user.name,
       objrNombre: '',
       objrObservaciones: '',
@@ -45,7 +42,10 @@ class KpiNotifier extends StateNotifier<KpiState> {
   }
 
   Future<void> loadKpi() async {
+    print('ANTES TRY');
     try {
+      print('STATE ID LOAD KPI: ${state.id}');
+
       if (state.id == 'new') {
         state = state.copyWith(
           isLoading: false,

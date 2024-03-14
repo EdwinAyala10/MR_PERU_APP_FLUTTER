@@ -47,6 +47,7 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
         ));
 
   Future<CreateUpdateActivityResponse> onFormSubmit() async {
+    print('QUE PASO');
     _touchedEverything();
     if (!state.isFormValid) {
       return CreateUpdateActivityResponse(
