@@ -8,7 +8,6 @@ import 'package:go_router/go_router.dart';
 import 'package:crm_app/features/shared/shared.dart';
 import 'package:intl/intl.dart';
 
-import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class AgendaScreen extends StatelessWidget {
@@ -73,15 +72,15 @@ class _AgendaViewState extends ConsumerState {
 
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
     //if (!isSameDay(eventState, selectedDay)) {
-      /*setState(() {
+    /*setState(() {
         _selectedDay = selectedDay;
         _focusedDay.value = focusedDay;
         _selectedEvents.value = _getEventsForDay(selectedDay);
       });*/
 
-      ref.read(eventsProvider.notifier).onChangeSelectedDay(selectedDay);
-      ref.read(eventsProvider.notifier).onChangeFocusedDay(focusedDay);
-      ref.read(eventsProvider.notifier).onSelectedEvents(selectedDay);
+    ref.read(eventsProvider.notifier).onChangeSelectedDay(selectedDay);
+    ref.read(eventsProvider.notifier).onChangeFocusedDay(focusedDay);
+    ref.read(eventsProvider.notifier).onSelectedEvents(selectedDay);
     //}
   }
 
@@ -122,32 +121,46 @@ class _AgendaViewState extends ConsumerState {
             },
           ),
           TableCalendar<Event>(
-              firstDay: kFirstDay,
-              lastDay: kLastDay,
-              focusedDay: ValueNotifier(eventsState.focusedDay).value,
-              //focusedDay: _focusedDay.value,
-              locale: 'es_ES',
-              startingDayOfWeek: StartingDayOfWeek.monday,
-              headerVisible: false,
-              selectedDayPredicate: (day) {
-                return isSameDay(eventsState.selectedDay, day);
-              },
-              calendarFormat: CalendarFormat.week,
-              //eventLoader: _getEventsForDay,
-              eventLoader: (day) {
-                return eventsState
-                        .linkedEvents[DateTime(day.year, day.month, day.day)] ??
-                    [];
-              },
-              onDaySelected: _onDaySelected,
-              onCalendarCreated: (controller) => _pageController = controller,
-              onPageChanged: (focusedDay) {
-                //_focusedDay.value = focusedDay;
-                ref
-                    .read(eventsProvider.notifier)
-                    .onChangeFocusedDay(focusedDay);
-              }),
+            firstDay: kFirstDay,
+            lastDay: kLastDay,
+            focusedDay: ValueNotifier(eventsState.focusedDay).value,
+            //focusedDay: _focusedDay.value,
+            locale: 'es_ES',
+            startingDayOfWeek: StartingDayOfWeek.monday,
+            headerVisible: false,
+            selectedDayPredicate: (day) {
+              return isSameDay(eventsState.selectedDay, day);
+            },
+            calendarFormat: CalendarFormat.week,
+            //eventLoader: _getEventsForDay,
+            eventLoader: (day) {
+              return eventsState
+                      .linkedEvents[DateTime(day.year, day.month, day.day)] ??
+                  [];
+            },
+            onDaySelected: _onDaySelected,
+            onCalendarCreated: (controller) => _pageController = controller,
+            onPageChanged: (focusedDay) {
+              //_focusedDay.value = focusedDay;
+              ref
+                  .read(eventsProvider.notifier)
+                  .onChangeFocusedDay(focusedDay);
+            },
+            calendarStyle: CalendarStyle(
+              markerDecoration: BoxDecoration(
+                color: Colors.amber,
+                borderRadius: BorderRadius.circular(12.0),
+              ),
+              markersMaxCount: 4,
+              markerSize: 6,
+              selectedDecoration: const BoxDecoration(
+              color: Colors.blueGrey, // Cambia el color a tu gusto
+              shape: BoxShape.circle,
+            )
+            ),
+          ),
           const SizedBox(height: 8.0),
+          const Divider(),
           Expanded(
             child: ValueListenableBuilder<List<Event>>(
               //valueListenable: _selectedEvents,
@@ -157,51 +170,66 @@ class _AgendaViewState extends ConsumerState {
                     ? ListView.builder(
                         itemCount: value.length,
                         itemBuilder: (context, index) {
-                          return Container(
-                            margin: const EdgeInsets.symmetric(
-                              horizontal: 12.0,
-                              vertical: 4.0,
-                            ),
-                            decoration: BoxDecoration(
-                              border: Border.all(),
-                              borderRadius: BorderRadius.circular(6.0),
-                            ),
-                            child: ListTile(
-                              onTap: () {
-                                context.push('/event/${value[index].id}');
-                              },
-                              leading: Column(
-                                children: [
-                                  Text(''),
-                                  Text(DateFormat('hh:mm a').format(
-                                        value[index].evntHoraInicioEvento != null
+                          Widget divider =
+                              index != 0 ? const Divider() : const SizedBox.shrink();
+                          final event = value[index];
+
+                          return Column(
+                            children: [
+                              ListTile(
+                                onTap: () {
+                                  context.push('/event/${value[index].id}');
+                                },
+                                leading: Column(
+                                  children: [
+                                    Text(
+                                        DateFormat('hh:mm a').format(value[
+                                                        index]
+                                                    .evntHoraInicioEvento !=
+                                                null
                                             ? DateFormat('HH:mm:ss').parse(
-                                                value[index].evntHoraInicioEvento ?? '')
-                                            : DateTime.now()), 
-                                    style: TextStyle(fontWeight: FontWeight.w600)),
-                                  Text(DateFormat('hh:mm a').format(
-                                        value[index].evntHoraFinEvento != null
+                                                value[index]
+                                                        .evntHoraInicioEvento ??
+                                                    '')
+                                            : DateTime.now()),
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.w600)),
+                                    Text(
+                                        DateFormat('hh:mm a').format(value[index]
+                                                    .evntHoraFinEvento !=
+                                                null
                                             ? DateFormat('HH:mm:ss').parse(
-                                                value[index].evntHoraInicioEvento ?? '')
-                                            : DateTime.now()), 
-                                    style: TextStyle(fontWeight: FontWeight.w600)),
-                                ],
+                                                value[index]
+                                                        .evntHoraInicioEvento ??
+                                                    '')
+                                            : DateTime.now()),
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.w600)),
+                                  ],
+                                ),
+                                title: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(event.evntAsunto,
+                                        style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500)),
+                                    Text('${event.evntNombreTipoGestion}',
+                                        style: const TextStyle(fontSize: 14)),
+                                  ],
+                                ),
                               ),
-                              title: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('${value[index].evntAsunto}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                                  Text('${value[index].evntNombreTipoGestion}', style: TextStyle(fontSize: 14))
-                                ],
-                              ),
-                            ),
+                              const Divider(),
+                            ],
                           );
                         },
                       )
                     : const Center(
-                      child: Text('Sin eventos', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500) ),
-                    );
+                        child: Text('Sin eventos',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w500)),
+                      );
               },
             ),
           ),

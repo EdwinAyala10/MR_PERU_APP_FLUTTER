@@ -67,6 +67,8 @@ class EventNotifier extends StateNotifier<EventState> {
       evntRuc: '',
       arraycontacto: [],
       arraycontactoElimimar: [],
+      arrayresponsable: [],
+      arrayresponsableElimimar: [],
       todoDia: '0',
       opt: '',
     );

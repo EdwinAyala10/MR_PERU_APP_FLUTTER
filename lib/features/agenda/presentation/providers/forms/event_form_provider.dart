@@ -1,4 +1,6 @@
+import 'package:crm_app/features/auth/domain/domain.dart';
 import 'package:crm_app/features/contacts/domain/domain.dart';
+import 'package:crm_app/features/users/domain/domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
 
@@ -56,6 +58,8 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
           opt: event.opt ?? '',
           arraycontacto: event.arraycontacto ?? [],
           arraycontactoElimimar: event.arraycontacto ?? [],
+          arrayresponsable: event.arrayresponsable ?? [],
+          arrayresponsableElimimar: event.arrayresponsableElimimar ?? [],
         ));
 
   Future<CreateUpdateEventResponse> onFormSubmit() async {
@@ -102,6 +106,13 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
       'ARRAYCONTACTO_ELIMIMAR': state.arraycontactoElimimar != null
           ? List<dynamic>.from(
               state.arraycontactoElimimar!.map((x) => x.toJson()))
+          : [],
+      'ARRAYRESPONSABLE': state.arrayresponsable != null
+          ? List<dynamic>.from(state.arrayresponsable!.map((x) => x.toJson()))
+          : [],
+      'ARRAYRESPONSABLE_ELIMIMAR': state.arrayresponsableElimimar != null
+          ? List<dynamic>.from(
+              state.arrayresponsableElimimar!.map((x) => x.toJson()))
           : [],
     };
 
@@ -171,7 +182,6 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
   }
 
   void onContactoChanged(Contact contacto) {
-    print('DESC: ${contacto.contactoDesc}');
 
     bool objExist = state.arraycontacto!.any((objeto) =>
         objeto.ecntIdContacto == contacto.id &&
@@ -193,47 +203,24 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
     }
   }
 
-  /*void onContactoChanged(String value, String name) {
-    state = state.copyWith(
-        actiIdContacto: Contacto.dirty(value),
-        actiNombreContacto: name,
-        isFormValid: Formz.validate([
-          Ruc.dirty(state.actiIdContacto.value),
-          TipoGestion.dirty(value),
-          Contacto.dirty(state.actiIdContacto.value)
-        ]));
-  }
+  void onResponsableChanged(UserMaster responsable) {
 
-  void onTipoGestionChanged(String value, String name) {
-    state = state.copyWith(
-        actiIdTipoGestion: TipoGestion.dirty(value),
-        actiNombreTipoGestion: name,
-        isFormValid: Formz.validate([
-          Ruc.dirty(state.actiRuc.value),
-          TipoGestion.dirty(value),
-          Contacto.dirty(state.actiIdContacto.value)
-        ]));
-  }
+    bool objExist = state.arrayresponsable!.any((objeto) =>
+        objeto.ecntIdResponsable == responsable.id &&
+        objeto.nombre == responsable.name);
 
-  void onFechaChanged(DateTime fecha) {
-    state = state.copyWith(actiFechaActividad: fecha);
-  }
+    if (!objExist) {
+      ResponsableArray array = ResponsableArray();
+      array.ecntIdResponsable = responsable.id;
+      array.nombre = responsable.name;
 
-  void onHoraChanged(String hora) {
-    state = state.copyWith(actiHoraActividad: hora);
-  }
+      List<ResponsableArray> arrayResponsables = [...state.arrayresponsable ?? [], array];
 
-  void onOportunidadChanged(String id, String nombre) {
-    state = state.copyWith(actiIdOportunidad: id, actiNombreOportunidad: nombre);
+      state = state.copyWith(arrayresponsable: arrayResponsables);
+    } else {
+      state = state;
+    }
   }
-
-  void onComentarioChanged(String comentario) {
-    state = state.copyWith(actiComentario: comentario);
-  }
-
-  void onResponsableChanged(String id, String nombre) {
-    state = state.copyWith(actiIdUsuarioResponsable: id, actiNombreResponsable: nombre);
-  }*/
 }
 
 class EventFormState {
@@ -268,6 +255,8 @@ class EventFormState {
   final String? evntCorreosExternos;
   final List<ContactArray>? arraycontacto;
   final List<ContactArray>? arraycontactoElimimar;
+  final List<ResponsableArray>? arrayresponsable;
+  final List<ResponsableArray>? arrayresponsableElimimar;
 
   EventFormState(
       {this.isFormValid = false,
@@ -299,7 +288,10 @@ class EventFormState {
       this.evntNombreOportunidad = '',
       this.evntCorreosExternos = '',
       this.arraycontacto,
-      this.arraycontactoElimimar});
+      this.arraycontactoElimimar,
+      this.arrayresponsable,
+      this.arrayresponsableElimimar
+      });
 
   EventFormState copyWith({
     bool? isFormValid,
@@ -332,6 +324,8 @@ class EventFormState {
     String? evntCorreosExternos,
     List<ContactArray>? arraycontacto,
     List<ContactArray>? arraycontactoElimimar,
+    List<ResponsableArray>? arrayresponsable,
+    List<ResponsableArray>? arrayresponsableElimimar,
   }) =>
       EventFormState(
         isFormValid: isFormValid ?? this.isFormValid,
@@ -374,5 +368,8 @@ class EventFormState {
         arraycontacto: arraycontacto ?? this.arraycontacto,
         arraycontactoElimimar:
             arraycontactoElimimar ?? this.arraycontactoElimimar,
+        arrayresponsable: arrayresponsable ?? this.arrayresponsable,
+        arrayresponsableElimimar:
+            arrayresponsableElimimar ?? this.arrayresponsableElimimar,
       );
 }

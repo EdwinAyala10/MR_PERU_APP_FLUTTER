@@ -15,6 +15,9 @@ import 'package:crm_app/features/companies/presentation/delegates/search_company
 
 import 'package:crm_app/features/opportunities/presentation/search/search_opportunities_active_provider.dart';
 import 'package:crm_app/features/opportunities/presentation/delegates/search_opportunity_active_delegate.dart';
+import 'package:crm_app/features/users/domain/domain.dart';
+import 'package:crm_app/features/users/presentation/delegates/search_user_delegate.dart';
+import 'package:crm_app/features/users/presentation/search/search_users_provider.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -406,29 +409,69 @@ class _EventInformation extends ConsumerWidget {
           const Text('INVITADOS',
               style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15.0)),
           const SizedBox(height: 10),
-          const Text('Gestion de invitados',
+          const Row(
+            children: [
+              Text('Gestion de invitados',
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+              Spacer(),
+              Text(
+                'Contactos', 
+                style: TextStyle(color: Colors.amberAccent, fontWeight: FontWeight.w600)
+              ),
+              SizedBox(
+                width: 14.0,
+              ),
+              Text(
+                'Personal', 
+                style: TextStyle(color: Colors.cyanAccent, fontWeight: FontWeight.w600)
+              ),
+              SizedBox(
+                width: 6.0,
+              ),
+            ],
+          ),
+          
           const SizedBox(height: 4),
           const Text(
             'Para añadir contactos en este evento tienes que seleccionar una empresa previamente',
             style: TextStyle(fontSize: 12, color: Colors.black54),
           ),
+          
+          
           const SizedBox(height: 5),
           Row(
             children: [
               Expanded(
-                child: eventForm.arraycontacto != null ? Wrap(
-                  spacing: 6.0,
-                  children: eventForm.arraycontacto != null
-                  ? List<Widget>.from(eventForm.arraycontacto!.map((item) => Chip(
-                    label: Text(item.nombre ?? '', style: TextStyle( fontSize: 12 )), // Aquí deberías colocar el texto que deseas mostrar en el chip para cada elemento de la lista
-                    onDeleted: () {
-                      // Aquí puedes manejar la eliminación del chip si es necesario
-                    },
-                  ))) 
-                  : [],
-                ) 
-                : const Text('Seleccione contactos', style: TextStyle( color: Colors.black45 )),
+                child: Column(
+                  children: [
+                    eventForm.arraycontacto != null ? Wrap(
+                      spacing: 6.0,
+                      children: eventForm.arraycontacto != null
+                      ? List<Widget>.from(eventForm.arraycontacto!.map((item) => Chip(
+                        backgroundColor: Colors.amberAccent.shade200,
+                        label: Text(item.nombre ?? '', style: const TextStyle( fontSize: 12 )), // Aquí deberías colocar el texto que deseas mostrar en el chip para cada elemento de la lista
+                        onDeleted: () {
+                          // Aquí puedes manejar la eliminación del chip si es necesario
+                        },
+                      ))) 
+                      : [],
+                    ) 
+                    : const Text('Seleccione contactos', style: TextStyle( color: Colors.black45 )),
+                    eventForm.arrayresponsable != null ? Wrap(
+                      spacing: 6.0,
+                      children: eventForm.arrayresponsable   != null
+                      ? List<Widget>.from(eventForm.arrayresponsable!.map((item) => Chip(
+                        backgroundColor: Colors.cyanAccent,
+                        label: Text(item.nombre ?? '', style: const TextStyle( fontSize: 12 )), // Aquí deberías colocar el texto que deseas mostrar en el chip para cada elemento de la lista
+                        onDeleted: () {
+                          // Aquí puedes manejar la eliminación del chip si es necesario
+                        },
+                      ))) 
+                      : [],
+                    ) 
+                    : const Text('Seleccione responsable', style: TextStyle( color: Colors.black45 )),
+                  ],
+                )
               ),
               ElevatedButton(
                 onPressed: () {
@@ -438,9 +481,10 @@ class _EventInformation extends ConsumerWidget {
                     builder: (BuildContext context) {
                       return Container(
                         padding: const EdgeInsets.all(16.0),
-                        height: 320,
+                        //height: 320,
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          //crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             const Center(
                               child: Text(
@@ -475,7 +519,7 @@ class _EventInformation extends ConsumerWidget {
                               title: const Center(child: Text('Invitar personas de MRPERUSA')),
                               onTap: () {
                                 Navigator.pop(context); // Cierra el modal
-                                //_openSearchContacts(context, ref);
+                                _openSearchUsers(context, ref);
                               },
                             ),
                             const Divider(),
@@ -636,7 +680,7 @@ class _EventInformation extends ConsumerWidget {
 
     //if (picked != null && picked != selectedDate) {
     if (picked != null) {
-      String formattedTime = picked.toString().substring(10, 15) + ':00';
+      String formattedTime = '${picked.toString().substring(10, 15)}:00';
 
       if (type == 'inicio') {
         ref
@@ -711,6 +755,25 @@ class _EventInformation extends ConsumerWidget {
 
       ref.read(eventFormProvider(event).notifier).onContactoChanged(contact);
 
+    });
+  }
+
+  void _openSearchUsers(BuildContext context, WidgetRef ref) async {
+    final searchedUsers = ref.read(searchedUsersProvider);
+    final searchQuery = ref.read(searchQueryUsersProvider);
+
+    showSearch<UserMaster?>(
+            query: searchQuery,
+            context: context,
+            delegate: SearchUserDelegate(
+                initialUsers: searchedUsers,
+                searchUsers: ref
+                    .read(searchedUsersProvider.notifier)
+                    .searchUsersByQuery))
+        .then((user) {
+      if (user == null) return;
+
+      ref.read(eventFormProvider(event).notifier).onResponsableChanged(user);
     });
   }
 }

@@ -1,4 +1,5 @@
 import 'package:crm_app/features/agenda/domain/domain.dart';
+import 'package:crm_app/features/contacts/domain/domain.dart';
 import 'package:crm_app/features/contacts/domain/entities/contact_array.dart';
 
 
@@ -9,6 +10,8 @@ class EventMapper {
 
     arraycontacto: json["ARRAYCONTACTO"] != null ? List<ContactArray>.from(json["ARRAYCONTACTO"].map((x) => ContactArray.fromJson(x))) : [],
     arraycontactoElimimar: json["ARRAYCONTACTO_ELIMIMAR"] != null ? List<ContactArray>.from(json["ARRAYCONTACTO_ELIMIMAR"].map((x) => ContactArray.fromJson(x))) : [],
+    arrayresponsable: json["ARRAYRESPONSABLE"] != null ? List<ResponsableArray>.from(json["ARRAYRESPONSABLE"].map((x) => ResponsableArray.fromJson(x))) : [],
+    arrayresponsableElimimar: json["ARRAYRESPONSABLE_ELIMIMAR"] != null ? List<ResponsableArray>.from(json["ARRAYRESPONSABLE_ELIMIMAR"].map((x) => ResponsableArray.fromJson(x))) : [],
     evntAsunto: json['EVNT_ASUNTO'] ?? '',
     evntComentario: json['EVNT_COMENTARIO'] ?? '',
     evntCoordenadaLatitud: json['EVNT_COORDENADA_LATITUD'] ?? '',

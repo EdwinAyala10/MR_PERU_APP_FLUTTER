@@ -180,7 +180,6 @@ class _AgendaScreenBackState extends State<AgendaScreenBack> {
       ),
     );
   }
-  
 }
 
 class _CalendarHeader extends StatelessWidget {

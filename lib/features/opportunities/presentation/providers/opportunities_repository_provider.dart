@@ -9,10 +9,10 @@ final opportunitiesRepositoryProvider = Provider<OpportunitiesRepository>((ref) 
   
   final accessToken = ref.watch( authProvider ).user?.token ?? '';
   
-  final contactssRepository = OpportunitiesRepositoryImpl(
+  final opportunitiesRepository = OpportunitiesRepositoryImpl(
     OpportunitiesDatasourceImpl(accessToken: accessToken )
   );
 
-  return contactssRepository;
+  return opportunitiesRepository;
 });
 

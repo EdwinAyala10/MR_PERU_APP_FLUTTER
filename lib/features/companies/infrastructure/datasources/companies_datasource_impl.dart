@@ -20,15 +20,21 @@ class CompaniesDatasourceImpl extends CompaniesDatasource {
       Map<dynamic, dynamic> companyLike) async {
     try {
       final String? rucId = companyLike['RUCID'];
-      final String method = (rucId == null) ? 'POST' : 'POST';
+      const String method = 'POST';
       final String url = (rucId == null)
           ? '/cliente/create-cliente'
           : '/cliente/update-cliente';
 
       //companyLike.remove('rucId');
 
+      print('URL CREATE COMPANY: ${url}');
+      print('RUC ID: ${rucId}');
+      print('companyLike: ${companyLike}');
+
       final response = await dio.request(url,
           data: companyLike, options: Options(method: method));
+
+      print('RESP companies: ${response}');
 
       final CompanyResponse companyResponse =
           CompanyResponseMapper.jsonToEntity(response.data);
@@ -76,22 +82,19 @@ class CompaniesDatasourceImpl extends CompaniesDatasource {
 
     return companies;
   }
-  
+
   @override
   Future<List<Company>> searchCompaniesActive(String dni, String query) async {
-
     final data = {
       "SEARCH": query,
     };
 
-    final response =
-        await dio.get('/cliente/clientes-activo/$dni', data: data);
+    final response = await dio.get('/cliente/clientes-activo/$dni', data: data);
     final List<Company> companies = [];
     for (final company in response.data['data'] ?? []) {
       companies.add(CompanyMapper.jsonToEntity(company));
     }
 
     return companies;
-
   }
 }

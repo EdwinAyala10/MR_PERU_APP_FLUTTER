@@ -1,4 +1,4 @@
-import 'package:crm_app/features/contacts/domain/entities/contact_array.dart';
+import 'package:crm_app/features/contacts/domain/domain.dart';
 
 class Event {
   String id;
@@ -30,6 +30,8 @@ class Event {
   String? evntCorreosExternos;
   List<ContactArray>? arraycontacto;
   List<ContactArray>? arraycontactoElimimar;
+  List<ResponsableArray>? arrayresponsable;
+  List<ResponsableArray>? arrayresponsableElimimar;
 
   Event({
     required this.id,
@@ -61,5 +63,7 @@ class Event {
     this.evntFechaFinEvento,
     this.arraycontacto,
     this.arraycontactoElimimar,
+    this.arrayresponsable,
+    this.arrayresponsableElimimar,
   });
 }
