@@ -1,4 +1,6 @@
+import 'package:crm_app/features/kpis/domain/entities/periodicidad.dart';
 import 'package:crm_app/features/kpis/infrastructure/mappers/kpi_response_mapper.dart';
+import 'package:crm_app/features/kpis/infrastructure/mappers/periodicidad_mapper.dart';
 import 'package:dio/dio.dart';
 import 'package:crm_app/config/config.dart';
 import 'package:crm_app/features/kpis/domain/domain.dart';
@@ -78,5 +80,16 @@ class KpisDatasourceImpl extends KpisDatasource {
     }
 
     return kpis;
+  }
+
+  @override
+  Future<List<Periodicidad>> getPeriodicidades() async {
+    final response = await dio.get('/objetivo/listar-periodicidad');
+    final List<Periodicidad> periodicidades = [];
+    for (final periodicidad in response.data['data'] ?? []) {
+      periodicidades.add(PeriodicidadMapper.jsonToEntity(periodicidad));
+    }
+
+    return periodicidades;
   }
 }

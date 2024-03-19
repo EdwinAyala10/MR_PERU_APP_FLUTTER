@@ -1,5 +1,6 @@
 import 'package:crm_app/features/auth/domain/domain.dart';
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:crm_app/features/kpis/domain/entities/periodicidad.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:crm_app/features/kpis/domain/domain.dart';
 
@@ -25,31 +26,34 @@ class KpiNotifier extends StateNotifier<KpiState> {
     loadKpi();
   }
 
-  Kpi newEmptyKpi() {
+  Kpi newEmptyKpi(List<Periodicidad> periodicidades) {
     return Kpi(
       id: 'new',
-      objrIdAsignacion: '',
-      objrIdCategoria: '',
-      objrIdPeriodicidad: '',
-      objrIdTipo: '',
+      objrIdAsignacion: '01',
+      objrIdCategoria: '01',
+      objrIdPeriodicidad: '01',
+      objrIdTipo: '01',
       objrIdUsuarioRegistro: user.code,
       objrNombreUsuarioRegistro: user.name,
       objrIdUsuarioResponsable: user.code,
       objrNombreUsuarioResponsable: user.name,
       objrNombre: '',
+      objrCantidad: '0',
       objrObservaciones: '',
+      objrValorDifMes: false,
+      arrayuserasignacion: [],
+      peobIdPeriodicidad: periodicidades,
     );
   }
 
   Future<void> loadKpi() async {
-    print('ANTES TRY');
     try {
-      print('STATE ID LOAD KPI: ${state.id}');
-
       if (state.id == 'new') {
+        final periodicidades = await kpisRepository.getPeriodicidades();
+
         state = state.copyWith(
           isLoading: false,
-          kpi: newEmptyKpi(),
+          kpi: newEmptyKpi(periodicidades),
         );
 
         return;
@@ -68,12 +72,14 @@ class KpiNotifier extends StateNotifier<KpiState> {
 class KpiState {
   final String id;
   final Kpi? kpi;
+  final List<Periodicidad>? periodicidades;
   final bool isLoading;
   final bool isSaving;
 
   KpiState({
     required this.id,
     this.kpi,
+    this.periodicidades,
     this.isLoading = true,
     this.isSaving = false,
   });
@@ -81,12 +87,14 @@ class KpiState {
   KpiState copyWith({
     String? id,
     Kpi? kpi,
+    List<Periodicidad>? periodicidades,
     bool? isLoading,
     bool? isSaving,
   }) =>
       KpiState(
         id: id ?? this.id,
         kpi: kpi ?? this.kpi,
+        periodicidades: periodicidades ?? this.periodicidades,
         isLoading: isLoading ?? this.isLoading,
         isSaving: isSaving ?? this.isSaving,
       );

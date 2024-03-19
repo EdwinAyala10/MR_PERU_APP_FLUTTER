@@ -1,4 +1,6 @@
 import 'package:crm_app/features/kpis/domain/domain.dart';
+import 'package:crm_app/features/kpis/domain/entities/array_user.dart';
+import 'package:crm_app/features/kpis/domain/entities/periodicidad.dart';
 
 
 class KpiMapper {
@@ -18,7 +20,8 @@ class KpiMapper {
     objrNombreCategoria: json['OBJR_NOMNRE_CATEGORIA'] ?? '',
     objrNombreTipo: json['OBJR_NOMNRE_TIPO'] ?? '',
     objrNombrePeriodicidad: json['OBJR_NOMNRE_PERIODICIDAD'] ?? '',
-
+    arrayuserasignacion: json["ARRAYUSERASIGNACION"] != null ? List<ArrayUser>.from(json["ARRAYUSERASIGNACION"].map((x) => ArrayUser.fromJson(x))) : [],
+    peobIdPeriodicidad: List<Periodicidad>.from(json["PEOB_ID_PERIODICIDAD"].map((x) => Periodicidad.fromJson(x))),
   );
 
 }

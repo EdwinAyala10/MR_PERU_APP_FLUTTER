@@ -1,8 +1,8 @@
 import 'package:crm_app/features/shared/shared.dart';
 import 'package:floating_action_bubble_custom/floating_action_bubble_custom.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -128,64 +128,217 @@ class _DashboardView extends StatefulWidget {
   State<_DashboardView> createState() => _DashboardViewState();
 }
 
-class _DashboardViewState extends State<_DashboardView> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<Offset> _animation;
+class _DashboardViewState extends State<_DashboardView>
+    with SingleTickerProviderStateMixin {
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1000),
-    );
-    _animation = Tween(
-      begin: const Offset(0.0, 0.0),
-      end: const Offset(0.0, -0.2), // Mueve el emoji hacia arriba
-    ).animate(_controller);
-
-    // Iniciar la animación
-    _controller.forward();
   }
 
   @override
   void dispose() {
-    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    DateTime date = DateTime.now();
+    String dateCurrent = DateFormat.yMMMMEEEEd('es').format(date);
+
     return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            // Usamos AnimatedBuilder para animar el emoji
-            AnimatedBuilder(
-              animation: _controller,
-              builder: (context, child) {
-                return Transform.translate(
-                  offset: _animation.value,
-                  child: child,
-                );
-              },
-              child: const Text(
-                '👋',
-                style: TextStyle(
-                  fontSize: 100,
+      child: Column(
+        //mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          const SizedBox(
+            height: 20,
+          ),
+          Text(
+            dateCurrent,
+            style: const TextStyle(fontSize: 22, color: Colors.black54),
+          ),
+          const SizedBox(
+            height: 4,
+          ),
+          Center(
+            child: Container(
+              margin: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(6),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.3),
+                    spreadRadius: 3,
+                    blurRadius: 5,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      progressKpi(percentage: 0.57, title: 'Nuevas empresas', subTitle: 'Mensualmente', subSubTitle: 'Equipo', advance: '8', total: '30'),
+                      progressKpi(percentage: 0.32, title: 'Oportunidades ganadas grandes logros', subTitle: 'Mensualmente', subSubTitle: 'Equipo', advance: '\$ 4.9K', total: '\$ 80K'),
+                      progressKpi(percentage: 0.65, title: 'Check-ins', subTitle: 'Semanalmente', subSubTitle: 'Equipo', advance: '4', total: '30'),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black12, // Color de fondo del botón
+                      borderRadius: BorderRadius.circular(4), // Bordes redondeados del botón
+                    ),
+                    child: TextButton(
+                      onPressed: () {
+                        // Aquí puedes implementar la lógica para "Mostrar Todo"
+                      },
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'Mostrar Todo',
+                            style: TextStyle(
+                              color: Colors.blue, // Color del texto del botón
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.amber, // Color del círculo
+                            ),
+                            padding: const EdgeInsets.all(8), // Espacio interior alrededor del número
+                            child: const Text(
+                              '4',
+                              style: TextStyle(
+                                color: Colors.black, // Color del número
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class progressKpi extends StatelessWidget {
+  double percentage;
+  String title;
+  String subTitle;
+  String subSubTitle;
+  String advance;
+  String total;
+
+  progressKpi({
+    super.key,
+    required this.percentage,
+    required this.title,
+    required this.subTitle,
+    required this.subSubTitle,
+    required this.advance,
+    required this.total,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 14,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          Stack(
+            alignment: Alignment.center,
+            children: <Widget>[
+              SizedBox(
+                width: 80,
+                height: 80,
+                child: CircularProgressIndicator(
+                  strokeWidth: 6,
+                  value: percentage,
+                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue), // Color cuando está marcado
+                  backgroundColor: Colors.grey,
                 ),
               ),
-            ),
-            const SizedBox(height: 20.0),
-            const Text(
-              '¡Bienvenido al sistema!',
-              style: TextStyle(
-                fontSize: 24.0,
-                fontWeight: FontWeight.bold,
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    advance,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(
+                      height: 1
+                  ), 
+                  Container(
+                    width: 40,
+                    height: 1,
+                    color: Colors.black38,
+                  ),
+                  const SizedBox(
+                      height: 2
+                  ),
+                  Text(
+                    total,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
+            ],
+          ),
+          const SizedBox(
+            height: 6,
+          ),
+          Text(
+            subTitle,
+            style: const TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 13,
             ),
-          ],
-        ),
-      );
+          ),
+        
+          Text(
+            subSubTitle,
+            style: const TextStyle(
+              fontWeight: FontWeight.w300,
+              fontSize: 11,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

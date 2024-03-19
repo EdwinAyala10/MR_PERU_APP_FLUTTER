@@ -50,7 +50,8 @@ class SideMenuState extends ConsumerState<SideMenu> {
               context.push('/agenda');
               break;
             case 6:
-              context.push('/kpis');
+              //context.push('/kpis');
+              context.push('/kpi/new');
               break;
             case 7:
               context.push('/documents');

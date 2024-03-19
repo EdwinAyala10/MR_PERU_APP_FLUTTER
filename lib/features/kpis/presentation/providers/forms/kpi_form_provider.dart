@@ -1,3 +1,6 @@
+import 'package:crm_app/features/kpis/domain/entities/array_user.dart';
+import 'package:crm_app/features/kpis/domain/entities/periodicidad.dart';
+import 'package:crm_app/features/users/domain/domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
 
@@ -6,9 +9,7 @@ import 'package:crm_app/features/kpis/presentation/providers/providers.dart';
 import 'package:crm_app/features/shared/shared.dart';
 
 final kpiFormProvider = StateNotifierProvider.autoDispose
-    .family<KpiFormNotifier, KpiFormState, Kpi>(
-        (ref, kpi) {
-  // final createUpdateCallback = ref.watch( productsRepositoryProvider ).createUpdateProduct;
+    .family<KpiFormNotifier, KpiFormState, Kpi>((ref, kpi) {
   final createUpdateCallback =
       ref.watch(kpisProvider.notifier).createOrUpdateKpi;
 
@@ -19,15 +20,14 @@ final kpiFormProvider = StateNotifierProvider.autoDispose
 });
 
 class KpiFormNotifier extends StateNotifier<KpiFormState> {
-  final Future<CreateUpdateKpiResponse> Function(
-      Map<dynamic, dynamic> kpiLike)? onSubmitCallback;
+  final Future<CreateUpdateKpiResponse> Function(Map<dynamic, dynamic> kpiLike)?
+      onSubmitCallback;
 
   KpiFormNotifier({
     this.onSubmitCallback,
     required Kpi kpi,
   }) : super(KpiFormState(
           id: kpi.id,
-
           objrIdAsignacion: kpi.objrIdAsignacion ?? '',
           objrIdCategoria: kpi.objrIdCategoria ?? '',
           objrIdPeriodicidad: kpi.objrIdPeriodicidad ?? '',
@@ -42,10 +42,12 @@ class KpiFormNotifier extends StateNotifier<KpiFormState> {
           objrNombreTipo: kpi.objrNombreTipo ?? '',
           objrNombreUsuarioRegistro: kpi.objrNombreUsuarioRegistro ?? '',
           objrNombreUsuarioResponsable: kpi.objrNombreUsuarioResponsable ?? '',
+          objrCantidad: kpi.objrCantidad ?? '',
+          arrayuserasignacion: kpi.arrayuserasignacion ?? [],
+          peobIdPeriodicidad: kpi.peobIdPeriodicidad ?? [],
         ));
 
   Future<CreateUpdateKpiResponse> onFormSubmit() async {
-
     print('LLEGO ONFORMSUBMIT');
     _touchedEverything();
     if (!state.isFormValid) {
@@ -70,7 +72,15 @@ class KpiFormNotifier extends StateNotifier<KpiFormState> {
       'OBJR_NOMNRE_ASIGNACION': state.objrNombreAsignacion,
       'OBJR_NOMNRE_CATEGORIA': state.objrIdCategoria,
       'OBJR_NOMNRE_TIPO': state.objrNombreTipo,
+      'OBJR_CANTIDAD': state.objrCantidad,
       'OBJR_NOMNRE_PERIODICIDAD': state.objrNombrePeriodicidad,
+      'ARRAYUSERASIGNACION': state.arrayuserasignacion != null
+          ? List<dynamic>.from(
+              state.arrayuserasignacion!.map((x) => x.toJson()))
+          : [],
+      'PEOB_ID_PERIODICIDAD': state.peobIdPeriodicidad != null
+          ? List<dynamic>.from(state.peobIdPeriodicidad!.map((x) => x.toJson()))
+          : [],
     };
 
     try {
@@ -109,13 +119,77 @@ class KpiFormNotifier extends StateNotifier<KpiFormState> {
   }
 
   void onPeriodicidadChanged(String value, String name) {
-    state = state.copyWith(objrIdPeriodicidad: value, objrNombrePeriodicidad: name);
+    state =
+        state.copyWith(objrIdPeriodicidad: value, objrNombrePeriodicidad: name);
   }
 
   void onObservacionesChanged(String value) {
     state = state.copyWith(objrObservaciones: value);
   }
 
+  void onCantidadChanged(String value) {
+    List<Periodicidad> newPeriodicidades = state.peobIdPeriodicidad!;
+
+    for (int i = 0; i < newPeriodicidades.length; i++) {
+      newPeriodicidades[i].peobCantidad = value;
+    }
+
+    state = state.copyWith(objrCantidad: value, peobIdPeriodicidad: newPeriodicidades);
+  }
+
+  void onCantidadPorMesChanged(String cantidad, Periodicidad periodicidad) {
+    List<Periodicidad> newPeriodicidades = List.from(state.peobIdPeriodicidad!);
+
+    // Buscar el índice del objeto Periodicidad en la lista
+    int index = newPeriodicidades.indexWhere((p) => p == periodicidad);
+
+    // Verificar si se encontró el objeto en la lista
+    if (index != -1) {
+      // Crear un nuevo objeto Periodicidad con el campo 'peobCantidad' actualizado
+      Periodicidad updatedPeriodicidad = Periodicidad(
+        periIdPeriodicidad: periodicidad.periIdPeriodicidad,
+        peobIdPeriodicidad: periodicidad.peobIdPeriodicidad,
+        periCodigo: periodicidad.periCodigo,
+        periNombre: periodicidad.periNombre,
+        peobCantidad: cantidad,
+      );
+
+      // Reemplazar el objeto original con el nuevo objeto actualizado
+      newPeriodicidades[index] = updatedPeriodicidad;
+    }
+
+    state = state.copyWith(objrCantidad: cantidad, peobIdPeriodicidad: newPeriodicidades);
+  }
+
+  void onCheckDifMesChanged(bool bol) {
+    state = state.copyWith(objrValorDifMes: bol);
+  }
+
+  void onUsuarioChanged(UserMaster usuario) {
+    bool objExist = state.arrayuserasignacion!.any(
+        (objeto) => objeto.id == usuario.id && objeto.name == usuario.name);
+
+    if (!objExist) {
+      ArrayUser array = ArrayUser();
+      array.id = usuario.id;
+      array.name = usuario.name;
+
+      List<ArrayUser> arrayUsuarios = [
+        ...state.arrayuserasignacion ?? [],
+        array
+      ];
+
+      state = state.copyWith(arrayuserasignacion: arrayUsuarios);
+    } else {
+      state = state;
+    }
+  }
+
+  void onDeleteUserChanged(ArrayUser item) {
+    List<ArrayUser> arrayUsuarios =
+        state.arrayuserasignacion!.where((user) => user.id != item.id).toList();
+    state = state.copyWith(arrayuserasignacion: arrayUsuarios);
+  }
 }
 
 class KpiFormState {
@@ -136,31 +210,37 @@ class KpiFormState {
   final String objrNombreUsuarioRegistro;
   final String objrIdCategoria;
   final String objrNombreCategoria;
+  final String objrCantidad;
+  final bool objrValorDifMes;
+  final List<ArrayUser>? arrayuserasignacion;
+  final List<Periodicidad>? peobIdPeriodicidad;
 
-  KpiFormState(
-      {this.isFormValid = false,
-      this.id,
-
-      this.objrNombre = const Name.dirty(''),
-      this.objrIdAsignacion = '',
-      this.objrNombreAsignacion = '',
-      this.objrIdCategoria = '',
-      this.objrNombreCategoria = '',
-      this.objrIdPeriodicidad = '',
-      this.objrNombrePeriodicidad = '',
-      this.objrIdTipo = '',
-      this.objrNombreTipo = '',
-      this.objrIdUsuarioRegistro = '',
-      this.objrNombreUsuarioRegistro = '',
-      this.objrIdUsuarioResponsable = '',
-      this.objrNombreUsuarioResponsable = '',
-      this.objrObservaciones = '',
-    });
+  KpiFormState({
+    this.isFormValid = false,
+    this.id,
+    this.objrNombre = const Name.dirty(''),
+    this.objrIdAsignacion = '',
+    this.objrNombreAsignacion = '',
+    this.objrIdCategoria = '',
+    this.objrNombreCategoria = '',
+    this.objrIdPeriodicidad = '',
+    this.objrNombrePeriodicidad = '',
+    this.objrIdTipo = '',
+    this.objrNombreTipo = '',
+    this.objrIdUsuarioRegistro = '',
+    this.objrNombreUsuarioRegistro = '',
+    this.objrIdUsuarioResponsable = '',
+    this.objrNombreUsuarioResponsable = '',
+    this.objrObservaciones = '',
+    this.objrCantidad = '',
+    this.objrValorDifMes = false,
+    this.arrayuserasignacion,
+    this.peobIdPeriodicidad,
+  });
 
   KpiFormState copyWith({
     bool? isFormValid,
     String? id,
-
     Name? objrNombre,
     String? objrIdAsignacion,
     String? objrNombreAsignacion,
@@ -170,31 +250,41 @@ class KpiFormState {
     String? objrNombrePeriodicidad,
     String? objrIdTipo,
     String? objrNombreTipo,
-
+    String? objrCantidad,
     String? objrIdUsuarioRegistro,
     String? objrNombreUsuarioRegistro,
     String? objrIdUsuarioResponsable,
     String? objrNombreUsuarioResponsable,
     String? objrObservaciones,
-
+    bool? objrValorDifMes,
+    List<ArrayUser>? arrayuserasignacion,
+    List<Periodicidad>? peobIdPeriodicidad,
   }) =>
       KpiFormState(
         isFormValid: isFormValid ?? this.isFormValid,
         id: id ?? this.id,
-
         objrIdAsignacion: objrIdAsignacion ?? this.objrIdAsignacion,
         objrNombreAsignacion: objrNombreAsignacion ?? this.objrNombreAsignacion,
         objrIdCategoria: objrIdCategoria ?? this.objrIdCategoria,
         objrNombreCategoria: objrNombreCategoria ?? this.objrNombreCategoria,
         objrIdPeriodicidad: objrIdPeriodicidad ?? this.objrIdPeriodicidad,
-        objrNombrePeriodicidad: objrNombrePeriodicidad ?? this.objrNombrePeriodicidad,
+        objrNombrePeriodicidad:
+            objrNombrePeriodicidad ?? this.objrNombrePeriodicidad,
         objrIdTipo: objrIdTipo ?? this.objrIdTipo,
         objrNombreTipo: objrNombreTipo ?? this.objrNombreTipo,
-        objrIdUsuarioRegistro: objrIdUsuarioRegistro ?? this.objrIdUsuarioRegistro,
-        objrNombreUsuarioRegistro: objrNombreUsuarioRegistro ?? this.objrNombreUsuarioRegistro,
-        objrIdUsuarioResponsable: objrIdUsuarioResponsable ?? this.objrIdUsuarioResponsable,
-        objrNombreUsuarioResponsable: objrNombreUsuarioResponsable ?? this.objrNombreUsuarioResponsable,
+        objrIdUsuarioRegistro:
+            objrIdUsuarioRegistro ?? this.objrIdUsuarioRegistro,
+        objrNombreUsuarioRegistro:
+            objrNombreUsuarioRegistro ?? this.objrNombreUsuarioRegistro,
+        objrIdUsuarioResponsable:
+            objrIdUsuarioResponsable ?? this.objrIdUsuarioResponsable,
+        objrNombreUsuarioResponsable:
+            objrNombreUsuarioResponsable ?? this.objrNombreUsuarioResponsable,
         objrNombre: objrNombre ?? this.objrNombre,
         objrObservaciones: objrObservaciones ?? this.objrObservaciones,
+        objrValorDifMes: objrValorDifMes ?? this.objrValorDifMes,
+        arrayuserasignacion: arrayuserasignacion ?? this.arrayuserasignacion,
+        peobIdPeriodicidad: peobIdPeriodicidad ?? this.peobIdPeriodicidad,
+        objrCantidad: objrCantidad ?? this.objrCantidad,
       );
 }

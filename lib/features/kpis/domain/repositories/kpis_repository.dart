@@ -1,4 +1,5 @@
 import 'package:crm_app/features/kpis/domain/domain.dart';
+import 'package:crm_app/features/kpis/domain/entities/periodicidad.dart';
 
 
 abstract class KpisRepository {
@@ -8,5 +9,6 @@ abstract class KpisRepository {
 
   Future<KpiResponse> createUpdateKpi( Map<dynamic,dynamic> kpiLike );
 
+  Future<List<Periodicidad>> getPeriodicidades();
 }
 

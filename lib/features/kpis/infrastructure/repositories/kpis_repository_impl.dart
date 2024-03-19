@@ -1,4 +1,5 @@
 import 'package:crm_app/features/kpis/domain/domain.dart';
+import 'package:crm_app/features/kpis/domain/entities/periodicidad.dart';
 
 class KpisRepositoryImpl extends KpisRepository {
 
@@ -19,6 +20,11 @@ class KpisRepositoryImpl extends KpisRepository {
   @override
   Future<List<Kpi>> getKpis() {
     return datasource.getKpis();
+  }
+
+  @override
+  Future<List<Periodicidad>> getPeriodicidades() {
+    return datasource.getPeriodicidades();
   }
 
 }
