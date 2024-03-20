@@ -70,7 +70,7 @@ class CustomCompanyField extends StatelessWidget {
         maxLines: maxLines,
         initialValue: initialValue,
         decoration: InputDecoration(
-          border: OutlineInputBorder(),
+          border: const OutlineInputBorder(),
           floatingLabelBehavior: maxLines > 1
               ? FloatingLabelBehavior.always
               : FloatingLabelBehavior.auto,

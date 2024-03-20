@@ -1,3 +1,5 @@
+import 'package:crm_app/features/kpis/domain/entities/array_user.dart';
+import 'package:crm_app/features/users/domain/domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
 
@@ -59,6 +61,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           localDepartamentoDesc: '',
           localProvinciaDesc: '',
           localDistritoDesc: '',
+          arrayresponsables: company.arrayresponsables ?? [],
         ));
 
   Future<CreateUpdateCompanyResponse> onFormSubmit() async {
@@ -106,6 +109,9 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
       'LOCAL_DEPARTAMENTO_DESC': state.localDepartamentoDesc,
       'LOCAL_PROVINCIA_DESC': state.localProvinciaDesc,
       'LOCAL_DISTRITO_DESC': state.localDistritoDesc,
+      'ARRAYRESPONSABLES': state.arrayresponsables != null
+          ? List<dynamic>.from(state.arrayresponsables!.map((x) => x.toJson()))
+          : [],
     };
 
     try {
@@ -204,6 +210,30 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
   void onCodigoPostaChanged(String codigoPostal) {
     state = state.copyWith(codigoPostal: codigoPostal);
   }
+
+  void onUsuarioChanged(UserMaster usuario) {
+    bool objExist = state.arrayresponsables!.any(
+        (objeto) => objeto.id == usuario.id && objeto.name == usuario.name);
+
+    if (!objExist) {
+      ArrayUser array = ArrayUser();
+      array.id = usuario.id;
+      array.idResponsable = usuario.id;
+      array.name = usuario.name;
+
+      List<ArrayUser> arrayUsuarios = [...state.arrayresponsables ?? [], array];
+
+      state = state.copyWith(arrayresponsables: arrayUsuarios);
+    } else {
+      state = state;
+    }
+  }
+
+  void onDeleteUserChanged(ArrayUser item) {
+    List<ArrayUser> arrayUsuarios =
+        state.arrayresponsables!.where((user) => user.id != item.id).toList();
+    state = state.copyWith(arrayresponsables: arrayUsuarios);
+  }
 }
 
 class CompanyFormState {
@@ -242,6 +272,7 @@ class CompanyFormState {
   final String localDepartamentoDesc;
   final String localProvinciaDesc;
   final String localDistritoDesc;
+  final List<ArrayUser>? arrayresponsables;
 
   CompanyFormState(
       {this.isFormValid = false,
@@ -278,6 +309,7 @@ class CompanyFormState {
       this.ubigeoCodigo = '',
       this.localDepartamentoDesc = '',
       this.localProvinciaDesc = '',
+      this.arrayresponsables,
       this.localDistritoDesc = ''});
 
   CompanyFormState copyWith({
@@ -315,6 +347,7 @@ class CompanyFormState {
     String? localDepartamentoDesc,
     String? localProvinciaDesc,
     String? localDistritoDesc,
+    List<ArrayUser>? arrayresponsables,
   }) =>
       CompanyFormState(
         isFormValid: isFormValid ?? this.isFormValid,
@@ -353,5 +386,6 @@ class CompanyFormState {
             localDepartamentoDesc ?? this.localDepartamentoDesc,
         localProvinciaDesc: localProvinciaDesc ?? this.localProvinciaDesc,
         localDistritoDesc: localDistritoDesc ?? this.localDistritoDesc,
+        arrayresponsables: arrayresponsables ?? this.arrayresponsables,
       );
 }

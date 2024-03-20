@@ -22,9 +22,8 @@ class CompaniesScreen extends StatelessWidget {
         ],
       ),
       body: const _CompaniesView(),
-      floatingActionButton: FloatingActionButton.extended(
-        label: const Text('Nueva empresa'),
-        icon: const Icon(Icons.add),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
         onPressed: () {
           context.push('/company/new');
         },

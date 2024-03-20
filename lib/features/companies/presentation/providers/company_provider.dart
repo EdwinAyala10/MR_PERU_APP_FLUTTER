@@ -57,6 +57,7 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
       orden: '',
       ubigeoCodigo: '',
       voltajeTension: '',
+      arrayresponsables: [],
     );
   }
 

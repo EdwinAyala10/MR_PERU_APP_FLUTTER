@@ -302,8 +302,8 @@ class progressKpi extends StatelessWidget {
                 width: 80,
                 height: 80,
                 child: CircularProgressIndicator(
-                  strokeWidth: 6,
-                  value: percentage,
+                  strokeWidth: 5,
+                  value: ((percentage ?? 0) / 100).toDouble(),
                   valueColor: const AlwaysStoppedAnimation<Color>(
                       Colors.blue), // Color cuando está marcado
                   backgroundColor: Colors.grey,

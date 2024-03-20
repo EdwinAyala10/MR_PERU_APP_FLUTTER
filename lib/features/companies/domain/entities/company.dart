@@ -1,3 +1,5 @@
+import 'package:crm_app/features/kpis/domain/entities/array_user.dart';
+
 class Company {
   String rucId;
   String ruc;
@@ -36,6 +38,8 @@ class Company {
   String? localDepartamentoDesc;
   String? localProvinciaDesc;
   String? localDistritoDesc;
+  List<ArrayUser>? arrayresponsables;
+  //ARRAYRESPONSABLES
 
   Company({
     required this.rucId,
@@ -75,6 +79,7 @@ class Company {
     this.voltajeTension,
     this.usuarioRegistro,
     this.idUsuarioRegistro,
+    this.arrayresponsables,
   });
 
 }

@@ -4,6 +4,9 @@ import 'package:crm_app/features/companies/domain/domain.dart';
 import 'package:crm_app/features/companies/presentation/providers/providers.dart';
 import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
 import 'package:crm_app/features/shared/shared.dart';
+import 'package:crm_app/features/users/domain/domain.dart';
+import 'package:crm_app/features/users/presentation/delegates/search_user_delegate.dart';
+import 'package:crm_app/features/users/presentation/search/search_users_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -71,7 +74,6 @@ class _CompanyView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     return ListView(
       children: [
         SizedBox(height: 10),
@@ -245,19 +247,36 @@ class _CompanyInformation extends ConsumerWidget {
           Row(
             children: [
               Expanded(
-                child: Wrap(
-                  spacing: 8.0,
-                  children: List.generate(
-                    tags.length,
-                    (index) => Chip(
-                      label: Text(tags[index]),
-                      onDeleted: () {},
-                    ),
-                  ),
-                ),
-              ),
+                  child: Column(
+                children: [
+                  companyForm.arrayresponsables!.isNotEmpty
+                      ? Wrap(
+                          spacing: 6.0,
+                          children: companyForm.arrayresponsables != null
+                              ? List<Widget>.from(companyForm.arrayresponsables!
+                                  .map((item) => Chip(
+                                        label: Text(item.name ?? '',
+                                            style: const TextStyle(
+                                                fontSize:
+                                                    12)
+                                            ), 
+                                        onDeleted: () {
+                                          ref
+                                              .read(
+                                                  companyFormProvider(company).notifier)
+                                              .onDeleteUserChanged(item);
+                                        },
+                                      )))
+                              : [],
+                        )
+                      : const Text('Seleccione usuario(s)',
+                          style: TextStyle(color: Colors.black45)),
+                ],
+              )),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  _openSearchUsers(context, ref);
+                },
                 child: const Row(
                   children: [
                     Icon(Icons.add),
@@ -375,4 +394,27 @@ class _CompanyInformation extends ConsumerWidget {
       ),
     );
   }
+
+  void _openSearchUsers(BuildContext context, WidgetRef ref) async {
+    final searchedUsers = ref.read(searchedUsersProvider);
+    final searchQuery = ref.read(searchQueryUsersProvider);
+
+    showSearch<UserMaster?>(
+            query: searchQuery,
+            context: context,
+            delegate: SearchUserDelegate(
+                initialUsers: searchedUsers,
+                searchUsers: ref
+                    .read(searchedUsersProvider.notifier)
+                    .searchUsersByQuery))
+        .then((user) {
+      if (user == null) return;
+
+      ref.read(companyFormProvider(company).notifier).onUsuarioChanged(user);
+    });
+  }
 }
+
+
+  
+
