@@ -73,7 +73,9 @@ class KpisDatasourceImpl extends KpisDatasource {
 
   @override
   Future<List<Kpi>> getKpis() async {
-    final response = await dio.post('/objetivo/listar-objetivo-by-asignacion');
+    //final response = await dio.post('/objetivo/listar-objetivo-by-asignacion');
+    final response = await dio.get('/objetivo/listar-objetivo-dashboard');
+    
     final List<Kpi> kpis = [];
     for (final kpi in response.data['data'] ?? []) {
       kpis.add(KpiMapper.jsonToEntity(kpi));
@@ -92,4 +94,5 @@ class KpisDatasourceImpl extends KpisDatasource {
 
     return periodicidades;
   }
+
 }

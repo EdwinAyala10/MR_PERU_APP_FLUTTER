@@ -9,5 +9,6 @@ abstract class KpisDatasource {
   Future<KpiResponse> createUpdateKpi( Map<dynamic,dynamic> kpiLike );
 
   Future<List<Periodicidad>> getPeriodicidades();
+
 }
 

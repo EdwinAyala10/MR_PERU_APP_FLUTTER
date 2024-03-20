@@ -1,10 +1,10 @@
+import 'dart:ffi';
+
 import 'package:crm_app/features/kpis/domain/domain.dart';
 import 'package:crm_app/features/kpis/presentation/providers/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
-import 'package:crm_app/features/shared/shared.dart';
 
 class KpisScreen extends StatelessWidget {
   const KpisScreen({super.key});
@@ -14,21 +14,24 @@ class KpisScreen extends StatelessWidget {
     final scaffoldKey = GlobalKey<ScaffoldState>();
 
     return Scaffold(
-      drawer: SideMenu(scaffoldKey: scaffoldKey),
+      //drawer: SideMenu(scaffoldKey: scaffoldKey),
       appBar: AppBar(
         title: const Text('Objectivos'),
-        actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.search_rounded))
-        ],
+        /*actions: [
+          IconButton(onPressed: () {
+
+          }, icon: const Icon(Icons.search_rounded))
+        ],*/
       ),
       body: const _KpisView(),
-      floatingActionButton: FloatingActionButton(
+      /*floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () {
           context.push('/kpi/new');
         },
-      ),
+      ),*/
     );
+    //return _KpisView();
   }
 }
 
@@ -60,24 +63,23 @@ class _KpisViewState extends ConsumerState {
     super.dispose();
   }
 
-    Future<void> _refresh() async {
+  Future<void> _refresh() async {
     // Simula una operación asíncrona de actualización de datos
     //await Future.delayed(Duration(seconds: 1));
     //setState(() {
-      // Simula la adición de nuevos datos o actualización de los existentes
-      //items = List.generate(20, (index) => "Item ${index + 100}");
-      ref.read(kpisProvider.notifier).loadNextPage();
-
+    // Simula la adición de nuevos datos o actualización de los existentes
+    //items = List.generate(20, (index) => "Item ${index + 100}");
+    ref.read(kpisProvider.notifier).loadNextPage();
     //});
   }
 
   @override
   Widget build(BuildContext context) {
     final kpisState = ref.watch(kpisProvider);
-    
-    return kpisState.kpis.length > 0
-        ? _ListKpis(kpis: kpisState.kpis, onRefreshCallback: _refresh)
-        : const _NoExistData();
+
+    return kpisState.isLoading
+        ? const _NoExistData()
+        : _ListKpis(kpis: kpisState.kpis, onRefreshCallback: _refresh);
   }
 }
 
@@ -85,55 +87,110 @@ class _ListKpis extends StatelessWidget {
   final List<Kpi> kpis;
   final Future<void> Function() onRefreshCallback;
 
-  const _ListKpis({super.key, required this.kpis, required this.onRefreshCallback});
-
-
+  const _ListKpis(
+      {super.key, required this.kpis, required this.onRefreshCallback});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: RefreshIndicator(
-        onRefresh: onRefreshCallback,
-        child: ListView.separated(
-          itemCount: kpis.length,
-          separatorBuilder: (BuildContext context, int index) => const Divider(),
-          itemBuilder: (context, index) {
-            final kpi = kpis[index];
-        
-            return ListTile(
-              title: Text(kpi.objrNombre),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(kpi.objrNombreCategoria ?? ''),
-                  Text(kpi.objrNombreTipo ?? ''),
-                ],
-              ),
-              trailing: const Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    '',
-                      //fechaFormat+' '+horaFormat, 
-                      textAlign: TextAlign.right, 
-                      style: TextStyle(
-                        fontSize: 12,
-                    )
+    final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+        GlobalKey<RefreshIndicatorState>();
+
+    return kpis.isEmpty
+        ? Center(
+            child: RefreshIndicator(
+                onRefresh: onRefreshCallback,
+                key: _refreshIndicatorKey,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Column(
+                    children: [
+                      ElevatedButton(
+                        onPressed: onRefreshCallback,
+                        child: const Text('Recargar'),
+                      ),
+                      const Center(
+                        child: Text('No hay registros'),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              leading: const Icon(
-                Icons.airline_stops_sharp
-              ),
-              onTap: () {
-                context.push('/kpi/${kpi.id}');
+                )),
+          )
+        : RefreshIndicator(
+            onRefresh: onRefreshCallback,
+            key: _refreshIndicatorKey,
+            child: ListView.separated(
+              itemCount: kpis.length,
+              separatorBuilder: (BuildContext context, int index) =>
+                  const Divider(),
+              itemBuilder: (context, index) {
+                final kpi = kpis[index];
+
+                return ListTile(
+                  title: Text(kpi.objrNombreCategoria ?? '',
+                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(kpi.objrNombrePeriodicidad ?? '',
+                          style: const TextStyle(fontWeight: FontWeight.w600)),
+                      Text('${kpi.totalRegistro}/${convertTypeCategory(kpi)}',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black45))
+                    ],
+                  ),
+                  trailing: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(kpi.objrNombreAsignacion ?? '',
+                          textAlign: TextAlign.right,
+                          style: const TextStyle(
+                            fontSize: 12,
+                          )),
+                    ],
+                  ),
+                  leading: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      SizedBox(
+                        width: 45,
+                        height: 45,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 5,
+                          value: ((kpi.porcentaje ?? 0) / 100).toDouble(),
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                              Colors.blue), // Color cuando está marcado
+                          backgroundColor: Colors.grey,
+                        ),
+                      ),
+                      Text(
+                        "${kpi.porcentaje ?? 0}%", // El porcentaje se multiplica por 100 para mostrarlo correctamente
+                        style: const TextStyle(
+                          fontSize: 14, // Tamaño del texto
+                          color: Colors.black, // Color del texto
+                          fontWeight: FontWeight.bold, // Negrita
+                        ),
+                      ),
+                    ],
+                  ),
+                  onTap: () {
+                    context.push('/kpi/${kpi.id}');
+                  },
+                );
               },
-            );
-          },
-        ),
-      ),
-    );
+            ),
+          );
+  }
+
+  convertTypeCategory(Kpi kpi) {
+    String res = kpi.objrCantidad ?? '';
+    if (kpi.objrIdCategoria == '05') {
+      res = ' ${res}K';
+    } else {
+      res = (double.parse(res).toInt()).toString();
+    }
+    return res;
   }
 }
 
@@ -159,7 +216,7 @@ class _NoExistData extends StatelessWidget {
             color: Colors.grey.withOpacity(0.1),
           ),
           child: const Text(
-            'No hay objectivos registrados',
+            'Cargando...',
             style: TextStyle(fontSize: 20, color: Colors.grey),
           ),
         ),

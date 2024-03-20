@@ -1,3 +1,4 @@
+import 'package:crm_app/features/kpis/domain/domain.dart';
 import 'package:crm_app/features/kpis/domain/entities/array_user.dart';
 import 'package:crm_app/features/kpis/domain/entities/periodicidad.dart';
 
@@ -18,9 +19,12 @@ class Kpi {
     String objrIdCategoria;
     String? objrCantidad;
     String? objrNombreCategoria;
+    int? totalRegistro;
+    int? porcentaje;
     bool? objrValorDifMes;
     List<ArrayUser>? arrayuserasignacion;
     List<Periodicidad>? peobIdPeriodicidad;
+    List<UsuarioAsignado>? usuariosAsignados;
 
     Kpi({
         required this.id,
@@ -41,6 +45,9 @@ class Kpi {
         this.objrNombreUsuarioRegistro,
         this.arrayuserasignacion,
         this.peobIdPeriodicidad,
-        this.objrValorDifMes
+        this.totalRegistro,
+        this.porcentaje,
+        this.objrValorDifMes,
+        this.usuariosAsignados,
     });
 }

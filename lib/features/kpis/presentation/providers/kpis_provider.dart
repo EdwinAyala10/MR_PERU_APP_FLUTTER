@@ -68,9 +68,37 @@ class KpisNotifier extends StateNotifier<KpisState> {
         isLastPage: false,
         isLoading: false,
         offset: state.offset + 10,
-        kpis: [...state.kpis, ...kpis]);
+        kpis: kpis
+    );
+
+    /*state = state.copyWith(
+        isLastPage: false,
+        isLoading: false,
+        offset: state.offset + 10,
+        kpis: [...state.kpis, ...kpis]);*/
   }
+
+  /*Future loadKpisDashboard() async {
+    if (state.isLoading || state.isLastPage) return;
+
+    state = state.copyWith(isLoading: true);
+
+    final kpis = await kpisRepository.getKpisForDashboard();
+
+    if (kpis.isEmpty) {
+      state = state.copyWith(isLoading: false, isLastPage: true);
+      return;
+    }
+
+    state = state.copyWith(
+        isLastPage: false,
+        isLoading: false,
+        offset: state.offset + 10,
+        kpis: [...state.kpis, ...kpis]);
+  }*/
 }
+
+
 
 class KpisState {
   final bool isLastPage;

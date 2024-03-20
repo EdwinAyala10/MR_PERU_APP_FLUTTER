@@ -107,7 +107,17 @@ class KpiFormNotifier extends StateNotifier<KpiFormState> {
   }
 
   void onAsignacionChanged(String value, String name) {
-    state = state.copyWith(objrIdAsignacion: value, objrNombreAsignacion: name);
+    List<ArrayUser> newList = state.arrayuserasignacion ?? [];
+
+    if (value == "01" && newList.length > 1) {
+      newList = [newList[0]];
+    }
+
+    state = state.copyWith(
+      objrIdAsignacion: value, 
+      objrNombreAsignacion: name,
+      arrayuserasignacion: newList
+    );
   }
 
   void onCategoriaChanged(String value, String name) {
@@ -134,7 +144,8 @@ class KpiFormNotifier extends StateNotifier<KpiFormState> {
       newPeriodicidades[i].peobCantidad = value;
     }
 
-    state = state.copyWith(objrCantidad: value, peobIdPeriodicidad: newPeriodicidades);
+    state = state.copyWith(
+        objrCantidad: value, peobIdPeriodicidad: newPeriodicidades);
   }
 
   void onCantidadPorMesChanged(String cantidad, Periodicidad periodicidad) {
@@ -158,7 +169,8 @@ class KpiFormNotifier extends StateNotifier<KpiFormState> {
       newPeriodicidades[index] = updatedPeriodicidad;
     }
 
-    state = state.copyWith(objrCantidad: cantidad, peobIdPeriodicidad: newPeriodicidades);
+    state = state.copyWith(
+        objrCantidad: cantidad, peobIdPeriodicidad: newPeriodicidades);
   }
 
   void onCheckDifMesChanged(bool bol) {
