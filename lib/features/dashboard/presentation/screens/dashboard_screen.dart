@@ -134,6 +134,7 @@ class _DashboardView extends ConsumerStatefulWidget {
 class _DashboardViewState extends ConsumerState {
   @override
   void initState() {
+    ref.read(kpisProvider.notifier).loadNextPage();
     super.initState();
   }
 

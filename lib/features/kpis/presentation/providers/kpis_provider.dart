@@ -3,8 +3,7 @@ import 'package:crm_app/features/kpis/domain/domain.dart';
 
 import 'kpis_repository_provider.dart';
 
-final kpisProvider =
-    StateNotifierProvider<KpisNotifier, KpisState>((ref) {
+final kpisProvider = StateNotifierProvider<KpisNotifier, KpisState>((ref) {
   final kpisRepository = ref.watch(kpisRepositoryProvider);
   return KpisNotifier(kpisRepository: kpisRepository);
 });
@@ -12,26 +11,22 @@ final kpisProvider =
 class KpisNotifier extends StateNotifier<KpisState> {
   final KpisRepository kpisRepository;
 
-  KpisNotifier({required this.kpisRepository})
-      : super(KpisState()) {
+  KpisNotifier({required this.kpisRepository}) : super(KpisState()) {
     loadNextPage();
   }
 
   Future<CreateUpdateKpiResponse> createOrUpdateKpi(
       Map<dynamic, dynamic> kpiLike) async {
     try {
-      final kpiResponse =
-          await kpisRepository.createUpdateKpi(kpiLike);
+      final kpiResponse = await kpisRepository.createUpdateKpi(kpiLike);
 
       final message = kpiResponse.message;
 
       if (kpiResponse.status) {
+        //final kpi = kpiResponse.kpi as Kpi;
+        //final isKpiInList = state.kpis.any((element) => element.id == kpi.id);
 
-        final kpi = kpiResponse.kpi as Kpi;
-        final isKpiInList =
-            state.kpis.any((element) => element.id == kpi.id);
-
-        if (!isKpiInList) {
+        /*if (!isKpiInList) {
           state = state.copyWith(kpis: [...state.kpis, kpi]);
           return CreateUpdateKpiResponse(response: true, message: message);
         }
@@ -41,18 +36,20 @@ class KpisNotifier extends StateNotifier<KpisState> {
                 .map(
                   (element) => (element.id == kpi.id) ? kpi : element,
                 )
-                .toList());
+                .toList());*/
 
         return CreateUpdateKpiResponse(response: true, message: message);
       }
 
       return CreateUpdateKpiResponse(response: false, message: message);
     } catch (e) {
-      return CreateUpdateKpiResponse(response: false, message: 'Error, revisar con su administrador.');
+      return CreateUpdateKpiResponse(
+          response: false, message: 'Error, revisar con su administrador.');
     }
   }
 
   Future loadNextPage() async {
+    print('cargar KPIS');
     if (state.isLoading || state.isLastPage) return;
 
     state = state.copyWith(isLoading: true);
@@ -68,8 +65,7 @@ class KpisNotifier extends StateNotifier<KpisState> {
         isLastPage: false,
         isLoading: false,
         offset: state.offset + 10,
-        kpis: kpis
-    );
+        kpis: kpis);
 
     /*state = state.copyWith(
         isLastPage: false,
@@ -97,8 +93,6 @@ class KpisNotifier extends StateNotifier<KpisState> {
         kpis: [...state.kpis, ...kpis]);
   }*/
 }
-
-
 
 class KpisState {
   final bool isLastPage;

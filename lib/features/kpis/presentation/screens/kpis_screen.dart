@@ -146,14 +146,17 @@ class _ListKpis extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 12,
                           )),
+                      for (var user in kpi.usuariosAsignados ?? [])
+                        Text(user.userreportName)
+
                     ],
                   ),
                   leading: Stack(
                     alignment: Alignment.center,
                     children: [
                       SizedBox(
-                        width: 45,
-                        height: 45,
+                        width: 46,
+                        height: 46,
                         child: CircularProgressIndicator(
                           strokeWidth: 5,
                           value: ((kpi.porcentaje ?? 0) / 100).toDouble(),
@@ -163,9 +166,9 @@ class _ListKpis extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        "${kpi.porcentaje ?? 0}%", // El porcentaje se multiplica por 100 para mostrarlo correctamente
+                        "${kpi.porcentaje!.round() ?? 0}%", // El porcentaje se multiplica por 100 para mostrarlo correctamente
                         style: const TextStyle(
-                          fontSize: 14, // Tamaño del texto
+                          fontSize: 13, // Tamaño del texto
                           color: Colors.black, // Color del texto
                           fontWeight: FontWeight.bold, // Negrita
                         ),

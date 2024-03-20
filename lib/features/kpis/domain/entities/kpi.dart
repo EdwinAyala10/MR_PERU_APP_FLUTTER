@@ -20,7 +20,7 @@ class Kpi {
     String? objrCantidad;
     String? objrNombreCategoria;
     int? totalRegistro;
-    int? porcentaje;
+    double? porcentaje;
     bool? objrValorDifMes;
     List<ArrayUser>? arrayuserasignacion;
     List<Periodicidad>? peobIdPeriodicidad;
