@@ -6,7 +6,7 @@ import 'package:crm_app/features/shared/shared.dart';
 class CompanyDetailScreen extends StatelessWidget {
   final String companyId;
 
-  const CompanyDetailScreen({super.key, required this.companyId});
+  const CompanyDetailScreen({Key? key, required this.companyId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +15,6 @@ class CompanyDetailScreen extends StatelessWidget {
 }
 
 class _CompanyDetailView extends StatelessWidget {
-  
   final ScrollController _scrollController = ScrollController();
   final double _appBarExpandedHeight = 200.0;
 
@@ -43,10 +42,6 @@ class _CompanyDetailView extends StatelessWidget {
                   title: Text(
                     'Nombre de la empresa',
                     style: TextStyle(fontSize: clampedFontSize),
-                  ),
-                  background: Image.network(
-                    'https://via.placeholder.com/400',
-                    fit: BoxFit.cover,
                   ),
                   centerTitle: true,
                 );
@@ -91,7 +86,6 @@ class _CompanyDetailView extends StatelessWidget {
           ),
         ],
       ),
-      );
+    );
   }
 }
-

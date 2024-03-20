@@ -146,8 +146,13 @@ class _ListKpis extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 12,
                           )),
-                      for (var user in kpi.usuariosAsignados ?? [])
-                        Text(user.userreportName)
+                      //for (var user in kpi.usuariosAsignados ?? [])
+                      for (var i = 0; i < 2 && i < kpi.usuariosAsignados!.length; i++)
+                        Text(
+                          kpi.usuariosAsignados![i].userreportName ?? '', 
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle( fontSize: 11 ),
+                        )
 
                     ],
                   ),

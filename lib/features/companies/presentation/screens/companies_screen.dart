@@ -101,7 +101,7 @@ class _ListCompanies extends StatelessWidget {
               ),
             ),
             onTap: () {
-              context.push('/company/${company.ruc}');
+              context.push('/company_detail/${company.ruc}');
             },
           );
         },
