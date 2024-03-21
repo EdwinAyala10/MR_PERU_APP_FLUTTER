@@ -1,9 +1,9 @@
 import 'package:crm_app/features/activities/presentation/screens/activities_screen.dart';
 import 'package:crm_app/features/activities/presentation/screens/activity_screen.dart';
-import 'package:crm_app/features/agenda/presentation/screens/agenda_complex.dart';
 import 'package:crm_app/features/agenda/presentation/screens/agenda_screen.dart';
 import 'package:crm_app/features/agenda/presentation/screens/event_screen.dart';
 import 'package:crm_app/features/companies/companies.dart';
+import 'package:crm_app/features/companies/presentation/screens/company_check_in_screen.dart';
 import 'package:crm_app/features/companies/presentation/screens/company_detail_screen.dart';
 import 'package:crm_app/features/contacts/contacts.dart';
 import 'package:crm_app/features/dashboard/dashboard.dart';
@@ -100,6 +100,13 @@ final goRouterProvider = Provider((ref) {
         path: '/company/:rucId', // /company/new
         builder: (context, state) => CompanyScreen(
           rucId: state.pathParameters['rucId'] ?? 'no-id',
+        ),
+      ),
+
+      GoRoute(
+        path: '/company_check_in/:id', // /company/new
+        builder: (context, state) => CompanyCheckInScreen(
+          id: state.pathParameters['id'] ?? 'no-id',
         ),
       ),
 

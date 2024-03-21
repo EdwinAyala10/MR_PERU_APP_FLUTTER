@@ -55,6 +55,7 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
       localProvinciaDesc: '',
       localTipo: '',
       orden: '',
+      cchkIdEstadoCheck: '',
       ubigeoCodigo: '',
       voltajeTension: '',
       arrayresponsables: [],

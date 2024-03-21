@@ -1,0 +1,4 @@
+
+
+
+class CompanyCheckInNotFound implements Exception {}

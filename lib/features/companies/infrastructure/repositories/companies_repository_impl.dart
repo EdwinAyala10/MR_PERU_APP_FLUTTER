@@ -26,4 +26,8 @@ class CompaniesRepositoryImpl extends CompaniesRepository {
     return datasource.searchCompaniesActive(dni, query);
   }
 
+  @override
+  Future<CompanyCheckInResponse> createCompanyCheckIn(Map<dynamic,dynamic> companyCheckInLike) {
+    return datasource.createCompanyCheckIn(companyCheckInLike);
+  }
 }

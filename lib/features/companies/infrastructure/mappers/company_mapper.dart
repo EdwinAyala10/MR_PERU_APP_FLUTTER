@@ -20,6 +20,7 @@ class CompanyMapper {
     distrito: json['DISTRITO'] ?? '',
     seguimientoComentario: json['SEGUIMIENTO_COMENTARIO'] ?? '',
     website: json['WEBSITE'] ?? '',
+    cchkIdEstadoCheck: json['CCHK_ID_ESTADO_CHECK'],
     calificacion: json['CALIFICACION'] ?? '',
     visibleTodos: json['VISIBLE_TODOS'] ?? '',
     codigoPostal: json['CODIGO_POSTAL'] ?? '',

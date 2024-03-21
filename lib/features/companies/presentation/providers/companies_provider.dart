@@ -52,6 +52,42 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
     }
   }
 
+  Future<CreateUpdateCompanyCheckInResponse> createOrUpdateCompanyCheckIn(
+      Map<dynamic, dynamic> companyCheckInLike) async {
+    try {
+      final companyCheckInResponse =
+          await companiesRepository.createCompanyCheckIn(companyCheckInLike);
+
+      final message = companyCheckInResponse.message;
+
+      if (companyCheckInResponse.status) {
+
+        //final companyCheckIn = companyCheckInResponse.companyCheckIn as CompanyCheckIn;
+        /*final companyCheckIn = companyCheckInResponse.company as Company;
+        final isCompanyInList =
+            state.companies.any((element) => element.ruc == company.ruc);
+
+        if (!isCompanyInList) {
+          state = state.copyWith(companies: [...state.companies, company]);
+          return CreateUpdateCompanyResponse(response: true, message: message);
+        }
+
+        state = state.copyWith(
+            companies: state.companies
+                .map(
+                  (element) => (element.ruc == company.ruc) ? company : element,
+                )
+                .toList());*/
+
+        return CreateUpdateCompanyCheckInResponse(response: true, message: message);
+      }
+
+      return CreateUpdateCompanyCheckInResponse(response: false, message: message);
+    } catch (e) {
+      return CreateUpdateCompanyCheckInResponse(response: false, message: 'Error, revisar con su administrador.');
+    }
+  }
+
   Future loadNextPage() async {
     if (state.isLoading || state.isLastPage) return;
 

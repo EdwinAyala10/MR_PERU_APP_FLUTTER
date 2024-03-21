@@ -56,6 +56,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           localTipo: '',
           coordenadasGeo: '',
           coordenadasLongitud: '',
+          cchkIdEstadoCheck: '',
           coordenadasLatitud: '',
           ubigeoCodigo: '',
           localDepartamentoDesc: '',
@@ -108,6 +109,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
       'UBIGEO_CODIGO': state.ubigeoCodigo,
       'LOCAL_DEPARTAMENTO_DESC': state.localDepartamentoDesc,
       'LOCAL_PROVINCIA_DESC': state.localProvinciaDesc,
+      'CCHK_ID_ESTADO_CHECK': state.cchkIdEstadoCheck,
       'LOCAL_DISTRITO_DESC': state.localDistritoDesc,
       'ARRAYRESPONSABLES': state.arrayresponsables != null
           ? List<dynamic>.from(state.arrayresponsables!.map((x) => x.toJson()))
@@ -272,6 +274,7 @@ class CompanyFormState {
   final String localDepartamentoDesc;
   final String localProvinciaDesc;
   final String localDistritoDesc;
+  final String cchkIdEstadoCheck;
   final List<ArrayUser>? arrayresponsables;
 
   CompanyFormState(
@@ -309,6 +312,7 @@ class CompanyFormState {
       this.ubigeoCodigo = '',
       this.localDepartamentoDesc = '',
       this.localProvinciaDesc = '',
+      this.cchkIdEstadoCheck = '',
       this.arrayresponsables,
       this.localDistritoDesc = ''});
 
@@ -346,6 +350,7 @@ class CompanyFormState {
     String? ubigeoCodigo,
     String? localDepartamentoDesc,
     String? localProvinciaDesc,
+    String? cchkIdEstadoCheck,
     String? localDistritoDesc,
     List<ArrayUser>? arrayresponsables,
   }) =>
@@ -387,5 +392,6 @@ class CompanyFormState {
         localProvinciaDesc: localProvinciaDesc ?? this.localProvinciaDesc,
         localDistritoDesc: localDistritoDesc ?? this.localDistritoDesc,
         arrayresponsables: arrayresponsables ?? this.arrayresponsables,
+        cchkIdEstadoCheck: cchkIdEstadoCheck ?? this.cchkIdEstadoCheck,
       );
 }

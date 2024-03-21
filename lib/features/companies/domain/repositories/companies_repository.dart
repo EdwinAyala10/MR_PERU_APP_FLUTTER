@@ -10,5 +10,6 @@ abstract class CompaniesRepository {
 
   Future<List<Company>> searchCompaniesActive(String dni, String query);
 
+  Future<CompanyCheckInResponse> createCompanyCheckIn( Map<dynamic,dynamic> companyCheckInLike );
 }
 

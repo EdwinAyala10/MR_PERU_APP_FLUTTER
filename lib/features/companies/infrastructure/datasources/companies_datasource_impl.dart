@@ -1,3 +1,5 @@
+import 'package:crm_app/features/companies/infrastructure/infrastructure.dart';
+import 'package:crm_app/features/companies/infrastructure/mappers/company_check_in_mapper.dart';
 import 'package:crm_app/features/companies/infrastructure/mappers/company_response_mapper.dart';
 import 'package:dio/dio.dart';
 import 'package:crm_app/config/config.dart';
@@ -56,6 +58,7 @@ class CompaniesDatasourceImpl extends CompaniesDatasource {
   @override
   Future<Company> getCompanyById(String rucId) async {
     try {
+      print('INGRESO GET COMPANY ID');
       final response = await dio.get('/cliente/cliente-by-ruc/$rucId');
       final Company company = CompanyMapper.jsonToEntity(response.data['data']);
 
@@ -96,5 +99,35 @@ class CompaniesDatasourceImpl extends CompaniesDatasource {
     }
 
     return companies;
+  }
+
+  @override
+  Future<CompanyCheckInResponse> createCompanyCheckIn(
+      Map<dynamic, dynamic> companyCheckInLike) async {
+    try {
+      const String method = 'POST';
+      final String url = '/cliente-check/create-cliente-check';
+
+      final response = await dio.request(url,
+          data: companyCheckInLike, options: Options(method: method));
+
+      print('RESP: ${response}');
+      print('COMPANY LIKE: ${companyCheckInLike}');
+
+      final CompanyCheckInResponse companyCheckInResponse =
+          CompanyCheckInResponseMapper.jsonToEntity(response.data);
+
+      /*if (companyCheckInResponse.status == true) {
+        companyCheckInResponse.companyCheckIn =
+            CompanyCheckInMapper.jsonToEntity(response.data['data']);
+      }*/
+
+      return companyCheckInResponse;
+    } on DioException catch (e) {
+      if (e.response!.statusCode == 404) throw CompanyNotFound();
+      throw Exception();
+    } catch (e) {
+      throw Exception();
+    }
   }
 }
