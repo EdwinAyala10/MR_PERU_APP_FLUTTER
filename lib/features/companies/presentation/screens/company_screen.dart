@@ -24,7 +24,11 @@ class CompanyScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    print('RUCID: ${rucId}');
+    
     final companyState = ref.watch(companyProvider(rucId));
+
+    print('companyState RAaz: ${companyState.company?.rucId}');
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -77,7 +81,11 @@ class _CompanyView extends ConsumerWidget {
     return ListView(
       children: [
         SizedBox(height: 10),
-        _CompanyInformation(company: company),
+        company != null
+            ? _CompanyInformation(company: company)
+            : Center(
+                child: Text('No se encontre datos de la empresa'),
+              )
       ],
     );
   }
@@ -90,7 +98,6 @@ class _CompanyInformation extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    List<String> tags = ['Responsable 1', 'Responsable 2', 'Responsable 3'];
 
     List<DropdownOption> optionsTipoCliente = [
       DropdownOption('01', 'Proveedor'),
@@ -255,15 +262,13 @@ class _CompanyInformation extends ConsumerWidget {
                           children: companyForm.arrayresponsables != null
                               ? List<Widget>.from(companyForm.arrayresponsables!
                                   .map((item) => Chip(
-                                        label: Text(item.name ?? '',
-                                            style: const TextStyle(
-                                                fontSize:
-                                                    12)
-                                            ), 
+                                        label: Text(item.nombreResponsable ?? '',
+                                            style:
+                                                const TextStyle(fontSize: 12)),
                                         onDeleted: () {
                                           ref
-                                              .read(
-                                                  companyFormProvider(company).notifier)
+                                              .read(companyFormProvider(company)
+                                                  .notifier)
                                               .onDeleteUserChanged(item);
                                         },
                                       )))
@@ -414,7 +419,3 @@ class _CompanyInformation extends ConsumerWidget {
     });
   }
 }
-
-
-  
-

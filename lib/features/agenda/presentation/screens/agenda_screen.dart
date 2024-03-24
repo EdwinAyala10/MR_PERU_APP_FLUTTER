@@ -1,5 +1,6 @@
 import 'package:crm_app/features/agenda/domain/domain.dart';
 import 'package:crm_app/features/agenda/presentation/providers/events_provider.dart';
+import 'package:crm_app/features/agenda/presentation/widgets/item_event.dart';
 import 'package:crm_app/features/agenda/presentation/widgets/table_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -142,22 +143,19 @@ class _AgendaViewState extends ConsumerState {
             onCalendarCreated: (controller) => _pageController = controller,
             onPageChanged: (focusedDay) {
               //_focusedDay.value = focusedDay;
-              ref
-                  .read(eventsProvider.notifier)
-                  .onChangeFocusedDay(focusedDay);
+              ref.read(eventsProvider.notifier).onChangeFocusedDay(focusedDay);
             },
             calendarStyle: CalendarStyle(
-              markerDecoration: BoxDecoration(
-                color: Colors.amber,
-                borderRadius: BorderRadius.circular(12.0),
-              ),
-              markersMaxCount: 4,
-              markerSize: 6,
-              selectedDecoration: const BoxDecoration(
-              color: Colors.blueGrey, // Cambia el color a tu gusto
-              shape: BoxShape.circle,
-            )
-            ),
+                markerDecoration: BoxDecoration(
+                  color: Colors.amber,
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+                markersMaxCount: 4,
+                markerSize: 6,
+                selectedDecoration: const BoxDecoration(
+                  color: Colors.blueGrey, // Cambia el color a tu gusto
+                  shape: BoxShape.circle,
+                )),
           ),
           const SizedBox(height: 8.0),
           const Divider(),
@@ -170,59 +168,14 @@ class _AgendaViewState extends ConsumerState {
                     ? ListView.builder(
                         itemCount: value.length,
                         itemBuilder: (context, index) {
-                          Widget divider =
-                              index != 0 ? const Divider() : const SizedBox.shrink();
+                         
                           final event = value[index];
 
-                          return Column(
-                            children: [
-                              ListTile(
-                                onTap: () {
-                                  context.push('/event/${value[index].id}');
-                                },
-                                leading: Column(
-                                  children: [
-                                    Text(
-                                        DateFormat('hh:mm a').format(value[
-                                                        index]
-                                                    .evntHoraInicioEvento !=
-                                                null
-                                            ? DateFormat('HH:mm:ss').parse(
-                                                value[index]
-                                                        .evntHoraInicioEvento ??
-                                                    '')
-                                            : DateTime.now()),
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.w600)),
-                                    Text(
-                                        DateFormat('hh:mm a').format(value[index]
-                                                    .evntHoraFinEvento !=
-                                                null
-                                            ? DateFormat('HH:mm:ss').parse(
-                                                value[index]
-                                                        .evntHoraInicioEvento ??
-                                                    '')
-                                            : DateTime.now()),
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.w600)),
-                                  ],
-                                ),
-                                title: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(event.evntAsunto,
-                                        style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w500)),
-                                    Text('${event.evntNombreTipoGestion}',
-                                        style: const TextStyle(fontSize: 14)),
-                                  ],
-                                ),
-                              ),
-                              const Divider(),
-                            ],
-                          );
+                          return ItemEvent(
+                            event: event,
+                            callbackOnTap: () {
+                              context.push('/event/${value[index].id}');
+                            });
                         },
                       )
                     : const Center(

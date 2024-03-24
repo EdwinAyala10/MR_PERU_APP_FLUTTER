@@ -1,4 +1,5 @@
 import 'package:crm_app/features/companies/domain/domain.dart';
+import 'package:crm_app/features/kpis/domain/entities/array_user.dart';
 
 
 class CompanyMapper {
@@ -26,6 +27,7 @@ class CompanyMapper {
     codigoPostal: json['CODIGO_POSTAL'] ?? '',
     idUsuarioRegistro: json['ID_USUARIO_REGISTRO'] ?? '',
     usuarioRegistro: json['USUARIO_REGISTRO'] ?? '',
+    arrayresponsables: json["CLIENTES_RESPONSABLE"] != null ? List<ArrayUser>.from(json["CLIENTES_RESPONSABLE"].map((x) => ArrayUser.fromJson(x))) : [],
   );
 
 }

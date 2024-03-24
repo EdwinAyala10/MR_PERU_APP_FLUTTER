@@ -65,9 +65,13 @@ class ContactsDatasourceImpl extends ContactsDatasource {
   }
 
   @override
-  Future<List<Contact>> getContacts() async {
+  Future<List<Contact>> getContacts(String ruc) async {
+    final data = {
+      "RUC": ruc,
+    };
+
     final response =
-        await dio.post('/contacto/listar-contacto-by-ruc-cargo-responsable');
+        await dio.post('/contacto/listar-contacto-by-ruc-cargo-responsable', data: data);
     final List<Contact> contacts = [];
     for (final contact in response.data['data'] ?? []) {
       contacts.add(ContactMapper.jsonToEntity(contact));

@@ -59,8 +59,11 @@ class CompaniesDatasourceImpl extends CompaniesDatasource {
   Future<Company> getCompanyById(String rucId) async {
     try {
       print('INGRESO GET COMPANY ID');
+      print('RUC ID: ${rucId}');
       final response = await dio.get('/cliente/cliente-by-ruc/$rucId');
       final Company company = CompanyMapper.jsonToEntity(response.data['data']);
+
+      print('response: ${response}');
 
       if (rucId != 'new') {
         company.rucId = company.ruc;

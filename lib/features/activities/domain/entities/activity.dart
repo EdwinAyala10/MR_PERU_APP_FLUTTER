@@ -6,6 +6,7 @@ class Activity {
     DateTime actiFechaActividad;
     String actiHoraActividad;
     String actiRuc;
+    String? actiRazon;
     String actiIdOportunidad;
     String actiIdContacto;
     String actiComentario;
@@ -37,6 +38,7 @@ class Activity {
         this.actiIdUsuarioActualizacion,
         this.actiIdActividadIn,
         this.opt,
+        this.actiRazon,
         this.actiNombreResponsable
     });
 

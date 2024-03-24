@@ -1,11 +1,12 @@
 import 'package:crm_app/features/activities/domain/domain.dart';
 import 'package:crm_app/features/activities/presentation/providers/providers.dart';
+import 'package:crm_app/features/activities/presentation/widgets/item_activity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:crm_app/features/shared/shared.dart';
-
+import 'package:intl/intl.dart';
 
 class ActivitiesScreen extends StatelessWidget {
   const ActivitiesScreen({super.key});
@@ -71,7 +72,6 @@ class ActivitiesScreen extends StatelessWidget {
               );
             },
           );*/
-
         },
       ),
     );
@@ -98,6 +98,10 @@ class _ActivitiesViewState extends ConsumerState {
         //ref.read(productsProvider.notifier).loadNextPage();
       }
     });
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      ref.read(activitiesProvider.notifier).loadNextPage();
+    });
   }
 
   @override
@@ -109,7 +113,7 @@ class _ActivitiesViewState extends ConsumerState {
   @override
   Widget build(BuildContext context) {
     final activitiesState = ref.watch(activitiesProvider);
-    
+
     return activitiesState.activities.length > 0
         ? _ListActivities(activities: activitiesState.activities)
         : const _NoExistData();
@@ -131,55 +135,11 @@ class _ListActivities extends StatelessWidget {
         itemBuilder: (context, index) {
           final activity = activities[index];
 
-          //DateTime fechaHora = DateTime.parse(DateTime.now());
-
-          // Formatear la fecha
-          //String fechaFormat = DateFormat('dd MMM yyyy').format(activity.actiFechaActividad);
-
-          // Formatear la hora
-          //String horaFormat = DateFormat('h:mm a').format(DateTime.now());
-
-          return ListTile(
-            title: Text(activity.actiRuc),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(activity.actiNombreOportunidad),
-                Text(activity.actiComentario),
-              ],
-            ),
-            trailing: const Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  '',
-                    //fechaFormat+' '+horaFormat, 
-                    textAlign: TextAlign.right, 
-                    style: TextStyle(
-                      fontSize: 12,
-                  )
-                ),
-                /*Text(
-                  'Evans Arias', 
-                  style: TextStyle(
-                    fontSize: 13,
-                  )
-                ),*/
-                /*Text(
-                  'Hace 10 minutos', 
-                  style: TextStyle(
-                    fontSize: 12,
-                  )
-                ),*/
-              ],
-            ),
-            leading: const Icon(
-              Icons.airline_stops_sharp
-            ),
-            onTap: () {
+          return ItemActivity(
+            activity: activity,
+            callbackOnTap: () {
               context.push('/activity/${activity.id}');
-            },
-          );
+            });
         },
       ),
     );

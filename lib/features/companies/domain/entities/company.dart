@@ -40,6 +40,7 @@ class Company {
   String? localDistritoDesc;
   String? cchkIdEstadoCheck;
   List<ArrayUser>? arrayresponsables;
+  List<ArrayUser>? arrayresponsablesEliminar;
 
   //ARRAYRESPONSABLES
 
@@ -82,6 +83,7 @@ class Company {
     this.usuarioRegistro,
     this.idUsuarioRegistro,
     this.arrayresponsables,
+    this.arrayresponsablesEliminar,
     this.cchkIdEstadoCheck,
   });
 

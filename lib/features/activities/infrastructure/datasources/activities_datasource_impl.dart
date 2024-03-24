@@ -48,8 +48,7 @@ class ActivitiesDatasourceImpl extends ActivitiesDatasource {
   @override
   Future<Activity> getActivityById(String id) async {
     try {
-      final response =
-          await dio.get('/actividad/listar-actividad-by-id/$id');
+      final response = await dio.get('/actividad/listar-actividad-by-id/$id');
       final Activity activity =
           ActivityMapper.jsonToEntity(response.data['data']);
 
@@ -64,6 +63,7 @@ class ActivitiesDatasourceImpl extends ActivitiesDatasource {
 
   @override
   Future<List<Activity>> getActivities() async {
+    print('CARGO ACTIVIDADES');
     final response =
         await dio.post('/actividad/listar-actividad-by-id-tipo-gestion');
     final List<Activity> activities = [];

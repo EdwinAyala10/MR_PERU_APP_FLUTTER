@@ -1,5 +1,6 @@
 import 'package:crm_app/features/opportunities/domain/domain.dart';
 import 'package:crm_app/features/opportunities/presentation/providers/providers.dart';
+import 'package:crm_app/features/opportunities/presentation/widgets/item_opportunity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -63,7 +64,6 @@ class _OpportunitiesViewState extends ConsumerState {
 
   @override
   Widget build(BuildContext context) {
-
     final opportunitiesState = ref.watch(opportunitiesProvider);
 
     return opportunitiesState.opportunities.length > 0
@@ -86,34 +86,17 @@ class _ListOpportunities extends StatelessWidget {
         separatorBuilder: (BuildContext context, int index) => const Divider(),
         itemBuilder: (context, index) {
           final opportunity = opportunities[index];
-          return ListTile(
-            title: Text(opportunity.oprtNombre),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Estado: ${opportunity.oprtNobbreEstadoOportunidad ?? ''}'),
-                Text('Ruc: ${opportunity.oprtRuc ?? ''}'),
-              ],
-            ),
-            trailing: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text('${opportunity.oprtProbabilidad ?? ''}%',
-                    textAlign: TextAlign.right,
-                    style:
-                        const TextStyle(fontSize: 16, color: Colors.green)),
-              ],
-            ),
-            leading: const Icon(Icons.work_rounded),
-            onTap: () {
-              context.push('/opportunity/${opportunity.id}');
-            },
-          );
+          return ItemOpportunity(
+              opportunity: opportunity, callbackOnTap: () {
+                context.push('/opportunity/${opportunity.id}');
+              });
         },
       ),
     );
   }
 }
+
+
 
 class _NoExistData extends StatelessWidget {
   const _NoExistData({super.key});

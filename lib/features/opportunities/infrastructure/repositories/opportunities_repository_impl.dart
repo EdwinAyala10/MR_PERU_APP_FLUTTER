@@ -17,8 +17,8 @@ class OpportunitiesRepositoryImpl extends OpportunitiesRepository {
   }
 
   @override
-  Future<List<Opportunity>> getOpportunities() {
-    return datasource.getOpportunities();
+  Future<List<Opportunity>> getOpportunities(String ruc) {
+    return datasource.getOpportunities(ruc);
   }
   
   @override

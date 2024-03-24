@@ -18,8 +18,9 @@ class ActivityMapper {
     actiNombreOportunidad: json['ACTI_NOMBRE_OPORTUNIDAD'] ?? '',
     actiNombreTipoGestion: json['ACTI_NOMBRE_TIPO_GESTION'] ?? '',
     actiRuc: json['ACTI_RUC'] ?? '',
+    actiRazon: json['ACTI_RAZON'] ?? '',
+    actiNombreResponsable: json['ACTI_NOMBRE_RESPONSABLE'] ?? '',
     actiIdUsuarioActualizacion: json['ACTI_ID_USUARIO_ACTUALIZACION'] ?? '',
-
     actiIdActividadIn: json['ACTI_ID_ACTIVIDAD_IN'] ?? '',
     opt: json['OPT'] ?? '',
   );

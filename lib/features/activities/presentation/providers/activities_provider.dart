@@ -68,7 +68,9 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
         isLastPage: false,
         isLoading: false,
         offset: state.offset + 10,
-        activities: [...state.activities, ...activities]);
+        //activities: [...state.activities, ...activities]
+        activities: [...activities]
+    );
   }
 }
 

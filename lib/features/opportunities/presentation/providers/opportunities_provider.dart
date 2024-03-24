@@ -57,7 +57,7 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
 
     state = state.copyWith(isLoading: true);
 
-    final opportunities = await opportunitiesRepository.getOpportunities();
+    final opportunities = await opportunitiesRepository.getOpportunities('');
 
     if (opportunities.isEmpty) {
       state = state.copyWith(isLoading: false, isLastPage: true);

@@ -63,9 +63,17 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
   }
 
   @override
-  Future<List<Opportunity>> getOpportunities() async {
+  Future<List<Opportunity>> getOpportunities(String ruc) async {
+    
+    final data = {
+      "RUC": ruc,
+    };
+
     final response =
-        await dio.post('/oportunidad/listar-oportunidades-by-ruc-est');
+        await dio.post('/oportunidad/listar-oportunidades-by-ruc-est',data: data);
+    
+    print('PRINT CREATE OPPORU_ ${response}');
+
     final List<Opportunity> opportunities = [];
     for (final opportunity in response.data['data'] ?? []) {
       opportunities.add(OpportunityMapper.jsonToEntity(opportunity));

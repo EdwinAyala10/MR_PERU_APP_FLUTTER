@@ -25,7 +25,7 @@ class Periodicidad {
         periCodigo: json["PERI_CODIGO"],
         periNombre: json["PERI_NOMBRE"],
         peobIdPeriodicidad: json["PEOB_ID_PERIODICIDAD"],
-        peobCantidad: json["PEOB_ID_PERIODICIDAD"],
+        peobCantidad: json["PEOB_CANTIDAD"],
       );
 
   Map<String, dynamic> toJson() => {

@@ -57,7 +57,26 @@ class ContactsNotifier extends StateNotifier<ContactsState> {
 
     state = state.copyWith(isLoading: true);
 
-    final contacts = await contactsRepository.getContacts();
+    final contacts = await contactsRepository.getContacts('');
+
+    if (contacts.isEmpty) {
+      state = state.copyWith(isLoading: false, isLastPage: true);
+      return;
+    }
+
+    state = state.copyWith(
+        isLastPage: false,
+        isLoading: false,
+        offset: state.offset + 10,
+        contacts: [...state.contacts, ...contacts]);
+  }
+
+  Future loadContactFilter(String ruc) async {
+    if (state.isLoading || state.isLastPage) return;
+
+    state = state.copyWith(isLoading: true);
+
+    final contacts = await contactsRepository.getContacts(ruc);
 
     if (contacts.isEmpty) {
       state = state.copyWith(isLoading: false, isLastPage: true);

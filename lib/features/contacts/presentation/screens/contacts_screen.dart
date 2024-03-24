@@ -1,5 +1,6 @@
 import 'package:crm_app/features/contacts/domain/domain.dart';
 import 'package:crm_app/features/contacts/presentation/providers/providers.dart';
+import 'package:crm_app/features/contacts/presentation/widgets/item_contact.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -63,11 +64,11 @@ class _ContactsViewState extends ConsumerState {
 
   @override
   Widget build(BuildContext context) {
-    
     final contactsState = ref.watch(contactsProvider);
 
-    return contactsState.contacts.length > 0 
-    ? _ListContacts(contacts: contactsState.contacts) : const _NoExistData();
+    return contactsState.contacts.length > 0
+        ? _ListContacts(contacts: contactsState.contacts)
+        : const _NoExistData();
   }
 }
 
@@ -85,53 +86,9 @@ class _ListContacts extends StatelessWidget {
         itemBuilder: (context, index) {
           final contact = contacts[index];
 
-          return ListTile(
-            title: Text(contact.contactoDesc),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                contact.contactoTelefonof != '' ? Row(
-                  children: [
-                    const Icon(Icons.phone, size: 14),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    Text(contact.contactoTelefonof),
-                  ],
-                ) : Container(),
-                contact.contactoNombreCargo != '' ? Row(
-                  children: [
-                    const Icon(Icons.account_balance, size: 14),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    Text(contact.contactoNombreCargo ?? ''),
-                  ],
-                ) : Container(),
-                contact.contactoEmail != '' ? Row(
-                  children: [
-                    const Icon(Icons.mail, size: 14),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    Text(contact.contactoEmail ?? ''),
-                  ],
-                ) : Container(),
-              ],
-            ),
-            //trailing: Text(contact.contactoCargo),
-            leading: CircleAvatar(
-                child: Text(
-                  contact.contactoDesc[0].toUpperCase(),
-                  style: const TextStyle(
-                    fontSize: 16
-                  ),
-                  ),
-            ),
-            onTap: () {
+          return ItemContact(contact: contact, callbackOnTap: () {
               context.push('/contact/${contact.id}');
-            },
-          );
+          });
         },
       ),
     );
@@ -164,7 +121,6 @@ class _NoExistData extends StatelessWidget {
             style: TextStyle(fontSize: 20, color: Colors.grey),
           ),
         ),
-        
       ],
     ));
   }

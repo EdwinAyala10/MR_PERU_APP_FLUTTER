@@ -78,6 +78,7 @@ class KpisDatasourceImpl extends KpisDatasource {
 
   @override
   Future<List<Kpi>> getKpis() async {
+    print('CARGO LISTA KPIS');
     //final response = await dio.post('/objetivo/listar-objetivo-by-asignacion');
     final response = await dio.get('/objetivo/listar-objetivo-dashboard');
 

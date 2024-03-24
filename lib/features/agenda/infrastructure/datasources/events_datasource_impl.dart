@@ -91,4 +91,15 @@ class EventsDatasourceImpl extends EventsDatasource {
 
     return linkedEvents;
   }
+
+  @override
+  Future<List<Event>> getEventsList() async {
+    final response = await dio.post('/evento/listar-evento-by-id-tipo-gestion');
+    final List<Event> events = [];
+    for (final event in response.data['data'] ?? []) {
+      events.add(EventMapper.jsonToEntity(event));
+    }
+
+    return events;
+  }
 }

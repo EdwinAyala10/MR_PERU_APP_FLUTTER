@@ -1,4 +1,8 @@
+import 'package:crm_app/features/activities/domain/domain.dart';
+import 'package:crm_app/features/agenda/domain/domain.dart';
+import 'package:crm_app/features/contacts/domain/domain.dart';
 import 'package:crm_app/features/kpis/domain/entities/array_user.dart';
+import 'package:crm_app/features/opportunities/domain/domain.dart';
 import 'package:crm_app/features/users/domain/domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
@@ -63,6 +67,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           localProvinciaDesc: '',
           localDistritoDesc: '',
           arrayresponsables: company.arrayresponsables ?? [],
+          arrayresponsablesEliminar: company.arrayresponsablesEliminar ?? [],
         ));
 
   Future<CreateUpdateCompanyResponse> onFormSubmit() async {
@@ -111,8 +116,12 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
       'LOCAL_PROVINCIA_DESC': state.localProvinciaDesc,
       'CCHK_ID_ESTADO_CHECK': state.cchkIdEstadoCheck,
       'LOCAL_DISTRITO_DESC': state.localDistritoDesc,
-      'ARRAYRESPONSABLES': state.arrayresponsables != null
+      'CLIENTES_RESPONSABLE': state.arrayresponsables != null
           ? List<dynamic>.from(state.arrayresponsables!.map((x) => x.toJson()))
+          : [],
+      'CLIENTES_RESPONSABLE_ELIMINAR': state.arrayresponsablesEliminar != null
+          ? List<dynamic>.from(
+              state.arrayresponsablesEliminar!.map((x) => x.toJson()))
           : [],
     };
 
@@ -219,9 +228,9 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
 
     if (!objExist) {
       ArrayUser array = ArrayUser();
-      array.id = usuario.id;
       array.idResponsable = usuario.id;
-      array.name = usuario.name;
+      array.cresIdUsuarioResponsable = usuario.code;
+      array.nombreResponsable = usuario.name;
 
       List<ArrayUser> arrayUsuarios = [...state.arrayresponsables ?? [], array];
 
@@ -232,9 +241,29 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
   }
 
   void onDeleteUserChanged(ArrayUser item) {
-    List<ArrayUser> arrayUsuarios =
-        state.arrayresponsables!.where((user) => user.id != item.id).toList();
-    state = state.copyWith(arrayresponsables: arrayUsuarios);
+    List<ArrayUser> arrayUsuariosEliminar = [];
+
+    if (state.rucId != "new") {
+      bool objExist = state.arrayresponsablesEliminar!
+          .any((objeto) => objeto.cresIdClienteResp == item.cresIdClienteResp);
+
+      if (!objExist) {
+        ArrayUser array = ArrayUser();
+        array.cresIdClienteResp = item.cresIdClienteResp;
+
+        arrayUsuariosEliminar = [
+          ...state.arrayresponsablesEliminar ?? [],
+          array
+        ];
+      }
+    }
+
+    List<ArrayUser> arrayUsuarios = state.arrayresponsables!
+        .where((user) => user.cresIdClienteResp != item.cresIdClienteResp)
+        .toList();
+    state = state.copyWith(
+        arrayresponsables: arrayUsuarios,
+        arrayresponsablesEliminar: arrayUsuariosEliminar);
   }
 }
 
@@ -276,6 +305,11 @@ class CompanyFormState {
   final String localDistritoDesc;
   final String cchkIdEstadoCheck;
   final List<ArrayUser>? arrayresponsables;
+  final List<ArrayUser>? arrayresponsablesEliminar;
+  final List<Contact>? contacts;
+  final List<Opportunity>? opportunities;
+  final List<Activity>? activities;
+  final List<Event>? events;
 
   CompanyFormState(
       {this.isFormValid = false,
@@ -314,6 +348,11 @@ class CompanyFormState {
       this.localProvinciaDesc = '',
       this.cchkIdEstadoCheck = '',
       this.arrayresponsables,
+      this.arrayresponsablesEliminar,
+      this.contacts,
+      this.opportunities,
+      this.activities,
+      this.events,
       this.localDistritoDesc = ''});
 
   CompanyFormState copyWith({
@@ -353,6 +392,11 @@ class CompanyFormState {
     String? cchkIdEstadoCheck,
     String? localDistritoDesc,
     List<ArrayUser>? arrayresponsables,
+    List<ArrayUser>? arrayresponsablesEliminar,
+    List<Contact>? contacts,
+    List<Opportunity>? opportunities,
+    List<Activity>? activities,
+    List<Event>? events,
   }) =>
       CompanyFormState(
         isFormValid: isFormValid ?? this.isFormValid,
@@ -392,6 +436,12 @@ class CompanyFormState {
         localProvinciaDesc: localProvinciaDesc ?? this.localProvinciaDesc,
         localDistritoDesc: localDistritoDesc ?? this.localDistritoDesc,
         arrayresponsables: arrayresponsables ?? this.arrayresponsables,
+        arrayresponsablesEliminar:
+            arrayresponsablesEliminar ?? this.arrayresponsablesEliminar,
         cchkIdEstadoCheck: cchkIdEstadoCheck ?? this.cchkIdEstadoCheck,
+        contacts: contacts ?? this.contacts,
+        opportunities: opportunities ?? this.opportunities,
+        activities: activities ?? this.activities,
+        events: events ?? this.events,
       );
 }
