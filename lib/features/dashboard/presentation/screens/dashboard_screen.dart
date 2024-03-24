@@ -166,6 +166,7 @@ class _DashboardViewState extends ConsumerState {
           const SizedBox(
             height: 4,
           ),
+          kpisState.kpis.isNotEmpty ?
           Center(
             child: Container(
                 margin: const EdgeInsets.all(20),
@@ -243,7 +244,8 @@ class _DashboardViewState extends ConsumerState {
                     ),
                   ],
                 )),
-          ),
+          )
+          : Container()
         ],
       ),
     );

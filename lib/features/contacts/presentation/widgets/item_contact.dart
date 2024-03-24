@@ -1,6 +1,5 @@
 import 'package:crm_app/features/contacts/domain/domain.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class ItemContact extends StatelessWidget {
   final Contact contact;
@@ -11,7 +10,7 @@ class ItemContact extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(contact.contactoDesc),
+      title: Text(contact.contactoDesc, overflow: TextOverflow.ellipsis),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -22,7 +21,9 @@ class ItemContact extends StatelessWidget {
                     const SizedBox(
                       width: 5,
                     ),
-                    Text(contact.contactoTelefonof),
+                    Expanded(
+                      child: Text(contact.contactoTelefonof, overflow: TextOverflow.ellipsis)
+                    ),
                   ],
                 )
               : Container(),
@@ -33,7 +34,9 @@ class ItemContact extends StatelessWidget {
                     const SizedBox(
                       width: 5,
                     ),
-                    Text(contact.contactoNombreCargo ?? ''),
+                    Expanded(
+                      child: Text(contact.contactoNombreCargo ?? '', overflow: TextOverflow.ellipsis)
+                    ),
                   ],
                 )
               : Container(),
@@ -44,7 +47,9 @@ class ItemContact extends StatelessWidget {
                     const SizedBox(
                       width: 5,
                     ),
-                    Text(contact.contactoEmail ?? ''),
+                    Expanded(
+                      child: Text(contact.contactoEmail ?? '', overflow: TextOverflow.ellipsis)
+                    ),
                   ],
                 )
               : Container(),
@@ -53,7 +58,7 @@ class ItemContact extends StatelessWidget {
       //trailing: Text(contact.contactoCargo),
       leading: CircleAvatar(
         child: Text(
-          contact.contactoDesc[0].toUpperCase(),
+          contact.contactoDesc != "" ? contact.contactoDesc[0].toUpperCase() : '',
           style: const TextStyle(fontSize: 16),
         ),
       ),

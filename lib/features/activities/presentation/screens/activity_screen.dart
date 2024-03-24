@@ -16,6 +16,7 @@ import 'package:crm_app/features/companies/presentation/delegates/search_company
 
 import 'package:crm_app/features/opportunities/presentation/search/search_opportunities_active_provider.dart';
 import 'package:crm_app/features/opportunities/presentation/delegates/search_opportunity_active_delegate.dart';
+import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -52,8 +53,9 @@ class ActivityScreen extends ConsumerWidget {
         body: activityState.isLoading
             ? const FullScreenLoader()
             : _ActivityView(activity: activityState.activity!),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
+        floatingActionButton: FloatingActionButtonCustom(
+          iconData: Icons.save,
+          callOnPressed: () {
             if (activityState.activity == null) return;
 
             ref
@@ -71,9 +73,7 @@ class ActivityScreen extends ConsumerWidget {
                 }
               }
             });
-          },
-          child: const Icon(Icons.save),
-        ),
+        }),
       ),
     );
   }

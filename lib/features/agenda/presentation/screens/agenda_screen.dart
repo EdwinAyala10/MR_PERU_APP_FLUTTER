@@ -2,6 +2,7 @@ import 'package:crm_app/features/agenda/domain/domain.dart';
 import 'package:crm_app/features/agenda/presentation/providers/events_provider.dart';
 import 'package:crm_app/features/agenda/presentation/widgets/item_event.dart';
 import 'package:crm_app/features/agenda/presentation/widgets/table_calendar.dart';
+import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -29,12 +30,11 @@ class AgendaScreen extends StatelessWidget {
         ],*/
       ),
       body: const _AgendaView(),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () {
-          context.push('/event/new');
-        },
-      ),
+      floatingActionButton: FloatingActionButtonCustom(
+        iconData: Icons.add,
+        callOnPressed: () {
+        context.push('/event/new');
+      }),
     );
   }
 }
@@ -57,7 +57,9 @@ class _AgendaViewState extends ConsumerState {
     super.initState();
 
     //_selectedEvents = ValueNotifier(_getEventsForDay(_focusedDay.value));
-    ref.read(eventsProvider.notifier).onSelectedEvents(DateTime.now());
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      ref.read(eventsProvider.notifier).onSelectedEvents(DateTime.now());
+    });
   }
 
   @override

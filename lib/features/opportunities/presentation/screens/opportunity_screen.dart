@@ -7,6 +7,7 @@ import 'package:crm_app/features/opportunities/domain/domain.dart';
 import 'package:crm_app/features/opportunities/presentation/providers/providers.dart';
 import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
 import 'package:crm_app/features/shared/shared.dart';
+import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -41,8 +42,9 @@ class OpportunityScreen extends ConsumerWidget {
         body: opportunityState.isLoading
             ? const FullScreenLoader()
             : _OpportunityView(opportunity: opportunityState.opportunity!),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
+        floatingActionButton: FloatingActionButtonCustom(
+          iconData: Icons.save,
+          callOnPressed: () {
             if (opportunityState.opportunity == null) return;
 
             ref
@@ -61,9 +63,8 @@ class OpportunityScreen extends ConsumerWidget {
                 
               }
             });
-          },
-          child: const Icon(Icons.save),
-        ),
+        }),
+        
       ),
     );
   }

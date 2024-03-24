@@ -230,6 +230,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
       ArrayUser array = ArrayUser();
       array.idResponsable = usuario.id;
       array.cresIdUsuarioResponsable = usuario.code;
+      array.userreportName = usuario.name;
       array.nombreResponsable = usuario.name;
 
       List<ArrayUser> arrayUsuarios = [...state.arrayresponsables ?? [], array];

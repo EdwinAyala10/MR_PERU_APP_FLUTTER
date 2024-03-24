@@ -1,3 +1,4 @@
+import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crm_app/features/shared/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,6 +20,8 @@ class SideMenuState extends ConsumerState<SideMenu> {
   Widget build(BuildContext context) {
     final hasNotch = MediaQuery.of(context).viewPadding.top > 35;
     final textStyles = Theme.of(context).textTheme;
+
+    final user = ref.read(authProvider.notifier).state.user;
 
     return NavigationDrawer(
         elevation: 1,
@@ -65,13 +68,34 @@ class SideMenuState extends ConsumerState<SideMenu> {
         },
         children: [
           Padding(
-            padding: EdgeInsets.fromLTRB(20, hasNotch ? 0 : 20, 16, 0),
-            child: Text('Saludos', style: textStyles.titleMedium),
+            padding: EdgeInsets.fromLTRB(20, hasNotch ? 0 : 20, 16, 10),
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    backgroundColor: Theme.of(context).hintColor,
+                    child: Text(
+                      user?.name.substring(0, 1) ?? '',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    'Hola, ${user?.name ?? ''}',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 16, 10),
-            child: Text('Tony Stark', style: textStyles.titleSmall),
-          ),
+
           const NavigationDrawerDestination(
             icon: Icon(Icons.dashboard_outlined),
             label: Text('Dashboard'),
@@ -113,18 +137,15 @@ class SideMenuState extends ConsumerState<SideMenu> {
             label: Text('Documentos'),
           ),
           const Padding(
-            padding: EdgeInsets.fromLTRB(28, 16, 28, 10),
+            padding: EdgeInsets.fromLTRB(10, 16, 10, 10),
             child: Divider(),
-          ),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(28, 10, 16, 10),
-            child: Text('Otras opciones'),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: CustomFilledButton(
                 onPressed: () {
-                  context.go('/login');
+                  //context.push('/login');
+                  ref.read(authProvider.notifier).logout();
                 },
                 text: 'Cerrar sesión'),
           ),

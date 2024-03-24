@@ -1,6 +1,7 @@
 import 'package:crm_app/features/contacts/domain/domain.dart';
 import 'package:crm_app/features/contacts/presentation/providers/providers.dart';
 import 'package:crm_app/features/contacts/presentation/widgets/item_contact.dart';
+import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -23,13 +24,11 @@ class ContactsScreen extends StatelessWidget {
         ],
       ),
       body: const _ContactsView(),
-      floatingActionButton: FloatingActionButton.extended(
-        label: const Text('Nuevo contacto'),
-        icon: const Icon(Icons.add),
-        onPressed: () {
-          context.push('/contact/new');
-        },
-      ),
+      floatingActionButton: FloatingActionButtonCustom(
+        iconData: Icons.add,
+        callOnPressed: () {
+        context.push('/contact/new');
+      }),
     );
   }
 }

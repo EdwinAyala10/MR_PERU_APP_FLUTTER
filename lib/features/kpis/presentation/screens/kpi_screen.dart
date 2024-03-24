@@ -5,6 +5,7 @@ import 'package:crm_app/features/kpis/domain/entities/periodicidad.dart';
 import 'package:crm_app/features/kpis/presentation/providers/providers.dart';
 import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
 import 'package:crm_app/features/shared/shared.dart';
+import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
 import 'package:crm_app/features/users/domain/domain.dart';
 import 'package:crm_app/features/users/presentation/delegates/search_user_delegate.dart';
 import 'package:crm_app/features/users/presentation/search/search_users_provider.dart';
@@ -37,8 +38,9 @@ class KpiScreen extends ConsumerWidget {
         body: kpiState.isLoading
             ? const FullScreenLoader()
             : _KpiView(kpi: kpiState.kpi!),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
+        floatingActionButton: FloatingActionButtonCustom(
+          iconData: Icons.save,
+          callOnPressed: () {
             if (kpiState.kpi == null) return;
 
             ref
@@ -56,9 +58,7 @@ class KpiScreen extends ConsumerWidget {
                 }
               }
             });
-          },
-          child: const Icon(Icons.save),
-        ),
+        }),
       ),
     );
   }

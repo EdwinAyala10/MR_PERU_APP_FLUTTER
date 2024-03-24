@@ -65,7 +65,7 @@ class CompanyCheckInScreen extends ConsumerWidget {
                 showSnackbar(context, value.message);
                 if (value.response) {
                   Timer(const Duration(seconds: 3), () {
-                    context.pushReplacement('/company_detail/${ruc}');
+                    context.push('/company_detail/${ruc}');
                     //context.push('/company/${company.ruc}');
                   });
                 }

@@ -5,8 +5,6 @@ import 'package:dio/dio.dart';
 import 'package:crm_app/config/config.dart';
 import 'package:crm_app/features/companies/domain/domain.dart';
 
-import '../errors/company_errors.dart';
-import '../mappers/company_mapper.dart';
 
 class CompaniesDatasourceImpl extends CompaniesDatasource {
   late final Dio dio;
@@ -81,7 +79,11 @@ class CompaniesDatasourceImpl extends CompaniesDatasource {
   Future<List<Company>> getCompanies() async {
     final response =
         await dio.post('/cliente/listar-clientes-by-ruc-tipo-est-Cal');
+    
+    print('RESP COMPANIES: ${response}');
+
     final List<Company> companies = [];
+
     for (final company in response.data['data'] ?? []) {
       companies.add(CompanyMapper.jsonToEntity(company));
     }

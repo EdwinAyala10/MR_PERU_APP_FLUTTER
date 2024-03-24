@@ -1,5 +1,7 @@
 import 'package:crm_app/features/companies/domain/domain.dart';
 import 'package:crm_app/features/companies/presentation/providers/providers.dart';
+import 'package:crm_app/features/companies/presentation/widgets/item_company.dart';
+import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -22,12 +24,11 @@ class CompaniesScreen extends StatelessWidget {
         ],
       ),
       body: const _CompaniesView(),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () {
-          context.push('/company/new');
-        },
-      ),
+      floatingActionButton: FloatingActionButtonCustom(
+        iconData: Icons.add,
+        callOnPressed: () {
+        context.push('/company/new');
+      }),
     );
   }
 }
@@ -51,6 +52,10 @@ class _CompaniesViewState extends ConsumerState {
           scrollController.position.maxScrollExtent) {
         //ref.read(productsProvider.notifier).loadNextPage();
       }
+    });
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      ref.read(companiesProvider.notifier).loadNextPage();
     });
   }
 
@@ -76,34 +81,16 @@ class _ListCompanies extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 0),
       child: ListView.separated(
         itemCount: companies.length,
         separatorBuilder: (BuildContext context, int index) => const Divider(),
         itemBuilder: (context, index) {
           final company = companies[index];
 
-          return ListTile(
-            title: Text(company.razon),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Tipo: ${company.tipocliente}'),
-                Text('Calificación: ${company.calificacion}'),
-              ],
-            ),
-            trailing: Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: company.estado == 'ACTIVO' ? Colors.green : Colors.red,
-              ),
-            ),
-            onTap: () {
+          return ItemCompany(company: company, callbackOnTap: () {
               context.push('/company_detail/${company.ruc}');
-            },
-          );
+            });
         },
       ),
     );

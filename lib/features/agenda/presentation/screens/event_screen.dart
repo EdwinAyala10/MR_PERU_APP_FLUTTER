@@ -15,6 +15,7 @@ import 'package:crm_app/features/companies/presentation/delegates/search_company
 
 import 'package:crm_app/features/opportunities/presentation/search/search_opportunities_active_provider.dart';
 import 'package:crm_app/features/opportunities/presentation/delegates/search_opportunity_active_delegate.dart';
+import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
 import 'package:crm_app/features/users/domain/domain.dart';
 import 'package:crm_app/features/users/presentation/delegates/search_user_delegate.dart';
 import 'package:crm_app/features/users/presentation/search/search_users_provider.dart';
@@ -55,8 +56,9 @@ class EventScreen extends ConsumerWidget {
             ? const FullScreenLoader()
             : _EventView(event: eventState.event!),
         //_EventView(event: eventState.event!),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
+        floatingActionButton: FloatingActionButtonCustom(
+          iconData: Icons.save,
+          callOnPressed: () {
             if (eventState.event == null) return;
 
             ref
@@ -74,9 +76,7 @@ class EventScreen extends ConsumerWidget {
                 }
               }
             });
-          },
-          child: const Icon(Icons.save),
-        ),
+        }),
       ),
     );
   }

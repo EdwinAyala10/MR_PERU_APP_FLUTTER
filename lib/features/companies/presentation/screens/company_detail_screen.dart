@@ -191,7 +191,7 @@ class _CompanyDetailViewState extends State<_CompanyDetailView>
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          responsable.nombreResponsable ?? '',
+                          responsable.userreportName ?? '',
                           style: const TextStyle(color: Colors.white),
                         ),
                       );

@@ -1,6 +1,7 @@
 import 'package:crm_app/features/opportunities/domain/domain.dart';
 import 'package:crm_app/features/opportunities/presentation/providers/providers.dart';
 import 'package:crm_app/features/opportunities/presentation/widgets/item_opportunity.dart';
+import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -23,13 +24,11 @@ class OpportunitiesScreen extends StatelessWidget {
         ],
       ),
       body: const _OpportunitiesView(),
-      floatingActionButton: FloatingActionButton.extended(
-        label: const Text('Nuevo Oportunidad'),
-        icon: const Icon(Icons.add),
-        onPressed: () {
-          context.push('/opportunity/new');
-        },
-      ),
+      floatingActionButton: FloatingActionButtonCustom(
+        iconData: Icons.add,
+        callOnPressed: () {
+        context.push('/opportunity/new');
+      }),
     );
   }
 }

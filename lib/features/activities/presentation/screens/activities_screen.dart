@@ -1,12 +1,12 @@
 import 'package:crm_app/features/activities/domain/domain.dart';
 import 'package:crm_app/features/activities/presentation/providers/providers.dart';
 import 'package:crm_app/features/activities/presentation/widgets/item_activity.dart';
+import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:crm_app/features/shared/shared.dart';
-import 'package:intl/intl.dart';
 
 class ActivitiesScreen extends StatelessWidget {
   const ActivitiesScreen({super.key});
@@ -24,13 +24,11 @@ class ActivitiesScreen extends StatelessWidget {
         ],
       ),
       body: const _ActivitiesView(),
-      floatingActionButton: FloatingActionButton.extended(
-        label: const Text('Nuevo Actividad'),
-        icon: const Icon(Icons.add),
-        onPressed: () {
-          context.push('/activity/new');
-
-          /*showModalBottomSheet(
+      floatingActionButton: FloatingActionButtonCustom(
+        iconData: Icons.add,
+        callOnPressed: () {
+        context.push('/activity/new');
+        /*showModalBottomSheet(
             context: context,
             builder: (BuildContext context) {
               return Container(
@@ -72,8 +70,7 @@ class ActivitiesScreen extends StatelessWidget {
               );
             },
           );*/
-        },
-      ),
+      }),
     );
   }
 }
