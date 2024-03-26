@@ -2,10 +2,13 @@ import 'package:crm_app/features/activities/domain/domain.dart';
 import 'package:crm_app/features/activities/presentation/widgets/item_activity.dart';
 import 'package:crm_app/features/agenda/domain/domain.dart';
 import 'package:crm_app/features/agenda/presentation/widgets/item_event.dart';
+import 'package:crm_app/features/companies/presentation/widgets/item_company_local.dart';
 import 'package:crm_app/features/contacts/domain/domain.dart';
 import 'package:crm_app/features/contacts/presentation/widgets/item_contact.dart';
 import 'package:crm_app/features/opportunities/domain/domain.dart';
 import 'package:crm_app/features/opportunities/presentation/widgets/item_opportunity.dart';
+import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
+import 'package:crm_app/features/shared/widgets/floating_action_button_icon_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:crm_app/features/companies/domain/domain.dart';
@@ -33,6 +36,7 @@ class CompanyDetailScreen extends ConsumerWidget {
                   opportunities: companyState.opportunities!,
                   activities: companyState.activities!,
                   events: companyState.events!,
+                  companyLocales: companyState.companyLocales!,
                 )
               : Center(
                   child: Column(
@@ -62,13 +66,16 @@ class _CompanyDetailView extends StatefulWidget {
   final List<Opportunity> opportunities;
   final List<Activity> activities;
   final List<Event> events;
+  final List<CompanyLocal> companyLocales;
 
   const _CompanyDetailView(
       {required this.company,
       required this.contacts,
       required this.opportunities,
       required this.activities,
-      required this.events});
+      required this.events,
+      required this.companyLocales
+      });
 
   @override
   State<_CompanyDetailView> createState() => _CompanyDetailViewState();
@@ -77,12 +84,12 @@ class _CompanyDetailView extends StatefulWidget {
 class _CompanyDetailViewState extends State<_CompanyDetailView>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _tabController =
-        TabController(length: 5, vsync: this); // Ahora tenemos 5 pestañas
+    _tabController = TabController(length: 6, vsync: this);
     _tabController.addListener(_handleTabChange);
   }
 
@@ -93,9 +100,9 @@ class _CompanyDetailViewState extends State<_CompanyDetailView>
   }
 
   void _handleTabChange() {
-    // Esta función se ejecutará cada vez que se cambie de pestaña
-    print('Se cambió a la pestaña ${_tabController.index}');
-    // Aquí puedes llamar a la función que desees ejecutar
+    setState(() {
+      _currentIndex = _tabController.index;
+    });
   }
 
   @override
@@ -109,46 +116,49 @@ class _CompanyDetailViewState extends State<_CompanyDetailView>
     SizedBox spacingHeight = const SizedBox(height: 14);
 
     return DefaultTabController(
-      length: 5, // Ahora tenemos 5 pestañas
+      length: 6, // Ahora tenemos 6 pestañas
       child: Scaffold(
-        appBar: AppBar(
-          title:
-              Text(widget.company.razon, style: const TextStyle(fontSize: 16)),
-          bottom: TabBar(
-            controller: _tabController,
-            tabs: const [
-              Tab(icon: Icon(Icons.info), text: 'Información'),
-              Tab(icon: Icon(Icons.contacts), text: 'Contactos'),
-              Tab(icon: Icon(Icons.business), text: 'Oportunidades'),
-              Tab(icon: Icon(Icons.event), text: 'Actividades'),
-              Tab(icon: Icon(Icons.event_note), text: 'Eventos'),
+          appBar: AppBar(
+            title: Text(widget.company.razon,
+                style: const TextStyle(fontSize: 16)),
+            bottom: TabBar(
+              controller: _tabController,
+              tabs: const [
+                Tab(icon: Icon(Icons.info), text: 'Información'),
+                Tab(icon: Icon(Icons.home_work), text: 'Locales'),
+                Tab(icon: Icon(Icons.contacts), text: 'Contactos'),
+                Tab(icon: Icon(Icons.business), text: 'Oportunidades'),
+                Tab(icon: Icon(Icons.event), text: 'Actividades'),
+                Tab(icon: Icon(Icons.event_note), text: 'Eventos'),
+              ],
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () {
+                  context.push('/company/${widget.company.rucId}');
+                },
+              ),
             ],
           ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () {
-                context.push('/company/${widget.company.rucId}');
-              },
-            ),
-          ],
-        ),
-        body: TabBarView(
-          controller: _tabController,
-          children: [
-            _buildInformationTab(
-                styleTitle, styleLabel, styleContent, spacingHeight),
-            _buildContactsTab(
-                styleTitle, styleLabel, styleContent, spacingHeight),
-            _buildOpportunitiesTab(styleTitle, styleLabel, styleContent,
-                spacingHeight), // Nueva pestaña de oportunidades
-            _buildActivitiesTab(
-                styleTitle, styleLabel, styleContent, spacingHeight),
-            _buildEventsTab(
-                styleTitle, styleLabel, styleContent, spacingHeight),
-          ],
-        ),
-      ),
+          body: TabBarView(
+            controller: _tabController,
+            children: [
+              _buildInformationTab(
+                  styleTitle, styleLabel, styleContent, spacingHeight),
+              _buildLocalesTab(
+                  styleTitle, styleLabel, styleContent, spacingHeight),
+              _buildContactsTab(
+                  styleTitle, styleLabel, styleContent, spacingHeight),
+              _buildOpportunitiesTab(styleTitle, styleLabel, styleContent,
+                  spacingHeight), // Nueva pestaña de oportunidades
+              _buildActivitiesTab(
+                  styleTitle, styleLabel, styleContent, spacingHeight),
+              _buildEventsTab(
+                  styleTitle, styleLabel, styleContent, spacingHeight),
+            ],
+          ),
+          floatingActionButton: _itFloatingButton(_currentIndex)),
     );
   }
 
@@ -159,7 +169,7 @@ class _CompanyDetailViewState extends State<_CompanyDetailView>
         padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
+          children: [
             Text('GENERAL', style: styleTitle),
             spacingHeight,
             _buildInfoField('Nombre de la empresa', widget.company.razon,
@@ -230,11 +240,17 @@ class _CompanyDetailViewState extends State<_CompanyDetailView>
             _buildInfoField('Código postal', widget.company.codigoPostal ?? '',
                 styleLabel, styleContent),
             const SizedBox(height: 20),
-            // ...
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildLocalesTab(TextStyle styleTitle, TextStyle styleLabel,
+      TextStyle styleContent, SizedBox spacingHeight) {
+    return widget.companyLocales.length > 0
+        ? _ListCompanyLocales(companyLocales: widget.companyLocales)
+        : _NoExistData(description: 'No existe locales registrados');
   }
 
   Widget _buildContactsTab(TextStyle styleTitle, TextStyle styleLabel,
@@ -290,6 +306,53 @@ class _CompanyDetailViewState extends State<_CompanyDetailView>
       ),
     );
   }
+
+  Widget? _itFloatingButton(currentIndex) {
+    switch (_currentIndex) {
+      case 0:
+        return FloatingActionButtonIconCustom(
+            label: widget.company.cchkIdEstadoCheck == '06'
+                ? 'CHECK-IN'
+                : (widget.company.cchkIdEstadoCheck == null
+                    ? 'CHECK-IN'
+                    : 'CHECK-OUT'),
+            callOnPressed: () {
+              String idCheck = widget.company.cchkIdEstadoCheck == '06'
+                  ? '01'
+                  : (widget.company.cchkIdEstadoCheck == null ? '01' : '06');
+              String ruc = widget.company.ruc;
+              String ids = '${idCheck}*${ruc}';
+              context.push('/company_check_in/${ids}');
+            },
+            iconData: Icons.check_circle_outline_outlined);
+      case 1:
+        return FloatingActionButtonCustom(
+            callOnPressed: () {
+              String ruc = widget.company.ruc;
+              String ids = 'new*${ruc}';
+              context.push('/company_local/${ids}');
+            }, iconData: Icons.add);
+      
+      case 2:
+        return FloatingActionButtonCustom(
+            callOnPressed: () {}, iconData: Icons.add);
+      
+      case 3:
+        return FloatingActionButtonCustom(
+            callOnPressed: () {}, iconData: Icons.add);
+      
+      case 4:
+        return FloatingActionButtonCustom(
+            callOnPressed: () {}, iconData: Icons.add);
+
+      case 5:
+        return FloatingActionButtonCustom(
+            callOnPressed: () {}, iconData: Icons.add);
+
+      default:
+        return null;
+    }
+  }
 }
 
 class _ListContacts extends StatelessWidget {
@@ -317,6 +380,32 @@ class _ListContacts extends StatelessWidget {
   }
 }
 
+
+class _ListCompanyLocales extends StatelessWidget {
+  final List<CompanyLocal> companyLocales;
+  const _ListCompanyLocales({super.key, required this.companyLocales});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: ListView.separated(
+        itemCount: companyLocales.length,
+        separatorBuilder: (BuildContext context, int index) => const Divider(),
+        itemBuilder: (context, index) {
+          final companyLocal = companyLocales[index];
+
+          return ItemCompanyLocal(
+              companyLocal: companyLocal,
+              callbackOnTap: () {
+
+              });
+        },
+      ),
+    );
+  }
+}
+
 class _ListOpportunities extends StatelessWidget {
   final List<Opportunity> opportunities;
 
@@ -332,7 +421,8 @@ class _ListOpportunities extends StatelessWidget {
         itemBuilder: (context, index) {
           final opportunity = opportunities[index];
           return ItemOpportunity(
-              opportunity: opportunity, callbackOnTap: () {
+              opportunity: opportunity,
+              callbackOnTap: () {
                 context.push('/opportunity/${opportunity.id}');
               });
         },
@@ -340,7 +430,6 @@ class _ListOpportunities extends StatelessWidget {
     );
   }
 }
-
 
 class _ListActivities extends StatelessWidget {
   final List<Activity> activities;
@@ -357,7 +446,8 @@ class _ListActivities extends StatelessWidget {
         itemBuilder: (context, index) {
           final activity = activities[index];
           return ItemActivity(
-              activity: activity, callbackOnTap: () {
+              activity: activity,
+              callbackOnTap: () {
                 context.push('/activity/${activity.id}');
               });
         },
@@ -365,7 +455,6 @@ class _ListActivities extends StatelessWidget {
     );
   }
 }
-
 
 class _ListEvents extends StatelessWidget {
   final List<Event> events;
@@ -382,7 +471,8 @@ class _ListEvents extends StatelessWidget {
         itemBuilder: (context, index) {
           final event = events[index];
           return ItemEvent(
-              event: event, callbackOnTap: () {
+              event: event,
+              callbackOnTap: () {
                 context.push('/event/${event.id}');
               });
         },

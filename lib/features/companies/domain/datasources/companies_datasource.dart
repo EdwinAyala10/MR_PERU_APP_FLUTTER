@@ -11,5 +11,8 @@ abstract class CompaniesDatasource {
 
   Future<CompanyCheckInResponse> createCompanyCheckIn( Map<dynamic,dynamic> companyCheckInLike );
 
+  Future<List<CompanyLocal>> getCompanyLocales(String ruc);
+
+  Future<CompanyLocalResponse> createUpdateCompanyLocal( Map<dynamic,dynamic> companyLocalLike );
 }
 

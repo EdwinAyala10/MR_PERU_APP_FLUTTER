@@ -11,5 +11,9 @@ abstract class CompaniesRepository {
   Future<List<Company>> searchCompaniesActive(String dni, String query);
 
   Future<CompanyCheckInResponse> createCompanyCheckIn( Map<dynamic,dynamic> companyCheckInLike );
+
+  Future<List<CompanyLocal>> getCompanyLocales(String ruc);
+
+  Future<CompanyLocalResponse> createUpdateCompanyLocal( Map<dynamic,dynamic> companyLocalLike );
 }
 

@@ -1,10 +1,7 @@
-import 'dart:async';
-
 import 'package:crm_app/features/companies/domain/domain.dart';
 import 'package:crm_app/features/companies/presentation/providers/providers.dart';
 import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
 import 'package:crm_app/features/shared/shared.dart';
-import 'package:crm_app/features/shared/widgets/custom_modal.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
 import 'package:crm_app/features/shared/widgets/select_custom_form.dart';
 import 'package:crm_app/features/shared/widgets/title_section_form.dart';
@@ -121,6 +118,33 @@ class _CompanyInformation extends ConsumerWidget {
       DropdownOption('D', 'D'),
     ];
 
+    List<DropdownOption> optionsDepartamento = [
+      DropdownOption('', 'Seleccione departamento'),
+      DropdownOption('01', 'Lima'),
+      DropdownOption('02', 'Callao'),
+    ];
+
+    List<DropdownOption> optionsProvincia = [
+      DropdownOption('', 'Seleccione provincia'),
+      DropdownOption('01', 'Lima'),
+      DropdownOption('02', 'Callao'),
+    ];
+
+    List<DropdownOption> optionsDistrito = [
+      DropdownOption('', 'Seleccione distrito'),
+      DropdownOption('01', 'Ate'),
+      DropdownOption('02', 'Barranco'),
+      DropdownOption('03', 'Breña'),
+      DropdownOption('04', 'Carabayllo'),
+    ];
+
+    List<DropdownOption> optionsLocalTipo = [
+      DropdownOption('', 'Seleccione tipo de local'),
+      DropdownOption('1', 'OFICINA FISCAL'),
+      DropdownOption('2', 'PLANTA'),
+      DropdownOption('3', 'OTROS'),
+    ];
+
     final companyForm = ref.watch(companyFormProvider(company));
 
     return Padding(
@@ -136,7 +160,6 @@ class _CompanyInformation extends ConsumerWidget {
                 ref.read(companyFormProvider(company).notifier).onRazonChanged,
             errorMessage: companyForm.razon.errorMessage,
           ),
-          const SizedBox(height: 20),
           CustomCompanyField(
             label: 'RUC *',
             initialValue:
@@ -145,7 +168,6 @@ class _CompanyInformation extends ConsumerWidget {
                 ref.read(companyFormProvider(company).notifier).onRucChanged,
             errorMessage: companyForm.ruc.errorMessage,
           ),
-          const SizedBox(height: 10),
           SelectCustomForm(
             label: 'Tipo',
             value: companyForm.tipoCliente,
@@ -247,9 +269,8 @@ class _CompanyInformation extends ConsumerWidget {
                 .read(companyFormProvider(company).notifier)
                 .onComentarioChanged,
           ),
-          const SizedBox(height: 20),
           CustomCompanyField(
-            maxLines: 3,
+            maxLines: 2,
             label: 'Recomendación',
             keyboardType: TextInputType.multiline,
             initialValue: companyForm.observaciones,
@@ -267,7 +288,6 @@ class _CompanyInformation extends ConsumerWidget {
                 .onTelefonoChanged,
             errorMessage: companyForm.telefono.errorMessage,
           ),
-          const SizedBox(height: 15),
           CustomCompanyField(
             isTopField: true,
             label: 'Email',
@@ -275,7 +295,6 @@ class _CompanyInformation extends ConsumerWidget {
             onChanged:
                 ref.read(companyFormProvider(company).notifier).onEmailChanged,
           ),
-          const SizedBox(height: 10),
           CustomCompanyField(
             isTopField: true,
             label: 'Web',
@@ -283,9 +302,31 @@ class _CompanyInformation extends ConsumerWidget {
             onChanged:
                 ref.read(companyFormProvider(company).notifier).onWebChanged,
           ),
-          TitleSectionForm(title: 'DIRECCIÓN'),
+          TitleSectionForm(title: 'DATOS DE PRIMER LOCAL'),
+          SelectCustomForm(
+            label: 'Tipo de local',
+            value: companyForm.localTipo,
+            callbackChange: (String? newValue) {
+              ref
+                  .read(companyFormProvider(company).notifier)
+                  .onTipoLocalChanged(newValue!);
+            },
+            items: optionsLocalTipo,
+          ),
+          const  SizedBox(
+            height: 4,
+          ),
           CustomCompanyField(
-            isTopField: true,
+            label: 'Nombre de local',
+            initialValue: companyForm.localNombre,
+            onChanged: ref
+                .read(companyFormProvider(company).notifier)
+                .onNombreLocalChanged,
+          ),
+          const  SizedBox(
+            height: 4,
+          ),
+          CustomCompanyField(
             label: 'Dirección',
             initialValue: companyForm.direccion.value,
             onChanged: ref
@@ -293,29 +334,35 @@ class _CompanyInformation extends ConsumerWidget {
                 .onDireccionChanged,
             errorMessage: companyForm.direccion.errorMessage,
           ),
-          const SizedBox(height: 10),
-          const CustomCompanyField(
-            isTopField: true,
-            label: 'Detalle de la dirección',
-            initialValue: '',
+          SelectCustomForm(
+            label: 'Departamento',
+            value: companyForm.localDepartamento,
+            callbackChange: (String? newValue) {
+              ref
+                  .read(companyFormProvider(company).notifier)
+                  .onDepartamentoChanged(newValue!);
+            },
+            items: optionsDepartamento,
           ),
-          const SizedBox(height: 10),
-          const CustomCompanyField(
-            label: 'Población',
-            initialValue: '',
+          SelectCustomForm(
+            label: 'Provincia',
+            value: companyForm.localProvincia,
+            callbackChange: (String? newValue) {
+              ref
+                  .read(companyFormProvider(company).notifier)
+                  .onProvinciaChanged(newValue!);
+            },
+            items: optionsProvincia,
           ),
-          const SizedBox(height: 10),
-          const CustomCompanyField(
-            label: 'Prov. / Reg.',
-            initialValue: '',
-          ),
-          const SizedBox(height: 10),
-          CustomCompanyField(
-            label: 'Codigo Postal',
-            initialValue: companyForm.codigoPostal,
-            onChanged: ref
-                .read(companyFormProvider(company).notifier)
-                .onCodigoPostaChanged,
+          SelectCustomForm(
+            label: 'Distrito',
+            value: companyForm.localDistrito,
+            callbackChange: (String? newValue) {
+              ref
+                  .read(companyFormProvider(company).notifier)
+                  .onProvinciaChanged(newValue!);
+            },
+            items: optionsDistrito,
           ),
           const SizedBox(height: 100),
         ],

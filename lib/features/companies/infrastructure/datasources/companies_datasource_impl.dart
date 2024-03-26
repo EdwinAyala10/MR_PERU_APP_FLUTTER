@@ -135,4 +135,57 @@ class CompaniesDatasourceImpl extends CompaniesDatasource {
       throw Exception();
     }
   }
+
+  @override
+  Future<CompanyLocalResponse> createUpdateCompanyLocal(
+      Map<dynamic, dynamic> companyLocalLike) async {
+    try {
+      final String? id = companyLocalLike['LOCAL_CODIGO'];
+      const String method = 'POST';
+      final String url = (id == null)
+          ? '/cliente/create-cliente-locales'
+          : '/cliente/update-cliente-locales';
+
+      //companyLike.remove('rucId');
+
+      print('URL CREATE COMPANY LOCAL: ${url}');
+      print('companyLike LOCAL: ${companyLocalLike}');
+
+      final response = await dio.request(url,
+          data: companyLocalLike, options: Options(method: method));
+
+      print('RESP companies Local: ${response}');
+
+      final CompanyLocalResponse companyLocalResponse =
+          CompanyLocalResponseMapper.jsonToEntity(response.data);
+
+      if (companyLocalResponse.status == true) {
+        companyLocalResponse.companyLocal =
+            CompanyLocalMapper.jsonToEntity(response.data['data']);
+      }
+
+      return companyLocalResponse;
+    } on DioException catch (e) {
+      if (e.response!.statusCode == 404) throw CompanyNotFound();
+      throw Exception();
+    } catch (e) {
+      throw Exception();
+    }
+  }
+   @override
+  Future<List<CompanyLocal>> getCompanyLocales(String ruc) async {
+    final response =
+        await dio.get('/cliente/cliente-locales-by-ruc/${ruc}');
+    
+    print('RESP COMPANY LOCALES: ${response}');
+
+    final List<CompanyLocal> companyLocales = [];
+
+    for (final company in response.data['data'] ?? []) {
+      companyLocales.add(CompanyLocalMapper.jsonToEntity(company));
+    }
+
+    return companyLocales;
+  }
+
 }

@@ -169,6 +169,26 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
     state = state.copyWith(tipoCliente: tipoId);
   }
 
+  void onDepartamentoChanged(String id) {
+    state = state.copyWith(localDepartamento: id);
+  }
+
+  void onNombreLocalChanged(String name) {
+    state = state.copyWith(localNombre: name);
+  }
+  
+  void onDistritoChanged(String id) {
+    state = state.copyWith(localDistrito: id);
+  }
+
+  void onProvinciaChanged(String id) {
+    state = state.copyWith(localProvincia: id);
+  }
+
+  void onTipoLocalChanged(String id) {
+    state = state.copyWith(localTipo: id);
+  }
+
   void onEstadoChanged(String estadoId) {
     state = state.copyWith(estado: estadoId);
   }
@@ -379,6 +399,7 @@ class CompanyFormState {
     String? localNombre,
     String? localDireccion,
     String? localDepartamento,
+    String? localProvincia,
     String? localDistrito,
     String? voltajeTension,
     String? enviarNotificacion,

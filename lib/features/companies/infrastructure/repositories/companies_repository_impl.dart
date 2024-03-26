@@ -30,4 +30,15 @@ class CompaniesRepositoryImpl extends CompaniesRepository {
   Future<CompanyCheckInResponse> createCompanyCheckIn(Map<dynamic,dynamic> companyCheckInLike) {
     return datasource.createCompanyCheckIn(companyCheckInLike);
   }
+  
+  @override
+  Future<CompanyLocalResponse> createUpdateCompanyLocal(Map companyLocalLike) {
+    return datasource.createUpdateCompanyLocal(companyLocalLike);
+
+  }
+  
+  @override
+  Future<List<CompanyLocal>> getCompanyLocales(String ruc) {
+    return datasource.getCompanyLocales(ruc);
+  }
 }

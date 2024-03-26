@@ -1,3 +1,4 @@
+import 'package:crm_app/features/companies/domain/entities/create_update_company_local_response.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:crm_app/features/companies/domain/domain.dart';
 
@@ -32,7 +33,7 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
             state.companies.any((element) => element.ruc == company.ruc);
 
         if (!isCompanyInList) {
-          state = state.copyWith(companies: [...state.companies, company]);
+          state = state.copyWith(companies: [company, ...state.companies]);
           return CreateUpdateCompanyResponse(response: true, message: message);
         }
 
@@ -87,6 +88,43 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
       return CreateUpdateCompanyCheckInResponse(response: false, message: 'Error, revisar con su administrador.');
     }
   }
+
+  Future<CreateUpdateCompanyLocalResponse> createOrUpdateCompanyLocal(
+      Map<dynamic, dynamic> companyLocalLike) async {
+    try {
+      final companyLocalResponse =
+          await companiesRepository.createUpdateCompanyLocal(companyLocalLike);
+
+      final message = companyLocalResponse.message;
+
+      if (companyLocalResponse.status) {
+
+        //final companyCheckIn = companyCheckInResponse.companyCheckIn as CompanyCheckIn;
+        /*final companyCheckIn = companyCheckInResponse.company as Company;
+        final isCompanyInList =
+            state.companies.any((element) => element.ruc == company.ruc);
+
+        if (!isCompanyInList) {
+          state = state.copyWith(companies: [...state.companies, company]);
+          return CreateUpdateCompanyResponse(response: true, message: message);
+        }
+
+        state = state.copyWith(
+            companies: state.companies
+                .map(
+                  (element) => (element.ruc == company.ruc) ? company : element,
+                )
+                .toList());*/
+
+        return CreateUpdateCompanyLocalResponse(response: true, message: message);
+      }
+
+      return CreateUpdateCompanyLocalResponse(response: false, message: message);
+    } catch (e) {
+      return CreateUpdateCompanyLocalResponse(response: false, message: 'Error, revisar con su administrador.');
+    }
+  }
+
 
   Future loadNextPage() async {
     if (state.isLoading || state.isLastPage) return;

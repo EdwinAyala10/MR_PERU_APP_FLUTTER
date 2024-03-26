@@ -16,6 +16,7 @@ class CompanyMapper {
     fechaActualizacion: json['FECHA_ACTUALIZACION'] == Null ? DateTime.parse(json['FECHA_ACTUALIZACION']) : null,
     usuarioActualizacion: json['USUARIO_ACTUALIZACION'] ?? '',
     estado: json['ESTADO'] ?? '',
+    localNombre: json['LOCAL_NOMBRE'] ?? '',
     departamento: json['DEPARTAMENTO'] ?? '',
     provincia: json['PROVINCIA'] ?? '',
     distrito: json['DISTRITO'] ?? '',

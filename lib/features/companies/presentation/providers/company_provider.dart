@@ -104,20 +104,23 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
       company.rucId = company.ruc;
 
       final contacts = await contactsRepository.getContacts(company.ruc);
-      final opportunities = await opportunitiesRepository.getOpportunities(company.ruc);
+      final opportunities =
+          await opportunitiesRepository.getOpportunities(company.ruc);
       final activities = await activitiesRepository.getActivities();
       final events = await eventsRepository.getEventsList();
+      final companyLocales = await companiesRepository.getCompanyLocales(company.ruc);
 
       print('LENT OPO: ${opportunities.length}');
 
       state = state.copyWith(
-        isLoading: false, 
-        company: company, 
+        isLoading: false,
+        company: company,
         contacts: contacts,
         opportunities: opportunities,
         activities: activities,
         events: events,
-        );
+        companyLocales: companyLocales,
+      );
     } catch (e) {
       // 404 product not found
       state = state.copyWith(isLoading: false, company: null);
@@ -142,6 +145,7 @@ class CompanyState {
   final List<Opportunity> opportunities;
   final List<Activity> activities;
   final List<Event> events;
+  final List<CompanyLocal> companyLocales;
   final bool isLoading;
   final bool isSaving;
 
@@ -152,6 +156,7 @@ class CompanyState {
     this.opportunities = const [],
     this.activities = const [],
     this.events = const [],
+    this.companyLocales = const [],
     this.isLoading = true,
     this.isSaving = false,
   });
@@ -163,6 +168,7 @@ class CompanyState {
     List<Opportunity>? opportunities,
     List<Activity>? activities,
     List<Event>? events,
+    List<CompanyLocal>? companyLocales,
     bool? isLoading,
     bool? isSaving,
   }) =>
@@ -173,6 +179,7 @@ class CompanyState {
         opportunities: opportunities ?? this.opportunities,
         activities: activities ?? this.activities,
         events: events ?? this.events,
+        companyLocales: companyLocales ?? this.companyLocales,
         isLoading: isLoading ?? this.isLoading,
         isSaving: isSaving ?? this.isSaving,
       );

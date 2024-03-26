@@ -2,6 +2,7 @@
 
 export 'company_provider.dart';
 export 'company_check_in_provider.dart';
+export 'company_local_provider.dart';
 export 'companies_provider.dart';
 export 'companies_repository_provider.dart';
 
