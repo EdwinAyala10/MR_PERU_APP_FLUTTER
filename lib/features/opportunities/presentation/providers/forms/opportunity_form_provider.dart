@@ -1,3 +1,5 @@
+import 'package:crm_app/features/kpis/domain/entities/array_user.dart';
+import 'package:crm_app/features/users/domain/domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
 
@@ -31,11 +33,13 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
           oprtEntorno: opportunity.oprtEntorno ?? '',
           optrIdOportunidadIn: opportunity.oprtIdEstadoOportunidad ?? '',
           oprtComentario: opportunity.oprtComentario ?? '',
-          oprtFechaPrevistaVenta: opportunity.oprtFechaPrevistaVenta ?? '',
+          oprtFechaPrevistaVenta:
+              opportunity.oprtFechaPrevistaVenta ?? DateTime.now(),
           oprtIdEstadoOportunidad: opportunity.oprtIdEstadoOportunidad ?? '',
           oprtIdUsuarioRegistro: opportunity.oprtIdUsuarioRegistro ?? '',
           oprtIdValor: opportunity.oprtIdValor ?? '',
-          oprtNobbreEstadoOportunidad: opportunity.oprtNobbreEstadoOportunidad ?? '',
+          oprtNobbreEstadoOportunidad:
+              opportunity.oprtNobbreEstadoOportunidad ?? '',
           oprtNombreValor: opportunity.oprtNombreValor ?? '',
           oprtProbabilidad: opportunity.oprtProbabilidad ?? '',
           oprtRuc: opportunity.oprtRuc ?? '',
@@ -56,13 +60,15 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
     }
 
     final opportunityLike = {
-      'OPRT_ID_OPORTUNIDAD_IN': (state.id == 'new') ? '0' : state.id,
+      'OPRT_ID_OPORTUNIDAD': (state.id == 'new') ? '0' : state.id,
       'OPRT_NOMBRE': state.oprtNombre.value,
       'OPRT_ENTORNO': 'MR PERU',
       'OPRT_ID_ESTADO_OPORTUNIDAD': state.oprtIdEstadoOportunidad,
       'OPRT_PROBABILIDAD': state.oprtProbabilidad,
       'OPRT_ID_VALOR': state.oprtIdValor,
-      'OPRT_FECHA_PREVISTA_VENTA': state.oprtFechaPrevistaVenta,
+      //'OPRT_FECHA_PREVISTA_VENTA': state.oprtFechaPrevistaVenta,
+      'OPRT_FECHA_PREVISTA_VENTA':
+          "${state.oprtFechaPrevistaVenta?.year.toString().padLeft(4, '0')}-${state.oprtFechaPrevistaVenta?.month.toString().padLeft(2, '0')}-${state.oprtFechaPrevistaVenta?.day.toString().padLeft(2, '0')}",
       'OPRT_RUC': state.oprtRuc,
       'OPRT_RUC_INTERMEDIARIO_01': state.oprtRucIntermediario01,
       'OPRT_RUC_INTERMEDIARIO_02': state.oprtRucIntermediario02,
@@ -120,7 +126,7 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
     state = state.copyWith(oprtNombreValor: valor);
   }*/
 
-  void onFechaChanged(String fecha) {
+  void onFechaChanged(DateTime fecha) {
     state = state.copyWith(oprtFechaPrevistaVenta: fecha);
   }
 
@@ -129,17 +135,64 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
   }
 
   void onRucIntermediario01Changed(String ruc, String razon) {
-    state = state.copyWith(oprtRucIntermediario01: ruc, oprtRazonIntermediario01: razon);
+    state = state.copyWith(
+        oprtRucIntermediario01: ruc, oprtRazonIntermediario01: razon);
   }
 
   void onRucIntermediario02Changed(String ruc, String razon) {
-    state = state.copyWith(oprtRucIntermediario02: ruc, oprtRazonIntermediario02: razon);
+    state = state.copyWith(
+        oprtRucIntermediario02: ruc, oprtRazonIntermediario02: razon);
   }
 
   void onComentarioChanged(String comentario) {
     state = state.copyWith(oprtComentario: comentario);
   }
-  
+
+  void onUsuarioChanged(UserMaster usuario) {
+    bool objExist = state.arrayresponsables!.any(
+        (objeto) => objeto.id == usuario.id && objeto.name == usuario.name);
+
+    if (!objExist) {
+      ArrayUser array = ArrayUser();
+      array.idResponsable = usuario.id;
+      array.cresIdUsuarioResponsable = usuario.code;
+      array.userreportName = usuario.name;
+      array.nombreResponsable = usuario.name;
+      array.oresIdUsuarioResponsable = usuario.code;
+
+      List<ArrayUser> arrayUsuarios = [...state.arrayresponsables ?? [], array];
+
+      state = state.copyWith(arrayresponsables: arrayUsuarios);
+    } else {
+      state = state;
+    }
+  }
+
+  void onDeleteUserChanged(ArrayUser item) {
+    List<ArrayUser> arrayUsuariosEliminar = [];
+
+    if (state.id != "new") {
+      bool objExist = state.arrayresponsablesEliminar!
+          .any((objeto) => objeto.oresIdOportunidadResp == item.oresIdOportunidadResp);
+
+      if (!objExist) {
+        ArrayUser array = ArrayUser();
+        array.oresIdOportunidadResp = item.oresIdOportunidadResp;
+
+        arrayUsuariosEliminar = [
+          ...state.arrayresponsablesEliminar ?? [],
+          array
+        ];
+      }
+    }
+
+    List<ArrayUser> arrayUsuarios = state.arrayresponsables!
+        .where((user) => user.oresIdOportunidadResp != item.oresIdOportunidadResp)
+        .toList();
+    state = state.copyWith(
+        arrayresponsables: arrayUsuarios,
+        arrayresponsablesEliminar: arrayUsuariosEliminar);
+  }
 }
 
 class OpportunityFormState {
@@ -150,7 +203,7 @@ class OpportunityFormState {
   final String oprtIdEstadoOportunidad;
   final String oprtProbabilidad;
   final String oprtIdValor;
-  final String oprtFechaPrevistaVenta;
+  final DateTime? oprtFechaPrevistaVenta;
   final String oprtRuc;
   final String oprtRazon;
   final String oprtRucIntermediario01;
@@ -163,6 +216,8 @@ class OpportunityFormState {
   final String oprtNombreValor;
   final String opt;
   final String optrIdOportunidadIn;
+  final List<ArrayUser>? arrayresponsables;
+  final List<ArrayUser>? arrayresponsablesEliminar;
 
   OpportunityFormState(
       {this.isFormValid = false,
@@ -172,7 +227,7 @@ class OpportunityFormState {
       this.oprtIdEstadoOportunidad = '',
       this.oprtProbabilidad = '1',
       this.oprtIdValor = '01',
-      this.oprtFechaPrevistaVenta = '',
+      this.oprtFechaPrevistaVenta,
       this.oprtRuc = '',
       this.oprtRazon = '',
       this.oprtRazonIntermediario01 = '',
@@ -184,6 +239,8 @@ class OpportunityFormState {
       this.oprtNobbreEstadoOportunidad = '',
       this.oprtNombreValor = '',
       this.opt = '',
+      this.arrayresponsables,
+      this.arrayresponsablesEliminar,
       this.optrIdOportunidadIn = ''});
 
   OpportunityFormState copyWith({
@@ -194,7 +251,7 @@ class OpportunityFormState {
     String? oprtIdEstadoOportunidad,
     String? oprtProbabilidad,
     String? oprtIdValor,
-    String? oprtFechaPrevistaVenta,
+    DateTime? oprtFechaPrevistaVenta,
     String? oprtRuc,
     String? oprtRazon,
     String? oprtRucIntermediario01,
@@ -207,27 +264,40 @@ class OpportunityFormState {
     String? oprtNombreValor,
     String? opt,
     String? optrIdOportunidadIn,
+    List<ArrayUser>? arrayresponsables,
+    List<ArrayUser>? arrayresponsablesEliminar,
   }) =>
       OpportunityFormState(
         isFormValid: isFormValid ?? this.isFormValid,
         id: id ?? this.id,
         oprtNombre: oprtNombre ?? this.oprtNombre,
         oprtEntorno: oprtEntorno ?? this.oprtEntorno,
-        oprtIdEstadoOportunidad: oprtIdEstadoOportunidad ?? this.oprtIdEstadoOportunidad,
+        oprtIdEstadoOportunidad:
+            oprtIdEstadoOportunidad ?? this.oprtIdEstadoOportunidad,
         oprtProbabilidad: oprtProbabilidad ?? this.oprtProbabilidad,
         oprtIdValor: oprtIdValor ?? this.oprtIdValor,
-        oprtFechaPrevistaVenta: oprtFechaPrevistaVenta ?? this.oprtFechaPrevistaVenta,
+        oprtFechaPrevistaVenta:
+            oprtFechaPrevistaVenta ?? this.oprtFechaPrevistaVenta,
         oprtRuc: oprtRuc ?? this.oprtRuc,
         oprtRazon: oprtRazon ?? this.oprtRazon,
-        oprtRucIntermediario01: oprtRucIntermediario01 ?? this.oprtRucIntermediario01,
-        oprtRazonIntermediario01: oprtRazonIntermediario01 ?? this.oprtRazonIntermediario01,
-        oprtRucIntermediario02: oprtRucIntermediario02 ?? this.oprtRucIntermediario02,
-        oprtRazonIntermediario02: oprtRazonIntermediario02 ?? this.oprtRazonIntermediario02,
+        oprtRucIntermediario01:
+            oprtRucIntermediario01 ?? this.oprtRucIntermediario01,
+        oprtRazonIntermediario01:
+            oprtRazonIntermediario01 ?? this.oprtRazonIntermediario01,
+        oprtRucIntermediario02:
+            oprtRucIntermediario02 ?? this.oprtRucIntermediario02,
+        oprtRazonIntermediario02:
+            oprtRazonIntermediario02 ?? this.oprtRazonIntermediario02,
         oprtComentario: oprtComentario ?? this.oprtComentario,
-        oprtIdUsuarioRegistro: oprtIdUsuarioRegistro ?? this.oprtIdUsuarioRegistro,
-        oprtNobbreEstadoOportunidad: oprtNobbreEstadoOportunidad ?? this.oprtNobbreEstadoOportunidad,
+        oprtIdUsuarioRegistro:
+            oprtIdUsuarioRegistro ?? this.oprtIdUsuarioRegistro,
+        oprtNobbreEstadoOportunidad:
+            oprtNobbreEstadoOportunidad ?? this.oprtNobbreEstadoOportunidad,
         oprtNombreValor: oprtNombreValor ?? this.oprtNombreValor,
         opt: opt ?? this.opt,
         optrIdOportunidadIn: optrIdOportunidadIn ?? this.optrIdOportunidadIn,
+        arrayresponsables: arrayresponsables ?? this.arrayresponsables,
+        arrayresponsablesEliminar:
+            arrayresponsablesEliminar ?? this.arrayresponsablesEliminar,
       );
 }

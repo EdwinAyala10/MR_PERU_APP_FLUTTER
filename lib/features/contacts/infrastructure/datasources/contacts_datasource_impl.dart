@@ -23,9 +23,11 @@ class ContactsDatasourceImpl extends ContactsDatasource {
     try {
       final String? id = contactLike['CONTACTO_ID'];
       final String method = 'POST';
-      final String url = '/contacto/create-contacto-cliente';
+      final String url =  '/contacto/create-contacto-cliente';
 
-      //companyLike.remove('rucId');
+      if (id == null) {
+        contactLike.remove('CONTACTO_ID');
+      }
 
       final response = await dio.request(url,
           data: contactLike, options: Options(method: method));

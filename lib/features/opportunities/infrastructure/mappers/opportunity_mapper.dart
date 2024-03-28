@@ -1,3 +1,4 @@
+import 'package:crm_app/features/kpis/domain/entities/array_user.dart';
 import 'package:crm_app/features/opportunities/domain/domain.dart';
 
 
@@ -9,7 +10,8 @@ class OpportunityMapper {
     oprtIdEstadoOportunidad: json['OPRT_ID_ESTADO_OPORTUNIDAD'] ?? '',
     oprtNombre: json['OPRT_NOMBRE'] ?? '',
     oprtComentario: json['OPRT_COMENTARIO'] ?? '',
-    oprtFechaPrevistaVenta: json['OPRT_FECHA_PREVISTA_VENTA'] ?? '',
+    oprtFechaPrevistaVenta: DateTime.parse(json['OPRT_FECHA_PREVISTA_VENTA']),
+
     oprtIdOportunidadIn: json['OPRT_ID_OPORTUNIDAD_IN'] ?? '',
     oprtIdUsuarioRegistro: json['OPRT_ID_USUARIO_REGISTRO'] ?? '',
     oprtIdValor: json['OPRT_ID_VALOR'] ?? '',
@@ -20,6 +22,8 @@ class OpportunityMapper {
     oprtRucIntermediario01: json['OPRT_RUC_INTERMEDIARIO_01'] ?? '',
     oprtRucIntermediario02: json['OPRT_RUC_INTERMEDIARIO_02'] ?? '',
     opt: json['OPT'] ?? '',
+    arrayresponsables: json["OPORTUNIDAD_RESPONSABLE"] != null ? List<ArrayUser>.from(json["OPORTUNIDAD_RESPONSABLE"].map((x) => ArrayUser.fromJson(x))) : [],
+
   );
 
 }

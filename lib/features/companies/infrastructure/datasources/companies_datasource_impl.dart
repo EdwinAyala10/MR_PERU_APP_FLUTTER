@@ -1,5 +1,4 @@
 import 'package:crm_app/features/companies/infrastructure/infrastructure.dart';
-import 'package:crm_app/features/companies/infrastructure/mappers/company_check_in_mapper.dart';
 import 'package:crm_app/features/companies/infrastructure/mappers/company_response_mapper.dart';
 import 'package:dio/dio.dart';
 import 'package:crm_app/config/config.dart';
@@ -146,7 +145,9 @@ class CompaniesDatasourceImpl extends CompaniesDatasource {
           ? '/cliente/create-cliente-locales'
           : '/cliente/update-cliente-locales';
 
-      //companyLike.remove('rucId');
+      if (id == null) {
+        companyLocalLike.remove('LOCAL_CODIGO');
+      }
 
       print('URL CREATE COMPANY LOCAL: ${url}');
       print('companyLike LOCAL: ${companyLocalLike}');

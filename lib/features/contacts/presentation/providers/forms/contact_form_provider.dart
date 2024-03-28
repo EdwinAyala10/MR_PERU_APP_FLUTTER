@@ -53,7 +53,7 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
     }
 
     final contactLike = {
-      'CONTACTO_ID_IN': (state.id == 'new') ? null : state.id,
+      'CONTACTO_ID': (state.id == 'new') ? null : state.id,
       'RUC': state.ruc.value,
       'CONTACTO_TITULO': state.contactoTitulo ?? '',
       'CONTACTO_DESC': state.contactoDesc.value,

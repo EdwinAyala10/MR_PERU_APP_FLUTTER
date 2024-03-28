@@ -36,12 +36,12 @@ class CompanyScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Crear Empresa'),
-          leading: IconButton(
+          /*leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
               context.pop();
             },
-          ),
+          ),*/
         ),
         body: companyState.isLoading
             ? const FullScreenLoader()

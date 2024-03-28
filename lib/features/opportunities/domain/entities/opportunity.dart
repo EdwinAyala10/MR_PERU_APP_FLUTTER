@@ -1,4 +1,6 @@
 
+import 'package:crm_app/features/kpis/domain/entities/array_user.dart';
+
 class Opportunity {
     String id;
     String oprtNombre;
@@ -6,7 +8,7 @@ class Opportunity {
     String? oprtIdEstadoOportunidad;
     String? oprtProbabilidad;
     String? oprtIdValor;
-    String? oprtFechaPrevistaVenta;
+    DateTime? oprtFechaPrevistaVenta;
     String? oprtRuc;
     String? oprtRucIntermediario01;
     String? oprtRucIntermediario02;
@@ -16,6 +18,8 @@ class Opportunity {
     String? oprtNombreValor;
     String? opt;
     String? oprtIdOportunidadIn;
+    List<ArrayUser>? arrayresponsables;
+    List<ArrayUser>? arrayresponsablesEliminar;
 
     Opportunity({
         required this.id,
@@ -34,6 +38,8 @@ class Opportunity {
         this.oprtNombreValor,
         this.opt,
         this.oprtIdOportunidadIn,
+        this.arrayresponsables,
+        this.arrayresponsablesEliminar,
     });
 
     

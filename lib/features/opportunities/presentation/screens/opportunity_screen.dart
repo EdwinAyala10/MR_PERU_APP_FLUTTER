@@ -8,9 +8,12 @@ import 'package:crm_app/features/opportunities/presentation/providers/providers.
 import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
 import 'package:crm_app/features/shared/shared.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
+import 'package:crm_app/features/shared/widgets/select_custom_form.dart';
+import 'package:crm_app/features/shared/widgets/title_section_form.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 class OpportunityScreen extends ConsumerWidget {
   final String opportunityId;
@@ -116,8 +119,6 @@ class _OpportunityInformation extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 10),
-
           CustomCompanyField(
             isTopField: true,
             label: 'Nombre de la oportunidad *',
@@ -126,55 +127,18 @@ class _OpportunityInformation extends ConsumerWidget {
                 ref.read(opportunityFormProvider(opportunity).notifier).onNameChanged,
             errorMessage: opportunityForm.oprtNombre.errorMessage,
           ),
-          const SizedBox(height: 10 ),
+          TitleSectionForm(title: 'DATOS DE OPORTUNIDAD'),
+          SelectCustomForm(
+            label: 'Estado',
+            value: opportunityForm.oprtIdEstadoOportunidad,
+            callbackChange: (String? newValue) {
+              ref
+                  .read(opportunityFormProvider(opportunity).notifier)
+                  .onIdEstadoChanged(newValue!);
 
-          const Text('DATOS DE OPORTUNIDAD'),
-          const SizedBox(height: 10 ),
-          Padding(
-            padding: const EdgeInsets.all(6.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                const Text('Estado:',
-                    style:
-                        TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500)),
-                SizedBox(
-                  width: 180, // Ancho específico para el DropdownButton
-                  child: DropdownButton<String>(
-                    // Valor seleccionado
-                    value: opportunityForm.oprtIdEstadoOportunidad,
-                    onChanged: (String? newValue) {
-                      ref
-                          .read(opportunityFormProvider(opportunity).notifier)
-                          .onIdEstadoChanged(newValue!);
-                      
-                    },
-                    //value: optionsEstado.estado,
-                    /*onChanged: (String? newValue) {
-                      ref
-                          .read(companyFormProvider(company).notifier)
-                          .onEstadoChanged(newValue!);
-                    },*/
-                    isExpanded: true,
-                    style: const TextStyle(
-                      fontSize: 16.0,
-                      color: Color.fromRGBO(0, 0, 0, 1),
-                    ),
-                    // Mapeo de las opciones a elementos de menú desplegable
-                    items: optionsEstado.map((option) {
-                      return DropdownMenuItem<String>(
-                        value: option.id,
-                        child: Text(option.name),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ],
-            ),
+            },
+            items: optionsEstado,
           ),
-
-          const SizedBox(height: 10 ),
-
           Padding(
             padding: const EdgeInsets.all(2.0),
             child: Row(
@@ -202,51 +166,24 @@ class _OpportunityInformation extends ConsumerWidget {
             ),
           ),
 
-          const SizedBox(height: 10 ),
+          SelectCustomForm(
+            label: 'Moneda',
+            value: opportunityForm.oprtIdValor,
+            callbackChange: (String? newValue) {
+              
+              DropdownOption searchEstado = optionsEstado.where((option) => option.id == newValue!).first;
+              
+              ref
+                  .read(opportunityFormProvider(opportunity).notifier)
+                  .onIdValorChanged(newValue!);
+              ref
+                  .read(opportunityFormProvider(opportunity).notifier)
+                  .onValorChanged(searchEstado.name);
 
-
-          Padding(
-            padding: const EdgeInsets.all(6.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Moneda:',
-                  style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500)),
-                DropdownButton<String>(
-                  value: opportunityForm.oprtIdValor,
-                  onChanged: (String? newValue) {
-                      DropdownOption searchEstado = optionsEstado.where((option) => option.id == newValue!).first;
-                      
-                      ref
-                          .read(opportunityFormProvider(opportunity).notifier)
-                          .onIdValorChanged(newValue!);
-                      ref
-                          .read(opportunityFormProvider(opportunity).notifier)
-                          .onValorChanged(searchEstado.name);
-                  },
-                  //value: optionsEstado.estado,
-                  /*onChanged: (String? newValue) {
-                    ref
-                        .read(companyFormProvider(company).notifier)
-                        .onEstadoChanged(newValue!);
-                  },*/
-                  style: const TextStyle(
-                    fontSize: 16.0,
-                    color: Color.fromRGBO(0, 0, 0, 1),
-                  ),
-                  // Mapeo de las opciones a elementos de menú desplegable
-                  items: optionsMoneda.map((option) {
-                    return DropdownMenuItem<String>(
-                      value: option.id,
-                      child: Text(option.name),
-                    );
-                  }).toList(),
-                ),
-               
-              ],
-            ),
+            },
+            items: optionsMoneda,
           ),
+
           
           const SizedBox(height: 10 ),
 
@@ -254,10 +191,38 @@ class _OpportunityInformation extends ConsumerWidget {
             label: 'Importe Total',
             initialValue: '0',
           ),
-          const SizedBox(height: 10 ),
-          DateField(),
-          const SizedBox(height: 10 ),
-        
+
+          const Text(
+            'Fecha',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+          ),
+          const SizedBox(height: 6),
+          Center(
+            child: GestureDetector(
+              onTap: () => _selectDate(context, ref),
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      DateFormat('dd-MM-yyyy').format(
+                          opportunityForm.oprtFechaPrevistaVenta ?? DateTime.now()),
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    const Icon(Icons.calendar_today),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
           Padding(
             padding: const EdgeInsets.all(4.0),
             child: Column(
@@ -307,7 +272,7 @@ class _OpportunityInformation extends ConsumerWidget {
             ),
           ),
 
-          const SizedBox(height: 10 ),
+          const SizedBox(height: 8 ),
 
           Padding(
             padding: const EdgeInsets.all(4.0),
@@ -415,7 +380,24 @@ class _OpportunityInformation extends ConsumerWidget {
         ],
       ),
     );
+
+    
   }
+
+  Future<void> _selectDate(BuildContext context, WidgetRef ref) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime(2101),
+    );
+    //print(picked);
+
+    //if (picked != null && picked != selectedDate) {
+    if (picked != null) {
+      ref.read(opportunityFormProvider(opportunity).notifier).onFechaChanged(picked);
+    }
+  }  
 
   void _openSearch(BuildContext context, WidgetRef ref, String type) async {
     final searchedCompanies = ref.read(searchedCompaniesProvider);
@@ -447,40 +429,3 @@ class _OpportunityInformation extends ConsumerWidget {
   }
 }
 
-class DateField extends StatefulWidget {
-  @override
-  _DateFieldState createState() => _DateFieldState();
-}
-
-class _DateFieldState extends State<DateField> {
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime(2101),
-    );
-
-    print(picked);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        TextFormField(
-          initialValue: '2024-12-01',
-          readOnly: true, // El campo de texto es solo de lectura
-          onTap: () => _selectDate(
-              context), // Abre el selector de fecha cuando se toca el campo
-          decoration: const InputDecoration(
-            labelText: 'Fecha',
-            prefixIcon: Icon(Icons.calendar_today), // Icono del calendario
-            border: OutlineInputBorder(), // Estilo del borde del campo
-          ),
-        ),
-      ],
-    );
-  }
-}

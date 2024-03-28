@@ -1,4 +1,3 @@
-
 import 'package:crm_app/features/companies/domain/entities/create_update_company_local_response.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
@@ -8,10 +7,13 @@ import 'package:crm_app/features/companies/presentation/providers/providers.dart
 import 'package:crm_app/features/shared/shared.dart';
 
 final companyLocalFormProvider = StateNotifierProvider.autoDispose
-    .family<CompanyLocalFormNotifier, CompanyLocalFormState, CompanyLocal>((ref, companyLocal) {
+    .family<CompanyLocalFormNotifier, CompanyLocalFormState, CompanyLocal>(
+        (ref, companyLocal) {
   // final createUpdateCallback = ref.watch( productsRepositoryProvider ).createUpdateProduct;
-  final createUpdateCallback =
-      ref.watch(companiesProvider.notifier).createOrUpdateCompanyLocal;
+  /*final createUpdateCallback =
+      ref.watch(companiesProvider.notifier).createOrUpdateCompanyLocal;*/
+
+  final createUpdateCallback = ref.watch(companyProvider(companyLocal.ruc).notifier).createOrUpdateCompanyLocal;
 
   return CompanyLocalFormNotifier(
     companyLocal: companyLocal,
@@ -27,27 +29,26 @@ class CompanyLocalFormNotifier extends StateNotifier<CompanyLocalFormState> {
     this.onSubmitCallback,
     required CompanyLocal companyLocal,
   }) : super(CompanyLocalFormState(
-    
-    id: companyLocal.id,
-    ruc: Ruc.dirty(companyLocal.ruc),
-    localDireccion: Address.dirty(companyLocal.localDireccion ?? ''),
-    localNombre: Name.dirty(companyLocal.localNombre),
-    coordenadasGeo: companyLocal.coordenadasGeo ?? '',
-    coordenadasLatitud: companyLocal.coordenadasLatitud ?? '',
-    coordenadasLongitud: companyLocal.coordenadasLongitud ?? '',
-    departamento: companyLocal.departamento ?? '',
-    distrito: companyLocal.distrito ?? '',
-    localDepartamento: companyLocal.localDepartamento ?? '',
-    localDepartamentoDesc: companyLocal.localDepartamentoDesc ?? '',
-    localDistrito: companyLocal.localDistrito ?? '',
-    localDistritoDesc: companyLocal.localDistritoDesc ?? '',
-    localProvincia: companyLocal.localProvincia ?? '',
-    localProvinciaDesc: companyLocal.localProvinciaDesc ?? '',
-    localTipo: companyLocal.localTipo ?? '',
-    provincia: companyLocal.provincia ?? '',
-    ubigeoCodigo: companyLocal.ubigeoCodigo ?? '',
-    razon: companyLocal.razon ?? '',
-  ));
+          id: companyLocal.id,
+          ruc: Ruc.dirty(companyLocal.ruc),
+          localDireccion: Address.dirty(companyLocal.localDireccion ?? ''),
+          localNombre: Name.dirty(companyLocal.localNombre),
+          coordenadasGeo: companyLocal.coordenadasGeo ?? '',
+          coordenadasLatitud: companyLocal.coordenadasLatitud ?? '',
+          coordenadasLongitud: companyLocal.coordenadasLongitud ?? '',
+          departamento: companyLocal.departamento ?? '',
+          distrito: companyLocal.distrito ?? '',
+          localDepartamento: companyLocal.localDepartamento ?? '',
+          localDepartamentoDesc: companyLocal.localDepartamentoDesc ?? '',
+          localDistrito: companyLocal.localDistrito ?? '',
+          localDistritoDesc: companyLocal.localDistritoDesc ?? '',
+          localProvincia: companyLocal.localProvincia ?? '',
+          localProvinciaDesc: companyLocal.localProvinciaDesc ?? '',
+          localTipo: companyLocal.localTipo ?? '',
+          provincia: companyLocal.provincia ?? '',
+          ubigeoCodigo: companyLocal.ubigeoCodigo ?? '',
+          razon: companyLocal.razon ?? '',
+        ));
 
   Future<CreateUpdateCompanyLocalResponse> onFormSubmit() async {
     _touchedEverything();
@@ -118,8 +119,12 @@ class CompanyLocalFormNotifier extends StateNotifier<CompanyLocalFormState> {
     state = state.copyWith(departamento: id, localDepartamento: value);
   }
 
-  void onTipoChanged(String id, ) {
-    state = state.copyWith(localTipo: id, );
+  void onTipoChanged(
+    String id,
+  ) {
+    state = state.copyWith(
+      localTipo: id,
+    );
   }
 
   void onDistritoChanged(String id, String value) {
@@ -129,7 +134,6 @@ class CompanyLocalFormNotifier extends StateNotifier<CompanyLocalFormState> {
   void onProvinciaChanged(String id, String value) {
     state = state.copyWith(provincia: id, localProvincia: value);
   }
-
 }
 
 class CompanyLocalFormState {
@@ -179,7 +183,6 @@ class CompanyLocalFormState {
 
   CompanyLocalFormState copyWith({
     bool? isFormValid,
-
     String? id,
     Ruc? ruc,
     Name? localNombre,
@@ -210,7 +213,8 @@ class CompanyLocalFormState {
         distrito: distrito ?? this.distrito,
         localDepartamento: localDepartamento ?? this.localDepartamento,
         razon: razon ?? this.razon,
-        localDepartamentoDesc: localDepartamentoDesc ?? this.localDepartamentoDesc,
+        localDepartamentoDesc:
+            localDepartamentoDesc ?? this.localDepartamentoDesc,
         localDireccion: localDireccion ?? this.localDireccion,
         localDistrito: localDistrito ?? this.localDistrito,
         localDistritoDesc: localDistritoDesc ?? this.localDistritoDesc,

@@ -2,6 +2,7 @@ import 'package:crm_app/features/activities/domain/domain.dart';
 import 'package:crm_app/features/activities/presentation/providers/activities_repository_provider.dart';
 import 'package:crm_app/features/agenda/domain/domain.dart';
 import 'package:crm_app/features/agenda/presentation/providers/events_repository_provider.dart';
+import 'package:crm_app/features/companies/domain/entities/create_update_company_local_response.dart';
 import 'package:crm_app/features/contacts/domain/domain.dart';
 import 'package:crm_app/features/contacts/presentation/providers/contacts_repository_provider.dart';
 import 'package:crm_app/features/opportunities/domain/domain.dart';
@@ -121,6 +122,8 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
         events: events,
         companyLocales: companyLocales,
       );
+
+      
     } catch (e) {
       // 404 product not found
       state = state.copyWith(isLoading: false, company: null);
@@ -136,6 +139,43 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
       state = state.copyWith(contacts: []);
     }
   }
+
+  Future<CreateUpdateCompanyLocalResponse> createOrUpdateCompanyLocal(
+      Map<dynamic, dynamic> companyLocalLike) async {
+    try {
+      final companyLocalResponse =
+          await companiesRepository.createUpdateCompanyLocal(companyLocalLike);
+
+      final message = companyLocalResponse.message;
+
+      if (companyLocalResponse.status) {
+
+        //final companyCheckIn = companyCheckInResponse.companyCheckIn as CompanyCheckIn;
+        final companyLocal = companyLocalResponse.companyLocal as CompanyLocal;
+        final isCompanyLocalInList =
+            state.companyLocales.any((element) => element.ruc == companyLocal.id);
+
+        if (!isCompanyLocalInList) {
+          state = state.copyWith(companyLocales: [companyLocal, ...state.companyLocales]);
+          return CreateUpdateCompanyLocalResponse(response: true, message: message);
+        }
+
+        state = state.copyWith(
+            companyLocales: state.companyLocales
+                .map(
+                  (element) => (element.id == companyLocal.id) ? companyLocal : element,
+                )
+                .toList());
+
+        return CreateUpdateCompanyLocalResponse(response: true, message: message);
+      }
+
+      return CreateUpdateCompanyLocalResponse(response: false, message: message);
+    } catch (e) {
+      return CreateUpdateCompanyLocalResponse(response: false, message: 'Error, revisar con su administrador.');
+    }
+  }
+
 }
 
 class CompanyState {

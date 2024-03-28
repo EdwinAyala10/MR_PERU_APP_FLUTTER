@@ -28,11 +28,12 @@ class ContactsNotifier extends StateNotifier<ContactsState> {
       if (contactResponse.status) {
 
         final contact = contactResponse.contact as Contact;
+        print('LLEGO CONTACT ID: ${contact.id}');
         final isContactInList =
             state.contacts.any((element) => element.id == contact.id);
 
         if (!isContactInList) {
-          state = state.copyWith(contacts: [...state.contacts, contact]);
+          state = state.copyWith(contacts: [contact, ...state.contacts]);
           return CreateUpdateContactResponse(response: true, message: message);
         }
 

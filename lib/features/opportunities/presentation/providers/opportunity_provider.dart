@@ -27,7 +27,7 @@ class OpportunityNotifier extends StateNotifier<OpportunityState> {
       oprtIdEstadoOportunidad: '',
       oprtNombre: '',
       oprtComentario: '',
-      oprtFechaPrevistaVenta: '',
+      oprtFechaPrevistaVenta: DateTime.now(),
       oprtIdOportunidadIn: '',
       oprtIdUsuarioRegistro: '',
       oprtIdValor: '01',
@@ -38,6 +38,8 @@ class OpportunityNotifier extends StateNotifier<OpportunityState> {
       oprtRucIntermediario01: '',
       oprtRucIntermediario02: '',
       opt: '',
+      arrayresponsables: [],
+      arrayresponsablesEliminar: [],
     );
   }
 

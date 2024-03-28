@@ -7,6 +7,9 @@ import 'package:crm_app/features/contacts/domain/domain.dart';
 import 'package:crm_app/features/contacts/presentation/providers/providers.dart';
 import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
 import 'package:crm_app/features/shared/shared.dart';
+import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
+import 'package:crm_app/features/shared/widgets/select_custom_form.dart';
+import 'package:crm_app/features/shared/widgets/title_section_form.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -24,45 +27,47 @@ class ContactScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    print('CONTAC ID [CONTACT_SCREEN]: ${contactId}');
     final contactState = ref.watch(contactProvider(contactId));
+    print('CONTAC ID STATE [CONTACT_SCREEN]: ${contactState.id}');
+    print('CONTAC ID STATE CONTACT [CONTACT_SCREEN]: ${contactState.contact?.id}');
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Crear Contacto'),
-          leading: IconButton(
+          /*leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
               context.pop();
             },
-          ),
+          ),*/
         ),
         body: contactState.isLoading
             ? const FullScreenLoader()
             : _ContactView(contact: contactState.contact!),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            if (contactState.contact == null) return;
+        floatingActionButton: FloatingActionButtonCustom(
+            callOnPressed: () {
+              if (contactState.contact == null) return;
 
-            ref
-                .read(contactFormProvider(contactState.contact!).notifier)
-                .onFormSubmit()
-                .then((CreateUpdateContactResponse value) {
-              //if ( !value.response ) return;
-              if (value.message != '') {
-                showSnackbar(context, value.message);
+              ref
+                  .read(contactFormProvider(contactState.contact!).notifier)
+                  .onFormSubmit()
+                  .then((CreateUpdateContactResponse value) {
+                //if ( !value.response ) return;
+                if (value.message != '') {
+                  showSnackbar(context, value.message);
 
-                if (value.response) {
-                  Timer(const Duration(seconds: 3), () {
-                    context.push('/contacts');
-                  });
+                  if (value.response) {
+                    Timer(const Duration(seconds: 3), () {
+                      context.push('/contacts');
+                    });
+                  }
                 }
-              }
-            });
-          },
-          child: const Icon(Icons.save),
-        ),
+              });
+            },
+            iconData: Icons.save),
       ),
     );
   }
@@ -123,7 +128,6 @@ class _ContactInformation extends ConsumerWidget {
                         : null,
                   ),
                 ),
-                const SizedBox(height: 6),
                 GestureDetector(
                   onTap: () {
                     _openSearch(context, ref);
@@ -132,23 +136,25 @@ class _ContactInformation extends ConsumerWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     decoration: BoxDecoration(
                       border: Border.all(
-                        //color: Colors.grey,
-                        color: contactForm.ruc.errorMessage != null ? Theme.of(context).colorScheme.error : Colors.grey
-                      ),
+                          //color: Colors.grey,
+                          color: contactForm.ruc.errorMessage != null
+                              ? Theme.of(context).colorScheme.error
+                              : Colors.grey),
                       borderRadius: BorderRadius.circular(5),
                     ),
                     child: Row(
                       children: [
                         Expanded(
                           child: Text(
-                            contactForm.ruc.value == '' ? 'Seleccione empresa' : contactForm.razon,
+                            contactForm.ruc.value == ''
+                                ? 'Seleccione empresa'
+                                : contactForm.razon,
                             //_selectedCompany.isEmpty ? 'Seleccione una empresa' : _selectedCompany,
                             style: TextStyle(
-                              fontSize: 16,
-                              color: contactForm.ruc.errorMessage != null
-                                ? Theme.of(context).colorScheme.error
-                                : null
-                              ),
+                                fontSize: 16,
+                                color: contactForm.ruc.errorMessage != null
+                                    ? Theme.of(context).colorScheme.error
+                                    : null),
                           ),
                         ),
                         IconButton(
@@ -163,18 +169,15 @@ class _ContactInformation extends ConsumerWidget {
                 ),
                 const SizedBox(height: 6),
                 if (contactForm.ruc.errorMessage != null)
-                Text(
-                  contactForm.ruc.errorMessage ?? 'Requerido',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.error,
+                  Text(
+                    contactForm.ruc.errorMessage ?? 'Requerido',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                   ),
-                ),
               ],
             ),
           ),
-          const SizedBox(height: 10),
-          const Text('Información'),
-          const SizedBox(height: 10),
           CustomCompanyField(
             isTopField: true,
             label: 'Nombre *',
@@ -183,51 +186,23 @@ class _ContactInformation extends ConsumerWidget {
                 ref.read(contactFormProvider(contact).notifier).onNameChanged,
             errorMessage: contactForm.contactoDesc.errorMessage,
           ),
-          const SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.all(6.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                const Text('Cargo:',
-                    style:
-                        TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500)),
-                SizedBox(
-                  width: 280, // Ancho específico para el DropdownButton
-                  child: DropdownButton<String>(
-                    // Valor seleccionado
-                    value: contactForm.contactoIdCargo,
-                    onChanged: (String? newValue) {
-                      DropdownOption searchCargo = optionsCargo
-                          .where((option) => option.id == newValue!)
-                          .first;
+          SelectCustomForm(
+            label: 'Cargo',
+            value: contactForm.contactoIdCargo,
+            callbackChange: (String? newValue) {
+              DropdownOption searchCargo =
+                  optionsCargo.where((option) => option.id == newValue!).first;
 
-                      ref
-                          .read(contactFormProvider(contact).notifier)
-                          .onCargoChanged(newValue!);
-                      ref
-                          .read(contactFormProvider(contact).notifier)
-                          .onNombreCargoChanged(searchCargo.name);
-                    },
-                    isExpanded: true,
-                    style: const TextStyle(
-                      fontSize: 16.0,
-                      color: Color.fromRGBO(0, 0, 0, 1),
-                    ),
-                    // Mapeo de las opciones a elementos de menú desplegable
-                    items: optionsCargo.map((option) {
-                      return DropdownMenuItem<String>(
-                        value: option.id,
-                        child: Text(option.name),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ],
-            ),
+              ref
+                  .read(contactFormProvider(contact).notifier)
+                  .onCargoChanged(newValue!);
+              ref
+                  .read(contactFormProvider(contact).notifier)
+                  .onNombreCargoChanged(searchCargo.name);
+            },
+            items: optionsCargo,
           ),
-          const Text('DATOS DE CONTACTO'),
-          const SizedBox(height: 15),
+          TitleSectionForm(title: 'DATOS DE CONTACTO'),
           CustomCompanyField(
             label: 'Teléfono *',
             initialValue: contactForm.contactoTelefonof.value,
@@ -235,7 +210,6 @@ class _ContactInformation extends ConsumerWidget {
                 ref.read(contactFormProvider(contact).notifier).onPhoneChanged,
             errorMessage: contactForm.contactoTelefonof.errorMessage,
           ),
-          const SizedBox(height: 10),
           CustomCompanyField(
             label: 'Móvil *',
             initialValue: contactForm.contactoTelefonoc,
@@ -245,7 +219,6 @@ class _ContactInformation extends ConsumerWidget {
                   .onTelefonoNocChanged(newValue!);
             },
           ),
-          const SizedBox(height: 10),
           CustomCompanyField(
             label: 'Email *',
             initialValue: contactForm.contactoEmail,
@@ -255,7 +228,6 @@ class _ContactInformation extends ConsumerWidget {
                   .onEmailChanged(newValue!);
             },
           ),
-          const SizedBox(height: 10),
           CustomCompanyField(
             label: 'Comentarios',
             initialValue: contactForm.contactoNotas,
@@ -288,9 +260,9 @@ class _ContactInformation extends ConsumerWidget {
       if (company == null) return;
 
       ref.read(contactFormProvider(contact).notifier).onRucChanged(company.ruc);
-      ref.read(contactFormProvider(contact).notifier).onRazonChanged(company.razon);
-
+      ref
+          .read(contactFormProvider(contact).notifier)
+          .onRazonChanged(company.razon);
     });
   }
-  
 }

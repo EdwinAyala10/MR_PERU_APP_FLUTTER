@@ -89,7 +89,7 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
     }
   }
 
-  Future<CreateUpdateCompanyLocalResponse> createOrUpdateCompanyLocal(
+  /*Future<CreateUpdateCompanyLocalResponse> createOrUpdateCompanyLocal(
       Map<dynamic, dynamic> companyLocalLike) async {
     try {
       final companyLocalResponse =
@@ -123,7 +123,7 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
     } catch (e) {
       return CreateUpdateCompanyLocalResponse(response: false, message: 'Error, revisar con su administrador.');
     }
-  }
+  }*/
 
 
   Future loadNextPage() async {

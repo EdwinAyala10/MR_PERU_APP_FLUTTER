@@ -2,6 +2,7 @@
 class Contact {
     String id;
     String ruc;
+    String? razon;
     String contactoTitulo;
     String contactoDesc;
     String contactoCargo;
@@ -24,6 +25,7 @@ class Contact {
         required this.contactoTelefonof,
         this.contactoEmail,
         this.opt,
+        this.razon,
         this.contactIdIn,
         this.contactoTelefonoc,
         this.contactoFax,

@@ -15,7 +15,8 @@ class ItemCompanyLocal extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(companyLocal.localDireccion == "" ? "SIN DIRECCION" : companyLocal.localDireccion ?? ''),
-          Text(companyLocal.localTipo ?? '', style: const TextStyle( color: Colors.black45 ))
+          Text(companyLocal.localTipo ?? '', style: const TextStyle( color: Colors.black45 )),
+          Text('ID: ${companyLocal.id}')
         ],
       ),
       leading: const Icon(Icons.home_work_outlined),

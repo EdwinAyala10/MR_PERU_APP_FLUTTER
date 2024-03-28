@@ -6,6 +6,7 @@ class ContactMapper {
   static jsonToEntity( Map<dynamic, dynamic> json ) => Contact(
     id: json['CONTACTO_ID'] ?? '',
     ruc: json['RUC'] ?? '',
+    razon: json['RAZON'] ?? '',
     contactoTitulo: json['CONTACTO_TITULO'] ?? '',
     contactoDesc: json['CONTACTO_DESC'] ?? '',
     contactoCargo: json['CONTACTO_CARGO'] ?? '',
@@ -17,7 +18,7 @@ class ContactMapper {
     contactoIdCargo: json['CONTACTO_ID_CARGO'] ?? '',
     contactoNombreCargo: json['CONTACTO_NOMBRE_CARGO'] ?? '',
     opt: json['OPT'] ?? '',
-    contactIdIn: json['CONTACTO_ID_IN'] ?? '',
+    contactIdIn: json['CONTACTO_ID'] ?? '',
   );
 
 }

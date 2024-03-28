@@ -53,6 +53,10 @@ class _ContactsViewState extends ConsumerState {
         //ref.read(productsProvider.notifier).loadNextPage();
       }
     });
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      ref.read(contactsProvider.notifier).loadNextPage();
+    });
   }
 
   @override
