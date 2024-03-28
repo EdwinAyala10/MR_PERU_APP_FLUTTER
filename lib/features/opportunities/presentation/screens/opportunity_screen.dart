@@ -10,6 +10,9 @@ import 'package:crm_app/features/shared/shared.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
 import 'package:crm_app/features/shared/widgets/select_custom_form.dart';
 import 'package:crm_app/features/shared/widgets/title_section_form.dart';
+import 'package:crm_app/features/users/domain/domain.dart';
+import 'package:crm_app/features/users/presentation/delegates/search_user_delegate.dart';
+import 'package:crm_app/features/users/presentation/search/search_users_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -46,28 +49,27 @@ class OpportunityScreen extends ConsumerWidget {
             ? const FullScreenLoader()
             : _OpportunityView(opportunity: opportunityState.opportunity!),
         floatingActionButton: FloatingActionButtonCustom(
-          iconData: Icons.save,
-          callOnPressed: () {
-            if (opportunityState.opportunity == null) return;
+            iconData: Icons.save,
+            callOnPressed: () {
+              if (opportunityState.opportunity == null) return;
 
-            ref
-                .read(opportunityFormProvider(opportunityState.opportunity!).notifier)
-                .onFormSubmit()
-                .then((CreateUpdateOpportunityResponse value) {
-              //if ( !value.response ) return;
-              if (value.message != '') {
-                showSnackbar(context, value.message);
+              ref
+                  .read(opportunityFormProvider(opportunityState.opportunity!)
+                      .notifier)
+                  .onFormSubmit()
+                  .then((CreateUpdateOpportunityResponse value) {
+                //if ( !value.response ) return;
+                if (value.message != '') {
+                  showSnackbar(context, value.message);
 
-                if (value.response) {
-                  Timer(const Duration(seconds: 3), () {
-                    context.push('/opportunities');
-                  });
+                  if (value.response) {
+                    //Timer(const Duration(seconds: 3), () {
+                      context.push('/opportunities');
+                    //});
+                  }
                 }
-                
-              }
-            });
-        }),
-        
+              });
+            }),
       ),
     );
   }
@@ -80,7 +82,6 @@ class _OpportunityView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     return ListView(
       children: [
         const SizedBox(height: 10),
@@ -123,8 +124,9 @@ class _OpportunityInformation extends ConsumerWidget {
             isTopField: true,
             label: 'Nombre de la oportunidad *',
             initialValue: opportunityForm.oprtNombre.value,
-            onChanged:
-                ref.read(opportunityFormProvider(opportunity).notifier).onNameChanged,
+            onChanged: ref
+                .read(opportunityFormProvider(opportunity).notifier)
+                .onNameChanged,
             errorMessage: opportunityForm.oprtNombre.errorMessage,
           ),
           TitleSectionForm(title: 'DATOS DE OPORTUNIDAD'),
@@ -135,7 +137,6 @@ class _OpportunityInformation extends ConsumerWidget {
               ref
                   .read(opportunityFormProvider(opportunity).notifier)
                   .onIdEstadoChanged(newValue!);
-
             },
             items: optionsEstado,
           ),
@@ -146,8 +147,8 @@ class _OpportunityInformation extends ConsumerWidget {
               children: <Widget>[
                 Text(
                   'Probalidad: ${double.parse(opportunityForm.oprtProbabilidad ?? '0').round()}%',
-                  style: const TextStyle(fontSize: 16.0,fontWeight: FontWeight.w600),
-                  
+                  style: const TextStyle(
+                      fontSize: 16.0, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 10.0),
                 Slider(
@@ -155,43 +156,42 @@ class _OpportunityInformation extends ConsumerWidget {
                   min: 0,
                   max: 100,
                   divisions: 100,
-                  label: '${double.parse(opportunityForm.oprtProbabilidad).round()}%',
+                  label:
+                      '${double.parse(opportunityForm.oprtProbabilidad).round()}%',
                   onChanged: (double value) {
                     ref
-                          .read(opportunityFormProvider(opportunity).notifier)
-                          .onProbabilidadChanged(value.toString());
+                        .read(opportunityFormProvider(opportunity).notifier)
+                        .onProbabilidadChanged(value.toString());
                   },
                 ),
               ],
             ),
           ),
-
           SelectCustomForm(
             label: 'Moneda',
             value: opportunityForm.oprtIdValor,
             callbackChange: (String? newValue) {
-              
-              DropdownOption searchEstado = optionsEstado.where((option) => option.id == newValue!).first;
-              
+              DropdownOption searchEstado =
+                  optionsEstado.where((option) => option.id == newValue!).first;
+
               ref
                   .read(opportunityFormProvider(opportunity).notifier)
                   .onIdValorChanged(newValue!);
               ref
                   .read(opportunityFormProvider(opportunity).notifier)
                   .onValorChanged(searchEstado.name);
-
             },
             items: optionsMoneda,
           ),
-
-          
-          const SizedBox(height: 10 ),
-
-          const CustomCompanyField(
+          const SizedBox(height: 10),
+      
+          CustomCompanyField(
             label: 'Importe Total',
-            initialValue: '0',
+            initialValue: opportunityForm.optrValor.toString(),
+            onChanged: ref
+                .read(opportunityFormProvider(opportunity).notifier)
+                .onImporteChanged,
           ),
-
           const Text(
             'Fecha',
             style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
@@ -211,7 +211,8 @@ class _OpportunityInformation extends ConsumerWidget {
                   children: [
                     Text(
                       DateFormat('dd-MM-yyyy').format(
-                          opportunityForm.oprtFechaPrevistaVenta ?? DateTime.now()),
+                          opportunityForm.oprtFechaPrevistaVenta ??
+                              DateTime.now()),
                       style: const TextStyle(fontSize: 16),
                     ),
                     const Icon(Icons.calendar_today),
@@ -252,10 +253,12 @@ class _OpportunityInformation extends ConsumerWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            opportunityForm.oprtRuc == '' ? 'Seleccione empresa' : opportunityForm.oprtRazon,
+                            opportunityForm.oprtRuc == ''
+                                ? 'Seleccione empresa'
+                                : opportunityForm.oprtRazon,
                             style: const TextStyle(
                               fontSize: 16,
-                              ),
+                            ),
                           ),
                         ),
                         IconButton(
@@ -271,9 +274,7 @@ class _OpportunityInformation extends ConsumerWidget {
               ],
             ),
           ),
-
-          const SizedBox(height: 8 ),
-
+          const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.all(4.0),
             child: Column(
@@ -303,10 +304,12 @@ class _OpportunityInformation extends ConsumerWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            opportunityForm.oprtRucIntermediario01 == '' ? 'Seleccione intermediario' : opportunityForm.oprtRazonIntermediario01,
+                            opportunityForm.oprtRucIntermediario01 == ''
+                                ? 'Seleccione intermediario'
+                                : opportunityForm.oprtRazonIntermediario01,
                             style: const TextStyle(
                               fontSize: 16,
-                              ),
+                            ),
                           ),
                         ),
                         IconButton(
@@ -322,25 +325,41 @@ class _OpportunityInformation extends ConsumerWidget {
               ],
             ),
           ),
-
           const SizedBox(height: 15),
           const Text('Responsable *'),
           Row(
             children: [
               Expanded(
-                child: Wrap(
-                  spacing: 8.0,
-                  children: List.generate(
-                    tags.length,
-                    (index) => Chip(
-                      label: Text(tags[index]),
-                      onDeleted: () {},
-                    ),
-                  ),
-                ),
-              ),
+                  child: Column(
+                children: [
+                  opportunityForm.arrayresponsables!.isNotEmpty
+                      ? Wrap(
+                          spacing: 6.0,
+                          children: opportunityForm.arrayresponsables != null
+                              ? List<Widget>.from(opportunityForm
+                                  .arrayresponsables!
+                                  .map((item) => Chip(
+                                        label: Text(item.userreportName ?? '',
+                                            style:
+                                                const TextStyle(fontSize: 12)),
+                                        onDeleted: () {
+                                          ref
+                                              .read(opportunityFormProvider(
+                                                      opportunity)
+                                                  .notifier)
+                                              .onDeleteUserChanged(item);
+                                        },
+                                      )))
+                              : [],
+                        )
+                      : const Text('Seleccione usuario(s)',
+                          style: TextStyle(color: Colors.black45)),
+                ],
+              )),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  _openSearchUsers(context, ref);
+                },
                 child: const Row(
                   children: [
                     Icon(Icons.add),
@@ -349,17 +368,16 @@ class _OpportunityInformation extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 20 ),
-
+          const SizedBox(height: 10),
           CustomCompanyField(
             label: 'Comentarios',
             maxLines: 2,
             initialValue: opportunityForm.oprtComentario,
-            onChanged:
-                ref.read(opportunityFormProvider(opportunity).notifier).onComentarioChanged,
+            onChanged: ref
+                .read(opportunityFormProvider(opportunity).notifier)
+                .onComentarioChanged,
           ),
-          
-          const SizedBox(height: 10),
+
           /*Center(
           child: DropdownButton<String>(
             value: scores.first,
@@ -375,13 +393,10 @@ class _OpportunityInformation extends ConsumerWidget {
           ),
         ),*/
 
-          const SizedBox(height: 100 ),
-          
+          const SizedBox(height: 90),
         ],
       ),
     );
-
-    
   }
 
   Future<void> _selectDate(BuildContext context, WidgetRef ref) async {
@@ -395,9 +410,11 @@ class _OpportunityInformation extends ConsumerWidget {
 
     //if (picked != null && picked != selectedDate) {
     if (picked != null) {
-      ref.read(opportunityFormProvider(opportunity).notifier).onFechaChanged(picked);
+      ref
+          .read(opportunityFormProvider(opportunity).notifier)
+          .onFechaChanged(picked);
     }
-  }  
+  }
 
   void _openSearch(BuildContext context, WidgetRef ref, String type) async {
     final searchedCompanies = ref.read(searchedCompaniesProvider);
@@ -416,16 +433,38 @@ class _OpportunityInformation extends ConsumerWidget {
 
       if (type == 'ruc') {
         print('ES RUC');
-        ref.read(opportunityFormProvider(opportunity).notifier).onRucChanged(company.ruc, company.razon);
+        ref
+            .read(opportunityFormProvider(opportunity).notifier)
+            .onRucChanged(company.ruc, company.razon);
       }
 
       if (type == 'intermediario1') {
         print('ES INTERMEDIARIO 1');
-        ref.read(opportunityFormProvider(opportunity).notifier).onRucIntermediario01Changed(company.ruc, company.razon);
+        ref
+            .read(opportunityFormProvider(opportunity).notifier)
+            .onRucIntermediario01Changed(company.ruc, company.razon);
       }
+    });
+  }
 
+  void _openSearchUsers(BuildContext context, WidgetRef ref) async {
+    final searchedUsers = ref.read(searchedUsersProvider);
+    final searchQuery = ref.read(searchQueryUsersProvider);
 
+    showSearch<UserMaster?>(
+            query: searchQuery,
+            context: context,
+            delegate: SearchUserDelegate(
+                initialUsers: searchedUsers,
+                searchUsers: ref
+                    .read(searchedUsersProvider.notifier)
+                    .searchUsersByQuery))
+        .then((user) {
+      if (user == null) return;
+
+      ref
+          .read(opportunityFormProvider(opportunity).notifier)
+          .onUsuarioChanged(user);
     });
   }
 }
-

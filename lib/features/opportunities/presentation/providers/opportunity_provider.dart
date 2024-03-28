@@ -1,3 +1,5 @@
+import 'package:crm_app/features/auth/domain/domain.dart';
+import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:crm_app/features/opportunities/domain/domain.dart';
 
@@ -6,15 +8,20 @@ import 'opportunities_repository_provider.dart';
 final opportunityProvider = StateNotifierProvider.autoDispose
     .family<OpportunityNotifier, OpportunityState, String>((ref, id) {
   final opportunitiesRepository = ref.watch(opportunitiesRepositoryProvider);
+  final user = ref.watch(authProvider).user;
 
-  return OpportunityNotifier(opportunitiesRepository: opportunitiesRepository, id: id);
+  return OpportunityNotifier(opportunitiesRepository: opportunitiesRepository, 
+    user: user!,
+    id: id);
 });
 
 class OpportunityNotifier extends StateNotifier<OpportunityState> {
   final OpportunitiesRepository opportunitiesRepository;
+  final User user;
 
   OpportunityNotifier({
     required this.opportunitiesRepository,
+    required this.user,
     required String id,
   }) : super(OpportunityState(id: id)) {
     loadOpportunity();
@@ -29,8 +36,9 @@ class OpportunityNotifier extends StateNotifier<OpportunityState> {
       oprtComentario: '',
       oprtFechaPrevistaVenta: DateTime.now(),
       oprtIdOportunidadIn: '',
-      oprtIdUsuarioRegistro: '',
+      oprtIdUsuarioRegistro: user.code,
       oprtIdValor: '01',
+      oprtValor: 0,
       oprtNobbreEstadoOportunidad: '',
       oprtNombreValor: '',
       oprtProbabilidad: '0',

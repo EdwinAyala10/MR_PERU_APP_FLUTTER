@@ -39,6 +39,7 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
           contactoTelefonof: Phone.dirty(contact.contactoTelefonof),
           contactoTitulo: contact.contactoTitulo ?? '',
           opt: contact.opt ?? '',
+          razon: contact.razon ?? '',
         ));
 
   Future<CreateUpdateContactResponse> onFormSubmit() async {
@@ -55,6 +56,7 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
     final contactLike = {
       'CONTACTO_ID': (state.id == 'new') ? null : state.id,
       'RUC': state.ruc.value,
+      'RAZON': state.razon ?? '',
       'CONTACTO_TITULO': state.contactoTitulo ?? '',
       'CONTACTO_DESC': state.contactoDesc.value,
       'CONTACTO_CARGO': state.contactoCargo,

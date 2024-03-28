@@ -85,7 +85,7 @@ class _CompanyView extends ConsumerWidget {
         company != null
             ? _CompanyInformation(company: company)
             : const Center(
-                child: Text('No se encontre datos de la empresa'),
+                child: Text('No se encontro información de la empresa'),
               )
       ],
     );

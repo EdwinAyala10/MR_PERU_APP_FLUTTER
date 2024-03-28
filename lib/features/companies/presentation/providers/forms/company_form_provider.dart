@@ -80,7 +80,6 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
       return CreateUpdateCompanyResponse(response: false, message: '');
 
     final companyLike = {
-      'A': state.rucId,
       'RUCID': (state.rucId == 'new') ? null : state.rucId,
       'RUC': state.ruc.value,
       'RAZON': state.razon.value,

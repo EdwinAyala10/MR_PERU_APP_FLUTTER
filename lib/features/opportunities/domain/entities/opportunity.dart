@@ -8,6 +8,7 @@ class Opportunity {
     String? oprtIdEstadoOportunidad;
     String? oprtProbabilidad;
     String? oprtIdValor;
+    int? oprtValor;
     DateTime? oprtFechaPrevistaVenta;
     String? oprtRuc;
     String? oprtRucIntermediario01;
@@ -36,6 +37,7 @@ class Opportunity {
         this.oprtIdUsuarioRegistro,
         this.oprtNobbreEstadoOportunidad,
         this.oprtNombreValor,
+        this.oprtValor,
         this.opt,
         this.oprtIdOportunidadIn,
         this.arrayresponsables,

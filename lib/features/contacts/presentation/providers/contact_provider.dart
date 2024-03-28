@@ -34,6 +34,7 @@ class ContactNotifier extends StateNotifier<ContactState> {
       contactoNombreCargo: '',
       contactoNotas: '',
       contactoTelefonoc: '',
+      razon: '',
       opt: '',
       ruc: '',
     );
@@ -58,6 +59,7 @@ class ContactNotifier extends StateNotifier<ContactState> {
 
       state = state.copyWith(isLoading: false, contact: contact);
     } catch (e) {
+      state = state.copyWith(isLoading: false, contact: null);
       // 404 product not found
       print(e);
     }

@@ -52,6 +52,11 @@ class _OpportunitiesViewState extends ConsumerState {
           scrollController.position.maxScrollExtent) {
         //ref.read(productsProvider.notifier).loadNextPage();
       }
+      
+    });
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      ref.read(opportunitiesProvider.notifier).loadNextPage();
     });
   }
 

@@ -46,8 +46,13 @@ class ContactScreen extends ConsumerWidget {
         ),
         body: contactState.isLoading
             ? const FullScreenLoader()
-            : _ContactView(contact: contactState.contact!),
-        floatingActionButton: FloatingActionButtonCustom(
+            :  (contactState.contact != null 
+              ? _ContactView(contact: contactState.contact!) 
+              : const Center(
+                child: Text('No se encontro información del contacto'),
+              ) ),
+        floatingActionButton:  contactState.contact != null 
+        ? FloatingActionButtonCustom(
             callOnPressed: () {
               if (contactState.contact == null) return;
 
@@ -67,7 +72,8 @@ class ContactScreen extends ConsumerWidget {
                 }
               });
             },
-            iconData: Icons.save),
+            iconData: Icons.save)
+        : null
       ),
     );
   }
@@ -83,7 +89,11 @@ class _ContactView extends ConsumerWidget {
     return ListView(
       children: [
         const SizedBox(height: 10),
-        _ContactInformation(contact: contact),
+        contact != null
+            ? _ContactInformation(contact: contact)
+            : const Center(
+                child: Text('No se encontre datos de la empresa'),
+              ),
       ],
     );
   }

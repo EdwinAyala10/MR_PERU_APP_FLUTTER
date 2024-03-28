@@ -32,7 +32,7 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
             state.opportunities.any((element) => element.id == opportunity.id);
 
         if (!isOpportunityInList) {
-          state = state.copyWith(opportunities: [...state.opportunities, opportunity]);
+          state = state.copyWith(opportunities: [opportunity, ...state.opportunities]);
           return CreateUpdateOpportunityResponse(response: true, message: message);
         }
 

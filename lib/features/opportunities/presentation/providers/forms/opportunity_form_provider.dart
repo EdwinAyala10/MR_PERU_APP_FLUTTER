@@ -46,6 +46,9 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
           oprtRucIntermediario01: opportunity.oprtRucIntermediario01 ?? '',
           oprtRucIntermediario02: opportunity.oprtRucIntermediario02 ?? '',
           opt: opportunity.opt ?? '',
+          optrValor: opportunity.oprtValor ?? 0,
+          arrayresponsables: opportunity.arrayresponsables ?? [],
+          arrayresponsablesEliminar: opportunity.arrayresponsablesEliminar ?? [],
         ));
 
   Future<CreateUpdateOpportunityResponse> onFormSubmit() async {
@@ -60,12 +63,13 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
     }
 
     final opportunityLike = {
-      'OPRT_ID_OPORTUNIDAD': (state.id == 'new') ? '0' : state.id,
+      'OPRT_ID_OPORTUNIDAD': (state.id == 'new') ? null : state.id,
       'OPRT_NOMBRE': state.oprtNombre.value,
       'OPRT_ENTORNO': 'MR PERU',
       'OPRT_ID_ESTADO_OPORTUNIDAD': state.oprtIdEstadoOportunidad,
       'OPRT_PROBABILIDAD': state.oprtProbabilidad,
       'OPRT_ID_VALOR': state.oprtIdValor,
+      'OPRT_VALOR': state.optrValor,
       //'OPRT_FECHA_PREVISTA_VENTA': state.oprtFechaPrevistaVenta,
       'OPRT_FECHA_PREVISTA_VENTA':
           "${state.oprtFechaPrevistaVenta?.year.toString().padLeft(4, '0')}-${state.oprtFechaPrevistaVenta?.month.toString().padLeft(2, '0')}-${state.oprtFechaPrevistaVenta?.day.toString().padLeft(2, '0')}",
@@ -77,6 +81,13 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
       'OPRT_NOBBRE_ESTADO_OPORTUNIDAD': state.oprtNobbreEstadoOportunidad,
       'OPRT_NOMBRE_VALOR': state.oprtNombreValor,
       'OPT': (state.id == 'new') ? 'INSERT' : 'UPDATE',
+      'OPORTUNIDAD_RESPONSABLE': state.arrayresponsables != null
+          ? List<dynamic>.from(state.arrayresponsables!.map((x) => x.toJson()))
+          : [],
+      'OPORTUNIDAD_RESPONSABLE_ELIMINAR': state.arrayresponsablesEliminar != null
+          ? List<dynamic>.from(
+              state.arrayresponsablesEliminar!.map((x) => x.toJson()))
+          : [],
     };
 
     try {
@@ -148,6 +159,11 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
     state = state.copyWith(oprtComentario: comentario);
   }
 
+  void onImporteChanged(String valor) {
+    state = state.copyWith(optrValor: int.parse(valor ?? '0'));
+  }
+
+
   void onUsuarioChanged(UserMaster usuario) {
     bool objExist = state.arrayresponsables!.any(
         (objeto) => objeto.id == usuario.id && objeto.name == usuario.name);
@@ -218,6 +234,7 @@ class OpportunityFormState {
   final String optrIdOportunidadIn;
   final List<ArrayUser>? arrayresponsables;
   final List<ArrayUser>? arrayresponsablesEliminar;
+  final int optrValor;
 
   OpportunityFormState(
       {this.isFormValid = false,
@@ -229,6 +246,7 @@ class OpportunityFormState {
       this.oprtIdValor = '01',
       this.oprtFechaPrevistaVenta,
       this.oprtRuc = '',
+      this.optrValor = 0,
       this.oprtRazon = '',
       this.oprtRazonIntermediario01 = '',
       this.oprtRucIntermediario01 = '',
@@ -266,6 +284,7 @@ class OpportunityFormState {
     String? optrIdOportunidadIn,
     List<ArrayUser>? arrayresponsables,
     List<ArrayUser>? arrayresponsablesEliminar,
+    int? optrValor,
   }) =>
       OpportunityFormState(
         isFormValid: isFormValid ?? this.isFormValid,
@@ -279,6 +298,7 @@ class OpportunityFormState {
         oprtFechaPrevistaVenta:
             oprtFechaPrevistaVenta ?? this.oprtFechaPrevistaVenta,
         oprtRuc: oprtRuc ?? this.oprtRuc,
+        optrValor: optrValor ?? this.optrValor,
         oprtRazon: oprtRazon ?? this.oprtRazon,
         oprtRucIntermediario01:
             oprtRucIntermediario01 ?? this.oprtRucIntermediario01,
