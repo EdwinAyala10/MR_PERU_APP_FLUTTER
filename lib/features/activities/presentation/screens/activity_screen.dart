@@ -17,6 +17,7 @@ import 'package:crm_app/features/companies/presentation/delegates/search_company
 import 'package:crm_app/features/opportunities/presentation/search/search_opportunities_active_provider.dart';
 import 'package:crm_app/features/opportunities/presentation/delegates/search_opportunity_active_delegate.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
+import 'package:crm_app/features/shared/widgets/select_custom_form.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -43,37 +44,37 @@ class ActivityScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Crear Actividad'),
-          leading: IconButton(
+          /*leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
               context.pop();
             },
-          ),
+          ),*/
         ),
         body: activityState.isLoading
             ? const FullScreenLoader()
             : _ActivityView(activity: activityState.activity!),
         floatingActionButton: FloatingActionButtonCustom(
-          iconData: Icons.save,
-          callOnPressed: () {
-            if (activityState.activity == null) return;
+            iconData: Icons.save,
+            callOnPressed: () {
+              if (activityState.activity == null) return;
 
-            ref
-                .read(activityFormProvider(activityState.activity!).notifier)
-                .onFormSubmit()
-                .then((CreateUpdateActivityResponse value) {
-              //if ( !value.response ) return;
-              if (value.message != '') {
-                showSnackbar(context, value.message);
+              ref
+                  .read(activityFormProvider(activityState.activity!).notifier)
+                  .onFormSubmit()
+                  .then((CreateUpdateActivityResponse value) {
+                //if ( !value.response ) return;
+                if (value.message != '') {
+                  showSnackbar(context, value.message);
 
-                if (value.response) {
-                  Timer(const Duration(seconds: 3), () {
-                    context.push('/activities');
-                  });
+                  if (value.response) {
+                    Timer(const Duration(seconds: 3), () {
+                      context.push('/activities');
+                    });
+                  }
                 }
-              }
-            });
-        }),
+              });
+            }),
       ),
     );
   }
@@ -122,67 +123,20 @@ class _ActivityInformation extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.all(2.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                const Text('Tipo de gestión *',
-                    style:
-                        TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500)),
-                const SizedBox(height: 6),
-                SizedBox(
-                  width: double
-                      .infinity, // Ancho específico para el DropdownButton
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey), // Estilo de borde
-                      borderRadius:
-                          BorderRadius.circular(5.0), // Bordes redondeados
-                    ),
-                    child: DropdownButton<String>(
-                      // Valor seleccionado
-                      value: activityForm.actiIdTipoGestion.value,
-                      onChanged: (String? newValue) {
-                        DropdownOption searchTipoGestion = optionsTipoGestion
-                            .where((option) => option.id == newValue!)
-                            .first;
-                        ref
-                            .read(activityFormProvider(activity).notifier)
-                            .onTipoGestionChanged(
-                                newValue ?? '', searchTipoGestion.name);
-                      },
-                      isExpanded: true,
-                      style: const TextStyle(
-                        fontSize: 16.0,
-                        color: Color.fromRGBO(0, 0, 0, 1),
-                      ),
-                      // Mapeo de las opciones a elementos de menú desplegable
-                      items: optionsTipoGestion.map((option) {
-                        return DropdownMenuItem<String>(
-                          value: option.id,
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 10.0, vertical: 8.0),
-                            child: Text(option.name),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          SelectCustomForm(
+            label: 'Tipo de gestión *',
+            value: activityForm.actiIdTipoGestion.value,
+            callbackChange: (String? newValue) {
+              DropdownOption searchTipoGestion = optionsTipoGestion
+                  .where((option) => option.id == newValue!)
+                  .first;
+              ref
+                  .read(activityFormProvider(activity).notifier)
+                  .onTipoGestionChanged(newValue ?? '', searchTipoGestion.name);
+            },
+            items: optionsTipoGestion,
+            errorMessage: activityForm.actiIdTipoGestion.errorMessage,
           ),
-          activityForm.actiIdTipoGestion.errorMessage != null
-              ? Padding(
-                  padding: const EdgeInsets.only(left: 4),
-                  child: Text(
-                    activityForm.actiIdTipoGestion.errorMessage ?? '',
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                )
-              : const SizedBox(),
           const SizedBox(height: 10),
           const Text(
             'Fecha',
@@ -202,7 +156,8 @@ class _ActivityInformation extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      DateFormat('dd-MM-yyyy').format(activityForm.actiFechaActividad ?? DateTime.now()),
+                      DateFormat('dd-MM-yyyy').format(
+                          activityForm.actiFechaActividad ?? DateTime.now()),
                       style: const TextStyle(fontSize: 16),
                     ),
                     const Icon(Icons.calendar_today),
@@ -230,7 +185,8 @@ class _ActivityInformation extends ConsumerWidget {
                 children: [
                   Text(
                     //TimeOfDay.now().format(context),
-                    DateFormat('hh:mm a').format(DateFormat('HH:mm:ss').parse(activityForm.actiHoraActividad)),
+                    DateFormat('hh:mm a').format(DateFormat('HH:mm:ss')
+                        .parse(activityForm.actiHoraActividad)),
                     style: const TextStyle(fontSize: 16),
                   ),
                   const Icon(Icons.access_time),
@@ -354,7 +310,51 @@ class _ActivityInformation extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 15),
+          const Text('Contactos *'),
+          Row(
+            children: [
+              Expanded(
+                  child: Column(
+                children: [
+                  activityForm.actividadesContacto!.isNotEmpty
+                      ? Wrap(
+                          spacing: 6.0,
+                          children: activityForm.actividadesContacto != null
+                              ? List<Widget>.from(activityForm
+                                  .actividadesContacto!
+                                  .map((item) => Chip(
+                                        label: Text(item.nombre ?? '',
+                                            style:
+                                                const TextStyle(fontSize: 12)),
+                                        onDeleted: () {
+                                          ref
+                                              .read(
+                                                  activityFormProvider(activity)
+                                                      .notifier)
+                                              .onDeleteContactoChanged(item);
+                                        },
+                                      )))
+                              : [],
+                        )
+                      : const Text('Seleccione contacto(s)',
+                          style: TextStyle(color: Colors.black45)),
+                ],
+              )),
+              ElevatedButton(
+                onPressed: () {
+                  _openSearchContacts(context, ref);
+                },
+                child: const Row(
+                  children: [
+                    Icon(Icons.add),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          /*const SizedBox(height: 10),
           Padding(
             padding: const EdgeInsets.all(4.0),
             child: Column(
@@ -404,8 +404,8 @@ class _ActivityInformation extends ConsumerWidget {
                 ),
               ],
             ),
-          ),
-          activityForm.actiIdContacto.errorMessage != null
+          ),*/
+          /*activityForm.actiIdContacto.errorMessage != null
               ? Padding(
                   padding: const EdgeInsets.only(left: 4),
                   child: Text(
@@ -413,7 +413,7 @@ class _ActivityInformation extends ConsumerWidget {
                     style: const TextStyle(color: Colors.red),
                   ),
                 )
-              : const SizedBox(),
+              : const SizedBox(),*/
           const SizedBox(height: 10),
           const SizedBox(height: 20),
           const Text(
@@ -493,8 +493,10 @@ class _ActivityInformation extends ConsumerWidget {
 
     //if (picked != null && picked != selectedDate) {
     if (picked != null) {
-       String formattedTime = picked.toString().substring(10, 15) + ':00';
-      ref.read(activityFormProvider(activity).notifier).onHoraChanged(formattedTime);
+      String formattedTime = picked.toString().substring(10, 15) + ':00';
+      ref
+          .read(activityFormProvider(activity).notifier)
+          .onHoraChanged(formattedTime);
     }
   }
 
@@ -557,7 +559,7 @@ class _ActivityInformation extends ConsumerWidget {
 
       ref
           .read(activityFormProvider(activity).notifier)
-          .onContactoChanged(contact.id, contact.contactoDesc);
+          .onContactoChanged(contact);
     });
   }
 }

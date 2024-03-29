@@ -45,18 +45,23 @@ class EventScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text('${eventState.id == 'new' ? 'Crear' : 'Editar'} Evento'),
-          leading: IconButton(
+          /*leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
               context.pop();
             },
-          ),
+          ),*/
         ),
         body: eventState.isLoading
             ? const FullScreenLoader()
-            : _EventView(event: eventState.event!),
+            : ( eventState.event != null 
+              ? _EventView(event: eventState.event!)
+              : Center(
+                child: Text('No se encontro información del evento.'),
+              )),
         //_EventView(event: eventState.event!),
-        floatingActionButton: FloatingActionButtonCustom(
+        floatingActionButton: eventState.event != null 
+        ? FloatingActionButtonCustom(
           iconData: Icons.save,
           callOnPressed: () {
             if (eventState.event == null) return;
@@ -70,14 +75,14 @@ class EventScreen extends ConsumerWidget {
                 showSnackbar(context, value.message);
 
                 if (value.response) {
-                  Timer(const Duration(seconds: 3), () {
+                  //Timer(const Duration(seconds: 3), () {
                     context.push('/agenda');
-                  });
+                  //});
                 }
               }
             });
-        }),
-      ),
+        },
+      ) : null),
     );
   }
 }

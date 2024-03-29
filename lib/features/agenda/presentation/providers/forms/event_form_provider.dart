@@ -74,7 +74,7 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
     }
 
     final eventLike = {
-      'EVNT_ID_EVENTO_IN': (state.id == 'new') ? '0' : state.id,
+      'EVNT_ID_EVENTO': (state.id == 'new') ? null : state.id,
       'EVNT_ASUNTO': state.evntAsunto.value,
       'EVNT_FECHA_INICIO_EVENTO':
           "${state.evntFechaInicioEvento?.year.toString().padLeft(4, '0')}-${state.evntFechaInicioEvento?.month.toString().padLeft(2, '0')}-${state.evntFechaInicioEvento?.day.toString().padLeft(2, '0')}",
@@ -100,17 +100,17 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
       'EVNT_NOMBRE_TIPO_GESTION': state.evntNombreTipoGestion,
       'EVNT_NOMBRE_OPORTUNIDAD': state.evntNombreOportunidad,
       'EVNT_CORREOS_EXTERNOS': state.evntCorreosExternos,
-      'ARRAYCONTACTO': state.arraycontacto != null
+      'EVENTOS_INVITACION_CONTACTO': state.arraycontacto != null
           ? List<dynamic>.from(state.arraycontacto!.map((x) => x.toJson()))
           : [],
-      'ARRAYCONTACTO_ELIMIMAR': state.arraycontactoElimimar != null
+      'EVENTOS_INVITACION_CONTACTO_ELIMINAR': state.arraycontactoElimimar != null
           ? List<dynamic>.from(
               state.arraycontactoElimimar!.map((x) => x.toJson()))
           : [],
-      'ARRAYRESPONSABLE': state.arrayresponsable != null
+      'EVENTOS_INVITACION_RESPONSABLE': state.arrayresponsable != null
           ? List<dynamic>.from(state.arrayresponsable!.map((x) => x.toJson()))
           : [],
-      'ARRAYRESPONSABLE_ELIMIMAR': state.arrayresponsableElimimar != null
+      'EVENTOS_INVITACION_RESPONSABLE_ELIMINAR': state.arrayresponsableElimimar != null
           ? List<dynamic>.from(
               state.arrayresponsableElimimar!.map((x) => x.toJson()))
           : [],

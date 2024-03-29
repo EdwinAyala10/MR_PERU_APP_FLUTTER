@@ -15,6 +15,8 @@ class CompanyCheckIn {
     String? cchkCoordenadaLongitud;
     String? cchkDireccionMapa;
     String? cchkIdUsuarioRegistro;
+    String cchkLocalCodigo;
+    String? cchkLocalNombre;
 
     CompanyCheckIn({
         required this.cchkIdClientesCheck,
@@ -26,6 +28,7 @@ class CompanyCheckIn {
         required this.cchkIdEstadoCheck,
         required this.cchkIdComentario,
         required this.cchkIdUsuarioResponsable,
+        required this.cchkLocalCodigo,
         this.cchkNombreUsuarioResponsable,
         this.cchkRazon,
         this.cchkUbigeo,
@@ -33,6 +36,7 @@ class CompanyCheckIn {
         this.cchkCoordenadaLongitud,
         this.cchkDireccionMapa,
         this.cchkIdUsuarioRegistro,
+        this.cchkLocalNombre,
     });
 
 }

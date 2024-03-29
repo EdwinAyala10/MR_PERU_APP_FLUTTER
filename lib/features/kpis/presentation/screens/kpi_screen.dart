@@ -28,12 +28,12 @@ class KpiScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Crear objectivo'),
-          leading: IconButton(
+          /*leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
               context.pop();
             },
-          ),
+          ),*/
         ),
         body: kpiState.isLoading
             ? const FullScreenLoader()

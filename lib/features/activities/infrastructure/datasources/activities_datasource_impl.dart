@@ -21,7 +21,12 @@ class ActivitiesDatasourceImpl extends ActivitiesDatasource {
     try {
       final String? id = activityLike['ACTI_ID_ACTIVIDAD'];
       final String method = 'POST';
-      final String url = '/actividad/create-actividad';
+      final String url =  id == null ? '/actividad/create-actividad' : '/actividad/edit-actividad';
+
+      if (id == null) {
+        activityLike.remove('ACTI_ID_ACTIVIDAD');
+      }
+      print('activity LIKE: ${activityLike}');
 
       final response = await dio.request(url,
           data: activityLike, options: Options(method: method));

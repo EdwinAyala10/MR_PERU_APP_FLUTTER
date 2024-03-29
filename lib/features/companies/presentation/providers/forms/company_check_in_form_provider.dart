@@ -1,4 +1,3 @@
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
 
@@ -6,8 +5,10 @@ import 'package:crm_app/features/companies/domain/domain.dart';
 import 'package:crm_app/features/companies/presentation/providers/providers.dart';
 import 'package:crm_app/features/shared/shared.dart';
 
-final companyCheckInFormProvider = StateNotifierProvider.autoDispose
-    .family<CompanyCheckInFormNotifier, CompanyCheckInFormState, CompanyCheckIn>((ref, companyCheckIn) {
+final companyCheckInFormProvider = StateNotifierProvider.autoDispose.family<
+    CompanyCheckInFormNotifier,
+    CompanyCheckInFormState,
+    CompanyCheckIn>((ref, companyCheckIn) {
   // final createUpdateCallback = ref.watch( productsRepositoryProvider ).createUpdateProduct;
   final createUpdateCallback =
       ref.watch(companiesProvider.notifier).createOrUpdateCompanyCheckIn;
@@ -18,7 +19,8 @@ final companyCheckInFormProvider = StateNotifierProvider.autoDispose
   );
 });
 
-class CompanyCheckInFormNotifier extends StateNotifier<CompanyCheckInFormState> {
+class CompanyCheckInFormNotifier
+    extends StateNotifier<CompanyCheckInFormState> {
   final Future<CreateUpdateCompanyCheckInResponse> Function(
       Map<dynamic, dynamic> companyCheckInLike)? onSubmitCallback;
 
@@ -37,11 +39,15 @@ class CompanyCheckInFormNotifier extends StateNotifier<CompanyCheckInFormState> 
           cchkIdComentario: companyCheckIn.cchkIdComentario ?? '',
           cchkIdEstadoCheck: companyCheckIn.cchkIdEstadoCheck ?? '01',
           cchkIdUsuarioRegistro: companyCheckIn.cchkIdUsuarioRegistro ?? '',
-          cchkIdUsuarioResponsable: companyCheckIn.cchkIdUsuarioResponsable ?? '',
-          cchkNombreUsuarioResponsable: companyCheckIn.cchkNombreUsuarioResponsable ?? '',
+          cchkIdUsuarioResponsable:
+              companyCheckIn.cchkIdUsuarioResponsable ?? '',
+          cchkNombreUsuarioResponsable:
+              companyCheckIn.cchkNombreUsuarioResponsable ?? '',
           cchkNombreContacto: companyCheckIn.cchkNombreContacto ?? '',
           cchkNombreOportunidad: companyCheckIn.cchkNombreOportunidad ?? '',
           cchkUbigeo: companyCheckIn.cchkUbigeo ?? '',
+          cchkLocalCodigo: Select.dirty(companyCheckIn.cchkLocalCodigo),
+          cchkLocalNombre: companyCheckIn.cchkLocalNombre ?? '',
         ));
 
   Future<CreateUpdateCompanyCheckInResponse> onFormSubmit() async {
@@ -54,7 +60,9 @@ class CompanyCheckInFormNotifier extends StateNotifier<CompanyCheckInFormState> 
       return CreateUpdateCompanyCheckInResponse(response: false, message: '');
 
     final companyCheckInLike = {
-      'CCHK_ID_CLIENTES_CHECK': (state.cchkIdClientesCheck == 'new') ? null : state.cchkIdClientesCheck,
+      'CCHK_ID_CLIENTES_CHECK': (state.cchkIdClientesCheck == 'new')
+          ? null
+          : state.cchkIdClientesCheck,
       'CCHK_RUC': state.cchkRuc.value,
       'CCHK_COORDENADA_LATITUD': state.cchkCoordenadaLatitud,
       'CCHK_COORDENADA_LONGITUD': state.cchkCoordenadaLongitud,
@@ -66,6 +74,8 @@ class CompanyCheckInFormNotifier extends StateNotifier<CompanyCheckInFormState> 
       'CCHK_NOMBRE_USUARIO_RESPONSABLE': state.cchkNombreUsuarioResponsable,
       'CCHK_UBIGEO': state.cchkUbigeo,
       'CCHK_DIRECCION_MAPA': state.cchkDireccionMapa,
+      'CCHK_LOCAL_CODIGO': state.cchkLocalCodigo,
+      'CCHK_LOCAL_NOMBRE': state.cchkLocalNombre,
       'CCHK_ID_USUARIO_REGISTRO': state.cchkIdUsuarioRegistro,
     };
 
@@ -82,6 +92,7 @@ class CompanyCheckInFormNotifier extends StateNotifier<CompanyCheckInFormState> 
         Ruc.dirty(state.cchkRuc.value),
         Select.dirty(state.cchkIdContacto.value),
         Select.dirty(state.cchkIdOportunidad.value),
+        Select.dirty(state.cchkLocalCodigo.value),
       ]),
     );
   }
@@ -93,6 +104,7 @@ class CompanyCheckInFormNotifier extends StateNotifier<CompanyCheckInFormState> 
           Ruc.dirty(value),
           Select.dirty(state.cchkIdContacto.value),
           Select.dirty(state.cchkIdOportunidad.value),
+          Select.dirty(state.cchkLocalCodigo.value),
         ]));
   }
 
@@ -104,10 +116,11 @@ class CompanyCheckInFormNotifier extends StateNotifier<CompanyCheckInFormState> 
           Ruc.dirty(state.cchkRuc.value),
           Select.dirty(state.cchkIdContacto.value),
           Select.dirty(value),
+          Select.dirty(state.cchkLocalCodigo.value),
         ]));
   }
 
-  void onContactoChanged(String value, String  name) {
+  void onContactoChanged(String value, String name) {
     state = state.copyWith(
         cchkIdContacto: Select.dirty(value),
         cchkNombreContacto: name,
@@ -115,6 +128,7 @@ class CompanyCheckInFormNotifier extends StateNotifier<CompanyCheckInFormState> 
           Ruc.dirty(state.cchkRuc.value),
           Select.dirty(value),
           Select.dirty(state.cchkIdOportunidad.value),
+          Select.dirty(state.cchkLocalCodigo.value),
         ]));
   }
 
@@ -126,6 +140,17 @@ class CompanyCheckInFormNotifier extends StateNotifier<CompanyCheckInFormState> 
     state = state.copyWith(cchkIdComentario: value);
   }
 
+  void onLocalChanged(String value, String name) {
+    state = state.copyWith(
+        cchkLocalCodigo: Select.dirty(value),
+        cchkLocalNombre: name,
+        isFormValid: Formz.validate([
+          Ruc.dirty(state.cchkRuc.value),
+          Select.dirty(state.cchkIdContacto.value),
+          Select.dirty(state.cchkIdOportunidad.value),
+          Select.dirty(value),
+        ]));
+  }
 }
 
 class CompanyCheckInFormState {
@@ -146,26 +171,29 @@ class CompanyCheckInFormState {
   final String? cchkCoordenadaLongitud;
   final String? cchkDireccionMapa;
   final String? cchkIdUsuarioRegistro;
+  final Select cchkLocalCodigo;
+  final String? cchkLocalNombre;
 
-  CompanyCheckInFormState({
-    this.isFormValid = false,
-    this.cchkIdClientesCheck,
-    this.cchkRuc = const Ruc.dirty(''),
-    this.cchkRazon = '',
-    this.cchkIdOportunidad = const Select.dirty(''),
-    this.cchkIdContacto = const Select.dirty(''),
-    this.cchkNombreContacto = '',
-    this.cchkNombreOportunidad = '',
-    this.cchkCoordenadaLatitud = '',
-    this.cchkCoordenadaLongitud = '',
-    this.cchkDireccionMapa = '',
-    this.cchkIdComentario = '',
-    this.cchkIdEstadoCheck = '01',
-    this.cchkIdUsuarioRegistro = '',
-    this.cchkIdUsuarioResponsable = '',
-    this.cchkNombreUsuarioResponsable = '',
-    this.cchkUbigeo = ''
-  });
+  CompanyCheckInFormState(
+      {this.isFormValid = false,
+      this.cchkIdClientesCheck,
+      this.cchkRuc = const Ruc.dirty(''),
+      this.cchkRazon = '',
+      this.cchkIdOportunidad = const Select.dirty(''),
+      this.cchkIdContacto = const Select.dirty(''),
+      this.cchkNombreContacto = '',
+      this.cchkNombreOportunidad = '',
+      this.cchkCoordenadaLatitud = '',
+      this.cchkCoordenadaLongitud = '',
+      this.cchkDireccionMapa = '',
+      this.cchkIdComentario = '',
+      this.cchkIdEstadoCheck = '01',
+      this.cchkIdUsuarioRegistro = '',
+      this.cchkIdUsuarioResponsable = '',
+      this.cchkLocalNombre = '',
+      this.cchkNombreUsuarioResponsable = '',
+      this.cchkLocalCodigo = const Select.dirty(''),
+      this.cchkUbigeo = ''});
 
   CompanyCheckInFormState copyWith({
     bool? isFormValid,
@@ -184,26 +212,35 @@ class CompanyCheckInFormState {
     String? cchkCoordenadaLatitud,
     String? cchkCoordenadaLongitud,
     String? cchkDireccionMapa,
+    Select? cchkLocalCodigo,
     String? cchkIdUsuarioRegistro,
+    String? cchkLocalNombre,
   }) =>
       CompanyCheckInFormState(
         isFormValid: isFormValid ?? this.isFormValid,
         cchkRuc: cchkRuc ?? this.cchkRuc,
         cchkRazon: cchkRazon ?? this.cchkRazon,
-        cchkCoordenadaLatitud: cchkCoordenadaLatitud ?? this.cchkCoordenadaLatitud,
-        cchkCoordenadaLongitud: cchkCoordenadaLongitud ?? this.cchkCoordenadaLongitud,
+        cchkCoordenadaLatitud:
+            cchkCoordenadaLatitud ?? this.cchkCoordenadaLatitud,
+        cchkCoordenadaLongitud:
+            cchkCoordenadaLongitud ?? this.cchkCoordenadaLongitud,
         cchkDireccionMapa: cchkDireccionMapa ?? this.cchkDireccionMapa,
         cchkIdClientesCheck: cchkIdClientesCheck ?? this.cchkIdClientesCheck,
         cchkIdComentario: cchkIdComentario ?? this.cchkIdComentario,
         cchkIdContacto: cchkIdContacto ?? this.cchkIdContacto,
         cchkNombreContacto: cchkNombreContacto ?? this.cchkNombreContacto,
-        cchkNombreOportunidad: cchkNombreOportunidad ?? this.cchkNombreOportunidad,
+        cchkNombreOportunidad:
+            cchkNombreOportunidad ?? this.cchkNombreOportunidad,
         cchkIdEstadoCheck: cchkIdEstadoCheck ?? this.cchkIdEstadoCheck,
         cchkIdOportunidad: cchkIdOportunidad ?? this.cchkIdOportunidad,
         cchkIdUsuarioRegistro:
             cchkIdUsuarioRegistro ?? this.cchkIdUsuarioRegistro,
-        cchkIdUsuarioResponsable: cchkIdUsuarioResponsable ?? this.cchkIdUsuarioResponsable,
-        cchkNombreUsuarioResponsable: cchkNombreUsuarioResponsable ?? this.cchkNombreUsuarioResponsable,
+        cchkIdUsuarioResponsable:
+            cchkIdUsuarioResponsable ?? this.cchkIdUsuarioResponsable,
+        cchkNombreUsuarioResponsable:
+            cchkNombreUsuarioResponsable ?? this.cchkNombreUsuarioResponsable,
         cchkUbigeo: cchkUbigeo ?? this.cchkUbigeo,
+        cchkLocalCodigo: cchkLocalCodigo ?? this.cchkLocalCodigo,
+        cchkLocalNombre: cchkLocalNombre ?? this.cchkLocalNombre,
       );
 }

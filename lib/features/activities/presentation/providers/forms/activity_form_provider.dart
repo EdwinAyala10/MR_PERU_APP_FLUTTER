@@ -1,3 +1,4 @@
+import 'package:crm_app/features/contacts/domain/domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
 
@@ -32,7 +33,7 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
           actiFechaActividad: activity.actiFechaActividad ?? DateTime.now(),
           actiHoraActividad: activity.actiHoraActividad ?? '',
           actiIdActividadIn: activity.actiIdActividadIn ?? '',
-          actiIdContacto: Contacto.dirty(activity.actiIdContacto),
+          //actiIdContacto: Contacto.dirty(activity.actiIdContacto),
           actiIdOportunidad: activity.actiIdOportunidad ?? '',
           actiIdTipoGestion: TipoGestion.dirty(activity.actiIdTipoGestion),
           actiIdUsuarioActualizacion: activity.actiIdUsuarioActualizacion ?? '',
@@ -44,6 +45,8 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
           actiRuc: Ruc.dirty(activity.actiRuc),
           actiNombreResponsable: activity.actiNombreResponsable ?? '',
           opt: activity.opt ?? '',
+          actividadesContacto: activity.actividadesContacto ?? [],
+          actividadesContactoEliminar: activity.actividadesContactoEliminar ?? [],
         ));
 
   Future<CreateUpdateActivityResponse> onFormSubmit() async {
@@ -59,7 +62,7 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
     }
 
     final activityLike = {
-      'ACTI_ID_ACTIVIDAD_IN': (state.id == 'new') ? '0' : state.id,
+      'ACTI_ID_ACTIVIDAD': (state.id == 'new') ? null : state.id,
       'ACTI_NOMBRE_RESPONSABLE': state.actiNombreResponsable,
       'ACTI_ID_USUARIO_RESPONSABLE': state.actiIdUsuarioResponsable,
       'ACTI_ID_TIPO_GESTION': state.actiIdTipoGestion.value,
@@ -68,13 +71,21 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
       'ACTI_HORA_ACTIVIDAD': state.actiHoraActividad,
       'ACTI_RUC': state.actiRuc.value,
       'ACTI_ID_OPORTUNIDAD': state.actiIdOportunidad,
-      'ACTI_ID_CONTACTO': state.actiIdContacto.value,
+      //'ACTI_ID_CONTACTO': state.actiIdContacto.value,
+      'ACTI_ID_CONTACTO': '0',
       'ACTI_COMENTARIO': state.actiComentario,
       'ACTI_NOMBRE_ARCHIVO': state.actiNombreArchivo,
       'ACTI_ID_USUARIO_REGISTRO': state.actiIdUsuarioRegistro,
       'OPT': (state.id == 'new') ? 'INSERT' : 'UPDATE',
       'ACTI_NOMBRE_TIPO_GESTION': state.actiNombreTipoGestion,
       'ACTI_NOMBRE_OPORTUNIDAD': state.actiNombreOportunidad,
+      'ACTIVIDADES_CONTACTO': state.actividadesContacto != null
+          ? List<dynamic>.from(state.actividadesContacto!.map((x) => x.toJson()))
+          : [],
+      'ACTIVIDADES_CONTACTO_ELIMINAR': state.actividadesContactoEliminar != null
+          ? List<dynamic>.from(
+              state.actividadesContactoEliminar!.map((x) => x.toJson()))
+          : [],
     };
 
     try {
@@ -89,7 +100,7 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
       isFormValid: Formz.validate([
         Ruc.dirty(state.actiRuc.value),
         TipoGestion.dirty(state.actiIdTipoGestion.value),
-        Contacto.dirty(state.actiIdContacto.value),
+        //Contacto.dirty(state.actiIdContacto.value),
       ]),
     );
   }
@@ -101,11 +112,11 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
         isFormValid: Formz.validate([
           Ruc.dirty(value),
           TipoGestion.dirty(state.actiIdTipoGestion.value),
-          Contacto.dirty(state.actiIdContacto.value)
+          //Contacto.dirty(state.actiIdContacto.value)
         ]));
   }
 
-  void onContactoChanged(String value, String name) {
+  /*void onContactoChanged(String value, String name) {
     state = state.copyWith(
         actiIdContacto: Contacto.dirty(value),
         actiNombreContacto: name,
@@ -114,7 +125,7 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
           TipoGestion.dirty(value),
           Contacto.dirty(state.actiIdContacto.value)
         ]));
-  }
+  }*/
 
   void onTipoGestionChanged(String value, String name) {
     state = state.copyWith(
@@ -123,7 +134,7 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
         isFormValid: Formz.validate([
           Ruc.dirty(state.actiRuc.value),
           TipoGestion.dirty(value),
-          Contacto.dirty(state.actiIdContacto.value)
+          //Contacto.dirty(state.actiIdContacto.value)
         ]));
   }
 
@@ -147,6 +158,49 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
     state = state.copyWith(actiIdUsuarioResponsable: id, actiNombreResponsable: nombre);
   }
 
+  void onContactoChanged(Contact contacto) {
+    bool objExist = state.actividadesContacto!.any(
+        (objeto) => objeto.acntIdContacto == contacto.id);
+
+    if (!objExist) {
+      ContactArray array = ContactArray();
+      array.acntIdContacto = contacto.id;
+      array.nombre = contacto.contactoDesc;
+
+      List<ContactArray> arrayContactos = [...state.actividadesContacto ?? [], array];
+
+      state = state.copyWith(actividadesContacto: arrayContactos);
+    } else {
+      state = state;
+    }
+  }
+
+  void onDeleteContactoChanged(ContactArray item) {
+    List<ContactArray> arrayContactosEliminar = [];
+
+    if (state.id != "new") {
+      bool objExist = state.actividadesContactoEliminar!
+          .any((objeto) => objeto.acntIdActividadContacto == item.acntIdActividadContacto);
+
+      if (!objExist) {
+        ContactArray array = ContactArray();
+        array.acntIdActividadContacto = item.acntIdActividadContacto;
+
+        arrayContactosEliminar = [
+          ...state.actividadesContactoEliminar ?? [],
+          array
+        ];
+      }
+    }
+
+    List<ContactArray> arrayContactos = state.actividadesContacto!
+        .where((contact) => contact.acntIdActividadContacto != item.acntIdActividadContacto)
+        .toList();
+    state = state.copyWith(
+        actividadesContacto: arrayContactos,
+        actividadesContactoEliminar: arrayContactosEliminar);
+  }
+
 }
 
 class ActivityFormState {
@@ -160,7 +214,7 @@ class ActivityFormState {
   final Ruc actiRuc;
   final String actiRazon;
   final String actiIdOportunidad;
-  final Contacto actiIdContacto;
+  //final Contacto actiIdContacto;
   final String actiNombreContacto;
   final String actiComentario;
   final String actiNombreArchivo;
@@ -172,7 +226,9 @@ class ActivityFormState {
   final String opt;
   final String actiIdActividadIn;
   final String actiNombreResponsable;
-
+  final List<ContactArray>? actividadesContacto;
+  final List<ContactArray>? actividadesContactoEliminar;
+  
   ActivityFormState(
       {this.isFormValid = false,
       this.id,
@@ -182,8 +238,9 @@ class ActivityFormState {
       this.actiFechaActividad,
       this.actiHoraActividad = '',
       this.actiIdActividadIn = '',
-      this.actiIdContacto = const Contacto.dirty(''),
+      //this.actiIdContacto = const Contacto.dirty(''),
       this.actiNombreContacto = '',
+      this.actividadesContacto,
       this.actiIdOportunidad = '',
       this.actiIdTipoGestion = const TipoGestion.dirty(''),
       this.actiIdUsuarioActualizacion = '',
@@ -195,6 +252,7 @@ class ActivityFormState {
       this.actiNombreResponsable = '',
       this.actiRuc = const Ruc.dirty(''),
       this.actiRazon = '',
+      this.actividadesContactoEliminar,
       this.opt = ''});
 
   ActivityFormState copyWith({
@@ -208,7 +266,7 @@ class ActivityFormState {
     Ruc? actiRuc,
     String? actiRazon,
     String? actiIdOportunidad,
-    Contacto? actiIdContacto,
+    //Contacto? actiIdContacto,
     String? actiNombreContacto,
     String? actiComentario,
     String? actiNombreArchivo,
@@ -219,17 +277,21 @@ class ActivityFormState {
     String? actiIdUsuarioActualizacion,
     String? opt,
     String? actiNombreResponsable,
-    String? actiIdActividadIn
+    String? actiIdActividadIn,
+    List<ContactArray>? actividadesContacto,
+    List<ContactArray>? actividadesContactoEliminar
   }) =>
       ActivityFormState(
         isFormValid: isFormValid ?? this.isFormValid,
         id: id ?? this.id,
         actiComentario: actiComentario ?? this.actiComentario,
+        actividadesContacto: actividadesContacto ?? this.actividadesContacto,
+        actividadesContactoEliminar: actividadesContactoEliminar ?? this.actividadesContactoEliminar,
         actiEstadoReg: actiEstadoReg ?? this.actiEstadoReg,
         actiFechaActividad: actiFechaActividad ?? this.actiFechaActividad,
         actiHoraActividad: actiHoraActividad ?? this.actiHoraActividad,
         actiIdActividadIn: actiIdActividadIn ?? this.actiIdActividadIn,
-        actiIdContacto: actiIdContacto ?? this.actiIdContacto,
+        //actiIdContacto: actiIdContacto ?? this.actiIdContacto,
         actiNombreContacto: actiNombreContacto ?? this.actiNombreContacto,
         actiIdOportunidad: actiIdOportunidad ?? this.actiIdOportunidad,
         actiIdTipoGestion: actiIdTipoGestion ?? this.actiIdTipoGestion,

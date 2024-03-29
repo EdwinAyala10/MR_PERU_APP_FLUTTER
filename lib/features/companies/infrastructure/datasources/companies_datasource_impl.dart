@@ -189,4 +189,20 @@ class CompaniesDatasourceImpl extends CompaniesDatasource {
     return companyLocales;
   }
 
+  @override
+  Future<List<CompanyLocal>> searchCompanyLocalesActive(String ruc, String query) async {
+    final data = {
+      "SEARCH": query,
+    };
+
+    final response = await dio.get('/cliente/cliente-locales-by-ruc/$ruc', data: data);
+    final List<CompanyLocal> companyLocales = [];
+    for (final companyLocal in response.data['data'] ?? []) {
+      companyLocales.add(CompanyLocalMapper.jsonToEntity(companyLocal));
+    }
+
+    return companyLocales;
+  }
+
+
 }

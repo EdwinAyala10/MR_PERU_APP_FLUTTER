@@ -54,6 +54,8 @@ class CompanyCheckInNotifier extends StateNotifier<CompanyCheckInState> {
       cchkDireccionMapa: '',
       cchkIdUsuarioRegistro: user.code,
       cchkUbigeo: '',
+      cchkLocalCodigo: '',
+      cchkLocalNombre: '',
       cchkNombreOportunidad: '',
       cchkNombreContacto: '',
     );

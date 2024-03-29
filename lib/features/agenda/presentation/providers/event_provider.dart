@@ -89,6 +89,7 @@ class EventNotifier extends StateNotifier<EventState> {
 
       state = state.copyWith(isLoading: false, event: event);
     } catch (e) {
+      state = state.copyWith(isLoading: false, event: null);
       // 404 product not found
       print(e);
     }

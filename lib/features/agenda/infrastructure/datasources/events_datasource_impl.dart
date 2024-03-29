@@ -23,8 +23,14 @@ class EventsDatasourceImpl extends EventsDatasource {
     try {
       final String? id = eventLike['EVNT_ID_EVENTO'];
       final String method = 'POST';
-      final String url = '/evento/create-evento';
+      //final String url = '/evento/create-evento';
+      final String url = (id == null)
+          ? '/evento/create-evento'
+          : '/evento/edit-evento';
 
+      if (id == null) {
+        eventLike.remove('EVNT_ID_EVENTO');
+      }
       print('eventLike:${eventLike}');
 
       final response = await dio.request(url,

@@ -8,10 +8,10 @@ class EventMapper {
   static jsonToEntity( Map<dynamic, dynamic> json ) => Event(
     id: json['EVNT_ID_EVENTO'] ?? '',
 
-    arraycontacto: json["ARRAYCONTACTO"] != null ? List<ContactArray>.from(json["ARRAYCONTACTO"].map((x) => ContactArray.fromJson(x))) : [],
-    arraycontactoElimimar: json["ARRAYCONTACTO_ELIMIMAR"] != null ? List<ContactArray>.from(json["ARRAYCONTACTO_ELIMIMAR"].map((x) => ContactArray.fromJson(x))) : [],
-    arrayresponsable: json["ARRAYRESPONSABLE"] != null ? List<ResponsableArray>.from(json["ARRAYRESPONSABLE"].map((x) => ResponsableArray.fromJson(x))) : [],
-    arrayresponsableElimimar: json["ARRAYRESPONSABLE_ELIMIMAR"] != null ? List<ResponsableArray>.from(json["ARRAYRESPONSABLE_ELIMIMAR"].map((x) => ResponsableArray.fromJson(x))) : [],
+    arraycontacto: json["EVENTOS_INVITACION_CONTACTO"] != null ? List<ContactArray>.from(json["EVENTOS_INVITACION_CONTACTO"].map((x) => ContactArray.fromJson(x))) : [],
+    arraycontactoElimimar: json["EVENTOS_INVITACION_CONTACTO_ELIMINAR"] != null ? List<ContactArray>.from(json["EVENTOS_INVITACION_CONTACTO_ELIMINAR"].map((x) => ContactArray.fromJson(x))) : [],
+    arrayresponsable: json["EVENTOS_INVITACION_RESPONSABLE"] != null ? List<ResponsableArray>.from(json["EVENTOS_INVITACION_RESPONSABLE"].map((x) => ResponsableArray.fromJson(x))) : [],
+    arrayresponsableElimimar: json["EVENTOS_INVITACION_RESPONSABLE_ELIMINAR"] != null ? List<ResponsableArray>.from(json["EVENTOS_INVITACION_RESPONSABLE_ELIMINAR"].map((x) => ResponsableArray.fromJson(x))) : [],
     evntAsunto: json['EVNT_ASUNTO'] ?? '',
     evntComentario: json['EVNT_COMENTARIO'] ?? '',
     evntCoordenadaLatitud: json['EVNT_COORDENADA_LATITUD'] ?? '',

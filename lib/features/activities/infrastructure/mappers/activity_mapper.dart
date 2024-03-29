@@ -1,4 +1,5 @@
 import 'package:crm_app/features/activities/domain/domain.dart';
+import 'package:crm_app/features/contacts/domain/domain.dart';
 
 
 class ActivityMapper {
@@ -22,6 +23,8 @@ class ActivityMapper {
     actiNombreResponsable: json['ACTI_NOMBRE_RESPONSABLE'] ?? '',
     actiIdUsuarioActualizacion: json['ACTI_ID_USUARIO_ACTUALIZACION'] ?? '',
     actiIdActividadIn: json['ACTI_ID_ACTIVIDAD_IN'] ?? '',
+    actividadesContacto: json["ACTIVIDADES_CONTACTO"] != null ? List<ContactArray>.from(json["ACTIVIDADES_CONTACTO"].map((x) => ContactArray.fromJson(x))) : [],
+    actividadesContactoEliminar: json["ACTIVIDADES_CONTACTO_ELIMINAR"] != null ? List<ContactArray>.from(json["ACTIVIDADES_CONTACTO_ELIMINAR"].map((x) => ContactArray.fromJson(x))) : [],
     opt: json['OPT'] ?? '',
   );
 

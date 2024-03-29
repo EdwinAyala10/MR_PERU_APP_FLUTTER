@@ -41,4 +41,10 @@ class CompaniesRepositoryImpl extends CompaniesRepository {
   Future<List<CompanyLocal>> getCompanyLocales(String ruc) {
     return datasource.getCompanyLocales(ruc);
   }
+
+  
+  @override
+  Future<List<CompanyLocal>> searchCompanyLocalesActive(String ruc, String query) {
+    return datasource.searchCompanyLocalesActive(ruc, query);
+  }
 }

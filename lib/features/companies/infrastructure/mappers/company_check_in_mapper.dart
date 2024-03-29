@@ -18,6 +18,8 @@ class CompanyCheckInMapper {
     cchkIdUsuarioRegistro:  json['CCHK_ID_USUARIO_REGISTRO'] ?? '',
     cchkNombreContacto:  json['CCHK_NOMBRE_CONTACTO'] ?? '',
     cchkNombreOportunidad:  json['CCHK_NOMBRE_OPORTUNIDAD'] ?? '',
+    cchkLocalCodigo:  json['CCHK_LOCAL_CODIGO'] ?? '',
+    cchkLocalNombre:  json['CCHK_LOCAL_NOMBRE'] ?? '',
   );
 
 }

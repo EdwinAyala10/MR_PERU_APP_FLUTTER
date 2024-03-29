@@ -49,6 +49,8 @@ class ActivityNotifier extends StateNotifier<ActivityState> {
       actiIdUsuarioActualizacion: '',
       actiNombreResponsable: user.name,
       opt: '',
+      actividadesContacto: [],
+      actividadesContactoEliminar: []
     );
   }
 

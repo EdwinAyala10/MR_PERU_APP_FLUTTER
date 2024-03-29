@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:crm_app/features/companies/domain/domain.dart';
+import 'package:crm_app/features/companies/presentation/delegates/search_company_local_active_delegate.dart';
 import 'package:crm_app/features/companies/presentation/providers/providers.dart';
+import 'package:crm_app/features/companies/presentation/search/search_company_locales_active_provider.dart';
 import 'package:crm_app/features/contacts/domain/domain.dart';
 import 'package:crm_app/features/contacts/presentation/delegates/search_contact_active_delegate.dart';
 import 'package:crm_app/features/contacts/presentation/search/search_contacts_active_provider.dart';
@@ -39,12 +41,12 @@ class CompanyCheckInScreen extends ConsumerWidget {
         appBar: AppBar(
           title: Text(
               'Crear ${companyCheckInState.id == '01' ? 'Check-In' : 'Check-out'}'),
-          leading: IconButton(
+          /*eading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
               context.pop();
             },
-          ),
+          ),*/
         ),
         body: companyCheckInState.isLoading
             ? const FullScreenLoader()
@@ -126,9 +128,72 @@ class _CompanyCheckInInformation extends ConsumerWidget {
               ),
             ],
           ),
-          if (companyCheckInForm.cchkRuc.errorMessage != null)
+          const SizedBox(height: 10),
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Local *',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: companyCheckInForm.cchkLocalCodigo.errorMessage !=
+                            null
+                        ? Theme.of(context).colorScheme.error
+                        : null,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                GestureDetector(
+                  onTap: () {
+                    _openSearchCompanyLocales(context, ref, companyCheckInForm.cchkRuc.value);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                          color: companyCheckInForm
+                                      .cchkLocalCodigo.errorMessage !=
+                                  null
+                              ? Theme.of(context).colorScheme.error
+                              : Colors.grey),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            companyCheckInForm.cchkLocalCodigo.value == ''
+                                ? 'Seleccione local'
+                                : companyCheckInForm.cchkLocalNombre ?? '',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: companyCheckInForm
+                                            .cchkLocalCodigo.errorMessage !=
+                                        null
+                                    ? Theme.of(context).colorScheme.error
+                                    : null
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.search),
+                          onPressed: () {
+                            _openSearchCompanyLocales(context, ref, companyCheckInForm.cchkRuc.value);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (companyCheckInForm.cchkLocalCodigo.errorMessage != null)
             Text(
-              companyCheckInForm.cchkRuc.errorMessage ?? 'Requerido',
+              companyCheckInForm.cchkLocalCodigo.errorMessage ?? 'Requerido',
               style: TextStyle(
                 color: Theme.of(context).colorScheme.error,
               ),
@@ -379,6 +444,30 @@ class _CompanyCheckInInformation extends ConsumerWidget {
       ref
           .read(companyCheckInFormProvider(companyCheckIn).notifier)
           .onContactoChanged(contact.id, contact.contactoDesc);
+    });
+  }
+
+  void _openSearchCompanyLocales(BuildContext context, WidgetRef ref, String ruc) async {
+    final searchedCompanyLocales = ref.read(searchedCompanyLocalesProvider);
+    final searchQuery = ref.read(searchQueryCompanyLocalesProvider);
+
+    showSearch<CompanyLocal?>(
+            query: searchQuery,
+            context: context,
+            delegate: SearchCompanyLocalDelegate(
+              ruc: ruc,
+              initialCompanyLocales: searchedCompanyLocales,
+              searchCompanyLocales: ref
+                  .read(searchedCompanyLocalesProvider.notifier)
+                  .searchCompanyLocalesByQuery))
+        .then((companyLocal) {
+      if (companyLocal == null) return;
+
+      ref
+          .read(companyCheckInFormProvider(companyCheckIn).notifier)
+          .onLocalChanged(companyLocal.id, companyLocal.localNombre);
+
+
     });
   }
 }

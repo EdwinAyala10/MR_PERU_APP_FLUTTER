@@ -35,12 +35,12 @@ class CompanyLocalScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text('Crear Local'),
-          leading: IconButton(
+          /*leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
               context.pop();
             },
-          ),
+          ),*/
         ),
         body: companyLocalState.isLoading
             ? const FullScreenLoader()

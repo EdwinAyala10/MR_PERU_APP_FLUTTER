@@ -333,22 +333,7 @@ class _CompanyDetailViewState extends State<_CompanyDetailView>
               context.push('/company_local/${ids}');
             }, iconData: Icons.add);
       
-      case 2:
-        return FloatingActionButtonCustom(
-            callOnPressed: () {}, iconData: Icons.add);
       
-      case 3:
-        return FloatingActionButtonCustom(
-            callOnPressed: () {}, iconData: Icons.add);
-      
-      case 4:
-        return FloatingActionButtonCustom(
-            callOnPressed: () {}, iconData: Icons.add);
-
-      case 5:
-        return FloatingActionButtonCustom(
-            callOnPressed: () {}, iconData: Icons.add);
-
       default:
         return null;
     }
