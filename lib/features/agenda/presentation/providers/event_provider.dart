@@ -57,7 +57,7 @@ class EventNotifier extends StateNotifier<EventState> {
       evntHoraRecordatorio: '',
       evntIdOportunidad: '',
       evntIdRecordatorio: 1,
-      evntIdTipoGestion: '',
+      evntIdTipoGestion: '03',
       evntUbigeo: '',
       evntNombreOportunidad: '',
       evntIdUsuarioRegistro: user.code,

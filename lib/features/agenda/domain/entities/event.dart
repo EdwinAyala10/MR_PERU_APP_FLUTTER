@@ -10,10 +10,10 @@ class Event {
   String? evntHoraRecordatorio;
   String? evntIdUsuarioResponsable;
   String? evntNombreUsuarioResponsable;
-  String? evntIdTipoGestion;
+  String evntIdTipoGestion;
   String? evntRuc;
   String? evntRazon;
-  String? evntIdOportunidad;
+  String evntIdOportunidad;
   String? evntComentario;
   String? evntUbigeo;
   String? evntCoordenadaLatitud;
@@ -36,15 +36,15 @@ class Event {
   Event({
     required this.id,
     required this.evntAsunto,
+    required this.evntIdTipoGestion,
+    required this.evntIdOportunidad,
     this.evntHoraInicioEvento,
     this.evntHoraFinEvento,
     this.evntHoraRecordatorio,
     this.evntIdUsuarioResponsable,
     this.evntNombreUsuarioResponsable,
-    this.evntIdTipoGestion,
     this.evntRuc,
     this.evntRazon,
-    this.evntIdOportunidad,
     this.evntComentario,
     this.evntUbigeo,
     this.evntCoordenadaLatitud,

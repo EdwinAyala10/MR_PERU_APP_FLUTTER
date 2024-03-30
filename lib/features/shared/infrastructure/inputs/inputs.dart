@@ -13,4 +13,5 @@ export 'select.dart';
 export 'name.dart';
 export 'entorno.dart';
 export 'contacto.dart';
+export 'oportunidad.dart';
 export 'tipo_gestion.dart';

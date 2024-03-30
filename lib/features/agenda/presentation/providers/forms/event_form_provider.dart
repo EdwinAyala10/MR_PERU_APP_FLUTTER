@@ -1,4 +1,3 @@
-import 'package:crm_app/features/auth/domain/domain.dart';
 import 'package:crm_app/features/contacts/domain/domain.dart';
 import 'package:crm_app/features/users/domain/domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,14 +34,14 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
           evntCoordenadaLongitud: event.evntCoordenadaLongitud ?? '',
           evntCorreosExternos: event.evntCorreosExternos ?? '',
           evntDireccionMapa: event.evntDireccionMapa ?? '',
-          evntIdTipoGestion: event.evntIdTipoGestion ?? '',
+          evntIdTipoGestion: Select.dirty(event.evntIdTipoGestion),
           evntFechaFinEvento: event.evntFechaFinEvento ?? DateTime.now(),
           evntFechaInicioEvento: event.evntFechaInicioEvento ?? DateTime.now(),
           evntHoraFinEvento: event.evntHoraFinEvento ?? '',
           evntHoraInicioEvento: event.evntHoraInicioEvento ?? '',
           evntHoraRecordatorio: event.evntHoraFinEvento ?? '',
           evntIdEventoIn: event.evntIdEventoIn ?? '',
-          evntIdOportunidad: event.evntIdOportunidad ?? '',
+          evntIdOportunidad: Oportunidad.dirty(event.evntIdOportunidad),
           evntIdRecordatorio: event.evntIdRecordatorio ?? 1,
           evntNombreRecordatorio: event.evntNombreRecordatorio ?? '',
           evntIdUsuarioRegistro: event.evntIdUsuarioRegistro ?? '',
@@ -84,9 +83,9 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
       'EVNT_HORA_FIN_EVENTO': state.evntHoraFinEvento,
       'EVNT_ID_USUARIO_RESPONSABLE': state.evntIdUsuarioResponsable,
       'EVNT_NOMBRE_USUARIO_RESPONSABLE': state.evntNombreUsuarioResponsable,
-      'EVNT_ID_TIPO_GESTION': state.evntIdTipoGestion,
+      'EVNT_ID_TIPO_GESTION': state.evntIdTipoGestion.value,
       'EVNT_RUC': state.evntRuc,
-      'EVNT_ID_OPORTUNIDAD': state.evntIdOportunidad,
+      'EVNT_ID_OPORTUNIDAD': state.evntIdOportunidad.value,
       'EVNT_COMENTARIO': state.evntComentario,
       'EVNT_UBIGEO': state.evntUbigeo,
       'EVNT_COORDENADA_LATITUD': state.evntCoordenadaLatitud,
@@ -127,6 +126,8 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
     state = state.copyWith(
       isFormValid: Formz.validate([
         Name.dirty(state.evntAsunto.value),
+        Select.dirty(state.evntIdTipoGestion.value),
+        Oportunidad.dirty(state.evntIdOportunidad.value),
       ]),
     );
   }
@@ -136,11 +137,20 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
         evntAsunto: Name.dirty(value),
         isFormValid: Formz.validate([
           Name.dirty(value),
+          Select.dirty(state.evntIdTipoGestion.value),
+          Oportunidad.dirty(state.evntIdOportunidad.value),
         ]));
   }
 
   void onTipoGestionChanged(String id, String name) {
-    state = state.copyWith(evntIdTipoGestion: id, evntNombreTipoGestion: name);
+    state = state.copyWith(
+      evntIdTipoGestion: Select.dirty(id),
+      evntNombreTipoGestion: name,
+      isFormValid: Formz.validate([
+        Name.dirty(state.evntAsunto.value),
+        Select.dirty(id),
+        Oportunidad.dirty(state.evntIdOportunidad.value),
+      ]));
   }
 
   void onEmpresaChanged(String id, String name) {
@@ -170,7 +180,14 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
   }
 
   void onOportunidadChanged(String id, String name) {
-    state = state.copyWith(evntIdOportunidad: id, evntNombreOportunidad: name);
+    state = state.copyWith(
+      evntIdOportunidad: Oportunidad.dirty(id),
+      evntNombreOportunidad: name,
+      isFormValid: Formz.validate([
+        Name.dirty(state.evntAsunto.value),
+        Select.dirty(state.evntIdTipoGestion.value),
+        Oportunidad.dirty(state.evntIdOportunidad.value),
+      ]));
   }
 
   void onComentariosChanged(String name) {
@@ -193,9 +210,6 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
       array.nombre = contacto.contactoDesc;
 
       List<ContactArray> arrayContactos = [...state.arraycontacto ?? [], array];
-
-      print('CONTACTOS');
-      print(arrayContactos[0].nombre);
 
       state = state.copyWith(arraycontacto: arrayContactos);
     } else {
@@ -235,11 +249,11 @@ class EventFormState {
   final String? evntHoraRecordatorio;
   final String? evntIdUsuarioResponsable;
   final String? evntNombreUsuarioResponsable;
-  final String? evntIdTipoGestion;
+  final Select evntIdTipoGestion;
   final String? evntRuc;
   final String? evntRazon;
   final String? todoDia;
-  final String? evntIdOportunidad;
+  final Oportunidad evntIdOportunidad;
   final String? evntComentario;
   final String? evntUbigeo;
   final String? evntCoordenadaLatitud;
@@ -269,10 +283,10 @@ class EventFormState {
       this.evntHoraRecordatorio = '',
       this.evntIdUsuarioResponsable = '',
       this.evntNombreUsuarioResponsable = '',
-      this.evntIdTipoGestion = '',
+      this.evntIdTipoGestion = const Select.dirty(''),
       this.evntRuc = '',
       this.evntRazon = '',
-      this.evntIdOportunidad = '',
+      this.evntIdOportunidad = const Oportunidad.dirty(''),
       this.evntComentario = '',
       this.evntUbigeo = '',
       this.evntCoordenadaLatitud = '',
@@ -304,10 +318,10 @@ class EventFormState {
     String? evntHoraRecordatorio,
     String? evntIdUsuarioResponsable,
     String? evntNombreUsuarioResponsable,
-    String? evntIdTipoGestion,
+    Select? evntIdTipoGestion,
     String? evntRuc,
     String? evntRazon,
-    String? evntIdOportunidad,
+    Oportunidad? evntIdOportunidad,
     String? evntComentario,
     String? evntUbigeo,
     String? evntCoordenadaLatitud,

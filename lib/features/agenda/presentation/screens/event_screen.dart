@@ -16,6 +16,7 @@ import 'package:crm_app/features/companies/presentation/delegates/search_company
 import 'package:crm_app/features/opportunities/presentation/search/search_opportunities_active_provider.dart';
 import 'package:crm_app/features/opportunities/presentation/delegates/search_opportunity_active_delegate.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
+import 'package:crm_app/features/shared/widgets/select_custom_form.dart';
 import 'package:crm_app/features/users/domain/domain.dart';
 import 'package:crm_app/features/users/presentation/delegates/search_user_delegate.dart';
 import 'package:crm_app/features/users/presentation/search/search_users_provider.dart';
@@ -139,58 +140,22 @@ class _EventInformation extends ConsumerWidget {
             onChanged:
                 ref.read(eventFormProvider(event).notifier).onAsuntoChanged,
           ),
-          const SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.all(2.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                const Text('Tipo de gestión',
-                    style:
-                        TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500)),
-                const SizedBox(height: 6),
-                SizedBox(
-                  width: double
-                      .infinity, // Ancho específico para el DropdownButton
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey), // Estilo de borde
-                      borderRadius:
-                          BorderRadius.circular(5.0), // Bordes redondeados
-                    ),
-                    child: DropdownButton<String>(
-                      value: eventForm.evntIdTipoGestion!.trim(),
-                      onChanged: (String? newValue) {
-                        DropdownOption searchTipoGestion = optionsTipoGestion
-                            .where((option) => option.id == newValue!)
-                            .first;
-                        ref
-                            .read(eventFormProvider(event).notifier)
-                            .onTipoGestionChanged(
-                                newValue ?? '', searchTipoGestion.name);
-                      },
-                      isExpanded: true,
-                      style: const TextStyle(
-                        fontSize: 16.0,
-                        color: Color.fromRGBO(0, 0, 0, 1),
-                      ),
-                      items: optionsTipoGestion.map((option) {
-                        return DropdownMenuItem<String>(
-                          value: option.id,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10.0, vertical: 8.0),
-                            child: Text(option.name),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          SelectCustomForm(
+            label: 'Tipo de gestión',
+            value: eventForm.evntIdTipoGestion.value.trim(),
+            callbackChange: (String? newValue) {
+              DropdownOption searchTipoGestion = optionsTipoGestion
+                  .where((option) => option.id == newValue!)
+                  .first;
+              ref
+                  .read(eventFormProvider(event).notifier)
+                  .onTipoGestionChanged(
+                      newValue ?? '', searchTipoGestion.name);
+            },
+            items: optionsTipoGestion,
+            errorMessage: eventForm.evntIdTipoGestion.errorMessage,
           ),
-          const SizedBox(height: 10),
+
           Padding(
             padding: const EdgeInsets.all(4.0),
             child: Column(
@@ -601,11 +566,13 @@ class _EventInformation extends ConsumerWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            eventForm.evntIdOportunidad == ''
+                            eventForm.evntIdOportunidad.value == ''
                                 ? 'Seleccione Oportunidad'
                                 : eventForm.evntNombreOportunidad ?? '',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
+                              color: eventForm.evntIdOportunidad.errorMessage != null ?
+                                Colors.red[400] : Colors.black
                             ),
                           ),
                         ),
@@ -622,7 +589,20 @@ class _EventInformation extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: 6),
+          eventForm.evntIdOportunidad.errorMessage != null 
+          ? Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 6.0
+            ),
+            child: Text(
+              eventForm.evntIdOportunidad.errorMessage ?? '',
+              style: TextStyle(
+                color: Colors.red[400]
+              ),
+            ),
+          )
+          : Container(),
+          const SizedBox(height: 10),
           const Text(
             'Responsable',
             style: TextStyle(
