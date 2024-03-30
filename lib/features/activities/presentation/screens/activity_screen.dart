@@ -289,7 +289,7 @@ class _ActivityInformation extends ConsumerWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            activityForm.actiIdOportunidad == ''
+                            activityForm.actiIdOportunidad.value == ''
                                 ? 'Seleccione Oportunidad'
                                 : activityForm.actiNombreOportunidad,
                             style: const TextStyle(
@@ -310,6 +310,15 @@ class _ActivityInformation extends ConsumerWidget {
               ],
             ),
           ),
+          activityForm.actiIdOportunidad.errorMessage != null
+              ? Padding(
+                  padding: const EdgeInsets.only(left: 4),
+                  child: Text(
+                    activityForm.actiIdOportunidad.errorMessage ?? '',
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                )
+              : const SizedBox(),
           const SizedBox(height: 15),
           const Text('Contactos *'),
           Row(
@@ -353,6 +362,15 @@ class _ActivityInformation extends ConsumerWidget {
               ),
             ],
           ),
+          activityForm.actividadesContacto?.length == 0
+              ? const Padding(
+                  padding: EdgeInsets.only(left: 4),
+                  child: Text(
+                    'Es requerido, seleccione contacto(s)',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                )
+              : const SizedBox(),
 
           /*const SizedBox(height: 10),
           Padding(
@@ -414,7 +432,6 @@ class _ActivityInformation extends ConsumerWidget {
                   ),
                 )
               : const SizedBox(),*/
-          const SizedBox(height: 10),
           const SizedBox(height: 20),
           const Text(
             'Responsable',
@@ -439,7 +456,6 @@ class _ActivityInformation extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 10),
-          const SizedBox(height: 20),
           CustomCompanyField(
             label: 'Comentarios',
             maxLines: 2,

@@ -18,7 +18,7 @@ class Oportunidad extends FormzInput<String, OportunidadError> {
   String? get errorMessage {
     if ( isValid || isPure ) return null;
 
-    if ( displayError == OportunidadError.empty ) return 'Es requerido seleccionar una oportunidad';
+    if ( displayError == OportunidadError.empty ) return 'Es requerido, seleccione una oportunidad';
 
     return null;
   }
