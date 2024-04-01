@@ -1,5 +1,6 @@
 import 'package:crm_app/features/kpis/domain/domain.dart';
 import 'package:crm_app/features/kpis/presentation/providers/kpis_provider.dart';
+import 'package:crm_app/features/location/presentation/providers/gps_provider.dart';
 import 'package:crm_app/features/shared/shared.dart';
 import 'package:floating_action_bubble_custom/floating_action_bubble_custom.dart';
 import 'package:flutter/material.dart';
@@ -138,6 +139,13 @@ class _DashboardViewState extends ConsumerState {
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       ref.read(kpisProvider.notifier).loadNextPage();
     });
+
+    final isGpsPermissionGranted =
+        ref.read(gpsProvider.notifier).state.isGpsPermissionGranted;
+
+    if (!isGpsPermissionGranted) {
+        ref.read(gpsProvider.notifier).askGpsAccess();
+    }
   }
 
   @override
@@ -166,91 +174,107 @@ class _DashboardViewState extends ConsumerState {
           const SizedBox(
             height: 4,
           ),
-          kpisState.kpis.isNotEmpty ?
-          Center(
-            child: Container(
-                margin: const EdgeInsets.all(20),
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(6),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.3),
-                      spreadRadius: 3,
-                      blurRadius: 5,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        //for (var kpi in kpisState.kpis)
-                        for (var i = 0; i < 3 && i < kpisState.kpis.length; i++)
-                          progressKpi(
-                            percentage: (kpisState.kpis[i].porcentaje ?? 0).toDouble(),
-                            title: kpisState.kpis[i].objrNombreCategoria ?? '',
-                            subTitle: kpisState.kpis[i].objrNombrePeriodicidad ?? '',
-                            subSubTitle: kpisState.kpis[i].objrNombreAsignacion ?? '',
-                            advance: kpisState.kpis[i].totalRegistro.toString() ?? '0',
-                            total: convertTypeCategory(kpisState.kpis[i]) ?? '0'),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Container(
+          kpisState.kpis.isNotEmpty
+              ? Center(
+                  child: Container(
+                      margin: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: Colors.black12, // Color de fondo del botón
-                        borderRadius: BorderRadius.circular(
-                            4), // Bordes redondeados del botón
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(6),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.3),
+                            spreadRadius: 3,
+                            blurRadius: 5,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
                       ),
-                      child: TextButton(
-                        onPressed: () {
-                          context.push('/kpis');
-                          // Aquí puedes implementar la lógica para "Mostrar Todo"
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text(
-                              'Mostrar Todo',
-                              style: TextStyle(
-                                color: Colors.blue, // Color del texto del botón
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              //for (var kpi in kpisState.kpis)
+                              for (var i = 0;
+                                  i < 3 && i < kpisState.kpis.length;
+                                  i++)
+                                progressKpi(
+                                    percentage:
+                                        (kpisState.kpis[i].porcentaje ?? 0)
+                                            .toDouble(),
+                                    title:
+                                        kpisState.kpis[i].objrNombreCategoria ??
+                                            '',
+                                    subTitle: kpisState
+                                            .kpis[i].objrNombrePeriodicidad ??
+                                        '',
+                                    subSubTitle: kpisState
+                                            .kpis[i].objrNombreAsignacion ??
+                                        '',
+                                    advance: kpisState.kpis[i].totalRegistro
+                                            .toString() ??
+                                        '0',
+                                    total: convertTypeCategory(
+                                            kpisState.kpis[i]) ??
+                                        '0'),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.black12, // Color de fondo del botón
+                              borderRadius: BorderRadius.circular(
+                                  4), // Bordes redondeados del botón
+                            ),
+                            child: TextButton(
+                              onPressed: () {
+                                context.push('/kpis');
+                                // Aquí puedes implementar la lógica para "Mostrar Todo"
+                              },
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Text(
+                                    'Mostrar Todo',
+                                    style: TextStyle(
+                                      color: Colors
+                                          .blue, // Color del texto del botón
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.amber, // Color del círculo
+                                    ),
+                                    padding: const EdgeInsets.all(
+                                        8), // Espacio interior alrededor del número
+                                    child: Text(
+                                      (kpisState.kpis.length).toString(),
+                                      style: const TextStyle(
+                                        color: Color.fromARGB(255, 12, 12,
+                                            12), // Color del número
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            Container(
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.amber, // Color del círculo
-                              ),
-                              padding: const EdgeInsets.all(
-                                  8), // Espacio interior alrededor del número
-                              child: Text(
-                                (kpisState.kpis.length).toString(),
-                                style: const TextStyle(
-                                  color: Color.fromARGB(255, 12, 12, 12), // Color del número
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                )),
-          )
-          : Container()
+                          ),
+                        ],
+                      )),
+                )
+              : Container()
         ],
       ),
     );
   }
-  
+
   convertTypeCategory(Kpi kpi) {
     String res = kpi.objrCantidad ?? '';
     if (kpi.objrIdCategoria == '05') {

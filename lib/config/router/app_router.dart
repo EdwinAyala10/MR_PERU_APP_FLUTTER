@@ -1,19 +1,14 @@
-import 'package:crm_app/features/activities/presentation/screens/activities_screen.dart';
-import 'package:crm_app/features/activities/presentation/screens/activity_screen.dart';
-import 'package:crm_app/features/agenda/presentation/screens/agenda_screen.dart';
-import 'package:crm_app/features/agenda/presentation/screens/event_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:crm_app/features/activities/presentation/screens/screens.dart';
+import 'package:crm_app/features/agenda/presentation/screens/screens.dart';
 import 'package:crm_app/features/companies/companies.dart';
-import 'package:crm_app/features/companies/presentation/screens/company_check_in_screen.dart';
-import 'package:crm_app/features/companies/presentation/screens/company_detail_screen.dart';
-import 'package:crm_app/features/companies/presentation/screens/company_local_screen.dart';
 import 'package:crm_app/features/contacts/contacts.dart';
 import 'package:crm_app/features/dashboard/dashboard.dart';
 import 'package:crm_app/features/documents/documents.dart';
 import 'package:crm_app/features/kpis/kpis.dart';
-import 'package:crm_app/features/opportunities/presentation/screens/opportunities_screen.dart';
-import 'package:crm_app/features/opportunities/presentation/screens/opportunity_screen.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import 'package:crm_app/features/opportunities/presentation/screens/screens.dart';
 import 'package:crm_app/features/auth/auth.dart';
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 
