@@ -66,6 +66,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           localDepartamentoDesc: '',
           localProvinciaDesc: '',
           localDistritoDesc: '',
+          userreporteName: '',
           arrayresponsables: company.arrayresponsables ?? [],
           arrayresponsablesEliminar: company.arrayresponsablesEliminar ?? [],
         ));
@@ -175,7 +176,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
   void onNombreLocalChanged(String name) {
     state = state.copyWith(localNombre: name);
   }
-  
+
   void onDistritoChanged(String id) {
     state = state.copyWith(localDistrito: id);
   }
@@ -330,6 +331,7 @@ class CompanyFormState {
   final List<Opportunity>? opportunities;
   final List<Activity>? activities;
   final List<Event>? events;
+  final String? userreporteName;
 
   CompanyFormState(
       {this.isFormValid = false,
@@ -373,6 +375,7 @@ class CompanyFormState {
       this.opportunities,
       this.activities,
       this.events,
+      this.userreporteName = '',
       this.localDistritoDesc = ''});
 
   CompanyFormState copyWith({
@@ -411,6 +414,7 @@ class CompanyFormState {
     String? localDepartamentoDesc,
     String? localProvinciaDesc,
     String? cchkIdEstadoCheck,
+    String? userreporteName,
     String? localDistritoDesc,
     List<ArrayUser>? arrayresponsables,
     List<ArrayUser>? arrayresponsablesEliminar,
@@ -461,6 +465,7 @@ class CompanyFormState {
             arrayresponsablesEliminar ?? this.arrayresponsablesEliminar,
         cchkIdEstadoCheck: cchkIdEstadoCheck ?? this.cchkIdEstadoCheck,
         contacts: contacts ?? this.contacts,
+        userreporteName: userreporteName ?? this.userreporteName,
         opportunities: opportunities ?? this.opportunities,
         activities: activities ?? this.activities,
         events: events ?? this.events,

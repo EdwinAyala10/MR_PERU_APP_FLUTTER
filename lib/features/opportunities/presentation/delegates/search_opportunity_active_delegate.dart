@@ -4,56 +4,50 @@ import 'package:crm_app/features/opportunities/domain/domain.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 
+typedef SearchOpportunitiesCallback = Future<List<Opportunity>> Function(
+    String ruc, String query);
 
-typedef SearchOpportunitiesCallback = Future<List<Opportunity>> Function( String query );
-
-class SearchOpportunityDelegate extends SearchDelegate<Opportunity?>{
-
-
+class SearchOpportunityDelegate extends SearchDelegate<Opportunity?> {
   final SearchOpportunitiesCallback searchOpportunities;
   List<Opportunity> initialOpportunities;
-  
-  StreamController<List<Opportunity>> debouncedOpportunities = StreamController.broadcast();
+
+  StreamController<List<Opportunity>> debouncedOpportunities =
+      StreamController.broadcast();
   StreamController<bool> isLoadingStream = StreamController.broadcast();
 
   Timer? _debounceTimer;
+  String ruc;
 
   SearchOpportunityDelegate({
     required this.searchOpportunities,
+    required this.ruc,
     required this.initialOpportunities,
-  }):super(
-    searchFieldLabel: 'Buscar Oportunidades',
-    // textInputAction: TextInputAction.done
-  );
+  }) : super(
+          searchFieldLabel: 'Buscar Oportunidades',
+          // textInputAction: TextInputAction.done
+        );
 
   void clearStreams() {
     debouncedOpportunities.close();
   }
 
-  void _onQueryChanged( String query ) {
+  void _onQueryChanged(String query) {
     isLoadingStream.add(true);
 
-    print('A2AAAAAAAAAAA');
+    if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
 
-    if ( _debounceTimer?.isActive ?? false ) _debounceTimer!.cancel();
-
-    _debounceTimer = Timer(const Duration( milliseconds: 500 ), () async {
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () async {
       // if ( query.isEmpty ) {
       //   debouncedCompanies.add([]);
       //   return;
       // }
-      print('BBBB');
 
-      final opportunities = await searchOpportunities( query );
-
-      print('LLEGO  AQUI');
+      final opportunities = await searchOpportunities(ruc, query);
 
       initialOpportunities = opportunities;
       debouncedOpportunities.add(opportunities);
       isLoadingStream.add(false);
-
     });
-
   }
 
   Widget buildResultsAndSuggestions() {
@@ -61,7 +55,6 @@ class SearchOpportunityDelegate extends SearchDelegate<Opportunity?>{
       initialData: initialOpportunities,
       stream: debouncedOpportunities.stream,
       builder: (context, snapshot) {
-        
         final opportunities = snapshot.data ?? [];
 
         return ListView.builder(
@@ -78,59 +71,45 @@ class SearchOpportunityDelegate extends SearchDelegate<Opportunity?>{
     );
   }
 
-
   // @override
   // String get searchFieldLabel => 'Buscar empresa';
 
   @override
   List<Widget>? buildActions(BuildContext context) {
-
     return [
-
       StreamBuilder(
         initialData: false,
         stream: isLoadingStream.stream,
         builder: (context, snapshot) {
-            if ( snapshot.data ?? false ) {
-              return SpinPerfect(
-                  duration: const Duration(seconds: 20),
-                  spins: 10,
-                  infinite: true,
-                  child: IconButton(
-                    onPressed: () => query = '', 
-                    icon: const Icon( Icons.refresh_rounded )
-                  ),
-                );
-            }
+          if (snapshot.data ?? false) {
+            return SpinPerfect(
+              duration: const Duration(seconds: 20),
+              spins: 10,
+              infinite: true,
+              child: IconButton(
+                  onPressed: () => query = '',
+                  icon: const Icon(Icons.refresh_rounded)),
+            );
+          }
 
-             return FadeIn(
-                animate: query.isNotEmpty,
-                child: IconButton(
-                  onPressed: () => query = '', 
-                  icon: const Icon( Icons.clear )
-                ),
-              );
-
+          return FadeIn(
+            animate: query.isNotEmpty,
+            child: IconButton(
+                onPressed: () => query = '', icon: const Icon(Icons.clear)),
+          );
         },
       ),
-      
-       
-        
-
-
-
     ];
   }
 
   @override
   Widget? buildLeading(BuildContext context) {
     return IconButton(
-      onPressed: () {
+        onPressed: () {
           clearStreams();
           close(context, null);
-        }, 
-        icon: const Icon( Icons.arrow_back_ios_new_rounded)
-      );
+        },
+        icon: const Icon(Icons.arrow_back_ios_new_rounded));
   }
 
   @override
@@ -140,29 +119,22 @@ class SearchOpportunityDelegate extends SearchDelegate<Opportunity?>{
 
   @override
   Widget buildSuggestions(BuildContext context) {
-
     print('QUE PASO');
 
     _onQueryChanged(query);
     return buildResultsAndSuggestions();
-
   }
-
 }
 
 class _OpportunityItem extends StatelessWidget {
-
   final Opportunity opportunity;
   final Function onOpportunitySelected;
 
-  const _OpportunityItem({
-    required this.opportunity,
-    required this.onOpportunitySelected
-  });
+  const _OpportunityItem(
+      {required this.opportunity, required this.onOpportunitySelected});
 
   @override
   Widget build(BuildContext context) {
-
     final textStyles = Theme.of(context).textTheme;
     final size = MediaQuery.of(context).size;
 
@@ -175,32 +147,28 @@ class _OpportunityItem extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           child: Row(
             children: [
-          
               // Image
               SizedBox(
                 width: size.width * 0.2,
-                child: const Icon(
-                  Icons.blinds_outlined
-                ),
+                child: const Icon(Icons.blinds_outlined),
               ),
-          
+
               const SizedBox(width: 10),
-              
+
               // Description
               SizedBox(
                 width: size.width * 0.7,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text( 
-                      opportunity.oprtNombre, 
+                    Text(
+                      opportunity.oprtNombre,
                       style: textStyles.titleMedium,
                     ),
-                    Text( opportunity.oprtRuc ?? ''),
+                    Text(opportunity.oprtRuc ?? ''),
                   ],
                 ),
               ),
-          
             ],
           ),
         ),

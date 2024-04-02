@@ -52,6 +52,8 @@ class GpsNotifier extends StateNotifier<GpsState> {
   Future<bool> _checkGpsStatus() async {
     final isEnable = await Geolocator.isLocationServiceEnabled();
 
+    print('LLEGO AQUI: ${isEnable}');
+
     gpsServiceSubscription =
         Geolocator.getServiceStatusStream().listen((event) {
       final isEnabled = (event.index == 1) ? true : false;
@@ -71,9 +73,7 @@ class GpsNotifier extends StateNotifier<GpsState> {
     switch (status) {
       case PermissionStatus.granted:
         state = state.copyWith(
-          isGpsEnabled: state.isGpsEnabled,
-          isGpsPermissionGranted: true
-        );
+            isGpsEnabled: state.isGpsEnabled, isGpsPermissionGranted: true);
         break;
 
       case PermissionStatus.denied:
@@ -81,14 +81,13 @@ class GpsNotifier extends StateNotifier<GpsState> {
       case PermissionStatus.limited:
       case PermissionStatus.permanentlyDenied:
         state = state.copyWith(
-          isGpsEnabled: state.isGpsEnabled,
-          isGpsPermissionGranted: false
-        );
+            isGpsEnabled: state.isGpsEnabled, isGpsPermissionGranted: false);
         openAppSettings();
       case PermissionStatus.provisional:
       // TODO: Handle this case.
     }
   }
+
 }
 
 class GpsState {
@@ -97,10 +96,8 @@ class GpsState {
 
   bool get isAllGranted => isGpsEnabled && isGpsPermissionGranted;
 
-  const GpsState({
-    this.isGpsEnabled = false, 
-    this.isGpsPermissionGranted = false
-  });
+  const GpsState(
+      {this.isGpsEnabled = false, this.isGpsPermissionGranted = false});
 
   GpsState copyWith({
     bool? isGpsEnabled,

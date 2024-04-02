@@ -55,7 +55,7 @@ class ItemCompany extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Text(company.calificacion ?? ''),
-          Text('[Responsable]')
+          Text(company.userreporteName ?? '')
         ],
       ),
       onTap: callbackOnTap,

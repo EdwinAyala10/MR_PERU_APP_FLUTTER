@@ -16,7 +16,7 @@ final searchedOpportunitiesProvider = StateNotifierProvider<SearchedOpportunitie
 });
 
 
-typedef SearchOpportunitiesCallback = Future<List<Opportunity>> Function(String query);
+typedef SearchOpportunitiesCallback = Future<List<Opportunity>> Function(String ruc, String query);
 
 class SearchedOpportunitiesNotifier extends StateNotifier<List<Opportunity>> {
 
@@ -29,11 +29,9 @@ class SearchedOpportunitiesNotifier extends StateNotifier<List<Opportunity>> {
   }): super([]);
 
 
-  Future<List<Opportunity>> searchOpportunitiesByQuery( String query ) async{
+  Future<List<Opportunity>> searchOpportunitiesByQuery(String ruc, String query ) async{
     
-    print('SEARCH OPO');
-
-    final List<Opportunity> opportunities = await searchOpportunities(query);
+    final List<Opportunity> opportunities = await searchOpportunities(ruc, query);
     ref.read(searchQueryOpportunitiesProvider.notifier).update((state) => query);
 
     state = opportunities;

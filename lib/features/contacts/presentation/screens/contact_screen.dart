@@ -140,7 +140,7 @@ class _ContactInformation extends ConsumerWidget {
                 ),
                 GestureDetector(
                   onTap: () {
-                    _openSearch(context, ref);
+                    _openSearch(context, ref, contactForm.contactoUsuarioRegistro ?? '');
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -170,7 +170,7 @@ class _ContactInformation extends ConsumerWidget {
                         IconButton(
                           icon: const Icon(Icons.search),
                           onPressed: () {
-                            _openSearch(context, ref);
+                            _openSearch(context, ref, contactForm.contactoUsuarioRegistro ?? '');
                           },
                         ),
                       ],
@@ -254,7 +254,7 @@ class _ContactInformation extends ConsumerWidget {
     );
   }
 
-  void _openSearch(BuildContext context, WidgetRef ref) async {
+  void _openSearch(BuildContext context, WidgetRef ref, String dni) async {
     final searchedCompanies = ref.read(searchedCompaniesProvider);
     final searchQuery = ref.read(searchQueryCompaniesProvider);
 
@@ -262,6 +262,7 @@ class _ContactInformation extends ConsumerWidget {
             query: searchQuery,
             context: context,
             delegate: SearchCompanyDelegate(
+                dni: dni,
                 initialCompanies: searchedCompanies,
                 searchCompanies: ref
                     .read(searchedCompaniesProvider.notifier)

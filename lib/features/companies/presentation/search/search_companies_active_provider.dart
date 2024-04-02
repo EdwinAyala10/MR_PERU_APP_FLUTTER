@@ -29,11 +29,11 @@ class SearchedCompaniesNotifier extends StateNotifier<List<Company>> {
   }): super([]);
 
 
-  Future<List<Company>> searchCompaniesByQuery( String query ) async{
+  Future<List<Company>> searchCompaniesByQuery(String dni, String query) async{
     
     print('SEARCH COMP');
 
-    final List<Company> companies = await searchCompaniesActive('10722843', query);
+    final List<Company> companies = await searchCompaniesActive(dni, query);
     ref.read(searchQueryCompaniesProvider.notifier).update((state) => query);
 
     state = companies;

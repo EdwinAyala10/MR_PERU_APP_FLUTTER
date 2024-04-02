@@ -31,12 +31,6 @@ class EventScreen extends ConsumerWidget {
 
   const EventScreen({super.key, required this.eventId});
 
-  void showSnackbar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final eventState = ref.watch(eventProvider(eventId));
@@ -44,46 +38,48 @@ class EventScreen extends ConsumerWidget {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        appBar: AppBar(
-          title: Text('${eventState.id == 'new' ? 'Crear' : 'Editar'} Evento'),
-          /*leading: IconButton(
+          appBar: AppBar(
+            title:
+                Text('${eventState.id == 'new' ? 'Crear' : 'Editar'} Evento'),
+            /*leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
               context.pop();
             },
           ),*/
-        ),
-        body: eventState.isLoading
-            ? const FullScreenLoader()
-            : ( eventState.event != null 
-              ? _EventView(event: eventState.event!)
-              : Center(
-                child: Text('No se encontro información del evento.'),
-              )),
-        //_EventView(event: eventState.event!),
-        floatingActionButton: eventState.event != null 
-        ? FloatingActionButtonCustom(
-          iconData: Icons.save,
-          callOnPressed: () {
-            if (eventState.event == null) return;
+          ),
+          body: eventState.isLoading
+              ? const FullScreenLoader()
+              : (eventState.event != null
+                  ? _EventView(event: eventState.event!)
+                  : Center(
+                      child: Text('No se encontro información del evento.'),
+                    )),
+          //_EventView(event: eventState.event!),
+          floatingActionButton: eventState.event != null
+              ? FloatingActionButtonCustom(
+                  iconData: Icons.save,
+                  callOnPressed: () {
+                    if (eventState.event == null) return;
 
-            ref
-                .read(eventFormProvider(eventState.event!).notifier)
-                .onFormSubmit()
-                .then((CreateUpdateEventResponse value) {
-              //if ( !value.response ) return;
-              if (value.message != '') {
-                showSnackbar(context, value.message);
+                    ref
+                        .read(eventFormProvider(eventState.event!).notifier)
+                        .onFormSubmit()
+                        .then((CreateUpdateEventResponse value) {
+                      //if ( !value.response ) return;
+                      if (value.message != '') {
+                        showSnackbar(context, value.message);
 
-                if (value.response) {
-                  //Timer(const Duration(seconds: 3), () {
-                    context.push('/agenda');
-                  //});
-                }
-              }
-            });
-        },
-      ) : null),
+                        if (value.response) {
+                          //Timer(const Duration(seconds: 3), () {
+                          context.push('/agenda');
+                          //});
+                        }
+                      }
+                    });
+                  },
+                )
+              : null),
     );
   }
 }
@@ -149,13 +145,11 @@ class _EventInformation extends ConsumerWidget {
                   .first;
               ref
                   .read(eventFormProvider(event).notifier)
-                  .onTipoGestionChanged(
-                      newValue ?? '', searchTipoGestion.name);
+                  .onTipoGestionChanged(newValue ?? '', searchTipoGestion.name);
             },
             items: optionsTipoGestion,
             errorMessage: eventForm.evntIdTipoGestion.errorMessage,
           ),
-
           Padding(
             padding: const EdgeInsets.all(4.0),
             child: Column(
@@ -171,7 +165,8 @@ class _EventInformation extends ConsumerWidget {
                 const SizedBox(height: 6),
                 GestureDetector(
                   onTap: () {
-                    _openSearchCompanies(context, ref);
+                    _openSearchCompanies(
+                        context, ref, eventForm.evntIdUsuarioResponsable ?? '');
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -196,7 +191,8 @@ class _EventInformation extends ConsumerWidget {
                         IconButton(
                           icon: const Icon(Icons.search),
                           onPressed: () {
-                            _openSearchCompanies(context, ref);
+                            _openSearchCompanies(context, ref,
+                                eventForm.evntIdUsuarioResponsable ?? '');
                           },
                         ),
                       ],
@@ -382,70 +378,76 @@ class _EventInformation extends ConsumerWidget {
           const Row(
             children: [
               Text('Gestion de invitados',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
               Spacer(),
-              Text(
-                'Contactos', 
-                style: TextStyle(color: Colors.amberAccent, fontWeight: FontWeight.w600)
-              ),
+              Text('Contactos',
+                  style: TextStyle(
+                      color: Colors.amberAccent, fontWeight: FontWeight.w600)),
               SizedBox(
                 width: 14.0,
               ),
-              Text(
-                'Personal', 
-                style: TextStyle(color: Colors.cyanAccent, fontWeight: FontWeight.w600)
-              ),
+              Text('Personal',
+                  style: TextStyle(
+                      color: Colors.cyanAccent, fontWeight: FontWeight.w600)),
               SizedBox(
                 width: 6.0,
               ),
             ],
           ),
-          
           const SizedBox(height: 4),
           const Text(
             'Para añadir contactos en este evento tienes que seleccionar una empresa previamente',
             style: TextStyle(fontSize: 12, color: Colors.black54),
           ),
-          
-          
           const SizedBox(height: 5),
           Row(
             children: [
               Expanded(
-                child: Column(
-                  children: [
-                    eventForm.arraycontacto != null ? Wrap(
-                      spacing: 6.0,
-                      children: eventForm.arraycontacto != null
-                      ? List<Widget>.from(eventForm.arraycontacto!.map((item) => Chip(
-                        backgroundColor: Colors.amberAccent.shade200,
-                        label: Text(item.nombre ?? '', style: const TextStyle( fontSize: 12 )), // Aquí deberías colocar el texto que deseas mostrar en el chip para cada elemento de la lista
-                        onDeleted: () {
-                          // Aquí puedes manejar la eliminación del chip si es necesario
-                        },
-                      ))) 
-                      : [],
-                    ) 
-                    : const Text('Seleccione contactos', style: TextStyle( color: Colors.black45 )),
-                    eventForm.arrayresponsable != null ? Wrap(
-                      spacing: 6.0,
-                      children: eventForm.arrayresponsable   != null
-                      ? List<Widget>.from(eventForm.arrayresponsable!.map((item) => Chip(
-                        backgroundColor: Colors.cyanAccent,
-                        label: Text(item.nombre ?? '', style: const TextStyle( fontSize: 12 )), // Aquí deberías colocar el texto que deseas mostrar en el chip para cada elemento de la lista
-                        onDeleted: () {
-                          // Aquí puedes manejar la eliminación del chip si es necesario
-                        },
-                      ))) 
-                      : [],
-                    ) 
-                    : const Text('Seleccione responsable', style: TextStyle( color: Colors.black45 )),
-                  ],
-                )
-              ),
+                  child: Column(
+                children: [
+                  eventForm.arraycontacto != null
+                      ? Wrap(
+                          spacing: 6.0,
+                          children: eventForm.arraycontacto != null
+                              ? List<Widget>.from(
+                                  eventForm.arraycontacto!.map((item) => Chip(
+                                        backgroundColor:
+                                            Colors.amberAccent.shade200,
+                                        label: Text(item.nombre ?? '',
+                                            style: const TextStyle(
+                                                fontSize:
+                                                    12)), // Aquí deberías colocar el texto que deseas mostrar en el chip para cada elemento de la lista
+                                        onDeleted: () {
+                                          // Aquí puedes manejar la eliminación del chip si es necesario
+                                        },
+                                      )))
+                              : [],
+                        )
+                      : const Text('Seleccione contactos',
+                          style: TextStyle(color: Colors.black45)),
+                  eventForm.arrayresponsable != null
+                      ? Wrap(
+                          spacing: 6.0,
+                          children: eventForm.arrayresponsable != null
+                              ? List<Widget>.from(eventForm.arrayresponsable!
+                                  .map((item) => Chip(
+                                        backgroundColor: Colors.cyanAccent,
+                                        label: Text(item.nombre ?? '',
+                                            style: const TextStyle(
+                                                fontSize:
+                                                    12)), // Aquí deberías colocar el texto que deseas mostrar en el chip para cada elemento de la lista
+                                        onDeleted: () {
+                                          // Aquí puedes manejar la eliminación del chip si es necesario
+                                        },
+                                      )))
+                              : [],
+                        )
+                      : const Text('Seleccione responsable',
+                          style: TextStyle(color: Colors.black45)),
+                ],
+              )),
               ElevatedButton(
                 onPressed: () {
-
                   showModalBottomSheet(
                     context: context,
                     builder: (BuildContext context) {
@@ -477,16 +479,18 @@ class _EventInformation extends ConsumerWidget {
                             const SizedBox(height: 10),
                             const Divider(),
                             ListTile(
-                              title: const Center(child: Text('Invitar contactos de la empresa')),
+                              title: const Center(
+                                  child:
+                                      Text('Invitar contactos de la empresa')),
                               onTap: () {
                                 Navigator.pop(context);
                                 _openSearchContacts(context, ref);
-
                               },
                             ),
                             const Divider(),
                             ListTile(
-                              title: const Center(child: Text('Invitar personas de MRPERUSA')),
+                              title: const Center(
+                                  child: Text('Invitar personas de MRPERUSA')),
                               onTap: () {
                                 Navigator.pop(context); // Cierra el modal
                                 _openSearchUsers(context, ref);
@@ -495,7 +499,12 @@ class _EventInformation extends ConsumerWidget {
                             const Divider(),
                             const SizedBox(height: 10),
                             ListTile(
-                              title: const Center(child: Text('CANCELAR', style: TextStyle( fontWeight: FontWeight.w600 ),),),
+                              title: const Center(
+                                child: Text(
+                                  'CANCELAR',
+                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                              ),
                               onTap: () {
                                 Navigator.pop(context);
                               },
@@ -505,7 +514,6 @@ class _EventInformation extends ConsumerWidget {
                       );
                     },
                   );
-
                 },
                 child: const Row(
                   children: [
@@ -513,7 +521,6 @@ class _EventInformation extends ConsumerWidget {
                   ],
                 ),
               ),
-              
             ],
           ),
           const SizedBox(height: 20),
@@ -552,7 +559,12 @@ class _EventInformation extends ConsumerWidget {
                 const SizedBox(height: 6),
                 GestureDetector(
                   onTap: () {
-                    _openSearchOportunities(context, ref);
+                    if (eventForm.evntRuc == null || eventForm.evntRuc == "") {
+                      showSnackbar(context, 'Primero seleccione una empresa');
+                      return;
+                    }
+                    _openSearchOportunities(
+                        context, ref, eventForm.evntRuc ?? '');
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -570,16 +582,25 @@ class _EventInformation extends ConsumerWidget {
                                 ? 'Seleccione Oportunidad'
                                 : eventForm.evntNombreOportunidad ?? '',
                             style: TextStyle(
-                              fontSize: 16,
-                              color: eventForm.evntIdOportunidad.errorMessage != null ?
-                                Colors.red[400] : Colors.black
-                            ),
+                                fontSize: 16,
+                                color:
+                                    eventForm.evntIdOportunidad.errorMessage !=
+                                            null
+                                        ? Colors.red[400]
+                                        : Colors.black),
                           ),
                         ),
                         IconButton(
                           icon: const Icon(Icons.search),
                           onPressed: () {
-                            _openSearchOportunities(context, ref);
+                            if (eventForm.evntRuc == null ||
+                                eventForm.evntRuc == "") {
+                              showSnackbar(
+                                  context, 'Primero seleccione una empresa');
+                              return;
+                            }
+                            _openSearchOportunities(
+                                context, ref, eventForm.evntRuc ?? '');
                           },
                         ),
                       ],
@@ -589,19 +610,15 @@ class _EventInformation extends ConsumerWidget {
               ],
             ),
           ),
-          eventForm.evntIdOportunidad.errorMessage != null 
-          ? Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 6.0
-            ),
-            child: Text(
-              eventForm.evntIdOportunidad.errorMessage ?? '',
-              style: TextStyle(
-                color: Colors.red[400]
-              ),
-            ),
-          )
-          : Container(),
+          eventForm.evntIdOportunidad.errorMessage != null
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                  child: Text(
+                    eventForm.evntIdOportunidad.errorMessage ?? '',
+                    style: TextStyle(color: Colors.red[400]),
+                  ),
+                )
+              : Container(),
           const SizedBox(height: 10),
           const Text(
             'Responsable',
@@ -634,7 +651,6 @@ class _EventInformation extends ConsumerWidget {
                 .read(eventFormProvider(event).notifier)
                 .onComentariosChanged,
           ),
-          
           const SizedBox(height: 30),
         ],
       ),
@@ -681,7 +697,8 @@ class _EventInformation extends ConsumerWidget {
     }
   }
 
-  void _openSearchOportunities(BuildContext context, WidgetRef ref) async {
+  void _openSearchOportunities(
+      BuildContext context, WidgetRef ref, String ruc) async {
     final searchedOpportunities = ref.read(searchedOpportunitiesProvider);
     final searchQuery = ref.read(searchQueryOpportunitiesProvider);
 
@@ -689,6 +706,7 @@ class _EventInformation extends ConsumerWidget {
             query: searchQuery,
             context: context,
             delegate: SearchOpportunityDelegate(
+                ruc: ruc,
                 initialOpportunities: searchedOpportunities,
                 searchOpportunities: ref
                     .read(searchedOpportunitiesProvider.notifier)
@@ -702,7 +720,8 @@ class _EventInformation extends ConsumerWidget {
     });
   }
 
-  void _openSearchCompanies(BuildContext context, WidgetRef ref) async {
+  void _openSearchCompanies(
+      BuildContext context, WidgetRef ref, String dni) async {
     final searchedCompanies = ref.read(searchedCompaniesProvider);
     final searchQuery = ref.read(searchQueryCompaniesProvider);
 
@@ -710,6 +729,7 @@ class _EventInformation extends ConsumerWidget {
             query: searchQuery,
             context: context,
             delegate: SearchCompanyDelegate(
+                dni: dni,
                 initialCompanies: searchedCompanies,
                 searchCompanies: ref
                     .read(searchedCompaniesProvider.notifier)
@@ -739,7 +759,6 @@ class _EventInformation extends ConsumerWidget {
       if (contact == null) return;
 
       ref.read(eventFormProvider(event).notifier).onContactoChanged(contact);
-
     });
   }
 
@@ -761,4 +780,9 @@ class _EventInformation extends ConsumerWidget {
       ref.read(eventFormProvider(event).notifier).onResponsableChanged(user);
     });
   }
+}
+
+void showSnackbar(BuildContext context, String message) {
+  ScaffoldMessenger.of(context).clearSnackBars();
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 }

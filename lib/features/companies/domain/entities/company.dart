@@ -41,6 +41,7 @@ class Company {
   String? cchkIdEstadoCheck;
   List<ArrayUser>? arrayresponsables;
   List<ArrayUser>? arrayresponsablesEliminar;
+  String? userreporteName;
 
   //ARRAYRESPONSABLES
 
@@ -85,6 +86,6 @@ class Company {
     this.arrayresponsables,
     this.arrayresponsablesEliminar,
     this.cchkIdEstadoCheck,
+    this.userreporteName
   });
-
 }

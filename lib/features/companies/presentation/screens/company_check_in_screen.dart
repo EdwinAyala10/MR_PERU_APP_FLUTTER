@@ -218,7 +218,7 @@ class _CompanyCheckInInformation extends ConsumerWidget {
                 const SizedBox(height: 6),
                 GestureDetector(
                   onTap: () {
-                    _openSearchOportunities(context, ref);
+                    _openSearchOportunities(context, ref, companyCheckInForm.cchkRuc.value);
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -252,7 +252,7 @@ class _CompanyCheckInInformation extends ConsumerWidget {
                         IconButton(
                           icon: const Icon(Icons.search),
                           onPressed: () {
-                            _openSearchOportunities(context, ref);
+                            _openSearchOportunities(context, ref, companyCheckInForm.cchkRuc.value);
                           },
                         ),
                       ],
@@ -405,7 +405,7 @@ class _CompanyCheckInInformation extends ConsumerWidget {
     });
   }*/
 
-  void _openSearchOportunities(BuildContext context, WidgetRef ref) async {
+  void _openSearchOportunities(BuildContext context, WidgetRef ref, String ruc) async {
     final searchedOpportunities = ref.read(searchedOpportunitiesProvider);
     final searchQuery = ref.read(searchQueryOpportunitiesProvider);
 
@@ -413,6 +413,7 @@ class _CompanyCheckInInformation extends ConsumerWidget {
             query: searchQuery,
             context: context,
             delegate: SearchOpportunityDelegate(
+                ruc: ruc,
                 initialOpportunities: searchedOpportunities,
                 searchOpportunities: ref
                     .read(searchedOpportunitiesProvider.notifier)

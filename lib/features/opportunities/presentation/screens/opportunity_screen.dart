@@ -110,7 +110,6 @@ class _OpportunityInformation extends ConsumerWidget {
 
     List<DropdownOption> optionsMoneda = [
       DropdownOption('01', 'USD'),
-      DropdownOption('02', 'PEN'),
     ];
 
     final opportunityForm = ref.watch(opportunityFormProvider(opportunity));
@@ -239,7 +238,7 @@ class _OpportunityInformation extends ConsumerWidget {
                 const SizedBox(height: 6),
                 GestureDetector(
                   onTap: () {
-                    _openSearch(context, ref, 'ruc');
+                    _openSearch(context, ref, 'ruc', opportunityForm.oprtIdUsuarioRegistro);
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -264,7 +263,7 @@ class _OpportunityInformation extends ConsumerWidget {
                         IconButton(
                           icon: const Icon(Icons.search),
                           onPressed: () {
-                            _openSearch(context, ref, 'ruc');
+                            _openSearch(context, ref, 'ruc', opportunityForm.oprtIdUsuarioRegistro);
                           },
                         ),
                       ],
@@ -290,7 +289,7 @@ class _OpportunityInformation extends ConsumerWidget {
                 const SizedBox(height: 6),
                 GestureDetector(
                   onTap: () {
-                    _openSearch(context, ref, 'intermediario1');
+                    _openSearch(context, ref, 'intermediario1', opportunityForm.oprtIdUsuarioRegistro);
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -315,7 +314,7 @@ class _OpportunityInformation extends ConsumerWidget {
                         IconButton(
                           icon: const Icon(Icons.search),
                           onPressed: () {
-                            _openSearch(context, ref, 'intermediario1');
+                            _openSearch(context, ref, 'intermediario1', opportunityForm.oprtIdUsuarioRegistro);
                           },
                         ),
                       ],
@@ -416,7 +415,7 @@ class _OpportunityInformation extends ConsumerWidget {
     }
   }
 
-  void _openSearch(BuildContext context, WidgetRef ref, String type) async {
+  void _openSearch(BuildContext context, WidgetRef ref, String type, String dni) async {
     final searchedCompanies = ref.read(searchedCompaniesProvider);
     final searchQuery = ref.read(searchQueryCompaniesProvider);
 
@@ -424,10 +423,11 @@ class _OpportunityInformation extends ConsumerWidget {
             query: searchQuery,
             context: context,
             delegate: SearchCompanyDelegate(
-                initialCompanies: searchedCompanies,
-                searchCompanies: ref
-                    .read(searchedCompaniesProvider.notifier)
-                    .searchCompaniesByQuery))
+              dni: dni,
+              initialCompanies: searchedCompanies,
+              searchCompanies: ref
+                  .read(searchedCompaniesProvider.notifier)
+                  .searchCompaniesByQuery))
         .then((company) {
       if (company == null) return;
 

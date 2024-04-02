@@ -29,12 +29,6 @@ class ActivityScreen extends ConsumerWidget {
 
   const ActivityScreen({super.key, required this.activityId});
 
-  void showSnackbar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final activityState = ref.watch(activityProvider(activityId));
@@ -215,7 +209,7 @@ class _ActivityInformation extends ConsumerWidget {
                 const SizedBox(height: 6),
                 GestureDetector(
                   onTap: () {
-                    _openSearchCompanies(context, ref);
+                    _openSearchCompanies(context, ref, activityForm.actiIdUsuarioRegistro);
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -240,7 +234,7 @@ class _ActivityInformation extends ConsumerWidget {
                         IconButton(
                           icon: const Icon(Icons.search),
                           onPressed: () {
-                            _openSearchCompanies(context, ref);
+                            _openSearchCompanies(context, ref, activityForm.actiIdUsuarioRegistro);
                           },
                         ),
                       ],
@@ -275,7 +269,11 @@ class _ActivityInformation extends ConsumerWidget {
                 const SizedBox(height: 6),
                 GestureDetector(
                   onTap: () {
-                    _openSearchOportunities(context, ref);
+                    if (activityForm.actiRuc.value == null) {
+                      showSnackbar(context, 'Seleccione una empresa');
+                      return;
+                    }
+                    _openSearchOportunities(context, ref, activityForm.actiRuc.value);
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -300,7 +298,11 @@ class _ActivityInformation extends ConsumerWidget {
                         IconButton(
                           icon: const Icon(Icons.search),
                           onPressed: () {
-                            _openSearchOportunities(context, ref);
+                            if (activityForm.actiRuc.value == null) {
+                              showSnackbar(context, 'Seleccione una empresa');
+                              return;
+                            }
+                            _openSearchOportunities(context, ref, activityForm.actiRuc.value);
                           },
                         ),
                       ],
@@ -516,7 +518,7 @@ class _ActivityInformation extends ConsumerWidget {
     }
   }
 
-  void _openSearchCompanies(BuildContext context, WidgetRef ref) async {
+  void _openSearchCompanies(BuildContext context, WidgetRef ref, String dni) async {
     final searchedCompanies = ref.read(searchedCompaniesProvider);
     final searchQuery = ref.read(searchQueryCompaniesProvider);
 
@@ -524,6 +526,7 @@ class _ActivityInformation extends ConsumerWidget {
             query: searchQuery,
             context: context,
             delegate: SearchCompanyDelegate(
+                dni: dni,
                 initialCompanies: searchedCompanies,
                 searchCompanies: ref
                     .read(searchedCompaniesProvider.notifier)
@@ -537,7 +540,7 @@ class _ActivityInformation extends ConsumerWidget {
     });
   }
 
-  void _openSearchOportunities(BuildContext context, WidgetRef ref) async {
+  void _openSearchOportunities(BuildContext context, WidgetRef ref, String ruc) async {
     final searchedOpportunities = ref.read(searchedOpportunitiesProvider);
     final searchQuery = ref.read(searchQueryOpportunitiesProvider);
 
@@ -545,10 +548,11 @@ class _ActivityInformation extends ConsumerWidget {
             query: searchQuery,
             context: context,
             delegate: SearchOpportunityDelegate(
-                initialOpportunities: searchedOpportunities,
-                searchOpportunities: ref
-                    .read(searchedOpportunitiesProvider.notifier)
-                    .searchOpportunitiesByQuery))
+              ruc: ruc,
+              initialOpportunities: searchedOpportunities,
+              searchOpportunities: ref
+                  .read(searchedOpportunitiesProvider.notifier)
+                  .searchOpportunitiesByQuery))
         .then((opportunity) {
       if (opportunity == null) return;
 
@@ -580,78 +584,8 @@ class _ActivityInformation extends ConsumerWidget {
   }
 }
 
-class _TypeSelector extends StatelessWidget {
-  final String selectedType;
-  final void Function(String selectedType) onTypeChanged;
-
-  final List<String> types = const ['Hombre', 'Mujer', 'Otros'];
-  final List<IconData> genderIcons = const [
-    Icons.man,
-    Icons.woman,
-    Icons.boy,
-  ];
-
-  const _TypeSelector(
-      {required this.selectedType, required this.onTypeChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: SegmentedButton(
-        multiSelectionEnabled: false,
-        showSelectedIcon: false,
-        style: const ButtonStyle(visualDensity: VisualDensity.compact),
-        segments: types.map((size) {
-          return ButtonSegment(
-              //icon: Icon( genderIcons[ types.indexOf(size) ] ),
-              value: size,
-              label: Text(size, style: const TextStyle(fontSize: 12)));
-        }).toList(),
-        selected: {selectedType},
-        onSelectionChanged: (newSelection) {
-          FocusScope.of(context).unfocus();
-          onTypeChanged(newSelection.first);
-        },
-      ),
-    );
-  }
-}
-
-class _StateSelector extends StatelessWidget {
-  final String selectedState;
-  final void Function(String selectedState) onStateChanged;
-
-  final List<String> states = const [
-    'Activo',
-    'No Cliente',
-  ];
-  final List<IconData> stateIcons = const [
-    Icons.circle,
-    Icons.circle,
-  ];
-
-  const _StateSelector(
-      {required this.selectedState, required this.onStateChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: SegmentedButton(
-        multiSelectionEnabled: false,
-        showSelectedIcon: false,
-        style: const ButtonStyle(visualDensity: VisualDensity.compact),
-        segments: states.map((size) {
-          return ButtonSegment(
-              //icon: Icon( genderIcons[ types.indexOf(size) ] ),
-              value: size,
-              label: Text(size, style: const TextStyle(fontSize: 12)));
-        }).toList(),
-        selected: {selectedState},
-        onSelectionChanged: (newSelection) {
-          FocusScope.of(context).unfocus();
-          onStateChanged(newSelection.first);
-        },
-      ),
-    );
-  }
+void showSnackbar(BuildContext context, String message) {
+  ScaffoldMessenger.of(context).clearSnackBars();
+  ScaffoldMessenger.of(context)
+      .showSnackBar(SnackBar(content: Text(message)));
 }

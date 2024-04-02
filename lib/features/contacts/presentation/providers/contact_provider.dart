@@ -1,3 +1,5 @@
+import 'package:crm_app/features/auth/domain/domain.dart';
+import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:crm_app/features/contacts/domain/domain.dart';
 
@@ -6,15 +8,19 @@ import 'contacts_repository_provider.dart';
 final contactProvider = StateNotifierProvider.autoDispose
     .family<ContactNotifier, ContactState, String>((ref, id) {
   final contactsRepository = ref.watch(contactsRepositoryProvider);
+  final user = ref.watch(authProvider).user;
 
-  return ContactNotifier(contactsRepository: contactsRepository, id: id);
+  return ContactNotifier(
+      contactsRepository: contactsRepository, user: user!, id: id);
 });
 
 class ContactNotifier extends StateNotifier<ContactState> {
   final ContactsRepository contactsRepository;
+  User user;
 
   ContactNotifier({
     required this.contactsRepository,
+    required this.user,
     required String id,
   }) : super(ContactState(id: id)) {
     loadContact();
@@ -37,6 +43,7 @@ class ContactNotifier extends StateNotifier<ContactState> {
       razon: '',
       opt: '',
       ruc: '',
+      contactoUsuarioRegistro: user.code,
     );
   }
 

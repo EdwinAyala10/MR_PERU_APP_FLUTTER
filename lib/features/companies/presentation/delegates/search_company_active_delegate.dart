@@ -4,50 +4,50 @@ import 'package:crm_app/features/companies/domain/domain.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 
+typedef SearchCompaniesCallback = Future<List<Company>> Function(
+    String dni, String query);
 
-typedef SearchCompaniesCallback = Future<List<Company>> Function( String query );
-
-class SearchCompanyDelegate extends SearchDelegate<Company?>{
-
-
+class SearchCompanyDelegate extends SearchDelegate<Company?> {
   final SearchCompaniesCallback searchCompanies;
   List<Company> initialCompanies;
-  
-  StreamController<List<Company>> debouncedCompanies = StreamController.broadcast();
+
+  StreamController<List<Company>> debouncedCompanies =
+      StreamController.broadcast();
   StreamController<bool> isLoadingStream = StreamController.broadcast();
 
   Timer? _debounceTimer;
 
+  String dni;
+
   SearchCompanyDelegate({
     required this.searchCompanies,
     required this.initialCompanies,
-  }):super(
-    searchFieldLabel: 'Buscar empresas',
-    // textInputAction: TextInputAction.done
-  );
+    required this.dni,
+  }) : super(
+          searchFieldLabel: 'Buscar empresas',
+          // textInputAction: TextInputAction.done
+        );
 
   void clearStreams() {
     debouncedCompanies.close();
   }
 
-  void _onQueryChanged( String query ) {
+  void _onQueryChanged(String query) {
     isLoadingStream.add(true);
 
-    if ( _debounceTimer?.isActive ?? false ) _debounceTimer!.cancel();
+    if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
 
-    _debounceTimer = Timer(const Duration( milliseconds: 500 ), () async {
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () async {
       // if ( query.isEmpty ) {
       //   debouncedCompanies.add([]);
       //   return;
       // }
 
-      final companies = await searchCompanies( query );
+      final companies = await searchCompanies(dni, query);
       initialCompanies = companies;
       debouncedCompanies.add(companies);
       isLoadingStream.add(false);
-
     });
-
   }
 
   Widget buildResultsAndSuggestions() {
@@ -55,7 +55,6 @@ class SearchCompanyDelegate extends SearchDelegate<Company?>{
       initialData: initialCompanies,
       stream: debouncedCompanies.stream,
       builder: (context, snapshot) {
-        
         final companies = snapshot.data ?? [];
 
         return ListView.builder(
@@ -72,59 +71,45 @@ class SearchCompanyDelegate extends SearchDelegate<Company?>{
     );
   }
 
-
   // @override
   // String get searchFieldLabel => 'Buscar empresa';
 
   @override
   List<Widget>? buildActions(BuildContext context) {
-
     return [
-
       StreamBuilder(
         initialData: false,
         stream: isLoadingStream.stream,
         builder: (context, snapshot) {
-            if ( snapshot.data ?? false ) {
-              return SpinPerfect(
-                  duration: const Duration(seconds: 20),
-                  spins: 10,
-                  infinite: true,
-                  child: IconButton(
-                    onPressed: () => query = '', 
-                    icon: const Icon( Icons.refresh_rounded )
-                  ),
-                );
-            }
+          if (snapshot.data ?? false) {
+            return SpinPerfect(
+              duration: const Duration(seconds: 20),
+              spins: 10,
+              infinite: true,
+              child: IconButton(
+                  onPressed: () => query = '',
+                  icon: const Icon(Icons.refresh_rounded)),
+            );
+          }
 
-             return FadeIn(
-                animate: query.isNotEmpty,
-                child: IconButton(
-                  onPressed: () => query = '', 
-                  icon: const Icon( Icons.clear )
-                ),
-              );
-
+          return FadeIn(
+            animate: query.isNotEmpty,
+            child: IconButton(
+                onPressed: () => query = '', icon: const Icon(Icons.clear)),
+          );
         },
       ),
-      
-       
-        
-
-
-
     ];
   }
 
   @override
   Widget? buildLeading(BuildContext context) {
     return IconButton(
-      onPressed: () {
+        onPressed: () {
           clearStreams();
           close(context, null);
-        }, 
-        icon: const Icon( Icons.arrow_back_ios_new_rounded)
-      );
+        },
+        icon: const Icon(Icons.arrow_back_ios_new_rounded));
   }
 
   @override
@@ -134,27 +119,19 @@ class SearchCompanyDelegate extends SearchDelegate<Company?>{
 
   @override
   Widget buildSuggestions(BuildContext context) {
-
     _onQueryChanged(query);
     return buildResultsAndSuggestions();
-
   }
-
 }
 
 class _CompanyItem extends StatelessWidget {
-
   final Company company;
   final Function onCompanySelected;
 
-  const _CompanyItem({
-    required this.company,
-    required this.onCompanySelected
-  });
+  const _CompanyItem({required this.company, required this.onCompanySelected});
 
   @override
   Widget build(BuildContext context) {
-
     final textStyles = Theme.of(context).textTheme;
     final size = MediaQuery.of(context).size;
 
@@ -167,32 +144,28 @@ class _CompanyItem extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           child: Row(
             children: [
-          
               // Image
               SizedBox(
                 width: size.width * 0.2,
-                child: const Icon(
-                  Icons.blinds_outlined
-                ),
+                child: const Icon(Icons.blinds_outlined),
               ),
-          
+
               const SizedBox(width: 10),
-              
+
               // Description
               SizedBox(
                 width: size.width * 0.7,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text( 
-                      company.razon, 
+                    Text(
+                      company.razon,
                       style: textStyles.titleMedium,
                     ),
-                    Text( company.ruc ),
+                    Text(company.ruc),
                   ],
                 ),
               ),
-          
             ],
           ),
         ),

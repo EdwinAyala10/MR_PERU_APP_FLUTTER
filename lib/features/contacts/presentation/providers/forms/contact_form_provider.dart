@@ -40,6 +40,7 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
           contactoTitulo: contact.contactoTitulo ?? '',
           opt: contact.opt ?? '',
           razon: contact.razon ?? '',
+          contactoUsuarioRegistro: contact.contactoUsuarioRegistro ?? '',
         ));
 
   Future<CreateUpdateContactResponse> onFormSubmit() async {
@@ -68,6 +69,7 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
       'OPT': (state.id == 'new') ? 'INSERT' : 'UPDATE',
       'CONTACTO_ID_CARGO': state.contactoIdCargo,
       'CONTACTO_NOMBRE_CARGO': state.contactoNombreCargo,
+      'CONTACTO_USUARIO_REGISTRO': state.contactoUsuarioRegistro,
     };
 
     try {
@@ -116,7 +118,8 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
   }
 
   void onNombreCargoChanged(String nameCargo) {
-    state = state.copyWith(contactoNombreCargo: nameCargo, contactoCargo: nameCargo);
+    state = state.copyWith(
+        contactoNombreCargo: nameCargo, contactoCargo: nameCargo);
   }
 
   void onPhoneChanged(String value) {
@@ -140,7 +143,6 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
   void onComentarioChanged(String comentario) {
     state = state.copyWith(contactoNotas: comentario);
   }
-
 }
 
 class ContactFormState {
@@ -161,6 +163,7 @@ class ContactFormState {
   final String contactoIdCargo;
   final String contactoNombreCargo;
   final String contactoNotas;
+  final String? contactoUsuarioRegistro;
 
   ContactFormState(
       {this.isFormValid = false,
@@ -178,6 +181,7 @@ class ContactFormState {
       this.contactIdIn = '',
       this.contactoIdCargo = '',
       this.contactoNombreCargo = '',
+      this.contactoUsuarioRegistro = '',
       this.contactoNotas = ''});
 
   ContactFormState copyWith({
@@ -197,6 +201,7 @@ class ContactFormState {
     String? contactoIdCargo,
     String? contactoNombreCargo,
     String? contactoNotas,
+    String? contactoUsuarioRegistro,
   }) =>
       ContactFormState(
         isFormValid: isFormValid ?? this.isFormValid,
@@ -210,6 +215,7 @@ class ContactFormState {
         contactoTelefonof: contactoTelefonof ?? this.contactoTelefonof,
         contactoTelefonoc: contactoTelefonoc ?? this.contactoTelefonoc,
         contactoFax: contactoFax ?? this.contactoFax,
+        contactoUsuarioRegistro: contactoUsuarioRegistro ?? this.contactoUsuarioRegistro,
         opt: opt ?? this.opt,
         contactIdIn: contactIdIn ?? this.contactIdIn,
         contactoIdCargo: contactoIdCargo ?? this.contactoIdCargo,
