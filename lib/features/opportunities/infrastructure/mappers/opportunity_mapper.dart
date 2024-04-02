@@ -10,7 +10,7 @@ class OpportunityMapper {
     oprtIdEstadoOportunidad: json['OPRT_ID_ESTADO_OPORTUNIDAD'] ?? '',
     oprtNombre: json['OPRT_NOMBRE'] ?? '',
     oprtComentario: json['OPRT_COMENTARIO'] ?? '',
-    oprtFechaPrevistaVenta: DateTime.parse(json['OPRT_FECHA_PREVISTA_VENTA']),
+    oprtFechaPrevistaVenta: json['OPRT_FECHA_PREVISTA_VENTA'] != null ? DateTime.parse(json['OPRT_FECHA_PREVISTA_VENTA']) : DateTime.now(),
 
     oprtIdOportunidadIn: json['OPRT_ID_OPORTUNIDAD_IN'] ?? '',
     oprtIdUsuarioRegistro: json['OPRT_ID_USUARIO_REGISTRO'] ?? '',
