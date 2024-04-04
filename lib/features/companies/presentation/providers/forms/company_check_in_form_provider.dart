@@ -74,7 +74,7 @@ class CompanyCheckInFormNotifier
       'CCHK_NOMBRE_USUARIO_RESPONSABLE': state.cchkNombreUsuarioResponsable,
       'CCHK_UBIGEO': state.cchkUbigeo,
       'CCHK_DIRECCION_MAPA': state.cchkDireccionMapa,
-      'CCHK_LOCAL_CODIGO': state.cchkLocalCodigo,
+      'CCHK_LOCAL_CODIGO': state.cchkLocalCodigo.value,
       'CCHK_LOCAL_NOMBRE': state.cchkLocalNombre,
       'CCHK_ID_USUARIO_REGISTRO': state.cchkIdUsuarioRegistro,
     };

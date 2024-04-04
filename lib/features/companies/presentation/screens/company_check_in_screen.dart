@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:crm_app/features/companies/domain/domain.dart';
 import 'package:crm_app/features/companies/presentation/delegates/search_company_local_active_delegate.dart';
 import 'package:crm_app/features/companies/presentation/providers/providers.dart';
@@ -11,6 +9,7 @@ import 'package:crm_app/features/opportunities/domain/domain.dart';
 import 'package:crm_app/features/opportunities/presentation/delegates/search_opportunity_active_delegate.dart';
 import 'package:crm_app/features/opportunities/presentation/search/search_opportunities_active_provider.dart';
 import 'package:crm_app/features/shared/shared.dart';
+import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -52,8 +51,9 @@ class CompanyCheckInScreen extends ConsumerWidget {
             ? const FullScreenLoader()
             : _CompanyCheckInView(
                 companyCheckIn: companyCheckInState.companyCheckIn!),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
+        floatingActionButton: FloatingActionButtonCustom(
+          iconData: Icons.save,
+          callOnPressed: () {
             if (companyCheckInState.companyCheckIn == null) return;
 
             ref
@@ -66,15 +66,16 @@ class CompanyCheckInScreen extends ConsumerWidget {
               if (value.message != '') {
                 showSnackbar(context, value.message);
                 if (value.response) {
-                  Timer(const Duration(seconds: 3), () {
+                  ref.watch(companyProvider(ruc).notifier).updateCheckState(idCheck);
+
+                  //Timer(const Duration(seconds: 3), () {
                     context.push('/company_detail/${ruc}');
                     //context.push('/company/${company.ruc}');
-                  });
+                  //});
                 }
               }
             });
           },
-          child: const Icon(Icons.save),
         ),
       ),
     );

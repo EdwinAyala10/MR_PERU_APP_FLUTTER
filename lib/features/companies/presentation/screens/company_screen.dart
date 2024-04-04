@@ -25,11 +25,7 @@ class CompanyScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    print('RUCID: ${rucId}');
-
     final companyState = ref.watch(companyProvider(rucId));
-
-    print('companyState RAaz: ${companyState.company?.rucId}');
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -58,9 +54,8 @@ class CompanyScreen extends ConsumerWidget {
                 if (value.message != '') {
                   showSnackbar(context, value.message);
                   if (value.response) {
-
                     //Timer(const Duration(seconds: 3), () {
-                      context.push('/companies');
+                    context.push('/companies');
                     //});
                   }
                 }
@@ -211,8 +206,7 @@ class _CompanyInformation extends ConsumerWidget {
                           children: companyForm.arrayresponsables != null
                               ? List<Widget>.from(companyForm.arrayresponsables!
                                   .map((item) => Chip(
-                                        label: Text(
-                                            item.userreportName ?? '',
+                                        label: Text(item.userreportName ?? '',
                                             style:
                                                 const TextStyle(fontSize: 12)),
                                         onDeleted: () {
@@ -302,6 +296,50 @@ class _CompanyInformation extends ConsumerWidget {
             onChanged:
                 ref.read(companyFormProvider(company).notifier).onWebChanged,
           ),
+          TitleSectionForm(title: 'DIRECCIÓN DE EMPRESA'),
+          SizedBox(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: CustomCompanyField(
+                    label: 'Dirección',
+                    initialValue: companyForm.direccion.value,
+                    onChanged: ref
+                        .read(companyFormProvider(company).notifier)
+                        .onDireccionChanged,
+                    errorMessage: companyForm.direccion.errorMessage,
+                  ),
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors
+                          .blueAccent.shade200,
+                      borderRadius: BorderRadius.circular(
+                          8),
+                    ),
+                    child: IconButton(
+                      splashColor: Colors.transparent,
+                      onPressed: () {
+                        context.push('/company_map/${companyForm.rucId}/direction');
+                      },
+                      icon: const Icon(Icons.location_on,
+                          color: Colors.white), 
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
           TitleSectionForm(title: 'DATOS DE PRIMER LOCAL'),
           SelectCustomForm(
             label: 'Tipo de local',
@@ -313,7 +351,7 @@ class _CompanyInformation extends ConsumerWidget {
             },
             items: optionsLocalTipo,
           ),
-          const  SizedBox(
+          const SizedBox(
             height: 4,
           ),
           CustomCompanyField(
@@ -323,16 +361,45 @@ class _CompanyInformation extends ConsumerWidget {
                 .read(companyFormProvider(company).notifier)
                 .onNombreLocalChanged,
           ),
-          const  SizedBox(
+          const SizedBox(
             height: 4,
           ),
-          CustomCompanyField(
-            label: 'Dirección',
-            initialValue: companyForm.direccion.value,
-            onChanged: ref
-                .read(companyFormProvider(company).notifier)
-                .onDireccionChanged,
-            errorMessage: companyForm.direccion.errorMessage,
+          SizedBox(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: CustomCompanyField(
+                    label: 'Dirección de local',
+                    initialValue: companyForm.localDireccion.value,
+                    onChanged: ref
+                        .read(companyFormProvider(company).notifier)
+                        .onLocalDireccionChanged,
+                    errorMessage: companyForm.localDireccion.errorMessage,
+                  ),
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.blueAccent.shade200,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: IconButton(
+                      splashColor: Colors.transparent,
+                      onPressed: () {
+                        context.push('/company_map/${companyForm.rucId}/direction-local');
+                      },
+                      icon: const Icon(Icons.location_on, color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           SelectCustomForm(
             label: 'Departamento',

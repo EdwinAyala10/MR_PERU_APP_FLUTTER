@@ -50,7 +50,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           tipoCliente: company.tipocliente ?? '',
           estado: company.estado ?? '',
           localNombre: '',
-          localDireccion: '',
+          localDireccion: Address.dirty(company.localDireccion ?? ''),
           localDepartamento: '',
           localProvincia: '',
           localDistrito: '',
@@ -100,7 +100,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
       'TIPOCLIENTE': state.tipoCliente,
       'ESTADO': state.estado,
       'LOCAL_NOMBRE': state.localNombre,
-      'LOCAL_DIRECCION': state.localDireccion,
+      'LOCAL_DIRECCION': state.localDireccion.value,
       'LOCAL_DEPARTAMENTO': state.localDepartamento,
       'LOCAL_PROVINCIA': state.localProvincia,
       'LOCAL_DISTRITO': state.localDistrito,
@@ -139,6 +139,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
         Razon.dirty(state.razon.value),
         Phone.dirty(state.telefono.value),
         Address.dirty(state.direccion.value),
+        Address.dirty(state.localDireccion.value),
       ]),
     );
   }
@@ -151,6 +152,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           Razon.dirty(state.razon.value),
           Phone.dirty(state.telefono.value),
           Address.dirty(state.direccion.value),
+          Address.dirty(state.localDireccion.value),
         ]));
   }
 
@@ -162,6 +164,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           Razon.dirty(value),
           Phone.dirty(state.telefono.value),
           Address.dirty(state.direccion.value),
+          Address.dirty(state.localDireccion.value),
         ]));
   }
 
@@ -224,6 +227,8 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           Ruc.dirty(state.ruc.value),
           Razon.dirty(state.razon.value),
           Phone.dirty(value),
+          Address.dirty(state.direccion.value),
+          Address.dirty(state.localDireccion.value),
         ]));
   }
 
@@ -235,6 +240,19 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           Razon.dirty(state.razon.value),
           Phone.dirty(state.telefono.value),
           Address.dirty(value),
+          Address.dirty(state.localDireccion.value),
+        ]));
+  }
+
+  void onLocalDireccionChanged(String value) {
+    state = state.copyWith(
+        localDireccion: Address.dirty(value),
+        isFormValid: Formz.validate([
+          Ruc.dirty(state.ruc.value),
+          Razon.dirty(state.razon.value),
+          Phone.dirty(state.telefono.value),
+          Address.dirty(state.direccion.value),
+          Address.dirty(value)
         ]));
   }
 
@@ -309,7 +327,7 @@ class CompanyFormState {
   final String tipoCliente;
   final String estado;
   final String localNombre;
-  final String localDireccion;
+  final Address localDireccion;
   final String localDepartamento;
   final String localProvincia;
   final String localDistrito;
@@ -354,7 +372,7 @@ class CompanyFormState {
       this.tipoCliente = '',
       this.estado = '',
       this.localNombre = '',
-      this.localDireccion = '',
+      this.localDireccion = const Address.dirty(''),
       this.localProvincia = '',
       this.localDepartamento = '',
       this.localDistrito = '',
@@ -399,7 +417,7 @@ class CompanyFormState {
     String? tipoCliente,
     String? estado,
     String? localNombre,
-    String? localDireccion,
+    Address? localDireccion,
     String? localDepartamento,
     String? localProvincia,
     String? localDistrito,

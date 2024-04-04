@@ -101,15 +101,11 @@ class _CompanyLocalInformation extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final companyLocalForm =
         ref.watch(companyLocalFormProvider(companyLocal));
-
         
     List<DropdownOption> optionsLocalTipo = [
       DropdownOption('', 'Seleccione tipo de local'),
-      DropdownOption('1', 'OFICINA FISCAL'),
       DropdownOption('2', 'PLANTA'),
-      DropdownOption('3', 'OTROS'),
     ];
-
     
     List<DropdownOption> optionsDepartamento = [
       DropdownOption('', 'Seleccione departamento'),

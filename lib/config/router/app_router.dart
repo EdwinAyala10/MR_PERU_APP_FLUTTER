@@ -99,6 +99,13 @@ final goRouterProvider = Provider((ref) {
         ),
       ),
       GoRoute(
+        path: '/company_map/:rucId/:identificator', // /company/new
+        builder: (context, state) => CompanyMapScreen(
+          rucId: state.pathParameters['rucId'] ?? 'no-id',
+          identificator: state.pathParameters['identificator'] ?? 'no-key',
+        ),
+      ),
+      GoRoute(
         path: '/company_local/:id', // /company/new
         builder: (context, state) => CompanyLocalScreen(
           id: state.pathParameters['id'] ?? 'no-id',

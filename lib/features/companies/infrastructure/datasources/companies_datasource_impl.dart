@@ -58,7 +58,7 @@ class CompaniesDatasourceImpl extends CompaniesDatasource {
       print('INGRESO GET COMPANY ID');
       print('RUC ID: ${rucId}');
       final response = await dio.get('/cliente/cliente-by-ruc/$rucId');
-      final Company company = CompanyMapper.jsonToEntity(response.data['data']);
+      final Company company= CompanyMapper.jsonToEntity(response.data['data']);
 
       print('response: ${response}');
 

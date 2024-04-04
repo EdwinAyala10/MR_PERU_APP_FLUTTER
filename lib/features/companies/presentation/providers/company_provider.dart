@@ -91,6 +91,15 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
     );
   }
 
+  Future<void> updateCheckState(String idCheck) async {
+
+    Company? companyNew = state.company;
+
+    companyNew?.cchkIdEstadoCheck = idCheck == '01' ? '06' : '01';
+
+    state = state.copyWith(company: companyNew);
+  }
+
   Future<void> loadCompany() async {
     print('SATE RUC ID: ${state.rucId}');
     try {
@@ -110,7 +119,8 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
           await opportunitiesRepository.getOpportunities(company.ruc);
       final activities = await activitiesRepository.getActivities();
       final events = await eventsRepository.getEventsList();
-      final companyLocales = await companiesRepository.getCompanyLocales(company.ruc);
+      final companyLocales =
+          await companiesRepository.getCompanyLocales(company.ruc);
 
       print('LENT OPO: ${opportunities.length}');
 
@@ -123,8 +133,6 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
         events: events,
         companyLocales: companyLocales,
       );
-
-      
     } catch (e) {
       // 404 product not found
       state = state.copyWith(isLoading: false, company: null);
@@ -150,33 +158,37 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
       final message = companyLocalResponse.message;
 
       if (companyLocalResponse.status) {
-
         //final companyCheckIn = companyCheckInResponse.companyCheckIn as CompanyCheckIn;
         final companyLocal = companyLocalResponse.companyLocal as CompanyLocal;
-        final isCompanyLocalInList =
-            state.companyLocales.any((element) => element.ruc == companyLocal.id);
+        final isCompanyLocalInList = state.companyLocales
+            .any((element) => element.ruc == companyLocal.id);
 
         if (!isCompanyLocalInList) {
-          state = state.copyWith(companyLocales: [companyLocal, ...state.companyLocales]);
-          return CreateUpdateCompanyLocalResponse(response: true, message: message);
+          state = state.copyWith(
+              companyLocales: [companyLocal, ...state.companyLocales]);
+          return CreateUpdateCompanyLocalResponse(
+              response: true, message: message);
         }
 
         state = state.copyWith(
             companyLocales: state.companyLocales
                 .map(
-                  (element) => (element.id == companyLocal.id) ? companyLocal : element,
+                  (element) =>
+                      (element.id == companyLocal.id) ? companyLocal : element,
                 )
                 .toList());
 
-        return CreateUpdateCompanyLocalResponse(response: true, message: message);
+        return CreateUpdateCompanyLocalResponse(
+            response: true, message: message);
       }
 
-      return CreateUpdateCompanyLocalResponse(response: false, message: message);
+      return CreateUpdateCompanyLocalResponse(
+          response: false, message: message);
     } catch (e) {
-      return CreateUpdateCompanyLocalResponse(response: false, message: 'Error, revisar con su administrador.');
+      return CreateUpdateCompanyLocalResponse(
+          response: false, message: 'Error, revisar con su administrador.');
     }
   }
-
 }
 
 class CompanyState {
