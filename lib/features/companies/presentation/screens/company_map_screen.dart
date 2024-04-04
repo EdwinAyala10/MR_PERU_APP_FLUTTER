@@ -20,7 +20,9 @@ class CompanyMapScreen extends ConsumerWidget {
     //final companyCheckInState = ref.watch(companyCheckInProvider(rucId));
 
     return Scaffold(
+      
       body: _CompanyMapView(),
+
     );
   }
 }
@@ -33,7 +35,7 @@ class _CompanyMapView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     const CameraPosition initialCameraPosition = CameraPosition(
-      target: LatLng(37.43296265331129, -122.08832357078792), 
+      target: LatLng(-12.04318, -77.02824), 
       zoom: 15
     );
 
@@ -47,7 +49,6 @@ class _CompanyMapView extends ConsumerWidget {
             width: size.width,
             height: size.height,
             child: const GoogleMap(
-              mapType: MapType.hybrid,
               initialCameraPosition: initialCameraPosition,
               /*compassEnabled: false,
               myLocationEnabled: true,

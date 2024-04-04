@@ -4,11 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:crm_app/features/shared/infrastructure/services/key_value_storage_service.dart';
 import 'package:crm_app/features/shared/infrastructure/services/key_value_storage_service_impl.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' show LatLng;
 
-
-final locationProvider = StateNotifierProvider<LocationNotifier, LocationState>((ref) {
+final locationProvider =
+    StateNotifierProvider<LocationNotifier, LocationState>((ref) {
   //final authRepository = AuthRepositoryImpl();
   final keyValueStorageService = KeyValueStorageServiceImpl();
 
@@ -26,47 +25,38 @@ class LocationNotifier extends StateNotifier<LocationState> {
     //required this.authRepository,
     required this.keyValueStorageService,
   }) : super(const LocationState()) {
-    //checkAuthStatus();
-    /*on<GpsAndPermissionEvent>((event, emit) => emit(state.copyWith(
-        isGpsEnabled: event.isGpsEnabled,
-        isGpsPermissionGranted: event.isGpsPermissionGranted)));*/
-
   }
 
-  
   Future getCurrentPosition() async {
     final position = await Geolocator.getCurrentPosition();
     state = state.copyWith(
-      lastKnownLocation: LatLng( position.latitude, position.longitude )
-    );
+        lastKnownLocation: LatLng(position.latitude, position.longitude));
   }
 
-  /*void startFollowingUser() {
-    
-    add(OnStartFollowingUser());
-    
+  void startFollowingUser() {
+    state = state.copyWith(followingUser: true);
+
     positionStream = Geolocator.getPositionStream().listen((event) {
       final position = event;
-      add( OnNewUserLocationEvent( LatLng( position.latitude, position.longitude ) ) );
-    });
 
+      state = state.copyWith(
+        lastKnownLocation: LatLng(position.latitude, position.longitude)
+      );
+    });
   }
 
   void stopFollowingUser() {
     positionStream?.cancel();
-    add( OnStopFollowingUser());
+    state = state.copyWith(followingUser: false);
     print('stopFollowingUser');
   }
 
-
+  /*
   @override
   Future<void> close() {
     stopFollowingUser();
     return super.close();
   }*/
-
-
-
 }
 
 class LocationState {
@@ -74,24 +64,22 @@ class LocationState {
   final LatLng? lastKnownLocation;
   final List<LatLng> myLocationHistory;
 
-  const LocationState({
-    this.followingUser = false,
-    this.lastKnownLocation,
-    myLocationHistory
-  }): myLocationHistory = myLocationHistory ?? const [];
-
+  const LocationState(
+      {this.followingUser = false, this.lastKnownLocation, myLocationHistory})
+      : myLocationHistory = myLocationHistory ?? const [];
 
   LocationState copyWith({
     bool? followingUser,
     LatLng? lastKnownLocation,
     List<LatLng>? myLocationHistory,
-  }) => LocationState(
-    followingUser    : followingUser ?? this.followingUser,
-    lastKnownLocation: lastKnownLocation ?? this.lastKnownLocation,
-    myLocationHistory: myLocationHistory ?? this.myLocationHistory,
-  );
-  
-  @override
-  List<Object?> get props => [ followingUser, lastKnownLocation, myLocationHistory ];
+  }) =>
+      LocationState(
+        followingUser: followingUser ?? this.followingUser,
+        lastKnownLocation: lastKnownLocation ?? this.lastKnownLocation,
+        myLocationHistory: myLocationHistory ?? this.myLocationHistory,
+      );
 
+  @override
+  List<Object?> get props =>
+      [followingUser, lastKnownLocation, myLocationHistory];
 }

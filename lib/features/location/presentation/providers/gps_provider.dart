@@ -24,11 +24,6 @@ class GpsNotifier extends StateNotifier<GpsState> {
     //required this.authRepository,
     required this.keyValueStorageService,
   }) : super(const GpsState()) {
-    //checkAuthStatus();
-    /*on<GpsAndPermissionEvent>((event, emit) => emit(state.copyWith(
-        isGpsEnabled: event.isGpsEnabled,
-        isGpsPermissionGranted: event.isGpsPermissionGranted)));*/
-
     _init();
   }
 

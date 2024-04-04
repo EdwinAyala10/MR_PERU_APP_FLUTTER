@@ -327,7 +327,8 @@ class _CompanyInformation extends ConsumerWidget {
                     child: IconButton(
                       splashColor: Colors.transparent,
                       onPressed: () {
-                        context.push('/company_map/${companyForm.rucId}/direction');
+                        showModalSearch(context, companyForm.rucId ?? '', 'direction');
+                        //context.push('/company_map/${companyForm.rucId}/direction');
                       },
                       icon: const Icon(Icons.location_on,
                           color: Colors.white), 
@@ -392,7 +393,8 @@ class _CompanyInformation extends ConsumerWidget {
                     child: IconButton(
                       splashColor: Colors.transparent,
                       onPressed: () {
-                        context.push('/company_map/${companyForm.rucId}/direction-local');
+                        showModalSearch(context, companyForm.rucId ?? '', 'direction-local');
+                        //context.push('/company_map/${companyForm.rucId}/direction-local');
                       },
                       icon: const Icon(Icons.location_on, color: Colors.white),
                     ),
@@ -434,6 +436,67 @@ class _CompanyInformation extends ConsumerWidget {
           const SizedBox(height: 100),
         ],
       ),
+    );
+  }
+
+  Future<dynamic> showModalSearch(BuildContext context, String ruc, String identificator) {
+    return showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.all(14.0),
+          //height: 320,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            //crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              const Center(
+                child: Text(
+                  'Seleccionar ubicación',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 6),
+              const Divider(),
+              ListTile(
+                title: const Center(
+                    child:
+                        Text('Usar mi ubicación actual')),
+                onTap: () {
+                  Navigator.pop(context);
+                  //_openSearchContacts(context, ref);
+                  context.push('/company_map/${ruc}/${identificator}');
+                },
+              ),
+              const Divider(),
+              ListTile(
+                title: const Center(
+                    child: Text('Buscar en el mapa')),
+                onTap: () {
+                  Navigator.pop(context); // Cierra el modal
+                  //_openSearchUsers(context, ref);
+                },
+              ),
+              const Divider(),
+              const SizedBox(height: 6),
+              ListTile(
+                title: const Center(
+                  child: Text(
+                    'CANCELAR',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
