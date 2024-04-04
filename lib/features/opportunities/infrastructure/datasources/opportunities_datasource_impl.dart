@@ -18,7 +18,6 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
   @override
   Future<OpportunityResponse> createUpdateOpportunity(
       Map<dynamic, dynamic> opportunityLike) async {
-    print('OPPORTUNITY: ${opportunityLike}');
     try {
       final String? id = opportunityLike['OPRT_ID_OPORTUNIDAD'];
       final String method = 'POST';
@@ -26,18 +25,12 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
           ? '/oportunidad/create-oportunidad'
           : '/oportunidad/edit-oportunidad';
 
-      print('URL OPORT: ${url}');
-
       if (id == null) {
         opportunityLike.remove('OPRT_ID_OPORTUNIDAD');
       }
 
-      print('Like OPORT: ${opportunityLike}');
-
       final response = await dio.request(url,
           data: opportunityLike, options: Options(method: method));
-
-      print('RESPONSE OPORT: ${response}');
 
       final OpportunityResponse opportunityResponse =
           OpportunityResponseMapper.jsonToEntity(response.data);

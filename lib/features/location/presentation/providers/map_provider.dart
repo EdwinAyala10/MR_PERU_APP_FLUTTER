@@ -33,8 +33,6 @@ class MapNotifier extends StateNotifier<MapState> {
     _mapController = controller;
     state = state.copyWith(isMapInitialized: true);
   }
-
-  
 }
 
 class MapState {

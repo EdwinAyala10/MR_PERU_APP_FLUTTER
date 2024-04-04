@@ -1,10 +1,10 @@
 
 import 'package:crm_app/features/location/domain/domain.dart';
 
-class PlaceResponse {
+class PlacesResponse {
     List<Place> places;
 
-    PlaceResponse({
+    PlacesResponse({
         required this.places,
     });
 }

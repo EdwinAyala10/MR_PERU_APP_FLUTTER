@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:crm_app/config/theme/uber_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -48,8 +51,9 @@ class _CompanyMapView extends ConsumerWidget {
           SizedBox(
             width: size.width,
             height: size.height,
-            child: const GoogleMap(
+            child: GoogleMap(
               initialCameraPosition: initialCameraPosition,
+              style: jsonEncode( uberMapTheme ),
               /*compassEnabled: false,
               myLocationEnabled: true,
               zoomControlsEnabled: false,
