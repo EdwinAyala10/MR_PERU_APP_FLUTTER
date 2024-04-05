@@ -55,6 +55,7 @@ class _CompanyMapView extends ConsumerWidget {
             height: size.height,
             child: const GoogleMap(
               initialCameraPosition: initialCameraPosition,
+              mapType: MapType.normal,
               /*compassEnabled: false,
               myLocationEnabled: true,
               zoomControlsEnabled: false,
