@@ -1,9 +1,11 @@
 import 'dart:convert';
 
-import 'package:crm_app/config/theme/uber_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+import 'package:crm_app/config/theme/uber_theme.dart';
 
 class CompanyMapScreen extends ConsumerWidget {
   final String rucId;
@@ -51,9 +53,8 @@ class _CompanyMapView extends ConsumerWidget {
           SizedBox(
             width: size.width,
             height: size.height,
-            child: GoogleMap(
+            child: const GoogleMap(
               initialCameraPosition: initialCameraPosition,
-              style: jsonEncode( uberMapTheme ),
               /*compassEnabled: false,
               myLocationEnabled: true,
               zoomControlsEnabled: false,
@@ -63,6 +64,25 @@ class _CompanyMapView extends ConsumerWidget {
               //onMapCreated: ( controller ) => mapBloc.add( OnMapInitialzedEvent(controller) ),
               //onCameraMove: ( position ) => mapBloc.mapCenter = position.target
             ),
+          ),
+
+          SizedBox(
+            width: size.width,
+            height: size.height,
+            child: Stack(
+              children: [
+                Center(
+                child: Transform.translate(
+                  offset: const Offset(0, -22 ),
+                  child: BounceInDown(
+                    from: 100,
+                    child: const Icon( Icons.location_on_rounded, size: 60 )
+                  ),
+                ),
+              ),
+              ],
+            )
+
           )
         ]
       ),
