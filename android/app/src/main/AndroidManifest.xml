@@ -17,6 +17,8 @@
         <meta-data android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAjpuHF1NQQigzXXmP7cGV6bUzTO9tQ0nI"/>
 
+        <meta-data android:name="flutterTextureView" android:value="true" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
