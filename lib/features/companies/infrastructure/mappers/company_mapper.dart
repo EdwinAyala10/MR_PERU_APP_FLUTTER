@@ -20,6 +20,9 @@ class CompanyMapper {
     departamento: json['DEPARTAMENTO'] ?? '',
     provincia: json['PROVINCIA'] ?? '',
     distrito: json['DISTRITO'] ?? '',
+    clienteCoordenadasGeo: json['CLIENTE_COORDENADAS_GEO'] ?? '',
+    clienteCoordenadasLatitud: json['CLIENTE_COORDENADAS_LONGITUD'] ?? '',
+    clienteCoordenadasLongitud: json['CLIENTE_COORDENADAS_LATITUD'] ?? '',
     seguimientoComentario: json['SEGUIMIENTO_COMENTARIO'] ?? '',
     website: json['WEBSITE'] ?? '',
     cchkIdEstadoCheck: json['CCHK_ID_ESTADO_CHECK'],
@@ -28,6 +31,7 @@ class CompanyMapper {
     codigoPostal: json['CODIGO_POSTAL'] ?? '',
     idUsuarioRegistro: json['ID_USUARIO_REGISTRO'] ?? '',
     usuarioRegistro: json['USUARIO_REGISTRO'] ?? '',
+    localCodigoPostal: json['LOCAL_CODIGO_POSTAL'] ?? '',
     userreporteName: json['USERREPORT_NAME'] ?? '',
     arrayresponsables: json["CLIENTES_RESPONSABLE"] != null ? List<ArrayUser>.from(json["CLIENTES_RESPONSABLE"].map((x) => ArrayUser.fromJson(x))) : [],
   );

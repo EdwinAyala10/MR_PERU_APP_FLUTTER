@@ -1,23 +1,20 @@
 import 'dart:async';
-import 'dart:io';
 
+import 'package:crm_app/features/companies/presentation/providers/forms/company_form_provider.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/location/domain/domain.dart';
 import 'package:crm_app/features/location/presentation/delegates/search_places_delegate.dart';
 import 'package:crm_app/features/location/presentation/providers/location_provider.dart';
 import 'package:crm_app/features/location/presentation/providers/map_provider.dart';
+import 'package:crm_app/features/location/presentation/providers/selected_map_provider.dart';
 import 'package:crm_app/features/location/presentation/search/search_places_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-class CompanyMapScreen extends ConsumerWidget {
-  final String rucId;
-  final String identificator;
-
-  const CompanyMapScreen(
-      {super.key, required this.rucId, required this.identificator});
+class MapScreen extends ConsumerWidget {
+  const MapScreen({super.key});
 
   void showSnackbar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).clearSnackBars();
@@ -29,14 +26,14 @@ class CompanyMapScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     //final companyCheckInState = ref.watch(companyCheckInProvider(rucId));
 
-    return Scaffold(
-      body: _CompanyMapView(),
+    return const Scaffold(
+      body: _MapView(),
     );
   }
 }
 
-class _CompanyMapView extends ConsumerStatefulWidget {
-  const _CompanyMapView();
+class _MapView extends ConsumerStatefulWidget {
+  const _MapView();
 
   @override
   _CompanyMapViewState createState() => _CompanyMapViewState();
@@ -49,20 +46,25 @@ class _CompanyMapViewState extends ConsumerState {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
-      final locationNotifier = ref.read(locationProvider.notifier);
-      locationNotifier.startFollowingUser();
+    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      //final locationNotifier = ref.read(locationProvider.notifier);
+      //locationNotifier.startFollowingUser();
 
-      print('INICIO START FLLOWING');
+      //print('INICIO START FLLOWING');
+      final locationNotifier = await ref.read(locationProvider.notifier);
+      final locationCurrent = await locationNotifier.currentPosition();
+
+      final mapState = ref.watch(mapProvider.notifier);
+      mapState.onChangeMapCenter(locationCurrent);
     });
   }
 
   @override
   void dispose() {
     super.dispose();
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    /*WidgetsBinding.instance?.addPostFrameCallback((_) {
       ref.read(locationProvider.notifier).stopFollowingUser();
-    });
+    });*/
   }
 
   @override
@@ -71,8 +73,7 @@ class _CompanyMapViewState extends ConsumerState {
 
     final locationState = ref.watch(locationProvider);
     final mapState = ref.watch(mapProvider.notifier);
-    LatLng lastKnownLocation = locationState.lastKnownLocation!;
-
+    LatLng lastKnownLocation = locationState.lastKnownLocation ?? const LatLng(-12.04318, -77.02824);
     print('lastKnownLocation: ${lastKnownLocation.toString()}');
 
     CameraPosition initialCameraPosition =
@@ -149,13 +150,14 @@ class _CompanyMapViewState extends ConsumerState {
                             .then((place) {
                           if (place == null) return;
 
-                          print('PLACE SELECTED');
-                          print(place.formattedAddress);
-
                           LatLng latLng = LatLng(place.location.latitude,
                               place.location.longitude);
 
                           ref.read(mapProvider.notifier).moveCamera(latLng);
+
+                          ref
+                              .read(mapProvider.notifier)
+                              .onChangeSelectedPlaceCenter(place);
                         });
                       },
                       child: Container(
@@ -214,12 +216,61 @@ class _CompanyMapViewState extends ConsumerState {
                 height: 50,
                 shape: const StadiumBorder(),
                 onPressed: () async {
-                  
                   showLoadingMessage(context);
 
-                  //sleep(const Duration(seconds: 10));
+                  LatLng? location = ref.read(mapProvider).mapCenter;
+                  Place? placeSearch = ref.read(mapProvider).selectedPlace;
 
-                  //Navigator.pop(context);
+                  await ref
+                      .read(selectedMapProvider.notifier)
+                      .selectedAddressMap(placeSearch, location!);
+
+                  var stateSelectedMap = await ref.read(selectedMapProvider.notifier).state;
+
+                  print('DIRECCION: ${stateSelectedMap.entity}');
+                  //print('LOCATION XXX: ${location}');
+
+                  //ref.read(selectedMapProvider.notifier).onSelectPlace('');
+                  ref.read(selectedMapProvider.notifier).onFreeIsUpdateAddress();
+                  ref.read(selectedMapProvider.notifier).onChangeStateProcess('updated');
+
+                  var lat = stateSelectedMap.location?.latitude;
+                  var lng = stateSelectedMap.location?.longitude;
+
+                  if (stateSelectedMap.module == 'company' && stateSelectedMap.input == 'direction') {
+                    ref.watch(companyFormProvider(stateSelectedMap.entity).notifier).onLoadAddressCompanyChanged(
+                      stateSelectedMap.address ?? '',
+                      '${lat}, ${lng}',
+                      '${lat}',
+                      '${lng}',
+                      stateSelectedMap.ubigeo ?? '',
+                      stateSelectedMap.departament ?? '',
+                      stateSelectedMap.province ?? '',
+                      stateSelectedMap.district ?? '',
+                    );
+
+                  }
+
+                  if (stateSelectedMap.module == 'company' && stateSelectedMap.input == 'direction-local') {
+                    ref.watch(companyFormProvider(stateSelectedMap.entity).notifier).onLoadAddressCompanyLocalChanged(
+                      stateSelectedMap.address ?? '',
+                      '${lat}, ${lng}',
+                      '${lat}',
+                      '${lng}',
+                      stateSelectedMap.ubigeo ?? '',
+                      stateSelectedMap.departament ?? '',
+                      stateSelectedMap.province ?? '',
+                      stateSelectedMap.district ?? '',
+                    );
+                  }
+
+
+                  //sleep(const Duration(seconds: 10));
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+
+
+
                 },
                 child: const Text('Confimar ubicación',
                     style: TextStyle(

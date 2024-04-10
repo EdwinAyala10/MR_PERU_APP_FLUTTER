@@ -1,3 +1,4 @@
+import 'package:crm_app/features/location/presentation/screens/map_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -104,6 +105,10 @@ final goRouterProvider = Provider((ref) {
           rucId: state.pathParameters['rucId'] ?? 'no-id',
           identificator: state.pathParameters['identificator'] ?? 'no-key',
         ),
+      ),
+      GoRoute(
+        path: '/map', // /company/new
+        builder: (context, state) => const MapScreen(),
       ),
       GoRoute(
         path: '/company_local/:id', // /company/new

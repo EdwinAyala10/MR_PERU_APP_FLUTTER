@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:crm_app/features/location/domain/domain.dart';
 import 'package:crm_app/features/location/presentation/providers/location_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:crm_app/features/shared/infrastructure/services/key_value_storage_service.dart';
@@ -21,31 +22,52 @@ class MapNotifier extends StateNotifier<MapState> {
   final KeyValueStorageService keyValueStorageService;
   StreamSubscription<Position>? positionStream;
   GoogleMapController? _mapController;
-  LatLng? mapCenter;
   StreamSubscription<LocationState>? locationStateSubscription;
 
   MapNotifier({
     //required this.authRepository,
     required this.keyValueStorageService,
-  }) : super(const MapState()) {}
+  }) : super(MapState()) {}
 
   void onInitMap(GoogleMapController controller) {
     _mapController = controller;
     state = state.copyWith(isMapInitialized: true);
   }
+
+  void onChangeMapCenter(LatLng latLng) {
+    state = state.copyWith(
+      mapCenter: latLng,
+      selectedPlace: null
+    );
+  }
+
+  void onChangeSelectedPlaceCenter(Place place) {
+    state = state.copyWith(
+      selectedPlace: place,
+    );
+  }
+
+  void moveCamera(LatLng newLocation) {
+    final cameraUpdate = CameraUpdate.newLatLng(newLocation);
+    _mapController?.animateCamera(cameraUpdate);
+  }
 }
 
 class MapState {
   final bool isMapInitialized;
+  final LatLng? mapCenter;
+  final Place? selectedPlace;
 
-  const MapState({
-    this.isMapInitialized = false,
-  });
+  MapState({this.isMapInitialized = false, this.mapCenter, this.selectedPlace});
 
   MapState copyWith({
     bool? isMapInitialized,
+    LatLng? mapCenter,
+    Place? selectedPlace
   }) =>
       MapState(
         isMapInitialized: isMapInitialized ?? this.isMapInitialized,
+        mapCenter: mapCenter ?? this.mapCenter,
+        selectedPlace: selectedPlace ?? this.selectedPlace,
       );
 }

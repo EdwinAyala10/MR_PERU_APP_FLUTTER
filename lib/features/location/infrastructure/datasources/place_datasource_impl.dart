@@ -5,7 +5,7 @@ import 'package:crm_app/features/location/infrastructure/mappers/place_mapper.da
 import 'package:dio/dio.dart';
 import 'package:crm_app/config/config.dart';
 
-class PlaceDatasourceImpl extends PlaceDatasource {
+class PlacesDatasourceImpl extends PlacesDatasource {
   @override
   Future<Place> getDetailByPlaceId(String placeId) async {
     final dio = Dio();
@@ -17,7 +17,7 @@ class PlaceDatasourceImpl extends PlaceDatasource {
           'Content-Type': 'application/json',
           'X-Goog-Api-Key': Environment.apiKeyGooglePlace,
           'X-Goog-FieldMask':
-              'name,id,formattedAddress,addressComponents,location'
+              'name,id,formattedAddress,addressComponents,location,shortFormattedAddress,displayName'
         }));
 
     final Place place = PlaceMapper.jsonToEntity(response.data);
@@ -42,11 +42,11 @@ class PlaceDatasourceImpl extends PlaceDatasource {
           'Content-Type': 'application/json',
           'X-Goog-Api-Key': Environment.apiKeyGooglePlace,
           'X-Goog-FieldMask':
-              'places.name,places.id,places.formattedAddress,places.addressComponents,places.location'
+              'places.name,places.id,places.formattedAddress,places.addressComponents,places.location,places.shortFormattedAddress,places.displayName'
         }));
 
     final List<Place> places = [];
-    for (final place in response.data ?? []) {
+    for (final place in response.data['places'] ?? []) {
       places.add(PlaceMapper.jsonToEntity(place));
     }
 
@@ -64,13 +64,16 @@ class PlaceDatasourceImpl extends PlaceDatasource {
       "key": Environment.apiKeyGoogleGeocode,
       "language": "es",
       "region": "PE",
-      "result_type": "street_address",
+      //"result_type": "street_address",
     };
 
     final response = await dio.get(url, queryParameters: params);
 
     final GeocodeResponse geocodeResponse =
         GeocodeResponseMapper.jsonToEntity(response.data);
+
+    //print('LEN: ${geocodeResponse.results.length}');
+    //print('isNotEmpty: ${geocodeResponse.results.isNotEmpty}');
 
     if (geocodeResponse.results.isNotEmpty) {
       GeocodeResult geocodeResult = geocodeResponse.results[0];

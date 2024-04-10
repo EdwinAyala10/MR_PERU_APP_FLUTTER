@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 
-const colorSeed = Color.fromARGB(255, 19, 212, 229);
+const colorSeed = Color.fromARGB(255, 7, 73, 79);
 const scaffoldBackgroundColor = Color(0xFFF8F7F7);
 
 class AppTheme {
@@ -15,14 +15,14 @@ class AppTheme {
     hintColor: colorSeed,
 
     ///* Texts
-    textTheme: TextTheme(
+    /*textTheme: TextTheme(
       titleLarge: GoogleFonts.montserratAlternates()
         .copyWith( fontSize: 21, fontWeight: FontWeight.bold ),
       titleMedium: GoogleFonts.montserratAlternates()
         .copyWith( fontSize: 17, fontWeight: FontWeight.bold ),
       titleSmall: GoogleFonts.montserratAlternates()
         .copyWith( fontSize: 10 )
-    ),
+    ),*/
 
     ///* Scaffold Background Color
     scaffoldBackgroundColor: scaffoldBackgroundColor,

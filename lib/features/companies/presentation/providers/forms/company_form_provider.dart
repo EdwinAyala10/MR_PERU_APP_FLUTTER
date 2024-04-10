@@ -58,6 +58,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           enviarNotificacion: 'SI',
           orden: '',
           localTipo: '',
+          localCodigoPostal: '',
           coordenadasGeo: '',
           coordenadasLongitud: '',
           cchkIdEstadoCheck: '',
@@ -90,6 +91,9 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
       'DEPARTAMENTO': state.departamento,
       'PROVINCIA': state.provincia,
       'DISTRITO': state.distrito,
+      'CLIENTE_COORDENADAS_GEO': state.clienteCoordenadasGeo,
+      'CLIENTE_COORDENADAS_LONGITUD': state.clienteCoordenadasLongitud,
+      'CLIENTE_COORDENADAS_LATITUD': state.clienteCoordenadasLatitud,
       'SEGUIMIENTO_COMENTARIO': state.seguimientoComentario,
       'WEBSITE': state.website,
       'CALIFICACION': state.calificacion,
@@ -112,6 +116,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
       'COORDENADAS_LONGITUD': state.coordenadasLongitud,
       'COORDENADAS_LATITUD': state.coordenadasLatitud,
       'UBIGEO_CODIGO': state.ubigeoCodigo,
+      'LOCAL_CODIGO_POSTAL': state.localCodigoPostal,
       'LOCAL_DEPARTAMENTO_DESC': state.localDepartamentoDesc,
       'LOCAL_PROVINCIA_DESC': state.localProvinciaDesc,
       'CCHK_ID_ESTADO_CHECK': state.cchkIdEstadoCheck,
@@ -244,6 +249,40 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
         ]));
   }
 
+  void onLoadAddressCompanyChanged(String direccion, String coors, String lat, String lng, String ubigeo, String dep, String prov, String dist) {
+    state = state.copyWith(
+      direccion: Address.dirty(direccion),
+      clienteCoordenadasGeo: coors,
+      clienteCoordenadasLatitud: lat,
+      clienteCoordenadasLongitud: lng,
+      ubigeoCodigo: ubigeo,
+      isFormValid: Formz.validate([
+        Ruc.dirty(state.ruc.value),
+        Razon.dirty(state.razon.value),
+        Phone.dirty(state.telefono.value),
+        Address.dirty(direccion),
+        Address.dirty(state.localDireccion.value),
+      ]));
+  }
+  void onLoadAddressCompanyLocalChanged(String direccion, String coors, String lat, String lng, String ubigeo, String dep, String prov, String dist) {
+    state = state.copyWith(
+      localDireccion: Address.dirty(direccion),
+      coordenadasGeo: coors,
+      coordenadasLatitud: lat,
+      coordenadasLongitud: lng,
+      localCodigoPostal: ubigeo,
+      localDepartamentoDesc: dep,
+      localDistritoDesc: dist,
+      localProvinciaDesc: prov,
+      isFormValid: Formz.validate([
+        Ruc.dirty(state.ruc.value),
+        Razon.dirty(state.razon.value),
+        Phone.dirty(state.telefono.value),
+        Address.dirty(state.direccion.value),
+        Address.dirty(direccion),
+      ]));
+  }
+
   void onLocalDireccionChanged(String value) {
     state = state.copyWith(
         localDireccion: Address.dirty(value),
@@ -317,6 +356,9 @@ class CompanyFormState {
   final String departamento;
   final String provincia;
   final String distrito;
+  final String clienteCoordenadasGeo;
+  final String clienteCoordenadasLatitud;
+  final String clienteCoordenadasLongitud;
   final String seguimientoComentario;
   final String website;
   final String calificacion;
@@ -342,6 +384,7 @@ class CompanyFormState {
   final String localDepartamentoDesc;
   final String localProvinciaDesc;
   final String localDistritoDesc;
+  final String? localCodigoPostal;
   final String cchkIdEstadoCheck;
   final List<ArrayUser>? arrayresponsables;
   final List<ArrayUser>? arrayresponsablesEliminar;
@@ -362,6 +405,9 @@ class CompanyFormState {
       this.departamento = '',
       this.provincia = '',
       this.distrito = '',
+      this.clienteCoordenadasGeo = '',
+      this.clienteCoordenadasLatitud = '',
+      this.clienteCoordenadasLongitud = '',
       this.seguimientoComentario = '',
       this.website = '',
       this.calificacion = '',
@@ -372,6 +418,7 @@ class CompanyFormState {
       this.tipoCliente = '',
       this.estado = '',
       this.localNombre = '',
+      this.localCodigoPostal = '',
       this.localDireccion = const Address.dirty(''),
       this.localProvincia = '',
       this.localDepartamento = '',
@@ -407,6 +454,9 @@ class CompanyFormState {
     String? departamento,
     String? provincia,
     String? distrito,
+    String? clienteCoordenadasGeo ,
+    String? clienteCoordenadasLatitud ,
+    String? clienteCoordenadasLongitud,
     String? seguimientoComentario,
     String? website,
     String? calificacion,
@@ -434,6 +484,7 @@ class CompanyFormState {
     String? cchkIdEstadoCheck,
     String? userreporteName,
     String? localDistritoDesc,
+    String? localCodigoPostal,
     List<ArrayUser>? arrayresponsables,
     List<ArrayUser>? arrayresponsablesEliminar,
     List<Contact>? contacts,
@@ -452,6 +503,9 @@ class CompanyFormState {
         departamento: departamento ?? this.departamento,
         provincia: provincia ?? this.provincia,
         distrito: distrito ?? this.distrito,
+        clienteCoordenadasGeo: clienteCoordenadasGeo ?? this.clienteCoordenadasGeo,
+        clienteCoordenadasLatitud: clienteCoordenadasLatitud ?? this.clienteCoordenadasLatitud,
+        clienteCoordenadasLongitud: clienteCoordenadasLongitud ?? this.clienteCoordenadasLongitud,
         seguimientoComentario:
             seguimientoComentario ?? this.seguimientoComentario,
         website: website ?? this.website,
@@ -469,6 +523,7 @@ class CompanyFormState {
         voltajeTension: voltajeTension ?? this.voltajeTension,
         enviarNotificacion: enviarNotificacion ?? this.enviarNotificacion,
         orden: orden ?? this.orden,
+        localCodigoPostal: localCodigoPostal ?? this.localCodigoPostal,
         localTipo: localTipo ?? this.localTipo,
         coordenadasGeo: coordenadasGeo ?? this.coordenadasGeo,
         coordenadasLongitud: coordenadasLongitud ?? this.coordenadasLongitud,

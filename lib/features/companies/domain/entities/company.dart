@@ -14,6 +14,9 @@ class Company {
   String? departamento;
   String? provincia;
   String? distrito;
+  String? clienteCoordenadasGeo;
+  String? clienteCoordenadasLongitud;
+  String? clienteCoordenadasLatitud;
   String? seguimientoComentario;
   String? website;
   String? calificacion;
@@ -39,53 +42,57 @@ class Company {
   String? localProvinciaDesc;
   String? localDistritoDesc;
   String? cchkIdEstadoCheck;
+  String? localCodigoPostal;
   List<ArrayUser>? arrayresponsables;
   List<ArrayUser>? arrayresponsablesEliminar;
   String? userreporteName;
 
   //ARRAYRESPONSABLES
 
-  Company({
-    required this.rucId,
-    required this.ruc,
-    required this.razon,
-    this.direccion,
-    this.telefono,
-    this.email,
-    this.tipocliente,
-    this.observaciones,
-    this.usuarioActualizacion,
-    this.estado,
-    this.departamento,
-    this.provincia,
-    this.distrito,
-    this.seguimientoComentario,
-    this.website,
-    this.calificacion,
-    this.visibleTodos,
-    this.codigoPostal,
-    this.fechaActualizacion,
-    this.localNombre,
-    this.coordenadasGeo,
-    this.coordenadasLatitud,
-    this.coordenadasLongitud,
-    this.enviarNotificacion,
-    this.localDepartamento,
-    this.localDepartamentoDesc,
-    this.localDireccion,
-    this.localDistrito,
-    this.localProvincia,
-    this.localDistritoDesc,
-    this.localProvinciaDesc,
-    this.localTipo,
-    this.orden,
-    this.ubigeoCodigo,
-    this.voltajeTension,
-    this.usuarioRegistro,
-    this.idUsuarioRegistro,
-    this.arrayresponsables,
-    this.arrayresponsablesEliminar,
-    this.cchkIdEstadoCheck,
-    this.userreporteName
-  });
+  Company(
+      {required this.rucId,
+      required this.ruc,
+      required this.razon,
+      this.direccion,
+      this.telefono,
+      this.email,
+      this.tipocliente,
+      this.observaciones,
+      this.usuarioActualizacion,
+      this.estado,
+      this.departamento,
+      this.provincia,
+      this.distrito,
+      this.clienteCoordenadasGeo,
+      this.clienteCoordenadasLatitud,
+      this.clienteCoordenadasLongitud,
+      this.seguimientoComentario,
+      this.website,
+      this.calificacion,
+      this.visibleTodos,
+      this.codigoPostal,
+      this.fechaActualizacion,
+      this.localNombre,
+      this.coordenadasGeo,
+      this.coordenadasLatitud,
+      this.coordenadasLongitud,
+      this.enviarNotificacion,
+      this.localDepartamento,
+      this.localDepartamentoDesc,
+      this.localDireccion,
+      this.localDistrito,
+      this.localProvincia,
+      this.localDistritoDesc,
+      this.localProvinciaDesc,
+      this.localTipo,
+      this.orden,
+      this.ubigeoCodigo,
+      this.voltajeTension,
+      this.usuarioRegistro,
+      this.idUsuarioRegistro,
+      this.arrayresponsables,
+      this.arrayresponsablesEliminar,
+      this.cchkIdEstadoCheck,
+      this.localCodigoPostal,
+      this.userreporteName});
 }

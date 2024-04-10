@@ -1,11 +1,11 @@
 
 import 'package:crm_app/features/location/domain/domain.dart';
 
-class PlaceRepositoryImpl extends PlaceRepository {
+class PlacesRepositoryImpl extends PlacesRepository {
 
-  final PlaceDatasource datasource;
+  final PlacesDatasource datasource;
 
-  PlaceRepositoryImpl(this.datasource);
+  PlacesRepositoryImpl(this.datasource);
   
   @override
   Future<Place> getDetailByPlaceId(String placeId) {
@@ -21,7 +21,5 @@ class PlaceRepositoryImpl extends PlaceRepository {
   Future<String> getSearchPlaceIdByCoors(String coors) {
     return datasource.getSearchPlaceIdByCoors(coors);
   }
-
-
 
 }

@@ -24,8 +24,7 @@ class LocationNotifier extends StateNotifier<LocationState> {
   LocationNotifier({
     //required this.authRepository,
     required this.keyValueStorageService,
-  }) : super(const LocationState()) {
-  }
+  }) : super(LocationState()) {}
 
   Future getCurrentPosition() async {
     final position = await Geolocator.getCurrentPosition();
@@ -40,8 +39,7 @@ class LocationNotifier extends StateNotifier<LocationState> {
       final position = event;
 
       state = state.copyWith(
-        lastKnownLocation: LatLng(position.latitude, position.longitude)
-      );
+          lastKnownLocation: LatLng(position.latitude, position.longitude));
     });
   }
 
@@ -49,6 +47,25 @@ class LocationNotifier extends StateNotifier<LocationState> {
     positionStream?.cancel();
     state = state.copyWith(followingUser: false);
     print('stopFollowingUser');
+  }
+
+  Future<LatLng> currentPosition() async {
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high, timeLimit: const Duration(seconds: 4));
+
+      print('currentPosition: ${position}');
+
+      state = state.copyWith(
+          lastKnownLocation: LatLng(position.latitude, position.longitude));
+
+      return state.lastKnownLocation!; 
+    } catch (e) {
+      
+      state = state.copyWith(
+          lastKnownLocation: const LatLng(-12.04318, -77.02824));
+      return state.lastKnownLocation!; 
+    }
   }
 
   /*

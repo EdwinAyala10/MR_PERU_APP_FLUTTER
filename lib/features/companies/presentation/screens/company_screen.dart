@@ -1,9 +1,13 @@
 import 'package:crm_app/features/companies/domain/domain.dart';
 import 'package:crm_app/features/companies/presentation/providers/providers.dart';
+import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
+import 'package:crm_app/features/location/presentation/providers/gps_provider.dart';
+import 'package:crm_app/features/location/presentation/providers/selected_map_provider.dart';
 import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
 import 'package:crm_app/features/shared/shared.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
 import 'package:crm_app/features/shared/widgets/select_custom_form.dart';
+import 'package:crm_app/features/shared/widgets/text_address.dart';
 import 'package:crm_app/features/shared/widgets/title_section_form.dart';
 import 'package:crm_app/features/users/domain/domain.dart';
 import 'package:crm_app/features/users/presentation/delegates/search_user_delegate.dart';
@@ -17,12 +21,6 @@ class CompanyScreen extends ConsumerWidget {
 
   const CompanyScreen({super.key, required this.rucId});
 
-  void showSnackbar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final companyState = ref.watch(companyProvider(rucId));
@@ -31,7 +29,7 @@ class CompanyScreen extends ConsumerWidget {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Crear Empresa'),
+          title: Text('${rucId == 'new' ? 'Crear' : 'Editar'} Empresa'),
           /*leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
@@ -141,6 +139,43 @@ class _CompanyInformation extends ConsumerWidget {
     ];
 
     final companyForm = ref.watch(companyFormProvider(company));
+    //final selectMapState = ref.watch(selectedMapProvider.notifier).state;
+
+    //print('selectMapState stateProcess: ${selectMapState.stateProcess}');
+    //print('selectMapState module: ${selectMapState.module}');
+
+    //var lat = selectMapState.location?.latitude;
+    //var lng = selectMapState.location?.longitude;
+
+    //if (selectMapState.stateProcess == 'updated' && selectMapState.module == 'direction') {
+    /*ref
+        .read(companyFormProvider(company).notifier)
+        .onLoadAddressCompanyChanged(
+          selectMapState.address ?? '',
+          '${lat}, ${lng}',
+          '${lat}',
+          '${lng}',
+          selectMapState.ubigeo ?? '',
+          selectMapState.departament ?? '',
+          selectMapState.province ?? '',
+          selectMapState.district ?? '',
+        );*/
+    //}
+
+    //if (selectMapState.stateProcess == 'updated' && selectMapState.module == 'direction-local') {
+    /*ref
+        .read(companyFormProvider(company).notifier)
+        .onLoadAddressCompanyLocalChanged(
+          selectMapState.address ?? '',
+          '${lat}, ${lng}',
+          '${lat}',
+          '${lng}',
+          selectMapState.ubigeo ?? '',
+          selectMapState.departament ?? '',
+          selectMapState.province ?? '',
+          selectMapState.district ?? '',
+        ); */
+    //}
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -297,49 +332,22 @@ class _CompanyInformation extends ConsumerWidget {
                 ref.read(companyFormProvider(company).notifier).onWebChanged,
           ),
           TitleSectionForm(title: 'DIRECCIÓN DE EMPRESA'),
-          SizedBox(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: CustomCompanyField(
-                    label: 'Dirección',
-                    initialValue: companyForm.direccion.value,
-                    onChanged: ref
-                        .read(companyFormProvider(company).notifier)
-                        .onDireccionChanged,
-                    errorMessage: companyForm.direccion.errorMessage,
-                  ),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 6),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors
-                          .blueAccent.shade200,
-                      borderRadius: BorderRadius.circular(
-                          8),
-                    ),
-                    child: IconButton(
-                      splashColor: Colors.transparent,
-                      onPressed: () {
-                        showModalSearch(context, companyForm.rucId ?? '', 'direction');
-                        //context.push('/company_map/${companyForm.rucId}/direction');
-                      },
-                      icon: const Icon(Icons.location_on,
-                          color: Colors.white), 
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          TextAddress(
+              text: companyForm.direccion.value,
+              error: companyForm.direccion.errorMessage,
+              placeholder: 'Dirección',
+              callback: () {
+                showModalSearch(context, ref, companyForm.rucId ?? '',
+                    'direction', company);
+                //context.push('/company_map/${companyForm.rucId}/direction');
+              },
+              paramContext: context),
           const SizedBox(
-            height: 20,
+            height: 10,
+          ),
+          TextCustom(text: companyForm.codigoPostal, label: 'Código postal', placeholder: 'Código postal'),
+          const SizedBox(
+            height: 10,
           ),
           TitleSectionForm(title: 'DATOS DE PRIMER LOCAL'),
           SelectCustomForm(
@@ -365,45 +373,27 @@ class _CompanyInformation extends ConsumerWidget {
           const SizedBox(
             height: 4,
           ),
-          SizedBox(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: CustomCompanyField(
-                    label: 'Dirección de local',
-                    initialValue: companyForm.localDireccion.value,
-                    onChanged: ref
-                        .read(companyFormProvider(company).notifier)
-                        .onLocalDireccionChanged,
-                    errorMessage: companyForm.localDireccion.errorMessage,
-                  ),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 6),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.blueAccent.shade200,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: IconButton(
-                      splashColor: Colors.transparent,
-                      onPressed: () {
-                        showModalSearch(context, companyForm.rucId ?? '', 'direction-local');
-                        //context.push('/company_map/${companyForm.rucId}/direction-local');
-                      },
-                      icon: const Icon(Icons.location_on, color: Colors.white),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          TextAddress(
+              text: companyForm.localDireccion.value,
+              error: companyForm.localDireccion.errorMessage,
+              placeholder: 'Dirección de local',
+              callback: () {
+                showModalSearch(context, ref, companyForm.rucId ?? '',
+                    'direction-local', company);
+                //context.push('/company_map/${companyForm.rucId}/direction');
+              },
+              paramContext: context),
+          const SizedBox(
+            height: 4,
           ),
-          SelectCustomForm(
+          TextCustom(text: companyForm.localDepartamentoDesc, label: 'Departamento local', placeholder: 'Departamento del local'),
+          TextCustom(text: companyForm.localProvinciaDesc, label: 'Provincia local', placeholder: 'Provincia del local'),
+          TextCustom(text: companyForm.localDistritoDesc, label: 'Distrito local', placeholder: 'Distrito del local'),
+          TextCustom(text: companyForm.localCodigoPostal ?? '', label: 'Código postal local', placeholder: 'Código postal del local'),
+          
+          TextCustom(text: companyForm.coordenadasLatitud ?? '', label: 'Latitud', placeholder: 'Latitud'),
+          TextCustom(text: companyForm.coordenadasLongitud ?? '', label: 'Longitud', placeholder: 'Longitud'),
+          /*SelectCustomForm(
             label: 'Departamento',
             value: companyForm.localDepartamento,
             callbackChange: (String? newValue) {
@@ -412,8 +402,8 @@ class _CompanyInformation extends ConsumerWidget {
                   .onDepartamentoChanged(newValue!);
             },
             items: optionsDepartamento,
-          ),
-          SelectCustomForm(
+          ),*/
+          /*SelectCustomForm(
             label: 'Provincia',
             value: companyForm.localProvincia,
             callbackChange: (String? newValue) {
@@ -422,8 +412,8 @@ class _CompanyInformation extends ConsumerWidget {
                   .onProvinciaChanged(newValue!);
             },
             items: optionsProvincia,
-          ),
-          SelectCustomForm(
+          ),*/
+          /*SelectCustomForm(
             label: 'Distrito',
             value: companyForm.localDistrito,
             callbackChange: (String? newValue) {
@@ -432,17 +422,18 @@ class _CompanyInformation extends ConsumerWidget {
                   .onProvinciaChanged(newValue!);
             },
             items: optionsDistrito,
-          ),
+          ),*/
           const SizedBox(height: 100),
         ],
       ),
     );
   }
 
-  Future<dynamic> showModalSearch(BuildContext context, String ruc, String identificator) {
+  Future<dynamic> showModalSearch(BuildContext context, WidgetRef ref,
+      String ruc, String identificator, Company company) {
     return showModalBottomSheet(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext modalContext) {
         return Container(
           padding: const EdgeInsets.all(14.0),
           //height: 320,
@@ -462,21 +453,88 @@ class _CompanyInformation extends ConsumerWidget {
               const SizedBox(height: 6),
               const Divider(),
               ListTile(
-                title: const Center(
-                    child:
-                        Text('Usar mi ubicación actual')),
-                onTap: () {
-                  Navigator.pop(context);
+                title: const Center(child: Text('Usar mi ubicación actual')),
+                onTap: () async {
+                  Navigator.pop(modalContext);
+
+                  final gpsState = ref.read(gpsProvider.notifier).state;
+
+                  if (!gpsState.isAllGranted) {
+                    if (!gpsState.isGpsEnabled) {
+                      showSnackbar(context, 'Debe de habilitar el GPS');
+                    } else {
+                      showSnackbar(context, 'Es necesario el acceso a GPS');
+                      ref.read(gpsProvider.notifier).askGpsAccess();
+                    }
+                    //Navigator.pop(context);
+
+                    return;
+                  }
+
+                  showLoadingMessage(context);
+
                   //_openSearchContacts(context, ref);
-                  context.push('/company_map/${ruc}/${identificator}');
+                  final selectedMapNotifier =
+                      ref.read(selectedMapProvider.notifier);
+                  bool isNew = ruc == 'new' ? true : false;
+                  await selectedMapNotifier.onSelectMapLocation(
+                      true, isNew, ruc, 'company', identificator, company);
+
+                  var stateSelectedMap = selectedMapNotifier.state;
+
+                  var lat = stateSelectedMap.location?.latitude;
+                  var lng = stateSelectedMap.location?.longitude;
+
+                  if (identificator == 'direction') {
+                    ref
+                        .read(companyFormProvider(company).notifier)
+                        .onLoadAddressCompanyChanged(
+                          stateSelectedMap.address ?? '',
+                          '${lat}, ${lng}',
+                          '${lat}',
+                          '${lng}',
+                          stateSelectedMap.ubigeo ?? '',
+                          stateSelectedMap.departament ?? '',
+                          stateSelectedMap.province ?? '',
+                          stateSelectedMap.district ?? '',
+                        );
+                  } else {
+                    ref
+                        .read(companyFormProvider(company).notifier)
+                        .onLoadAddressCompanyLocalChanged(
+                          stateSelectedMap.address ?? '',
+                          '${lat}, ${lng}',
+                          '${lat}',
+                          '${lng}',
+                          stateSelectedMap.ubigeo ?? '',
+                          stateSelectedMap.departament ?? '',
+                          stateSelectedMap.province ?? '',
+                          stateSelectedMap.district ?? '',
+                        );
+                  }
+
+                  selectedMapNotifier.onFreeIsUpdateAddress();
+                  selectedMapNotifier.onChangeStateProcess('updated');
+
+                  //context.push('/map');
+                  Navigator.pop(context);
                 },
               ),
               const Divider(),
               ListTile(
-                title: const Center(
-                    child: Text('Buscar en el mapa')),
-                onTap: () {
-                  Navigator.pop(context); // Cierra el modal
+                title: const Center(child: Text('Buscar en el mapa')),
+                onTap: () async {
+                  Navigator.pop(modalContext);
+                  //_openSearchContacts(context, ref);
+                  final selectedMapNotifier =
+                      ref.read(selectedMapProvider.notifier);
+                  bool isNew = ruc == 'new' ? true : false;
+                  await selectedMapNotifier.onSelectMapLocation(
+                      false, isNew, ruc, 'company', identificator, company);
+
+                  context.push('/map');
+
+                  // Cierra el modal
                   //_openSearchUsers(context, ref);
                 },
               ),
@@ -490,7 +548,7 @@ class _CompanyInformation extends ConsumerWidget {
                   ),
                 ),
                 onTap: () {
-                  Navigator.pop(context);
+                  Navigator.pop(modalContext);
                 },
               ),
             ],
@@ -517,5 +575,59 @@ class _CompanyInformation extends ConsumerWidget {
 
       ref.read(companyFormProvider(company).notifier).onUsuarioChanged(user);
     });
+  }
+}
+
+void showSnackbar(BuildContext context, String message) {
+  ScaffoldMessenger.of(context).clearSnackBars();
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+}
+
+class TextCustom extends StatelessWidget {
+  String label;
+  String text;
+  String placeholder;
+
+  TextCustom({super.key, required this.text, required this.placeholder,required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontWeight: FontWeight.w500
+          ),
+        ),
+        const SizedBox(
+          height: 4,
+        ),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 9.0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8.0),
+            border: Border.all(
+              color: Colors.grey,
+              width: 1.0,
+            ),
+          ),
+          child: Text(
+            text == "" ? placeholder ?? '' : text,
+            style:  TextStyle(
+              fontSize: 16.0,
+              color: text == "" ? Colors.black45 : Colors.black,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ),
+        const SizedBox(
+          height: 8,
+        ),
+      ],
+    );
   }
 }
