@@ -34,7 +34,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           rucId: company.rucId,
           ruc: Ruc.dirty(company.ruc),
           razon: Razon.dirty(company.razon),
-          direccion: Address.dirty(company.direccion ?? ''),
+          direccion: company.direccion ?? '',
           telefono: Phone.dirty(company.telefono ?? ''),
           observaciones: company.observaciones ?? '',
           departamento: company.departamento ?? '',
@@ -64,10 +64,12 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           cchkIdEstadoCheck: '',
           coordenadasLatitud: '',
           ubigeoCodigo: '',
+          clienteNombreEstado: '',
           localDepartamentoDesc: '',
           localProvinciaDesc: '',
           localDistritoDesc: '',
           userreporteName: '',
+          clienteNombreTipo: '',
           arrayresponsables: company.arrayresponsables ?? [],
           arrayresponsablesEliminar: company.arrayresponsablesEliminar ?? [],
         ));
@@ -85,7 +87,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
       'RUCID': (state.rucId == 'new') ? null : state.rucId,
       'RUC': state.ruc.value,
       'RAZON': state.razon.value,
-      'DIRECCION': state.direccion.value,
+      'DIRECCION': state.direccion,
       'TELEFONO': state.telefono.value,
       'OBSERVACIONES': state.observaciones,
       'DEPARTAMENTO': state.departamento,
@@ -115,11 +117,13 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
       'COORDENADAS_GEO': state.coordenadasGeo,
       'COORDENADAS_LONGITUD': state.coordenadasLongitud,
       'COORDENADAS_LATITUD': state.coordenadasLatitud,
+      'CLIENTE_NOMBRE_TIPO': state.clienteNombreTipo,
       'UBIGEO_CODIGO': state.ubigeoCodigo,
       'LOCAL_CODIGO_POSTAL': state.localCodigoPostal,
       'LOCAL_DEPARTAMENTO_DESC': state.localDepartamentoDesc,
       'LOCAL_PROVINCIA_DESC': state.localProvinciaDesc,
       'CCHK_ID_ESTADO_CHECK': state.cchkIdEstadoCheck,
+      'CLIENTE_NOMBRE_ESTADO': state.clienteNombreEstado,
       'LOCAL_DISTRITO_DESC': state.localDistritoDesc,
       'CLIENTES_RESPONSABLE': state.arrayresponsables != null
           ? List<dynamic>.from(state.arrayresponsables!.map((x) => x.toJson()))
@@ -143,7 +147,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
         Ruc.dirty(state.ruc.value),
         Razon.dirty(state.razon.value),
         Phone.dirty(state.telefono.value),
-        Address.dirty(state.direccion.value),
+        //Address.dirty(state.direccion.value),
         Address.dirty(state.localDireccion.value),
       ]),
     );
@@ -156,7 +160,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           Ruc.dirty(value),
           Razon.dirty(state.razon.value),
           Phone.dirty(state.telefono.value),
-          Address.dirty(state.direccion.value),
+          //Address.dirty(state.direccion.value),
           Address.dirty(state.localDireccion.value),
         ]));
   }
@@ -168,13 +172,13 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           Ruc.dirty(state.ruc.value),
           Razon.dirty(value),
           Phone.dirty(state.telefono.value),
-          Address.dirty(state.direccion.value),
+          //Address.dirty(state.direccion.value),
           Address.dirty(state.localDireccion.value),
         ]));
   }
 
-  void onTipoChanged(String tipoId) {
-    state = state.copyWith(tipoCliente: tipoId);
+  void onTipoChanged(String tipoId, String name) {
+    state = state.copyWith(tipoCliente: tipoId, clienteNombreTipo: name);
   }
 
   void onDepartamentoChanged(String id) {
@@ -197,8 +201,8 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
     state = state.copyWith(localTipo: id);
   }
 
-  void onEstadoChanged(String estadoId) {
-    state = state.copyWith(estado: estadoId);
+  void onEstadoChanged(String estadoId, String name) {
+    state = state.copyWith(estado: estadoId, clienteNombreEstado: name);
   }
 
   void onCalificacionChanged(String calificacionId) {
@@ -232,12 +236,12 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           Ruc.dirty(state.ruc.value),
           Razon.dirty(state.razon.value),
           Phone.dirty(value),
-          Address.dirty(state.direccion.value),
+          //Address.dirty(state.direccion.value),
           Address.dirty(state.localDireccion.value),
         ]));
   }
 
-  void onDireccionChanged(String value) {
+  /*void onDireccionChanged(String value) {
     state = state.copyWith(
         direccion: Address.dirty(value),
         isFormValid: Formz.validate([
@@ -247,40 +251,50 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           Address.dirty(value),
           Address.dirty(state.localDireccion.value),
         ]));
+  }*/
+
+  void onLoadAddressCompanyChanged(String direccion, String coors, String lat,
+      String lng, String ubigeo, String dep, String prov, String dist) {
+    state = state.copyWith(
+        //direccion: Address.dirty(direccion),
+        clienteCoordenadasGeo: coors,
+        clienteCoordenadasLatitud: lat,
+        clienteCoordenadasLongitud: lng,
+        ubigeoCodigo: ubigeo,
+        isFormValid: Formz.validate([
+          Ruc.dirty(state.ruc.value),
+          Razon.dirty(state.razon.value),
+          Phone.dirty(state.telefono.value),
+          //Address.dirty(direccion),
+          Address.dirty(state.localDireccion.value),
+        ]));
   }
 
-  void onLoadAddressCompanyChanged(String direccion, String coors, String lat, String lng, String ubigeo, String dep, String prov, String dist) {
+  void onLoadAddressCompanyLocalChanged(
+      String direccion,
+      String coors,
+      String lat,
+      String lng,
+      String ubigeo,
+      String dep,
+      String prov,
+      String dist) {
     state = state.copyWith(
-      direccion: Address.dirty(direccion),
-      clienteCoordenadasGeo: coors,
-      clienteCoordenadasLatitud: lat,
-      clienteCoordenadasLongitud: lng,
-      ubigeoCodigo: ubigeo,
-      isFormValid: Formz.validate([
-        Ruc.dirty(state.ruc.value),
-        Razon.dirty(state.razon.value),
-        Phone.dirty(state.telefono.value),
-        Address.dirty(direccion),
-        Address.dirty(state.localDireccion.value),
-      ]));
-  }
-  void onLoadAddressCompanyLocalChanged(String direccion, String coors, String lat, String lng, String ubigeo, String dep, String prov, String dist) {
-    state = state.copyWith(
-      localDireccion: Address.dirty(direccion),
-      coordenadasGeo: coors,
-      coordenadasLatitud: lat,
-      coordenadasLongitud: lng,
-      localCodigoPostal: ubigeo,
-      localDepartamentoDesc: dep,
-      localDistritoDesc: dist,
-      localProvinciaDesc: prov,
-      isFormValid: Formz.validate([
-        Ruc.dirty(state.ruc.value),
-        Razon.dirty(state.razon.value),
-        Phone.dirty(state.telefono.value),
-        Address.dirty(state.direccion.value),
-        Address.dirty(direccion),
-      ]));
+        localDireccion: Address.dirty(direccion),
+        coordenadasGeo: coors,
+        coordenadasLatitud: lat,
+        coordenadasLongitud: lng,
+        localCodigoPostal: ubigeo,
+        localDepartamentoDesc: dep,
+        localDistritoDesc: dist,
+        localProvinciaDesc: prov,
+        isFormValid: Formz.validate([
+          Ruc.dirty(state.ruc.value),
+          Razon.dirty(state.razon.value),
+          Phone.dirty(state.telefono.value),
+          //Address.dirty(state.direccion.value),
+          Address.dirty(direccion),
+        ]));
   }
 
   void onLocalDireccionChanged(String value) {
@@ -290,7 +304,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           Ruc.dirty(state.ruc.value),
           Razon.dirty(state.razon.value),
           Phone.dirty(state.telefono.value),
-          Address.dirty(state.direccion.value),
+          //Address.dirty(state.direccion.value),
           Address.dirty(value)
         ]));
   }
@@ -350,7 +364,7 @@ class CompanyFormState {
   final String? rucId;
   final Ruc ruc;
   final Razon razon;
-  final Address direccion;
+  final String direccion;
   final Phone telefono;
   final String observaciones;
   final String departamento;
@@ -386,6 +400,8 @@ class CompanyFormState {
   final String localDistritoDesc;
   final String? localCodigoPostal;
   final String cchkIdEstadoCheck;
+  final String? clienteNombreTipo;
+  final String? clienteNombreEstado;
   final List<ArrayUser>? arrayresponsables;
   final List<ArrayUser>? arrayresponsablesEliminar;
   final List<Contact>? contacts;
@@ -399,12 +415,14 @@ class CompanyFormState {
       this.rucId,
       this.ruc = const Ruc.dirty(''),
       this.razon = const Razon.dirty(''),
-      this.direccion = const Address.dirty(''),
+      this.direccion = '',
       this.telefono = const Phone.dirty(''),
       this.observaciones = '',
       this.departamento = '',
       this.provincia = '',
       this.distrito = '',
+      this.clienteNombreTipo = '',
+      this.clienteNombreEstado = '',
       this.clienteCoordenadasGeo = '',
       this.clienteCoordenadasLatitud = '',
       this.clienteCoordenadasLongitud = '',
@@ -448,14 +466,16 @@ class CompanyFormState {
     Ruc? ruc,
     String? rucId,
     Razon? razon,
-    Address? direccion,
+    String? direccion,
     Phone? telefono,
     String? observaciones,
     String? departamento,
     String? provincia,
+    String? clienteNombreTipo,
     String? distrito,
-    String? clienteCoordenadasGeo ,
-    String? clienteCoordenadasLatitud ,
+    String? clienteNombreEstado,
+    String? clienteCoordenadasGeo,
+    String? clienteCoordenadasLatitud,
     String? clienteCoordenadasLongitud,
     String? seguimientoComentario,
     String? website,
@@ -501,11 +521,16 @@ class CompanyFormState {
         telefono: telefono ?? this.telefono,
         observaciones: observaciones ?? this.observaciones,
         departamento: departamento ?? this.departamento,
+        clienteNombreTipo: clienteNombreTipo ?? this.clienteNombreTipo,
         provincia: provincia ?? this.provincia,
+        clienteNombreEstado: clienteNombreEstado ?? this.clienteNombreEstado,
         distrito: distrito ?? this.distrito,
-        clienteCoordenadasGeo: clienteCoordenadasGeo ?? this.clienteCoordenadasGeo,
-        clienteCoordenadasLatitud: clienteCoordenadasLatitud ?? this.clienteCoordenadasLatitud,
-        clienteCoordenadasLongitud: clienteCoordenadasLongitud ?? this.clienteCoordenadasLongitud,
+        clienteCoordenadasGeo:
+            clienteCoordenadasGeo ?? this.clienteCoordenadasGeo,
+        clienteCoordenadasLatitud:
+            clienteCoordenadasLatitud ?? this.clienteCoordenadasLatitud,
+        clienteCoordenadasLongitud:
+            clienteCoordenadasLongitud ?? this.clienteCoordenadasLongitud,
         seguimientoComentario:
             seguimientoComentario ?? this.seguimientoComentario,
         website: website ?? this.website,

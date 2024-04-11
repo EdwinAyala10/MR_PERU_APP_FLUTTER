@@ -202,9 +202,13 @@ class _CompanyInformation extends ConsumerWidget {
             label: 'Tipo',
             value: companyForm.tipoCliente,
             callbackChange: (String? newValue) {
+              DropdownOption searchDropdown = optionsTipoCliente
+                  .where((option) => option.id == newValue!)
+                  .first;
+
               ref
                   .read(companyFormProvider(company).notifier)
-                  .onTipoChanged(newValue!);
+                  .onTipoChanged(newValue!, searchDropdown.name);
             },
             items: optionsTipoCliente,
           ),
@@ -212,9 +216,14 @@ class _CompanyInformation extends ConsumerWidget {
             label: 'Estado',
             value: companyForm.estado,
             callbackChange: (String? newValue) {
+
+              DropdownOption searchDropdown = optionsEstado
+                  .where((option) => option.id == newValue!)
+                  .first;
+
               ref
                   .read(companyFormProvider(company).notifier)
-                  .onEstadoChanged(newValue!);
+                  .onEstadoChanged(newValue!, searchDropdown.name);
             },
             items: optionsEstado,
           ),
@@ -331,24 +340,10 @@ class _CompanyInformation extends ConsumerWidget {
             onChanged:
                 ref.read(companyFormProvider(company).notifier).onWebChanged,
           ),
-          TitleSectionForm(title: 'DIRECCIÓN DE EMPRESA'),
-          TextAddress(
-              text: companyForm.direccion.value,
-              error: companyForm.direccion.errorMessage,
-              placeholder: 'Dirección',
-              callback: () {
-                showModalSearch(context, ref, companyForm.rucId ?? '',
-                    'direction', company);
-                //context.push('/company_map/${companyForm.rucId}/direction');
-              },
-              paramContext: context),
+          /*TextCustom(text: companyForm.codigoPostal, label: 'Código postal', placeholder: 'Código postal'),
           const SizedBox(
             height: 10,
-          ),
-          TextCustom(text: companyForm.codigoPostal, label: 'Código postal', placeholder: 'Código postal'),
-          const SizedBox(
-            height: 10,
-          ),
+          ),*/
           TitleSectionForm(title: 'DATOS DE PRIMER LOCAL'),
           SelectCustomForm(
             label: 'Tipo de local',
@@ -384,7 +379,7 @@ class _CompanyInformation extends ConsumerWidget {
               },
               paramContext: context),
           const SizedBox(
-            height: 4,
+            height: 6,
           ),
           TextCustom(text: companyForm.localDepartamentoDesc, label: 'Departamento local', placeholder: 'Departamento del local'),
           TextCustom(text: companyForm.localProvinciaDesc, label: 'Provincia local', placeholder: 'Provincia del local'),
@@ -423,7 +418,7 @@ class _CompanyInformation extends ConsumerWidget {
             },
             items: optionsDistrito,
           ),*/
-          const SizedBox(height: 100),
+          const SizedBox(height: 85),
         ],
       ),
     );

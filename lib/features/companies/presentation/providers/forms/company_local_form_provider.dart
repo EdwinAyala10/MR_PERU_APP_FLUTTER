@@ -48,6 +48,7 @@ class CompanyLocalFormNotifier extends StateNotifier<CompanyLocalFormState> {
           provincia: companyLocal.provincia ?? '',
           ubigeoCodigo: companyLocal.ubigeoCodigo ?? '',
           razon: companyLocal.razon ?? '',
+          localTipoDescripcion: companyLocal.localTipoDescripcion ?? '',
         ));
 
   Future<CreateUpdateCompanyLocalResponse> onFormSubmit() async {
@@ -72,6 +73,7 @@ class CompanyLocalFormNotifier extends StateNotifier<CompanyLocalFormState> {
       'COORDENADAS_LONGITUD': state.coordenadasLongitud,
       'COORDENADAS_LATITUD': state.coordenadasLatitud,
       'UBIGEO_CODIGO': state.ubigeoCodigo,
+      'LOCAL_TIPO_DESCRIPCION': state.localTipoDescripcion,
       'LOCAL_DEPARTAMENTO_DESC': state.localDepartamentoDesc,
       'LOCAL_PROVINCIA_DESC': state.localProvinciaDesc,
       'LOCAL_DISTRITO_DESC': state.localDistritoDesc,
@@ -157,6 +159,7 @@ class CompanyLocalFormState {
   final String? departamento;
   final String? provincia;
   final String? distrito;
+  final String? localTipoDescripcion;
 
   CompanyLocalFormState({
     this.isFormValid = false,
@@ -178,6 +181,7 @@ class CompanyLocalFormState {
     this.localProvinciaDesc = '',
     this.localTipo = '',
     this.provincia = '',
+    this.localTipoDescripcion = '',
     this.ubigeoCodigo = '',
   });
 
@@ -202,6 +206,7 @@ class CompanyLocalFormState {
     String? departamento,
     String? provincia,
     String? distrito,
+    String? localTipoDescripcion,
   }) =>
       CompanyLocalFormState(
         isFormValid: isFormValid ?? this.isFormValid,
@@ -213,6 +218,7 @@ class CompanyLocalFormState {
         distrito: distrito ?? this.distrito,
         localDepartamento: localDepartamento ?? this.localDepartamento,
         razon: razon ?? this.razon,
+        localTipoDescripcion: localTipoDescripcion ?? this.localTipoDescripcion,
         localDepartamentoDesc:
             localDepartamentoDesc ?? this.localDepartamentoDesc,
         localDireccion: localDireccion ?? this.localDireccion,

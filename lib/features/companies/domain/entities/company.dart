@@ -43,6 +43,8 @@ class Company {
   String? localDistritoDesc;
   String? cchkIdEstadoCheck;
   String? localCodigoPostal;
+  String? clienteNombreEstado;
+  String? clienteNombreTipo;
   List<ArrayUser>? arrayresponsables;
   List<ArrayUser>? arrayresponsablesEliminar;
   String? userreporteName;
@@ -71,6 +73,7 @@ class Company {
       this.calificacion,
       this.visibleTodos,
       this.codigoPostal,
+      this.clienteNombreTipo,
       this.fechaActualizacion,
       this.localNombre,
       this.coordenadasGeo,
@@ -94,5 +97,6 @@ class Company {
       this.arrayresponsablesEliminar,
       this.cchkIdEstadoCheck,
       this.localCodigoPostal,
+      this.clienteNombreEstado,
       this.userreporteName});
 }

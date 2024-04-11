@@ -74,8 +74,7 @@ class _CompanyDetailView extends StatefulWidget {
       required this.opportunities,
       required this.activities,
       required this.events,
-      required this.companyLocales
-      });
+      required this.companyLocales});
 
   @override
   State<_CompanyDetailView> createState() => _CompanyDetailViewState();
@@ -176,10 +175,10 @@ class _CompanyDetailViewState extends State<_CompanyDetailView>
                 styleLabel, styleContent),
             _buildInfoField(
                 'RUC', widget.company.ruc, styleLabel, styleContent),
-            _buildInfoField('Tipo', widget.company.tipocliente ?? '',
+            _buildInfoField('Tipo', widget.company.clienteNombreTipo ?? '',
                 styleLabel, styleContent),
-            _buildInfoField('Estado', widget.company.estado ?? '', styleLabel,
-                styleContent),
+            _buildInfoField('Estado', widget.company.clienteNombreEstado ?? '',
+                styleLabel, styleContent),
             _buildInfoField('Calificación', widget.company.calificacion ?? '',
                 styleLabel, styleContent),
             if (widget.company.arrayresponsables != null &&
@@ -215,31 +214,34 @@ class _CompanyDetailViewState extends State<_CompanyDetailView>
                 widget.company.visibleTodos == "1" ? 'SI' : 'NO',
                 styleLabel,
                 styleContent),
-            _buildInfoField(
-                'Comentarios',
-                widget.company.seguimientoComentario ?? '',
-                styleLabel,
-                styleContent),
-            _buildInfoField('Recomendación', widget.company.observaciones ?? '',
-                styleLabel, styleContent),
+            widget.company.seguimientoComentario != ""
+                ? _buildInfoField(
+                    'Comentarios',
+                    widget.company.seguimientoComentario ?? '',
+                    styleLabel,
+                    styleContent)
+                : const SizedBox(),
+            widget.company.observaciones != ""
+                ? _buildInfoField(
+                    'Recomendación',
+                    widget.company.observaciones ?? '',
+                    styleLabel,
+                    styleContent)
+                : const SizedBox(),
             const SizedBox(height: 20), // Espaciado adicional
             Text('DATOS DE CONTACTO', style: styleTitle),
             spacingHeight,
             _buildInfoField('Teléfono', widget.company.telefono ?? '',
                 styleLabel, styleContent),
-            _buildInfoField(
-                'Email', widget.company.email ?? '', styleLabel, styleContent),
-            _buildInfoField(
-                'Web', widget.company.website ?? '', styleLabel, styleContent),
+            widget.company.email != ""
+                ? _buildInfoField('Email', widget.company.email ?? '',
+                    styleLabel, styleContent)
+                : const SizedBox(),
+            widget.company.email != ""
+                ? _buildInfoField('Web', widget.company.website ?? '',
+                    styleLabel, styleContent)
+                : const SizedBox(),
             const SizedBox(height: 20), // Espaciado adicional
-            Text('DIRECCION', style: styleTitle),
-            spacingHeight,
-            Text(widget.company.direccion ?? '',
-                overflow: TextOverflow.ellipsis, style: styleContent),
-            spacingHeight,
-            _buildInfoField('Código postal', widget.company.codigoPostal ?? '',
-                styleLabel, styleContent),
-            const SizedBox(height: 20),
           ],
         ),
       ),
@@ -248,35 +250,35 @@ class _CompanyDetailViewState extends State<_CompanyDetailView>
 
   Widget _buildLocalesTab(TextStyle styleTitle, TextStyle styleLabel,
       TextStyle styleContent, SizedBox spacingHeight) {
-    return widget.companyLocales.length > 0
+    return widget.companyLocales.isNotEmpty
         ? _ListCompanyLocales(companyLocales: widget.companyLocales)
         : _NoExistData(description: 'No existe locales registrados');
   }
 
   Widget _buildContactsTab(TextStyle styleTitle, TextStyle styleLabel,
       TextStyle styleContent, SizedBox spacingHeight) {
-    return widget.contacts.length > 0
+    return widget.contacts.isNotEmpty
         ? _ListContacts(contacts: widget.contacts)
         : _NoExistData(description: 'No existe contactos registradas');
   }
 
   Widget _buildOpportunitiesTab(TextStyle styleTitle, TextStyle styleLabel,
       TextStyle styleContent, SizedBox spacingHeight) {
-    return widget.opportunities.length > 0
+    return widget.opportunities.isNotEmpty
         ? _ListOpportunities(opportunities: widget.opportunities)
         : _NoExistData(description: 'No existe oportunidades registradas');
   }
 
   Widget _buildActivitiesTab(TextStyle styleTitle, TextStyle styleLabel,
       TextStyle styleContent, SizedBox spacingHeight) {
-    return widget.activities.length > 0
+    return widget.activities.isNotEmpty
         ? _ListActivities(activities: widget.activities)
         : _NoExistData(description: 'No existe actividades registradas');
   }
 
   Widget _buildEventsTab(TextStyle styleTitle, TextStyle styleLabel,
       TextStyle styleContent, SizedBox spacingHeight) {
-    return widget.events.length > 0
+    return widget.events.isNotEmpty
         ? _ListEvents(events: widget.events)
         : _NoExistData(description: 'No existe eventos registradas');
   }
@@ -331,9 +333,9 @@ class _CompanyDetailViewState extends State<_CompanyDetailView>
               String ruc = widget.company.ruc;
               String ids = 'new*${ruc}';
               context.push('/company_local/${ids}');
-            }, iconData: Icons.add);
-      
-      
+            },
+            iconData: Icons.add);
+
       default:
         return null;
     }
@@ -365,7 +367,6 @@ class _ListContacts extends StatelessWidget {
   }
 }
 
-
 class _ListCompanyLocales extends StatelessWidget {
   final List<CompanyLocal> companyLocales;
   const _ListCompanyLocales({super.key, required this.companyLocales});
@@ -383,7 +384,7 @@ class _ListCompanyLocales extends StatelessWidget {
           return ItemCompanyLocal(
               companyLocal: companyLocal,
               callbackOnTap: () {
-
+                context.push('/view-map/${companyLocal.coordenadasGeo}');
               });
         },
       ),

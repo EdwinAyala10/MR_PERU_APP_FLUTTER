@@ -1,4 +1,5 @@
 import 'package:crm_app/features/location/presentation/screens/map_screen.dart';
+import 'package:crm_app/features/location/presentation/screens/view_map_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -109,6 +110,12 @@ final goRouterProvider = Provider((ref) {
       GoRoute(
         path: '/map', // /company/new
         builder: (context, state) => const MapScreen(),
+      ),
+      GoRoute(
+        path: '/view-map/:coors', // /company/new
+        builder: (context, state) => ViewMapScreen(
+          coors: state.pathParameters['coors'] ?? '',
+        ),
       ),
       GoRoute(
         path: '/company_local/:id', // /company/new

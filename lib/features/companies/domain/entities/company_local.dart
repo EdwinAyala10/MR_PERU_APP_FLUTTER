@@ -18,6 +18,7 @@ class CompanyLocal {
   String? departamento;
   String? provincia;
   String? distrito;
+  String? localTipoDescripcion;
 
   CompanyLocal({
     required this.id,
@@ -39,5 +40,6 @@ class CompanyLocal {
     this.departamento,
     this.provincia,
     this.distrito,
+    this.localTipoDescripcion
   });
 }

@@ -43,17 +43,18 @@ class CustomCompanyField extends StatelessWidget {
 
     return Column(
       children: [
-        SizedBox(
+        const SizedBox(
           height: 6.0,
         ),
         Container(
           padding: const EdgeInsets.only(bottom: 10.0),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.vertical(
+            /*borderRadius: BorderRadius.vertical(
               top: isTopField ? Radius.circular(8) : Radius.zero,
               bottom: isBottomField ? Radius.circular(8) : Radius.zero,
-            ),
+            ),*/
+            borderRadius: BorderRadius.circular(8),
             boxShadow: [
               if (isBottomField)
                 BoxShadow(
