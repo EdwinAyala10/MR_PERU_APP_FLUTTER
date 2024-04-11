@@ -381,13 +381,13 @@ class _CompanyInformation extends ConsumerWidget {
           const SizedBox(
             height: 6,
           ),
-          TextCustom(text: companyForm.localDepartamentoDesc, label: 'Departamento local', placeholder: 'Departamento del local'),
-          TextCustom(text: companyForm.localProvinciaDesc, label: 'Provincia local', placeholder: 'Provincia del local'),
-          TextCustom(text: companyForm.localDistritoDesc, label: 'Distrito local', placeholder: 'Distrito del local'),
-          TextCustom(text: companyForm.localCodigoPostal ?? '', label: 'Código postal local', placeholder: 'Código postal del local'),
+          TextViewCustom(text: companyForm.localDepartamentoDesc, label: 'Departamento local', placeholder: 'Departamento del local'),
+          TextViewCustom(text: companyForm.localProvinciaDesc, label: 'Provincia local', placeholder: 'Provincia del local'),
+          TextViewCustom(text: companyForm.localDistritoDesc, label: 'Distrito local', placeholder: 'Distrito del local'),
+          TextViewCustom(text: companyForm.localCodigoPostal ?? '', label: 'Código postal local', placeholder: 'Código postal del local'),
           
-          TextCustom(text: companyForm.coordenadasLatitud ?? '', label: 'Latitud', placeholder: 'Latitud'),
-          TextCustom(text: companyForm.coordenadasLongitud ?? '', label: 'Longitud', placeholder: 'Longitud'),
+          TextViewCustom(text: companyForm.coordenadasLatitud ?? '', label: 'Latitud', placeholder: 'Latitud'),
+          TextViewCustom(text: companyForm.coordenadasLongitud ?? '', label: 'Longitud', placeholder: 'Longitud'),
           /*SelectCustomForm(
             label: 'Departamento',
             value: companyForm.localDepartamento,
@@ -481,7 +481,7 @@ class _CompanyInformation extends ConsumerWidget {
                   var lng = stateSelectedMap.location?.longitude;
 
                   if (identificator == 'direction') {
-                    ref
+                    /*ref
                         .read(companyFormProvider(company).notifier)
                         .onLoadAddressCompanyChanged(
                           stateSelectedMap.address ?? '',
@@ -492,7 +492,7 @@ class _CompanyInformation extends ConsumerWidget {
                           stateSelectedMap.departament ?? '',
                           stateSelectedMap.province ?? '',
                           stateSelectedMap.district ?? '',
-                        );
+                        );*/
                   } else {
                     ref
                         .read(companyFormProvider(company).notifier)
@@ -578,51 +578,3 @@ void showSnackbar(BuildContext context, String message) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 }
 
-class TextCustom extends StatelessWidget {
-  String label;
-  String text;
-  String placeholder;
-
-  TextCustom({super.key, required this.text, required this.placeholder,required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontWeight: FontWeight.w500
-          ),
-        ),
-        const SizedBox(
-          height: 4,
-        ),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 9.0),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8.0),
-            border: Border.all(
-              color: Colors.grey,
-              width: 1.0,
-            ),
-          ),
-          child: Text(
-            text == "" ? placeholder ?? '' : text,
-            style:  TextStyle(
-              fontSize: 16.0,
-              color: text == "" ? Colors.black45 : Colors.black,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ),
-        const SizedBox(
-          height: 8,
-        ),
-      ],
-    );
-  }
-}

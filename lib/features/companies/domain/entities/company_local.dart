@@ -18,28 +18,29 @@ class CompanyLocal {
   String? departamento;
   String? provincia;
   String? distrito;
+  String? localCodigoPostal;
   String? localTipoDescripcion;
 
-  CompanyLocal({
-    required this.id,
-    required this.ruc,
-    required this.localNombre,
-    this.razon,
-    this.localDireccion,
-    this.localDepartamento,
-    this.localProvincia,
-    this.localDistrito,
-    this.localTipo,
-    this.coordenadasGeo,
-    this.coordenadasLongitud,
-    this.coordenadasLatitud,
-    this.ubigeoCodigo,
-    this.localDepartamentoDesc,
-    this.localProvinciaDesc,
-    this.localDistritoDesc,
-    this.departamento,
-    this.provincia,
-    this.distrito,
-    this.localTipoDescripcion
-  });
+  CompanyLocal(
+      {required this.id,
+      required this.ruc,
+      required this.localNombre,
+      this.razon,
+      this.localDireccion,
+      this.localDepartamento,
+      this.localProvincia,
+      this.localDistrito,
+      this.localTipo,
+      this.coordenadasGeo,
+      this.coordenadasLongitud,
+      this.coordenadasLatitud,
+      this.ubigeoCodigo,
+      this.localDepartamentoDesc,
+      this.localProvinciaDesc,
+      this.localDistritoDesc,
+      this.departamento,
+      this.provincia,
+      this.distrito,
+      this.localCodigoPostal,
+      this.localTipoDescripcion});
 }

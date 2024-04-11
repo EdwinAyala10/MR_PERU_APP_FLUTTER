@@ -253,22 +253,22 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
         ]));
   }*/
 
-  void onLoadAddressCompanyChanged(String direccion, String coors, String lat,
-      String lng, String ubigeo, String dep, String prov, String dist) {
+  /*void onLoadAddressCompanyChanged(String direccion, String coors, String lat,
+      String lng, String codigoPostal, String dep, String prov, String dist) {
     state = state.copyWith(
         //direccion: Address.dirty(direccion),
         clienteCoordenadasGeo: coors,
         clienteCoordenadasLatitud: lat,
         clienteCoordenadasLongitud: lng,
-        ubigeoCodigo: ubigeo,
+        codigoPostal: codigoPostal,
         isFormValid: Formz.validate([
           Ruc.dirty(state.ruc.value),
           Razon.dirty(state.razon.value),
           Phone.dirty(state.telefono.value),
           //Address.dirty(direccion),
-          Address.dirty(state.localDireccion.value),
+          Address.dirty(state.direccion),
         ]));
-  }
+  }*/
 
   void onLoadAddressCompanyLocalChanged(
       String direccion,

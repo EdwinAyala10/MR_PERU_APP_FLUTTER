@@ -11,6 +11,7 @@ class CompanyLocalMapper {
     localProvincia: json['LOCAL_PROVINCIA'] ?? '',
     localDistrito: json['LOCAL_DISTRITO'] ?? '',
     localTipo: json['LOCAL_TIPO'] ?? '',
+    localCodigoPostal: json['LOCAL_CODIGO_POSTAL'] ?? '',
     coordenadasGeo: json['COORDENADAS_GEO'] ?? '',
     coordenadasLongitud: json['COORDENADAS_LONGITUD'] ?? '',
     coordenadasLatitud: json['COORDENADAS_LATITUD'] ?? '',

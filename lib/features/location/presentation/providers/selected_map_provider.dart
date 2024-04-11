@@ -1,4 +1,3 @@
-import 'package:crm_app/features/companies/domain/domain.dart';
 import 'package:crm_app/features/location/domain/domain.dart';
 import 'package:crm_app/features/location/domain/entities/selected_address.dart';
 import 'package:crm_app/features/location/presentation/providers/providers.dart';

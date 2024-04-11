@@ -13,7 +13,9 @@ final companyLocalFormProvider = StateNotifierProvider.autoDispose
   /*final createUpdateCallback =
       ref.watch(companiesProvider.notifier).createOrUpdateCompanyLocal;*/
 
-  final createUpdateCallback = ref.watch(companyProvider(companyLocal.ruc).notifier).createOrUpdateCompanyLocal;
+  final createUpdateCallback = ref
+      .watch(companyProvider(companyLocal.ruc).notifier)
+      .createOrUpdateCompanyLocal;
 
   return CompanyLocalFormNotifier(
     companyLocal: companyLocal,
@@ -46,6 +48,7 @@ class CompanyLocalFormNotifier extends StateNotifier<CompanyLocalFormState> {
           localProvinciaDesc: companyLocal.localProvinciaDesc ?? '',
           localTipo: companyLocal.localTipo ?? '',
           provincia: companyLocal.provincia ?? '',
+          localCodigoPostal: companyLocal.localCodigoPostal ?? '',
           ubigeoCodigo: companyLocal.ubigeoCodigo ?? '',
           razon: companyLocal.razon ?? '',
           localTipoDescripcion: companyLocal.localTipoDescripcion ?? '',
@@ -77,6 +80,7 @@ class CompanyLocalFormNotifier extends StateNotifier<CompanyLocalFormState> {
       'LOCAL_DEPARTAMENTO_DESC': state.localDepartamentoDesc,
       'LOCAL_PROVINCIA_DESC': state.localProvinciaDesc,
       'LOCAL_DISTRITO_DESC': state.localDistritoDesc,
+      'LOCAL_CODIGO_POSTAL': state.localCodigoPostal,
       'RAZON': state.razon,
     };
 
@@ -123,9 +127,11 @@ class CompanyLocalFormNotifier extends StateNotifier<CompanyLocalFormState> {
 
   void onTipoChanged(
     String id,
+    String name
   ) {
     state = state.copyWith(
       localTipo: id,
+      localTipoDescripcion: name,
     );
   }
 
@@ -135,6 +141,24 @@ class CompanyLocalFormNotifier extends StateNotifier<CompanyLocalFormState> {
 
   void onProvinciaChanged(String id, String value) {
     state = state.copyWith(provincia: id, localProvincia: value);
+  }
+
+  void onLoadAddressChanged(String direccion, String coors, String lat,
+      String lng, String codigoPostal, String dep, String prov, String dist) {
+    state = state.copyWith(
+        localDireccion: Address.dirty(direccion),
+        localDepartamentoDesc: dep,
+        localProvinciaDesc: prov,
+        localDistritoDesc: dist,
+        coordenadasGeo: coors,
+        coordenadasLatitud: lat,
+        coordenadasLongitud: lng,
+        localCodigoPostal: codigoPostal,
+        isFormValid: Formz.validate([
+          Ruc.dirty(state.ruc.value),
+          Name.dirty(state.localNombre.value),
+          Address.dirty(direccion),
+        ]));
   }
 }
 
@@ -158,6 +182,7 @@ class CompanyLocalFormState {
   final String? localDistritoDesc;
   final String? departamento;
   final String? provincia;
+  final String? localCodigoPostal;
   final String? distrito;
   final String? localTipoDescripcion;
 
@@ -181,6 +206,7 @@ class CompanyLocalFormState {
     this.localProvinciaDesc = '',
     this.localTipo = '',
     this.provincia = '',
+    this.localCodigoPostal = '',
     this.localTipoDescripcion = '',
     this.ubigeoCodigo = '',
   });
@@ -206,6 +232,7 @@ class CompanyLocalFormState {
     String? departamento,
     String? provincia,
     String? distrito,
+    String? localCodigoPostal,
     String? localTipoDescripcion,
   }) =>
       CompanyLocalFormState(
@@ -230,6 +257,7 @@ class CompanyLocalFormState {
         localTipo: localTipo ?? this.localTipo,
         provincia: provincia ?? this.provincia,
         ruc: ruc ?? this.ruc,
+        localCodigoPostal: localCodigoPostal ?? this.localCodigoPostal,
         ubigeoCodigo: ubigeoCodigo ?? this.ubigeoCodigo,
       );
 }
