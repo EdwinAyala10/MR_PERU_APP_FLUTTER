@@ -37,7 +37,7 @@ class CustomCompanyField extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
 
     final border = OutlineInputBorder(
-      borderSide: const BorderSide(color: Colors.transparent),
+      borderSide: const BorderSide(color: Colors.black45),
       borderRadius: BorderRadius.circular(8),
     );
 
@@ -65,6 +65,7 @@ class CustomCompanyField extends StatelessWidget {
             ],
           ),
           child: TextFormField(
+            //controller: controller,
             onChanged: onChanged,
             onFieldSubmitted: onFieldSubmitted,
             validator: validator,

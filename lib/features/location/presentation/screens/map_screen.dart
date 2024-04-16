@@ -283,8 +283,6 @@ class _CompanyMapViewState extends ConsumerState {
                   Navigator.pop(context);
                   Navigator.pop(context);
 
-
-
                 },
                 child: const Text('Confimar ubicación',
                     style: TextStyle(

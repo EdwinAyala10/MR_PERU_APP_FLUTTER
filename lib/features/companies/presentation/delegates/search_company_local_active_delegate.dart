@@ -159,10 +159,18 @@ class _CompanyLocalItem extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      companyLocal.localNombre,
-                      style: textStyles.titleMedium,
+                      companyLocal.localNombre == "" ? '[LOCAL SIN NOMBRE]' : companyLocal.localNombre,
+                      style: textStyles.titleMedium?.copyWith(
+                        color: companyLocal.localNombre == "" ? Colors.black45 : Colors.black
+                      ), 
+                      overflow: TextOverflow.ellipsis
                     ),
-                    Text(companyLocal.localDireccion ?? ''),
+                    Text(
+                      companyLocal.localTipoDescripcion ?? ''
+                      , overflow: TextOverflow.ellipsis
+                    ),
+                    Text(companyLocal.localDireccion ?? '', overflow: TextOverflow.ellipsis),
+                    Text('${companyLocal.departamento} - ${companyLocal.provincia} - ${companyLocal.distrito}', overflow: TextOverflow.ellipsis),
                   ],
                 ),
               ),

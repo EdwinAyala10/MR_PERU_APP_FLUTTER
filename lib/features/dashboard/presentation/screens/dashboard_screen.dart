@@ -71,7 +71,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             icon: Icons.event,
             style: const TextStyle(fontSize: 16, color: Colors.white),
             onPressed: () {
-              context.push('/event/no-id');
+              context.go('/event/no-id');
               _animationController.reverse();
             },
           ),
@@ -82,7 +82,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             icon: Icons.local_activity_outlined,
             style: const TextStyle(fontSize: 16, color: Colors.white),
             onPressed: () {
-              context.push('/activity/no-id');
+              context.go('/activity/no-id');
               _animationController.reverse();
             },
           ),
@@ -93,7 +93,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             icon: Icons.work,
             style: const TextStyle(fontSize: 16, color: Colors.white),
             onPressed: () {
-              context.push('/opportunity/no-id');
+              context.go('/opportunity/no-id');
               _animationController.reverse();
             },
           ),
@@ -104,7 +104,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             icon: Icons.perm_contact_cal,
             style: const TextStyle(fontSize: 16, color: Colors.white),
             onPressed: () {
-              context.push('/contact/no-id');
+              context.go('/contact/no-id');
               _animationController.reverse();
             },
           ),
@@ -115,7 +115,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             icon: Icons.account_balance_rounded,
             style: const TextStyle(fontSize: 16, color: Colors.white),
             onPressed: () {
-              context.push('/company/no-id');
+              context.go('/company/no-id');
               _animationController.reverse();
             },
           ),
@@ -232,7 +232,7 @@ class _DashboardViewState extends ConsumerState {
                             ),
                             child: TextButton(
                               onPressed: () {
-                                context.push('/kpis');
+                                context.go('/kpis');
                                 // Aquí puedes implementar la lógica para "Mostrar Todo"
                               },
                               child: Row(

@@ -49,6 +49,7 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
   }
 
   Company newEmptyCompany() {
+    print('VACIO COMPANY');
     return Company(
       rucId: 'new',
       razon: '',
@@ -82,12 +83,13 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
       localDepartamentoDesc: '',
       localDireccion: '',
       localDistrito: '',
-      clienteNombreEstado: '',
+      clienteNombreEstado: 'ACTIVO',
       localDistritoDesc: '',
       localProvinciaDesc: '',
-      localTipo: '',
+      localTipo: '2',
+      localCantidad: '1',
       orden: '',
-      clienteNombreTipo: '',
+      clienteNombreTipo: 'Cliente',
       cchkIdEstadoCheck: '',
       ubigeoCodigo: '',
       voltajeTension: '',
@@ -98,7 +100,6 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
   }
 
   Future<void> updateCheckState(String idCheck) async {
-
     Company? companyNew = state.company;
 
     companyNew?.cchkIdEstadoCheck = idCheck == '01' ? '06' : '01';

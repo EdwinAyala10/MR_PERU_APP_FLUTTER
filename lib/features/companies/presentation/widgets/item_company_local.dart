@@ -23,12 +23,10 @@ class ItemCompanyLocal extends StatelessWidget {
       ),
       leading: const Icon(Icons.home_work_outlined),
       trailing: GestureDetector(
-        onTap: () {
-
-        },
+        onTap: callbackOnTap,
         child: const Icon(Icons.place, size: 38, color: Colors.deepOrangeAccent),
       ),
-      onTap: callbackOnTap,
+      //onTap: ,
     );
   }
 }

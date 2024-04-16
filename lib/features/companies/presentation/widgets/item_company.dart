@@ -9,35 +9,39 @@ class ItemCompany extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    int? numCantidadLocal = int.tryParse(company.localCantidad ?? '0');
+    numCantidadLocal = numCantidadLocal ?? 0;
+
     return ListTile(
-      title: Text(company.razon, style: const TextStyle(fontWeight: FontWeight.w500)),
+      title: Text(company.razon,
+          style: const TextStyle(fontWeight: FontWeight.w500)),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Text(company.estado ?? ''),
+              Text(company.clienteNombreEstado ?? ''),
               Text(' - '),
-              Text(company.tipocliente ?? ''),
+              Text(company.clienteNombreTipo ?? ''),
             ],
           ),
-          Text(company.direccion ?? '', style: TextStyle( color: Colors.black45 ))
+          Text ((numCantidadLocal>1 ? company.localDistrito : company.localDireccion) ?? '' , style: TextStyle(color: Colors.black45))
         ],
       ),
       leading: Stack(
         alignment: Alignment.center,
         children: [
           Container(
-            width: 50, // Ancho del contenedor circular
-            height: 60, // Altura del contenedor circular
+            width: 50,
+            height: 60,
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.black12, // Color del contenedor circular
+              color: Colors.black12,
             ),
             child: const Icon(
               Icons.business,
-              size: 24, // Tamaño del icono del edificio
-              color: Colors.white, // Color del icono del edificio
+              size: 24,
+              color: Colors.white,
             ),
           ),
           Positioned(
@@ -45,8 +49,10 @@ class ItemCompany extends StatelessWidget {
             right: 0,
             child: Icon(
               Icons.thumb_up,
-              size: 24, // Tamaño del icono de la mano
-              color: company.estado == 'ACTIVO' ? Colors.green : Colors.red, // Color del icono de la mano
+              size: 24,
+              color: company.clienteNombreEstado == 'ACTIVO'
+                  ? Colors.green
+                  : Colors.red,
             ),
           ),
         ],

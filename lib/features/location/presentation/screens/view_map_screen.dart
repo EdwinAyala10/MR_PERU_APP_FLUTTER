@@ -25,7 +25,7 @@ class _ViewMapScreenState extends State<ViewMapScreen> {
 
   Future<void> _loadMarkerIcon() async {
     markerIcon = await BitmapDescriptor.fromAssetImage(
-      const ImageConfiguration(size: Size(16, 16)),
+      const ImageConfiguration(size: Size(24, 24)),
       'assets/images/marker_map.png',
     );
     setState(() {}); // Actualiza el estado después de cargar el icono
@@ -41,7 +41,7 @@ class _ViewMapScreenState extends State<ViewMapScreen> {
     LatLng latLng = LatLng(lat, lng);
 
     CameraPosition initialCameraPosition =
-        CameraPosition(target: latLng, zoom: 18);
+        CameraPosition(target: latLng, zoom: 20);
 
     final size = MediaQuery.of(context).size;
 

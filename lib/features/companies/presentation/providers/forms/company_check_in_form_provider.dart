@@ -140,6 +140,11 @@ class CompanyCheckInFormNotifier
     state = state.copyWith(cchkIdComentario: value);
   }
 
+  void onChangeCoors(String lat, String lng) {
+    state =
+        state.copyWith(cchkCoordenadaLatitud: lat, cchkCoordenadaLongitud: lng);
+  }
+
   void onLocalChanged(String value, String name) {
     state = state.copyWith(
         cchkLocalCodigo: Select.dirty(value),

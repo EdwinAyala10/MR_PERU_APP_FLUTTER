@@ -35,32 +35,32 @@ class SideMenuState extends ConsumerState<SideMenu> {
 
           switch (value) {
             case 0:
-              context.push('/dashboard');
+              context.go('/dashboard');
               break;
             case 1:
-              context.push('/companies');
+              context.go('/companies');
               break;
             case 2:
-              context.push('/contacts');
+              context.go('/contacts');
               break;
             case 3:
-              context.push('/opportunities');
+              context.go('/opportunities');
               break;
             case 4:
-              context.push('/activities');
+              context.go('/activities');
               break;
             case 5:
-              context.push('/agenda');
+              context.go('/agenda');
               break;
             case 6:
-              //context.push('/kpis');
-              context.push('/kpi/new');
+              //context.go('/kpis');
+              context.go('/kpi/new');
               break;
             case 7:
-              context.push('/documents');
+              context.go('/documents');
               break;
             default:
-              context.push('/dashboard');
+              context.go('/dashboard');
           }
 
           //context.push( menuItem.link );

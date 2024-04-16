@@ -25,6 +25,10 @@ class CompanyScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final companyState = ref.watch(companyProvider(rucId));
 
+    print('company state: ${companyState.company?.rucId}');
+    print('company state name: ${companyState.company?.razon}');
+    print('company state segComentario: ${companyState.company?.seguimientoComentario}');
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -111,34 +115,18 @@ class _CompanyInformation extends ConsumerWidget {
       DropdownOption('D', 'D'),
     ];
 
-    List<DropdownOption> optionsDepartamento = [
-      DropdownOption('', 'Seleccione departamento'),
-      DropdownOption('01', 'Lima'),
-      DropdownOption('02', 'Callao'),
-    ];
-
-    List<DropdownOption> optionsProvincia = [
-      DropdownOption('', 'Seleccione provincia'),
-      DropdownOption('01', 'Lima'),
-      DropdownOption('02', 'Callao'),
-    ];
-
-    List<DropdownOption> optionsDistrito = [
-      DropdownOption('', 'Seleccione distrito'),
-      DropdownOption('01', 'Ate'),
-      DropdownOption('02', 'Barranco'),
-      DropdownOption('03', 'Breña'),
-      DropdownOption('04', 'Carabayllo'),
-    ];
-
     List<DropdownOption> optionsLocalTipo = [
       DropdownOption('', 'Seleccione tipo de local'),
-      DropdownOption('1', 'OFICINA FISCAL'),
       DropdownOption('2', 'PLANTA'),
-      DropdownOption('3', 'OTROS'),
     ];
 
+    print('COMPANY 2: ${company}');
+    print('COMPANY 2 RUC: ${company.rucId}');
+
     final companyForm = ref.watch(companyFormProvider(company));
+
+    print('COMPANY FORM ID: ${companyForm.rucId}');
+    print('COMPANY FORM RAZON: ${companyForm.razon.value}');
     //final selectMapState = ref.watch(selectedMapProvider.notifier).state;
 
     //print('selectMapState stateProcess: ${selectMapState.stateProcess}');
@@ -176,6 +164,8 @@ class _CompanyInformation extends ConsumerWidget {
           selectMapState.district ?? '',
         ); */
     //}
+
+    TextEditingController _controllerNameLocal = TextEditingController();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),

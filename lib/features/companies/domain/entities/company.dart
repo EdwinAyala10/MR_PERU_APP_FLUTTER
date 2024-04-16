@@ -48,6 +48,7 @@ class Company {
   List<ArrayUser>? arrayresponsables;
   List<ArrayUser>? arrayresponsablesEliminar;
   String? userreporteName;
+  String? localCantidad;
 
   //ARRAYRESPONSABLES
 
@@ -78,6 +79,7 @@ class Company {
       this.localNombre,
       this.coordenadasGeo,
       this.coordenadasLatitud,
+      this.localCantidad,
       this.coordenadasLongitud,
       this.enviarNotificacion,
       this.localDepartamento,

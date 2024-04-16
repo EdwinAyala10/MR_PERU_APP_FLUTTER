@@ -57,19 +57,19 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           voltajeTension: '0',
           enviarNotificacion: 'SI',
           orden: '',
-          localTipo: '',
+          localTipo: '2',
           localCodigoPostal: '',
           coordenadasGeo: '',
           coordenadasLongitud: '',
           cchkIdEstadoCheck: '',
           coordenadasLatitud: '',
           ubigeoCodigo: '',
-          clienteNombreEstado: '',
+          clienteNombreEstado: 'ACTIVO',
           localDepartamentoDesc: '',
           localProvinciaDesc: '',
           localDistritoDesc: '',
           userreporteName: '',
-          clienteNombreTipo: '',
+          clienteNombreTipo: 'Cliente',
           arrayresponsables: company.arrayresponsables ?? [],
           arrayresponsablesEliminar: company.arrayresponsablesEliminar ?? [],
         ));
@@ -87,7 +87,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
       'RUCID': (state.rucId == 'new') ? null : state.rucId,
       'RUC': state.ruc.value,
       'RAZON': state.razon.value,
-      'DIRECCION': state.direccion,
+      'DIRECCION': state.direccion ?? ' ',
       'TELEFONO': state.telefono.value,
       'OBSERVACIONES': state.observaciones,
       'DEPARTAMENTO': state.departamento,
@@ -288,6 +288,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
         localDepartamentoDesc: dep,
         localDistritoDesc: dist,
         localProvinciaDesc: prov,
+        localNombre: 'PLANTA ${dist}',
         isFormValid: Formz.validate([
           Ruc.dirty(state.ruc.value),
           Razon.dirty(state.razon.value),
@@ -409,6 +410,7 @@ class CompanyFormState {
   final List<Activity>? activities;
   final List<Event>? events;
   final String? userreporteName;
+  final String? localCantidad;
 
   CompanyFormState(
       {this.isFormValid = false,
@@ -444,6 +446,7 @@ class CompanyFormState {
       this.voltajeTension = '',
       this.enviarNotificacion = '',
       this.orden = '',
+      this.localCantidad = '',
       this.localTipo = '',
       this.coordenadasGeo = '',
       this.coordenadasLongitud = '',
@@ -502,6 +505,7 @@ class CompanyFormState {
     String? localDepartamentoDesc,
     String? localProvinciaDesc,
     String? cchkIdEstadoCheck,
+    String? localCantidad,
     String? userreporteName,
     String? localDistritoDesc,
     String? localCodigoPostal,
@@ -549,6 +553,7 @@ class CompanyFormState {
         enviarNotificacion: enviarNotificacion ?? this.enviarNotificacion,
         orden: orden ?? this.orden,
         localCodigoPostal: localCodigoPostal ?? this.localCodigoPostal,
+        localCantidad: localCantidad ?? this.localCantidad,
         localTipo: localTipo ?? this.localTipo,
         coordenadasGeo: coordenadasGeo ?? this.coordenadasGeo,
         coordenadasLongitud: coordenadasLongitud ?? this.coordenadasLongitud,

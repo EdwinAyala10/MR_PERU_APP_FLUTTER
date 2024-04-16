@@ -5,14 +5,18 @@ import 'package:crm_app/features/companies/presentation/search/search_company_lo
 import 'package:crm_app/features/contacts/domain/domain.dart';
 import 'package:crm_app/features/contacts/presentation/delegates/search_contact_active_delegate.dart';
 import 'package:crm_app/features/contacts/presentation/search/search_contacts_active_provider.dart';
+import 'package:crm_app/features/location/presentation/providers/location_provider.dart';
 import 'package:crm_app/features/opportunities/domain/domain.dart';
 import 'package:crm_app/features/opportunities/presentation/delegates/search_opportunity_active_delegate.dart';
 import 'package:crm_app/features/opportunities/presentation/search/search_opportunities_active_provider.dart';
 import 'package:crm_app/features/shared/shared.dart';
+import 'package:crm_app/features/shared/widgets/custom_alert_dialog.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
+import 'package:crm_app/features/shared/widgets/format_distance.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class CompanyCheckInScreen extends ConsumerWidget {
   final String id;
@@ -29,10 +33,18 @@ class CompanyCheckInScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final companyCheckInState = ref.watch(companyCheckInProvider(id));
 
-
     List<String> ids = id.split("*");
     String idCheck = ids[0];
     String ruc = ids[1];
+
+    final locationState = ref.watch(locationProvider);
+    bool? allowSave = locationState.allowSave;
+    double? distanceLocationAddressDiff =
+        locationState.distanceLocationAddressDiff;
+
+    bool isButtonAllowSave = distanceLocationAddressDiff > 0 && allowSave;
+
+    String distanceCalc = distanceLocationAddressDiff > 0 ? '(${formatDistance(distanceLocationAddressDiff)})' : '';
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -53,8 +65,32 @@ class CompanyCheckInScreen extends ConsumerWidget {
                 companyCheckIn: companyCheckInState.companyCheckIn!),
         floatingActionButton: FloatingActionButtonCustom(
           iconData: Icons.save,
+          isDisabled: !isButtonAllowSave,
           callOnPressed: () {
+            if (!isButtonAllowSave) {
+              print('QUE PASO');
+
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return CustomAlertDialogPro(
+                      parentContext: context,
+                      title: 'Advertencia',
+                      message:
+                          'Vaya, estás muy lejos de ${companyCheckInState.companyCheckIn?.cchkRazon ?? ''} ${distanceCalc}',
+                      buttonText: 'Aceptar');
+                },
+              );
+
+              return;
+            }
+
             if (companyCheckInState.companyCheckIn == null) return;
+
+            /*if (!allowSave) {
+              showSnackbar(context, 'Te encuentras lejos del local (<100 m)');
+              return;
+            }*/
 
             ref
                 .read(companyCheckInFormProvider(
@@ -66,11 +102,13 @@ class CompanyCheckInScreen extends ConsumerWidget {
               if (value.message != '') {
                 showSnackbar(context, value.message);
                 if (value.response) {
-                  ref.watch(companyProvider(ruc).notifier).updateCheckState(idCheck);
+                  ref
+                      .watch(companyProvider(ruc).notifier)
+                      .updateCheckState(idCheck);
 
                   //Timer(const Duration(seconds: 3), () {
-                    context.push('/company_detail/${ruc}');
-                    //context.push('/company/${company.ruc}');
+                  context.push('/company_detail/${ruc}');
+                  //context.push('/company/${company.ruc}');
                   //});
                 }
               }
@@ -82,16 +120,49 @@ class CompanyCheckInScreen extends ConsumerWidget {
   }
 }
 
-class _CompanyCheckInView extends ConsumerWidget {
+class _CompanyCheckInView extends ConsumerStatefulWidget {
   final CompanyCheckIn companyCheckIn;
 
-  const _CompanyCheckInView({required this.companyCheckIn});
+  const _CompanyCheckInView({Key? key, required this.companyCheckIn})
+      : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  _CompanyCheckInViewState createState() => _CompanyCheckInViewState();
+}
+
+class _CompanyCheckInViewState extends ConsumerState<_CompanyCheckInView> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      final locationNotifier = ref.read(locationProvider.notifier);
+      locationNotifier.startFollowingUser();
+
+      ref.read(locationProvider.notifier).setOffLocationAddressDiff();
+
+      print('INICIO START FLLOWING');
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      ref.read(locationProvider.notifier).setOffLocationAddressDiff();
+      final locationNotifier = ref.read(locationProvider.notifier);
+      locationNotifier.stopFollowingUser();
+    });
+
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final companyCheckIn = widget.companyCheckIn;
+
     return ListView(
       children: [
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         _CompanyCheckInInformation(companyCheckIn: companyCheckIn),
       ],
     );
@@ -108,8 +179,20 @@ class _CompanyCheckInInformation extends ConsumerWidget {
     final companyCheckInForm =
         ref.watch(companyCheckInFormProvider(companyCheckIn));
 
+    final locationState = ref.watch(locationProvider);
+    LatLng? lastKnownLocation = locationState.lastKnownLocation;
+    LatLng? locationAddressDiff = locationState.locationAddressDiff;
+    bool? selectedLocationAddressDiff =
+        locationState.selectedLocationAddressDiff;
+    bool? allowSave = locationState.allowSave;
+    double distanceLocationAddressDiff =
+        locationState.distanceLocationAddressDiff;
+
+    print('lastKnownLocation: ${lastKnownLocation?.toString()}');
+    print('selectedLocationAddressDiff: ${lastKnownLocation?.toString()}');
+
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -130,6 +213,31 @@ class _CompanyCheckInInformation extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 10),
+          selectedLocationAddressDiff
+              ? Container(
+                  color: Colors.white,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Container(
+                        color: allowSave ? Colors.green : Colors.deepOrange,
+                        padding: const EdgeInsets.all(11.0),
+                        child: Text(
+                          'Estas a ${formatDistance(distanceLocationAddressDiff)} de distancia del local',
+                          style: const TextStyle(
+                            fontSize: 17.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : const SizedBox(),
+          const SizedBox(height: 10),
           Padding(
             padding: const EdgeInsets.all(4.0),
             child: Column(
@@ -140,26 +248,27 @@ class _CompanyCheckInInformation extends ConsumerWidget {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: companyCheckInForm.cchkLocalCodigo.errorMessage !=
-                            null
-                        ? Theme.of(context).colorScheme.error
-                        : null,
+                    color:
+                        companyCheckInForm.cchkLocalCodigo.errorMessage != null
+                            ? Theme.of(context).colorScheme.error
+                            : null,
                   ),
                 ),
                 const SizedBox(height: 6),
                 GestureDetector(
                   onTap: () {
-                    _openSearchCompanyLocales(context, ref, companyCheckInForm.cchkRuc.value);
+                    _openSearchCompanyLocales(
+                        context, ref, companyCheckInForm.cchkRuc.value);
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     decoration: BoxDecoration(
                       border: Border.all(
-                          color: companyCheckInForm
-                                      .cchkLocalCodigo.errorMessage !=
-                                  null
-                              ? Theme.of(context).colorScheme.error
-                              : Colors.grey),
+                          color:
+                              companyCheckInForm.cchkLocalCodigo.errorMessage !=
+                                      null
+                                  ? Theme.of(context).colorScheme.error
+                                  : Colors.grey),
                       borderRadius: BorderRadius.circular(5),
                     ),
                     child: Row(
@@ -170,19 +279,19 @@ class _CompanyCheckInInformation extends ConsumerWidget {
                                 ? 'Seleccione local'
                                 : companyCheckInForm.cchkLocalNombre ?? '',
                             style: TextStyle(
-                              fontSize: 16,
-                              color: companyCheckInForm
+                                fontSize: 16,
+                                color: companyCheckInForm
                                             .cchkLocalCodigo.errorMessage !=
                                         null
                                     ? Theme.of(context).colorScheme.error
-                                    : null
-                            ),
+                                    : null),
                           ),
                         ),
                         IconButton(
                           icon: const Icon(Icons.search),
                           onPressed: () {
-                            _openSearchCompanyLocales(context, ref, companyCheckInForm.cchkRuc.value);
+                            _openSearchCompanyLocales(
+                                context, ref, companyCheckInForm.cchkRuc.value);
                           },
                         ),
                       ],
@@ -199,6 +308,15 @@ class _CompanyCheckInInformation extends ConsumerWidget {
                 color: Theme.of(context).colorScheme.error,
               ),
             ),
+          const SizedBox(height: 10),
+          TextViewCustom(
+              text: companyCheckInForm.cchkCoordenadaLatitud ?? '',
+              placeholder: 'Latitud',
+              label: 'Latitud Local'),
+          TextViewCustom(
+              text: companyCheckInForm.cchkCoordenadaLongitud ?? '',
+              placeholder: 'Longitud',
+              label: 'Longitud Local'),
           const SizedBox(height: 10),
           Padding(
             padding: const EdgeInsets.all(4.0),
@@ -219,7 +337,8 @@ class _CompanyCheckInInformation extends ConsumerWidget {
                 const SizedBox(height: 6),
                 GestureDetector(
                   onTap: () {
-                    _openSearchOportunities(context, ref, companyCheckInForm.cchkRuc.value);
+                    _openSearchOportunities(
+                        context, ref, companyCheckInForm.cchkRuc.value);
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -253,7 +372,8 @@ class _CompanyCheckInInformation extends ConsumerWidget {
                         IconButton(
                           icon: const Icon(Icons.search),
                           onPressed: () {
-                            _openSearchOportunities(context, ref, companyCheckInForm.cchkRuc.value);
+                            _openSearchOportunities(
+                                context, ref, companyCheckInForm.cchkRuc.value);
                           },
                         ),
                       ],
@@ -371,14 +491,14 @@ class _CompanyCheckInInformation extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          CustomCompanyField(
+
+          /*CustomCompanyField(
             label: 'Dirección',
             initialValue: companyCheckInForm.cchkDireccionMapa ?? '',
             onChanged: ref
                 .read(companyCheckInFormProvider(companyCheckIn).notifier)
                 .onDireccionChanged,
-          ),
+          ),*/
           const SizedBox(height: 100),
         ],
       ),
@@ -406,7 +526,8 @@ class _CompanyCheckInInformation extends ConsumerWidget {
     });
   }*/
 
-  void _openSearchOportunities(BuildContext context, WidgetRef ref, String ruc) async {
+  void _openSearchOportunities(
+      BuildContext context, WidgetRef ref, String ruc) async {
     final searchedOpportunities = ref.read(searchedOpportunitiesProvider);
     final searchQuery = ref.read(searchQueryOpportunitiesProvider);
 
@@ -449,7 +570,8 @@ class _CompanyCheckInInformation extends ConsumerWidget {
     });
   }
 
-  void _openSearchCompanyLocales(BuildContext context, WidgetRef ref, String ruc) async {
+  void _openSearchCompanyLocales(
+      BuildContext context, WidgetRef ref, String ruc) async {
     final searchedCompanyLocales = ref.read(searchedCompanyLocalesProvider);
     final searchQuery = ref.read(searchQueryCompanyLocalesProvider);
 
@@ -457,19 +579,32 @@ class _CompanyCheckInInformation extends ConsumerWidget {
             query: searchQuery,
             context: context,
             delegate: SearchCompanyLocalDelegate(
-              ruc: ruc,
-              initialCompanyLocales: searchedCompanyLocales,
-              searchCompanyLocales: ref
-                  .read(searchedCompanyLocalesProvider.notifier)
-                  .searchCompanyLocalesByQuery))
+                ruc: ruc,
+                initialCompanyLocales: searchedCompanyLocales,
+                searchCompanyLocales: ref
+                    .read(searchedCompanyLocalesProvider.notifier)
+                    .searchCompanyLocalesByQuery))
         .then((companyLocal) {
       if (companyLocal == null) return;
 
       ref
           .read(companyCheckInFormProvider(companyCheckIn).notifier)
-          .onLocalChanged(companyLocal.id, companyLocal.localNombre);
+          .onLocalChanged(companyLocal.id,
+              '${companyLocal.localNombre} ${companyLocal.localDireccion}');
 
+      print('SELECT LOCAL LAT:${companyLocal.coordenadasLatitud}');
+      print('SELECT LOCAL LNG:${companyLocal.coordenadasLongitud}');
 
+      ref
+          .read(companyCheckInFormProvider(companyCheckIn).notifier)
+          .onChangeCoors(companyLocal.coordenadasLatitud ?? '',
+              companyLocal.coordenadasLongitud ?? '');
+
+      ref.read(locationProvider.notifier).setCoorsLocationAddressDiff(
+          double.parse(companyLocal.coordenadasLatitud ?? '0'),
+          double.parse(companyLocal.coordenadasLongitud ?? '0'));
+
+      ref.read(locationProvider.notifier).setOnLocationAddressDiff();
     });
   }
 }
