@@ -65,9 +65,9 @@ class ContactScreen extends ConsumerWidget {
                   showSnackbar(context, value.message);
 
                   if (value.response) {
-                    Timer(const Duration(seconds: 3), () {
+                    //Timer(const Duration(seconds: 3), () {
                       context.push('/contacts');
-                    });
+                    //});
                   }
                 }
               });

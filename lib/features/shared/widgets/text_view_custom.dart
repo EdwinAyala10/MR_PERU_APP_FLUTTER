@@ -26,6 +26,7 @@ class TextViewCustom extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 9.0),
           decoration: BoxDecoration(
+            color:Color.fromARGB(255, 241, 241, 241),
             borderRadius: BorderRadius.circular(8.0),
             border: Border.all(
               color: Colors.grey,

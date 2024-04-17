@@ -45,6 +45,7 @@ class ActivityNotifier extends StateNotifier<ActivityState> {
       actiNombreOportunidad: '',
       actiNombreTipoGestion: '',
       actiRuc: '',
+      actiRazon: '',
       actiIdActividadIn: '',
       actiIdUsuarioActualizacion: '',
       actiNombreResponsable: user.name,

@@ -90,7 +90,8 @@ class _ListContacts extends StatelessWidget {
           final contact = contacts[index];
 
           return ItemContact(contact: contact, callbackOnTap: () {
-              context.push('/contact/${contact.id}');
+              context.push('/contact_detail/${contact.id}');
+              //context.push('/contact/${contact.id}');
           });
         },
       ),

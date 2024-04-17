@@ -1,3 +1,5 @@
+import 'package:crm_app/features/activities/presentation/screens/activity_screen_post_call.dart';
+import 'package:crm_app/features/contacts/presentation/screens/contact_detail_screen.dart';
 import 'package:crm_app/features/location/presentation/screens/map_screen.dart';
 import 'package:crm_app/features/location/presentation/screens/view_map_screen.dart';
 import 'package:go_router/go_router.dart';
@@ -55,6 +57,14 @@ final goRouterProvider = Provider((ref) {
         path: '/activity/:id', // /activity/new
         builder: (context,GoRouterState state) => ActivityScreen(
           activityId: state.pathParameters['id'] ?? 'no-id',
+        ),
+      ),
+
+      GoRoute(
+        path: '/activity_post_call/:id/:phone', // /activity/new
+        builder: (context,GoRouterState state) => ActivityPostCallScreen(
+          contactId: state.pathParameters['id'] ?? 'no-id',
+          phone: state.pathParameters['phone'] ?? 'no-phone',
         ),
       ),
 
@@ -139,6 +149,13 @@ final goRouterProvider = Provider((ref) {
       GoRoute(
         path: '/contact/:id', // /contact/new
         builder: (context, state) => ContactScreen(
+          contactId: state.pathParameters['id'] ?? 'no-id',
+        ),
+      ),
+
+      GoRoute(
+        path: '/contact_detail/:id', // /contact/new
+        builder: (context, state) => ContactDetailScreen(
           contactId: state.pathParameters['id'] ?? 'no-id',
         ),
       ),

@@ -288,6 +288,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
         localDepartamentoDesc: dep,
         localDistritoDesc: dist,
         localProvinciaDesc: prov,
+        localCantidad: state.rucId == 'new' ? '1' : state.localCantidad,
         localNombre: 'PLANTA ${dist}',
         isFormValid: Formz.validate([
           Ruc.dirty(state.ruc.value),
