@@ -59,11 +59,11 @@ class CompanyLocalScreen extends ConsumerWidget {
               if (value.message != '') {
                 showSnackbar(context, value.message);
                 if (value.response) {
-                  Timer(const Duration(seconds: 3), () {
+                  //Timer(const Duration(seconds: 3), () {
                     context.pop();
                     //context.push('/company_local/${ruc}');
                     //context.push('/company/${company.ruc}');
-                  });
+                  //});
                 }
               }
             });
@@ -151,9 +151,31 @@ class _CompanyLocalInformation extends ConsumerWidget {
             errorMessage: companyLocalForm.localNombre.errorMessage,
           ),
 
-          const SizedBox(
-            height: 4,
-          ),
+          if (companyLocalForm.localNombre.value != "") 
+            Column(
+              children: [
+                Row(
+                  children: [
+                    const Text(
+                      'Nombre de local actual:',
+                      style: TextStyle(
+                          color: Colors.black54
+                      )),
+                    const SizedBox(width: 5),
+                    Text(
+                      companyLocalForm.localNombre.value, 
+                      style: const TextStyle(
+                        color: Colors.black87
+                      )
+                    )
+                  ],
+                ),
+                const SizedBox(
+                  height: 16,
+                ),
+              ],
+            ),
+            
           TextAddress(
               text: companyLocalForm.localDireccion.value,
               error: companyLocalForm.localDireccion.errorMessage,

@@ -57,7 +57,7 @@ class CompanyLocalNotifier extends StateNotifier<CompanyLocalState> {
       localProvincia: '',
       localProvinciaDesc: '',
       localTipo: '2',
-      localTipoDescripcion: '',
+      localTipoDescripcion: 'PLANTA',
       provincia: '',
       ubigeoCodigo: '',
     );

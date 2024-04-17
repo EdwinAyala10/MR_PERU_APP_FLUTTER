@@ -335,7 +335,7 @@ class _ActivityInformation extends ConsumerWidget {
                               ? List<Widget>.from(activityForm
                                   .actividadesContacto!
                                   .map((item) => Chip(
-                                        label: Text(item.nombre ?? '',
+                                        label: Text(item.contactoDesc ?? '',
                                             style:
                                                 const TextStyle(fontSize: 12)),
                                         onDeleted: () {

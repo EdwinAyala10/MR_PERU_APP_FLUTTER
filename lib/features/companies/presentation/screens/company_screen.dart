@@ -355,9 +355,31 @@ class _CompanyInformation extends ConsumerWidget {
                 .read(companyFormProvider(company).notifier)
                 .onNombreLocalChanged,
           ),
+          Column(
+            children: [
+              Row(
+                children: [
+                  const Text(
+                    'Nombre de local actual:',
+                    style: TextStyle(
+                        color: Colors.black54
+                    )),
+                  const SizedBox(width: 5),
+                  Text(
+                    companyForm.localNombre, 
+                    style: const TextStyle(
+                      color: Colors.black87
+                    )
+                  )
+                ],
+              ),
+            const SizedBox(height: 10),
+            ],
+          ),
           const SizedBox(
             height: 4,
           ),
+
           TextAddress(
               text: companyForm.localDireccion.value,
               error: companyForm.localDireccion.errorMessage,

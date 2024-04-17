@@ -82,6 +82,9 @@ class CompanyLocalFormNotifier extends StateNotifier<CompanyLocalFormState> {
       'LOCAL_DISTRITO_DESC': state.localDistritoDesc,
       'LOCAL_CODIGO_POSTAL': state.localCodigoPostal,
       'RAZON': state.razon,
+      'DEPARTAMENTO': state.departamento,
+      'DISTRITO': state.distrito,
+      'PROVINCIA': state.provincia,
     };
 
     try {
@@ -150,13 +153,17 @@ class CompanyLocalFormNotifier extends StateNotifier<CompanyLocalFormState> {
         localDepartamentoDesc: dep,
         localProvinciaDesc: prov,
         localDistritoDesc: dist,
+        localNombre: Name.dirty('PLANTA ${dist}'),
+        departamento: dep,
+        provincia: prov,
+        distrito: dist,
         coordenadasGeo: coors,
         coordenadasLatitud: lat,
         coordenadasLongitud: lng,
         localCodigoPostal: codigoPostal,
         isFormValid: Formz.validate([
           Ruc.dirty(state.ruc.value),
-          Name.dirty(state.localNombre.value),
+          Name.dirty('PLANTA ${dist}'),
           Address.dirty(direccion),
         ]));
   }

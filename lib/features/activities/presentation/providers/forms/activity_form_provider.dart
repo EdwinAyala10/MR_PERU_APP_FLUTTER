@@ -7,8 +7,7 @@ import 'package:crm_app/features/activities/presentation/providers/providers.dar
 import 'package:crm_app/features/shared/shared.dart';
 
 final activityFormProvider = StateNotifierProvider.autoDispose
-    .family<ActivityFormNotifier, ActivityFormState, Activity>(
-        (ref, activity) {
+    .family<ActivityFormNotifier, ActivityFormState, Activity>((ref, activity) {
   // final createUpdateCallback = ref.watch( productsRepositoryProvider ).createUpdateProduct;
   final createUpdateCallback =
       ref.watch(activitiesProvider.notifier).createOrUpdateActivity;
@@ -47,7 +46,8 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
           actiNombreResponsable: activity.actiNombreResponsable ?? '',
           opt: activity.opt ?? '',
           actividadesContacto: activity.actividadesContacto ?? [],
-          actividadesContactoEliminar: activity.actividadesContactoEliminar ?? [],
+          actividadesContactoEliminar:
+              activity.actividadesContactoEliminar ?? [],
         ));
 
   Future<CreateUpdateActivityResponse> onFormSubmit() async {
@@ -68,7 +68,8 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
       'ACTI_ID_USUARIO_RESPONSABLE': state.actiIdUsuarioResponsable,
       'ACTI_ID_TIPO_GESTION': state.actiIdTipoGestion.value,
       //'ACTI_FECHA_ACTIVIDAD': state.actiFechaActividad,
-      "ACTI_FECHA_ACTIVIDAD": "${state.actiFechaActividad?.year.toString().padLeft(4, '0')}-${state.actiFechaActividad?.month.toString().padLeft(2, '0')}-${state.actiFechaActividad?.day.toString().padLeft(2, '0')}",
+      "ACTI_FECHA_ACTIVIDAD":
+          "${state.actiFechaActividad?.year.toString().padLeft(4, '0')}-${state.actiFechaActividad?.month.toString().padLeft(2, '0')}-${state.actiFechaActividad?.day.toString().padLeft(2, '0')}",
       'ACTI_HORA_ACTIVIDAD': state.actiHoraActividad,
       'ACTI_RUC': state.actiRuc.value,
       'ACTI_RAZON': state.actiRazon,
@@ -82,7 +83,8 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
       'ACTI_NOMBRE_TIPO_GESTION': state.actiNombreTipoGestion,
       'ACTI_NOMBRE_OPORTUNIDAD': state.actiNombreOportunidad,
       'ACTIVIDADES_CONTACTO': state.actividadesContacto != null
-          ? List<dynamic>.from(state.actividadesContacto!.map((x) => x.toJson()))
+          ? List<dynamic>.from(
+              state.actividadesContacto!.map((x) => x.toJson()))
           : [],
       'ACTIVIDADES_CONTACTO_ELIMINAR': state.actividadesContactoEliminar != null
           ? List<dynamic>.from(
@@ -168,19 +170,24 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
   }
 
   void onResponsableChanged(String id, String nombre) {
-    state = state.copyWith(actiIdUsuarioResponsable: id, actiNombreResponsable: nombre);
+    state = state.copyWith(
+        actiIdUsuarioResponsable: id, actiNombreResponsable: nombre);
   }
 
   void onContactoChanged(Contact contacto) {
-    bool objExist = state.actividadesContacto!.any(
-        (objeto) => objeto.acntIdContacto == contacto.id);
+    bool objExist = state.actividadesContacto!
+        .any((objeto) => objeto.acntIdContacto == contacto.id);
 
     if (!objExist) {
       ContactArray array = ContactArray();
       array.acntIdContacto = contacto.id;
       array.nombre = contacto.contactoDesc;
+      array.contactoDesc = contacto.contactoDesc;
 
-      List<ContactArray> arrayContactos = [...state.actividadesContacto ?? [], array];
+      List<ContactArray> arrayContactos = [
+        ...state.actividadesContacto ?? [],
+        array
+      ];
 
       state = state.copyWith(actividadesContacto: arrayContactos);
     } else {
@@ -192,8 +199,8 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
     List<ContactArray> arrayContactosEliminar = [];
 
     if (state.id != "new") {
-      bool objExist = state.actividadesContactoEliminar!
-          .any((objeto) => objeto.acntIdActividadContacto == item.acntIdActividadContacto);
+      bool objExist = state.actividadesContactoEliminar!.any((objeto) =>
+          objeto.acntIdActividadContacto == item.acntIdActividadContacto);
 
       if (!objExist) {
         ContactArray array = ContactArray();
@@ -207,13 +214,13 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
     }
 
     List<ContactArray> arrayContactos = state.actividadesContacto!
-        .where((contact) => contact.acntIdActividadContacto != item.acntIdActividadContacto)
+        .where((contact) =>
+            contact.acntIdActividadContacto != item.acntIdActividadContacto)
         .toList();
     state = state.copyWith(
         actividadesContacto: arrayContactos,
         actividadesContactoEliminar: arrayContactosEliminar);
   }
-
 }
 
 class ActivityFormState {
@@ -241,11 +248,10 @@ class ActivityFormState {
   final String actiNombreResponsable;
   final List<ContactArray>? actividadesContacto;
   final List<ContactArray>? actividadesContactoEliminar;
-  
+
   ActivityFormState(
       {this.isFormValid = false,
       this.id,
-
       this.actiComentario = '',
       this.actiEstadoReg = '',
       this.actiFechaActividad,
@@ -268,38 +274,37 @@ class ActivityFormState {
       this.actividadesContactoEliminar,
       this.opt = ''});
 
-  ActivityFormState copyWith({
-    bool? isFormValid,
-    String? id,
-
-    String? actiIdUsuarioResponsable,
-    TipoGestion? actiIdTipoGestion,
-    DateTime? actiFechaActividad,
-    String? actiHoraActividad,
-    Ruc? actiRuc,
-    String? actiRazon,
-    Oportunidad? actiIdOportunidad,
-    //Contacto? actiIdContacto,
-    String? actiNombreContacto,
-    String? actiComentario,
-    String? actiNombreArchivo,
-    String? actiIdUsuarioRegistro,
-    String? actiEstadoReg,
-    String? actiNombreTipoGestion,
-    String? actiNombreOportunidad,
-    String? actiIdUsuarioActualizacion,
-    String? opt,
-    String? actiNombreResponsable,
-    String? actiIdActividadIn,
-    List<ContactArray>? actividadesContacto,
-    List<ContactArray>? actividadesContactoEliminar
-  }) =>
+  ActivityFormState copyWith(
+          {bool? isFormValid,
+          String? id,
+          String? actiIdUsuarioResponsable,
+          TipoGestion? actiIdTipoGestion,
+          DateTime? actiFechaActividad,
+          String? actiHoraActividad,
+          Ruc? actiRuc,
+          String? actiRazon,
+          Oportunidad? actiIdOportunidad,
+          //Contacto? actiIdContacto,
+          String? actiNombreContacto,
+          String? actiComentario,
+          String? actiNombreArchivo,
+          String? actiIdUsuarioRegistro,
+          String? actiEstadoReg,
+          String? actiNombreTipoGestion,
+          String? actiNombreOportunidad,
+          String? actiIdUsuarioActualizacion,
+          String? opt,
+          String? actiNombreResponsable,
+          String? actiIdActividadIn,
+          List<ContactArray>? actividadesContacto,
+          List<ContactArray>? actividadesContactoEliminar}) =>
       ActivityFormState(
         isFormValid: isFormValid ?? this.isFormValid,
         id: id ?? this.id,
         actiComentario: actiComentario ?? this.actiComentario,
         actividadesContacto: actividadesContacto ?? this.actividadesContacto,
-        actividadesContactoEliminar: actividadesContactoEliminar ?? this.actividadesContactoEliminar,
+        actividadesContactoEliminar:
+            actividadesContactoEliminar ?? this.actividadesContactoEliminar,
         actiEstadoReg: actiEstadoReg ?? this.actiEstadoReg,
         actiFechaActividad: actiFechaActividad ?? this.actiFechaActividad,
         actiHoraActividad: actiHoraActividad ?? this.actiHoraActividad,
@@ -308,15 +313,21 @@ class ActivityFormState {
         actiNombreContacto: actiNombreContacto ?? this.actiNombreContacto,
         actiIdOportunidad: actiIdOportunidad ?? this.actiIdOportunidad,
         actiIdTipoGestion: actiIdTipoGestion ?? this.actiIdTipoGestion,
-        actiIdUsuarioActualizacion: actiIdUsuarioActualizacion ?? this.actiIdUsuarioActualizacion,
-        actiIdUsuarioRegistro: actiIdUsuarioRegistro ?? this.actiIdUsuarioRegistro,
-        actiIdUsuarioResponsable: actiIdUsuarioResponsable ?? this.actiIdUsuarioResponsable,
+        actiIdUsuarioActualizacion:
+            actiIdUsuarioActualizacion ?? this.actiIdUsuarioActualizacion,
+        actiIdUsuarioRegistro:
+            actiIdUsuarioRegistro ?? this.actiIdUsuarioRegistro,
+        actiIdUsuarioResponsable:
+            actiIdUsuarioResponsable ?? this.actiIdUsuarioResponsable,
         actiNombreArchivo: actiNombreArchivo ?? this.actiNombreArchivo,
-        actiNombreOportunidad: actiNombreOportunidad ?? this.actiNombreOportunidad,
-        actiNombreTipoGestion: actiNombreTipoGestion ?? this.actiNombreTipoGestion,
+        actiNombreOportunidad:
+            actiNombreOportunidad ?? this.actiNombreOportunidad,
+        actiNombreTipoGestion:
+            actiNombreTipoGestion ?? this.actiNombreTipoGestion,
         actiRuc: actiRuc ?? this.actiRuc,
         actiRazon: actiRazon ?? this.actiRazon,
-        actiNombreResponsable: actiNombreResponsable ?? this.actiNombreResponsable,
+        actiNombreResponsable:
+            actiNombreResponsable ?? this.actiNombreResponsable,
         opt: opt ?? this.opt,
       );
 }

@@ -582,7 +582,8 @@ void _showModalBottomSheet(BuildContext context, String phone) {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 20),
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
