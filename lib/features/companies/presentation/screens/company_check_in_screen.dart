@@ -42,9 +42,11 @@ class CompanyCheckInScreen extends ConsumerWidget {
     double? distanceLocationAddressDiff =
         locationState.distanceLocationAddressDiff;
 
-    bool isButtonAllowSave = distanceLocationAddressDiff > 0 && allowSave;
+    bool isButtonAllowSave = distanceLocationAddressDiff >= 0 && allowSave;
 
-    String distanceCalc = distanceLocationAddressDiff > 0 ? '(${formatDistance(distanceLocationAddressDiff)})' : '';
+    String distanceCalc = distanceLocationAddressDiff >= 0
+        ? '(${formatDistance(distanceLocationAddressDiff)})'
+        : '';
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -102,12 +104,22 @@ class CompanyCheckInScreen extends ConsumerWidget {
               if (value.message != '') {
                 showSnackbar(context, value.message);
                 if (value.response) {
+                  print('CHECK STATUS SCREEN: ${idCheck}');
+
                   ref
                       .watch(companyProvider(ruc).notifier)
                       .updateCheckState(idCheck);
 
                   //Timer(const Duration(seconds: 3), () {
-                  context.push('/company_detail/${ruc}');
+                  //context.push('/company_detail/${ruc}');
+
+                  ref
+                      .read(locationProvider.notifier)
+                      .setOffLocationAddressDiff();
+                  final locationNotifier = ref.read(locationProvider.notifier);
+                  locationNotifier.stopFollowingUser();
+
+                  context.pop();
                   //context.push('/company/${company.ruc}');
                   //});
                 }
@@ -148,7 +160,7 @@ class _CompanyCheckInViewState extends ConsumerState<_CompanyCheckInView> {
   @override
   void dispose() {
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      ref.read(locationProvider.notifier).setOffLocationAddressDiff();
+      //ref.read(locationProvider.notifier).setOffLocationAddressDiff();
       final locationNotifier = ref.read(locationProvider.notifier);
       locationNotifier.stopFollowingUser();
     });
@@ -224,7 +236,9 @@ class _CompanyCheckInInformation extends ConsumerWidget {
                         color: allowSave ? Colors.green : Colors.deepOrange,
                         padding: const EdgeInsets.all(11.0),
                         child: Text(
-                          'Estas a ${formatDistance(distanceLocationAddressDiff)} de distancia del local',
+                          distanceLocationAddressDiff == 0
+                              ? 'Estas en el local!'
+                              : 'Estas a ${formatDistance(distanceLocationAddressDiff)} de distancia del local',
                           style: const TextStyle(
                             fontSize: 17.0,
                             fontWeight: FontWeight.bold,
@@ -466,7 +480,8 @@ class _CompanyCheckInInformation extends ConsumerWidget {
           CustomCompanyField(
             label: 'Comentarios',
             maxLines: 2,
-            initialValue: companyCheckInForm.cchkIdComentario ?? '',
+            initialValue: companyCheckInForm.cchkIdComentario.value,
+            errorMessage: companyCheckInForm.cchkIdComentario.errorMessage,
             onChanged: ref
                 .read(companyCheckInFormProvider(companyCheckIn).notifier)
                 .onComentarioChanged,

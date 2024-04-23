@@ -2,6 +2,7 @@ import 'package:crm_app/features/contacts/domain/domain.dart';
 import 'package:crm_app/features/contacts/presentation/providers/providers.dart';
 import 'package:crm_app/features/contacts/presentation/widgets/item_contact.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
+import 'package:crm_app/features/shared/widgets/loading_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -68,6 +69,10 @@ class _ContactsViewState extends ConsumerState {
   @override
   Widget build(BuildContext context) {
     final contactsState = ref.watch(contactsProvider);
+
+    if (contactsState.isLoading) {
+      return LoadingModal();
+    }
 
     return contactsState.contacts.length > 0
         ? _ListContacts(contacts: contactsState.contacts)

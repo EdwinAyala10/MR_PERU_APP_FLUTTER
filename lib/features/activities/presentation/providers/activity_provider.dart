@@ -38,7 +38,7 @@ class ActivityNotifier extends StateNotifier<ActivityState> {
       actiHoraActividad: DateFormat('HH:mm:ss').format(DateTime.now()),
       actiIdContacto: '',
       actiIdOportunidad: '',
-      actiIdTipoGestion: '',
+      actiIdTipoGestion: '01',
       actiIdUsuarioRegistro: user.code,
       actiIdUsuarioResponsable: user.code,
       actiNombreArchivo: '',

@@ -2,6 +2,8 @@ import 'package:crm_app/features/activities/presentation/screens/activity_screen
 import 'package:crm_app/features/contacts/presentation/screens/contact_detail_screen.dart';
 import 'package:crm_app/features/location/presentation/screens/map_screen.dart';
 import 'package:crm_app/features/location/presentation/screens/view_map_screen.dart';
+import 'package:crm_app/features/shared/presentation/screens/send_whatsapp_screen.dart';
+import 'package:crm_app/features/shared/presentation/screens/text_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -58,6 +60,16 @@ final goRouterProvider = Provider((ref) {
         builder: (context,GoRouterState state) => ActivityScreen(
           activityId: state.pathParameters['id'] ?? 'no-id',
         ),
+      ),
+
+      GoRoute(
+        path: '/text', // /activity/new
+        builder: (context,GoRouterState state) => const TextScreen(),
+      ),
+
+      GoRoute(
+        path: '/send_whatsapp', // /activity/new
+        builder: (context,GoRouterState state) => const SendWhatsappScreen(),
       ),
 
       GoRoute(

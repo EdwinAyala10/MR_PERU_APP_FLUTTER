@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 
-class CustomCompanyField extends StatelessWidget {
-  final bool isTopField; // La idea es que tenga bordes redondeados arriba
-  final bool isBottomField; // La idea es que tenga bordes redondeados abajo
+class CustomCompanyField extends StatefulWidget {
+  final bool isTopField;
+  final bool isBottomField;
   final String? label;
   final String? hint;
   final String? errorMessage;
   final bool obscureText;
   final TextInputType? keyboardType;
   final int maxLines;
-  final String initialValue;
+  final TextEditingController? controller;
+  final bool? enabled;
   final Function(String)? onChanged;
   final Function(String)? onFieldSubmitted;
   final String? Function(String?)? validator;
-  final bool? enabled;
+  final String? initialValue; // Nuevo parámetro para el valor inicial
 
   const CustomCompanyField({
     Key? key,
@@ -25,12 +26,27 @@ class CustomCompanyField extends StatelessWidget {
     this.obscureText = false,
     this.keyboardType = TextInputType.text,
     this.maxLines = 1,
-    this.initialValue = '',
+    this.controller,
+    this.enabled = true,
     this.onChanged,
     this.onFieldSubmitted,
-    this.enabled = true,
     this.validator,
+    this.initialValue, // Incluir el nuevo parámetro
   }) : super(key: key);
+
+  @override
+  _CustomCompanyFieldState createState() => _CustomCompanyFieldState();
+}
+
+class _CustomCompanyFieldState extends State<CustomCompanyField> {
+  late TextEditingController _internalController;
+
+  @override
+  void initState() {
+    super.initState();
+    _internalController = widget.controller ?? TextEditingController();
+    _internalController.text = widget.initialValue ?? ''; // Usar el valor inicial si está disponible
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,13 +66,9 @@ class CustomCompanyField extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: 10.0),
           decoration: BoxDecoration(
             color: Colors.white,
-            /*borderRadius: BorderRadius.vertical(
-              top: isTopField ? Radius.circular(8) : Radius.zero,
-              bottom: isBottomField ? Radius.circular(8) : Radius.zero,
-            ),*/
             borderRadius: BorderRadius.circular(8),
             boxShadow: [
-              if (isBottomField)
+              if (widget.isBottomField)
                 BoxShadow(
                   color: Colors.black.withOpacity(0.06),
                   blurRadius: 5,
@@ -65,19 +77,18 @@ class CustomCompanyField extends StatelessWidget {
             ],
           ),
           child: TextFormField(
-            //controller: controller,
-            onChanged: onChanged,
-            onFieldSubmitted: onFieldSubmitted,
-            validator: validator,
-            enabled: enabled,
-            obscureText: obscureText,
-            keyboardType: keyboardType,
+            controller: _internalController,
+            onChanged: widget.onChanged,
+            onFieldSubmitted: widget.onFieldSubmitted,
+            validator: widget.validator,
+            enabled: widget.enabled,
+            obscureText: widget.obscureText,
+            keyboardType: widget.keyboardType,
             style: const TextStyle(fontSize: 15, color: Colors.black87),
-            maxLines: maxLines,
-            initialValue: initialValue,
+            maxLines: widget.maxLines,
             decoration: InputDecoration(
               border: border,
-              floatingLabelBehavior: maxLines > 1
+              floatingLabelBehavior: widget.maxLines > 1
                   ? FloatingLabelBehavior.always
                   : FloatingLabelBehavior.auto,
               floatingLabelStyle: const TextStyle(
@@ -96,12 +107,13 @@ class CustomCompanyField extends StatelessWidget {
                 borderSide: const BorderSide(color: Colors.red, width: 1.5),
               ),
               isDense: true,
-              contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-              labelText: label,
-              hintText: hint,
-              errorText: errorMessage,
+              contentPadding:
+                  EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              labelText: widget.label,
+              hintText: widget.hint,
+              errorText: widget.errorMessage,
               errorStyle: const TextStyle(color: Colors.red, fontSize: 12),
-              suffixIcon: errorMessage != null
+              suffixIcon: widget.errorMessage != null
                   ? const Icon(Icons.error, color: Colors.red)
                   : null,
             ),
@@ -112,5 +124,13 @@ class CustomCompanyField extends StatelessWidget {
         )
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    if (widget.controller == null) {
+      _internalController.dispose();
+    }
+    super.dispose();
   }
 }

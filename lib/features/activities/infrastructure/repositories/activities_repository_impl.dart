@@ -21,4 +21,9 @@ class ActivitiesRepositoryImpl extends ActivitiesRepository {
     return datasource.getActivities();
   }
 
+  @override
+  Future<List<Activity>> getActivitiesByRuc(String ruc) {
+    return datasource.getActivitiesByRuc(ruc);
+  }
+
 }

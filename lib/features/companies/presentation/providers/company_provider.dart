@@ -2,6 +2,8 @@ import 'package:crm_app/features/activities/domain/domain.dart';
 import 'package:crm_app/features/activities/presentation/providers/activities_repository_provider.dart';
 import 'package:crm_app/features/agenda/domain/domain.dart';
 import 'package:crm_app/features/agenda/presentation/providers/events_repository_provider.dart';
+import 'package:crm_app/features/auth/domain/domain.dart';
+import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crm_app/features/companies/domain/entities/create_update_company_local_response.dart';
 import 'package:crm_app/features/contacts/domain/domain.dart';
 import 'package:crm_app/features/contacts/presentation/providers/contacts_repository_provider.dart';
@@ -19,6 +21,7 @@ final companyProvider = StateNotifierProvider.autoDispose
   final opportunitiesRepository = ref.watch(opportunitiesRepositoryProvider);
   final activitiesRepository = ref.watch(activitiesRepositoryProvider);
   final eventsRepository = ref.watch(eventsRepositoryProvider);
+  final user = ref.watch(authProvider).user;
 
   return CompanyNotifier(
       companiesRepository: companiesRepository,
@@ -26,6 +29,7 @@ final companyProvider = StateNotifierProvider.autoDispose
       opportunitiesRepository: opportunitiesRepository,
       activitiesRepository: activitiesRepository,
       eventsRepository: eventsRepository,
+      user: user!,
       rucId: rucId);
 });
 
@@ -35,6 +39,7 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
   final OpportunitiesRepository opportunitiesRepository;
   final ActivitiesRepository activitiesRepository;
   final EventsRepository eventsRepository;
+  final User user;
 
   CompanyNotifier({
     required this.companiesRepository,
@@ -42,6 +47,7 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
     required this.opportunitiesRepository,
     required this.activitiesRepository,
     required this.eventsRepository,
+    required this.user,
     required String rucId,
   }) : super(CompanyState(rucId: rucId)) {
     print('LLEGO COMPAN NOT');
@@ -67,14 +73,14 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
       localCodigoPostal: '',
       website: '',
       calificacion: 'A',
-      usuarioRegistro: '',
+      usuarioRegistro: user.code,
       visibleTodos: '1',
       email: '',
       codigoPostal: '',
       tipocliente: '04',
       estado: 'A',
       localNombre: '',
-      usuarioActualizacion: '',
+      usuarioActualizacion: user.code,
       coordenadasGeo: '',
       coordenadasLatitud: '',
       coordenadasLongitud: '',
@@ -93,7 +99,7 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
       cchkIdEstadoCheck: '',
       ubigeoCodigo: '',
       voltajeTension: '',
-      userreporteName: '',
+      userreporteName: user.name,
       arrayresponsables: [],
       arrayresponsablesEliminar: [],
     );
@@ -102,7 +108,8 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
   Future<void> updateCheckState(String idCheck) async {
     Company? companyNew = state.company;
 
-    companyNew?.cchkIdEstadoCheck = idCheck == '01' ? '06' : '01';
+    //companyNew?.cchkIdEstadoCheck = idCheck == '01' ? '06' : '01';
+    companyNew?.cchkIdEstadoCheck = idCheck;
 
     state = state.copyWith(company: companyNew);
   }
@@ -118,14 +125,14 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
         return;
       }
 
-      final company = await companiesRepository.getCompanyById(state.rucId);
+      final company = await companiesRepository.getCompanyById(state.rucId, user.code);
       company.rucId = company.ruc;
 
       final contacts = await contactsRepository.getContacts(company.ruc);
       final opportunities =
           await opportunitiesRepository.getOpportunities(company.ruc);
-      final activities = await activitiesRepository.getActivities();
-      final events = await eventsRepository.getEventsList();
+      final activities = await activitiesRepository.getActivitiesByRuc(company.ruc);
+      final events = await eventsRepository.getEventsListByRuc(company.ruc);
       final companyLocales =
           await companiesRepository.getCompanyLocales(company.ruc);
 

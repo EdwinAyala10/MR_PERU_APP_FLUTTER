@@ -14,13 +14,15 @@ class ResourceDetailsDatasourceImpl extends ResourceDetailsDatasource {
             headers: {'Authorization': 'Bearer $accessToken'}));
 
   @override
-  Future<List<ResourceDetail>> getResourceDetailsByGroup(int idGroup) async {
+  Future<List<ResourceDetail>> getResourceDetailsByGroup(String idGroup) async {
     final response = await dio.post(
         '/recurso-detalle/listar-recursos-detalle-by-grupo',
-        data: {'recd_grupo': idGroup});
-    
+        data: {'RECD_GRUPO': idGroup});
+
     final List<ResourceDetail> resourceDetails = [];
-    
+
+    print('response getResourceDetailsByGroup :${response}');
+
     for (final resourceDetail in response.data['data'] ?? []) {
       resourceDetails.add(ResourceDetailMapper.jsonToEntity(resourceDetail));
     }

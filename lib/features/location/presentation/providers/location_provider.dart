@@ -66,11 +66,11 @@ class LocationNotifier extends StateNotifier<LocationState> {
             radio);
 
         //if (dentroDelRadio) {
-          //print('La coordenada está dentro del radio de $radio metros.');
-          allowSaveDiff = dentroDelRadio;
+        //print('La coordenada está dentro del radio de $radio metros.');
+        allowSaveDiff = dentroDelRadio;
         //} else {
-          //print('La coordenada está fuera del radio de $radio metros.');
-          //allowSaveDiff = false;
+        //print('La coordenada está fuera del radio de $radio metros.');
+        //allowSaveDiff = false;
         //}
       }
 
@@ -106,7 +106,16 @@ class LocationNotifier extends StateNotifier<LocationState> {
       double lat1, double lon1, double lat2, double lon2, double radio) {
     double distancia = distanciaCoordenadas(lat1, lon1, lat2, lon2);
 
+    print('LAT1: ${lat1} | LNG1: ${lon1}');
+    print('LAT2: ${lat2} | LNG2: ${lon2}');
+
+    print('DISNTACIN: ${distancia}');
+
     state = state.copyWith(distanceLocationAddressDiff: distancia);
+
+    print('RADIO: ${radio}');
+
+    print('RESP: ${distancia <= radio}');
 
     return distancia <= radio;
   }

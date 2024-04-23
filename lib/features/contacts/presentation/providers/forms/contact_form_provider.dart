@@ -35,8 +35,8 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
           contactoIdCargo: contact.contactoIdCargo ?? '',
           contactoNombreCargo: contact.contactoNombreCargo ?? '',
           contactoNotas: contact.contactoNotas ?? '',
-          contactoTelefonoc: contact.contactoTelefonoc ?? '',
-          contactoTelefonof: Phone.dirty(contact.contactoTelefonof),
+          contactoTelefonoc: Phone.dirty(contact.contactoTelefonoc),
+          contactoTelefonof: contact.contactoTelefonof ?? '',
           contactoTitulo: contact.contactoTitulo ?? '',
           opt: contact.opt ?? '',
           razon: contact.razon ?? '',
@@ -62,8 +62,8 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
       'CONTACTO_DESC': state.contactoDesc.value,
       'CONTACTO_CARGO': state.contactoCargo,
       'CONTACTO_EMAIL': state.contactoEmail,
-      'CONTACTO_TELEFONOF': state.contactoTelefonof.value,
-      'CONTACTO_TELEFONOC': state.contactoTelefonoc,
+      'CONTACTO_TELEFONOF': state.contactoTelefonof,
+      'CONTACTO_TELEFONOC': state.contactoTelefonoc.value,
       'CONTACTO_FAX': state.contactoFax,
       'CONTACTO_NOTAS': state.contactoNotas,
       'OPT': (state.id == 'new') ? 'INSERT' : 'UPDATE',
@@ -84,7 +84,7 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
       isFormValid: Formz.validate([
         Ruc.dirty(state.ruc.value),
         Name.dirty(state.contactoDesc.value),
-        Phone.dirty(state.contactoTelefonof.value),
+        Phone.dirty(state.contactoTelefonoc.value),
       ]),
     );
   }
@@ -95,7 +95,7 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
         isFormValid: Formz.validate([
           Ruc.dirty(value),
           Name.dirty(state.contactoDesc.value),
-          Phone.dirty(state.contactoTelefonof.value),
+          Phone.dirty(state.contactoTelefonoc.value),
         ]));
   }
 
@@ -109,7 +109,7 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
         isFormValid: Formz.validate([
           Ruc.dirty(state.ruc.value),
           Name.dirty(value),
-          Phone.dirty(state.contactoTelefonof.value),
+          Phone.dirty(state.contactoTelefonoc.value),
         ]));
   }
 
@@ -123,17 +123,17 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
   }
 
   void onPhoneChanged(String value) {
-    state = state.copyWith(
-        contactoTelefonof: Phone.dirty(value),
-        isFormValid: Formz.validate([
-          Ruc.dirty(state.ruc.value),
-          Name.dirty(state.contactoDesc.value),
-          Phone.dirty(value),
-        ]));
+    state = state.copyWith(contactoTelefonof: value);
   }
 
   void onTelefonoNocChanged(String telefono) {
-    state = state.copyWith(contactoTelefonoc: telefono);
+    state = state.copyWith(
+        contactoTelefonoc: Phone.dirty(telefono),
+        isFormValid: Formz.validate([
+          Ruc.dirty(state.ruc.value),
+          Name.dirty(state.contactoDesc.value),
+          Phone.dirty(telefono),
+        ]));
   }
 
   void onEmailChanged(String email) {
@@ -155,8 +155,8 @@ class ContactFormState {
   final Name contactoDesc;
   final String contactoCargo;
   final String contactoEmail;
-  final Phone contactoTelefonof;
-  final String contactoTelefonoc;
+  final Phone contactoTelefonoc;
+  final String contactoTelefonof;
   final String contactoFax;
   final String opt;
   final String contactIdIn;
@@ -174,8 +174,8 @@ class ContactFormState {
       this.contactoDesc = const Name.dirty(''),
       this.contactoCargo = '',
       this.contactoEmail = '',
-      this.contactoTelefonof = const Phone.dirty(''),
-      this.contactoTelefonoc = '',
+      this.contactoTelefonoc = const Phone.dirty(''),
+      this.contactoTelefonof = '',
       this.contactoFax = '',
       this.opt = '',
       this.contactIdIn = '',
@@ -193,8 +193,8 @@ class ContactFormState {
     Name? contactoDesc,
     String? contactoCargo,
     String? contactoEmail,
-    Phone? contactoTelefonof,
-    String? contactoTelefonoc,
+    Phone? contactoTelefonoc,
+    String? contactoTelefonof,
     String? contactoFax,
     String? opt,
     String? contactIdIn,

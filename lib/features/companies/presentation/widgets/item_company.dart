@@ -21,11 +21,11 @@ class ItemCompany extends StatelessWidget {
           Row(
             children: [
               Text(company.clienteNombreEstado ?? ''),
-              Text(' - '),
+              const Text(' - '),
               Text(company.clienteNombreTipo ?? ''),
             ],
           ),
-          Text ((numCantidadLocal>1 ? company.localDistrito : company.localDireccion) ?? '' , style: TextStyle(color: Colors.black45))
+          Text ((numCantidadLocal>1 ? company.localDistrito : company.localDireccion) ?? '' , style: const TextStyle(color: Colors.black45))
         ],
       ),
       leading: Stack(

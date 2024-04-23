@@ -213,21 +213,22 @@ class _ContactInformation extends ConsumerWidget {
             items: optionsCargo,
           ),
           TitleSectionForm(title: 'DATOS DE CONTACTO'),
+          
           CustomCompanyField(
-            label: 'Teléfono *',
-            initialValue: contactForm.contactoTelefonof.value,
-            onChanged:
-                ref.read(contactFormProvider(contact).notifier).onPhoneChanged,
-            errorMessage: contactForm.contactoTelefonof.errorMessage,
-          ),
-          CustomCompanyField(
-            label: 'Móvil *',
-            initialValue: contactForm.contactoTelefonoc,
+            label: 'Celular *',
+            initialValue: contactForm.contactoTelefonoc.value,
             onChanged: (String? newValue) {
               ref
                   .read(contactFormProvider(contact).notifier)
                   .onTelefonoNocChanged(newValue!);
             },
+            errorMessage: contactForm.contactoTelefonoc.errorMessage,
+          ),
+          CustomCompanyField(
+            label: 'Teléfono',
+            initialValue: contactForm.contactoTelefonof,
+            onChanged:
+                ref.read(contactFormProvider(contact).notifier).onPhoneChanged,
           ),
           CustomCompanyField(
             label: 'Email *',

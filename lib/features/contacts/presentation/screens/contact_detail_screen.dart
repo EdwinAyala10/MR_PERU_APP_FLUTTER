@@ -1,11 +1,10 @@
 import 'package:crm_app/features/contacts/presentation/providers/contact_provider.dart';
+//import 'package:crm_app/features/shared/presentation/providers/notifications_provider.dart';
+import 'package:crm_app/features/shared/presentation/providers/send_whatsapp_provider.dart';
 import 'package:crm_app/features/shared/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
-
-import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 
 class ContactDetailScreen extends ConsumerWidget {
   final String contactId;
@@ -21,7 +20,7 @@ class ContactDetailScreen extends ConsumerWidget {
     final contact = contactState.contact;
 
     if (contactState.isLoading) {
-      return FullScreenLoader();
+      return const FullScreenLoader();
     }
 
     if (contact == null) {
@@ -56,96 +55,127 @@ class ContactDetailScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: double.infinity, // Ocupa todo el ancho disponible
-              alignment: Alignment.center,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  CircleAvatar(
-                    radius: 30,
-                    child: Text(
-                      contact.contactoDesc.trim().substring(0, 1).toUpperCase(),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              //Text('${ref.watch(notificationsProvider).status}'),
+              IconButton(
+                  onPressed: () {
+                    /*ref
+                        .read(notificationsProvider.notifier)
+                        .requestPermission();*/
+                  },
+                  icon: const Icon(Icons.notifications_on_rounded)),
+              Container(
+                width: double.infinity, // Ocupa todo el ancho disponible
+                alignment: Alignment.center,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    CircleAvatar(
+                      radius: 30,
+                      child: Text(
+                        contact.contactoDesc
+                            .trim()
+                            .substring(0, 1)
+                            .toUpperCase(),
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ), // Ajusta el tamaño del CircleAvatar según tus necesidades
+                    ),
+                    const SizedBox(height: 7),
+                    Text(
+                      contact.contactoDesc,
                       style: const TextStyle(
-                        fontSize: 20,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
-                    ), // Ajusta el tamaño del CircleAvatar según tus necesidades
-                  ),
-                  const SizedBox(height: 7),
-                  Text(
-                    contact.contactoDesc,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
                     ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(
-              height: 18,
-            ),
-            const Padding(
-              padding: EdgeInsets.only(left: 10),
-              child: Text(
-                'DATOS DE EMPRESA',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 17
+                  ],
                 ),
               ),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            ContainerCustom(
-              label: 'RUC:',
-              text: contact.ruc ?? '',
-            ),
-            ContainerCustom(
-              label: 'Empresa:',
-              text: contact.razon ?? '',
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            ContainerCustom(
-              label: 'Cargo:',
-              text: contact.contactoCargo ?? '',
-            ),
-            ContainerCustom(
-              label: 'Teléfono:',
-              text: contact.contactoTelefonof ?? '',
-              icon: Icons.call_sharp,
-              callbackIcon: () {
-                context.push(
-                    '/activity_post_call/${contact.id}/${contact.contactoTelefonof}');
-
-                //_showModalBottomSheet(context);
-
-                //llamarTelefono(context, contact.contactoTelefonof);
-              },
-            ),
-            ContainerCustom(
-              label: 'Móvil:',
-              text: contact.contactoTelefonoc ?? '',
-            ),
-            ContainerCustom(
-              label: 'Correo electrónico:',
-              text: contact.contactoEmail ?? '',
-            ),
-            ContainerCustom(
-              label: 'Comentarios:',
-              text: contact.contactoNotas ?? '',
-            ),
-          ],
+              const SizedBox(
+                height: 18,
+              ),
+              const Padding(
+                padding: EdgeInsets.only(left: 10),
+                child: Text(
+                  'DATOS DE EMPRESA',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              ContainerCustom(
+                label: 'RUC:',
+                text: contact.ruc ?? '',
+              ),
+              ContainerCustom(
+                label: 'Empresa:',
+                text: contact.razon ?? '',
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              ContainerCustom(
+                label: 'Cargo:',
+                text: contact.contactoCargo ?? '',
+              ),
+              ContainerCustom(
+                label: 'Móvil:',
+                text: contact.contactoTelefonoc ?? '',
+                icon: Icons.call_sharp,
+                callbackIcon: () {
+                  context.push(
+                      '/activity_post_call/${contact.id}/${agregarPrefijoPeru(contact.contactoTelefonoc)}');
+                },
+                icon2: Image.asset(
+                  'assets/images/icon_whatsapp.png',
+                  width: 26,
+                  height: 26,
+                ),
+                callbackIcon2: () {
+                  ref.read(sendWhatsappProvider.notifier).initialSend(
+                      contact, agregarPrefijoPeru(contact.contactoTelefonoc));
+                  context.push('/text');
+                },
+              ),
+              ContainerCustom(
+                label: 'Teléfono:',
+                text: contact.contactoTelefonof ?? '',
+                icon: Icons.call_sharp,
+                callbackIcon: () {
+                  context.push(
+                      '/activity_post_call/${contact.id}/${agregarPrefijoPeru(contact.contactoTelefonof!)}');
+                },
+                icon2: Image.asset(
+                  'assets/images/icon_whatsapp.png',
+                  width: 26,
+                  height: 26,
+                ),
+                callbackIcon2: () {
+                  ref.read(sendWhatsappProvider.notifier).initialSend(
+                      contact, agregarPrefijoPeru(contact.contactoTelefonof!));
+                  context.push('/text');
+                },
+              ),
+              ContainerCustom(
+                label: 'Correo electrónico:',
+                text: contact.contactoEmail ?? '',
+              ),
+              ContainerCustom(
+                label: 'Comentarios:',
+                text: contact.contactoNotas ?? '',
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -157,12 +187,16 @@ class ContainerCustom extends StatelessWidget {
   String text;
   IconData? icon;
   Function()? callbackIcon;
+  Widget? icon2;
+  Function()? callbackIcon2;
   ContainerCustom(
       {super.key,
       required this.label,
       required this.text,
       this.icon,
-      this.callbackIcon});
+      this.callbackIcon,
+      this.icon2,
+      this.callbackIcon2});
 
   @override
   Widget build(BuildContext context) {
@@ -190,7 +224,7 @@ class ContainerCustom extends StatelessWidget {
           color: const Color.fromARGB(255, 247, 245, 245),
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 6),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -201,6 +235,15 @@ class ContainerCustom extends StatelessWidget {
                     fontSize: 16,
                   ),
                 ),
+                const Expanded(child: SizedBox()),
+                icon2 != null
+                    ? IconButton(
+                        icon: icon2!,
+                        iconSize: 20, // Tamaño del icono
+                        color: Colors.blue, // Color del icono
+                        onPressed: callbackIcon2,
+                      )
+                    : const SizedBox(),
                 icon != null
                     ? IconButton(
                         icon: Icon(icon),
@@ -208,7 +251,7 @@ class ContainerCustom extends StatelessWidget {
                         color: Colors.blue, // Color del icono
                         onPressed: callbackIcon,
                       )
-                    : const SizedBox()
+                    : const SizedBox(),
               ],
             ),
           ),
@@ -217,4 +260,14 @@ class ContainerCustom extends StatelessWidget {
       ],
     );
   }
+}
+
+String agregarPrefijoPeru(String numero) {
+  // Verificar si el número ya tiene el prefijo de país "+51"
+  if (!numero.startsWith('+51')) {
+    // Si no tiene el prefijo, agregarlo al principio
+    return '+51$numero';
+  }
+  // Si ya tiene el prefijo, devolver el número sin cambios
+  return numero;
 }

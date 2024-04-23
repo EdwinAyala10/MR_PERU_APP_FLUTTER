@@ -108,4 +108,19 @@ class EventsDatasourceImpl extends EventsDatasource {
 
     return events;
   }
+
+  @override
+  Future<List<Event>> getEventsListByRuc(String ruc) async {
+    final data = {
+      "RUC": ruc,
+    };
+
+    final response = await dio.post('/evento/listar-evento-by-ruc', data: data);
+    final List<Event> events = [];
+    for (final event in response.data['data'] ?? []) {
+      events.add(EventMapper.jsonToEntity(event));
+    }
+
+    return events;
+  }
 }

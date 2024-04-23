@@ -1,4 +1,7 @@
+import 'package:crm_app/features/companies/domain/entities/check_in_by_ruc_local_response.dart';
 import 'package:crm_app/features/companies/infrastructure/infrastructure.dart';
+import 'package:crm_app/features/companies/infrastructure/mappers/check_in_by_ruc_local_mapper.dart';
+import 'package:crm_app/features/companies/infrastructure/mappers/check_in_by_ruc_local_response.dart_mapper.dart';
 import 'package:crm_app/features/companies/infrastructure/mappers/company_response_mapper.dart';
 import 'package:dio/dio.dart';
 import 'package:crm_app/config/config.dart';
@@ -53,11 +56,11 @@ class CompaniesDatasourceImpl extends CompaniesDatasource {
   }
 
   @override
-  Future<Company> getCompanyById(String rucId) async {
+  Future<Company> getCompanyById(String rucId, String userId) async {
     try {
       print('INGRESO GET COMPANY ID');
       print('RUC ID: ${rucId}');
-      final response = await dio.get('/cliente/cliente-by-ruc/$rucId');
+      final response = await dio.get('/cliente/cliente-by-ruc/$rucId/$userId');
       final Company company= CompanyMapper.jsonToEntity(response.data['data']);
 
       print('response: ${response}');
@@ -202,6 +205,35 @@ class CompaniesDatasourceImpl extends CompaniesDatasource {
     }
 
     return companyLocales;
+  }
+
+  @override
+  Future<CheckInByRucLocalResponse> getCheckInByRucLocal(String ruc, String user) async {
+    try {
+
+      final data = {
+        "RUC": ruc,
+        "ID_USUARIO_RESPONSABLE": user
+      };
+
+      final response = await dio.post('/cliente-check/listar-check-by-ruc-local', data: data );
+      final CheckInByRucLocalResponse checkInByRucLocalResponse = CheckInByRucLocalResponseMapper.jsonToEntity(response.data);
+
+      print('response getCheckInByRucLocal: ${response}');
+
+      if (checkInByRucLocalResponse.status == true) {
+        checkInByRucLocalResponse.checkInByRucLocal =
+            CheckInByRucLocalMapper.jsonToEntity(response.data['data']);
+      }
+
+      return checkInByRucLocalResponse;
+    } on DioException catch (e) {
+      if (e.response!.statusCode == 404) throw CompanyNotFound();
+      throw Exception();
+    } catch (e) {
+      throw Exception();
+    }
+
   }
 
 

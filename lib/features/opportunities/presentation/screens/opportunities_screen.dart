@@ -2,6 +2,7 @@ import 'package:crm_app/features/opportunities/domain/domain.dart';
 import 'package:crm_app/features/opportunities/presentation/providers/providers.dart';
 import 'package:crm_app/features/opportunities/presentation/widgets/item_opportunity.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
+import 'package:crm_app/features/shared/widgets/loading_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -69,6 +70,10 @@ class _OpportunitiesViewState extends ConsumerState {
   @override
   Widget build(BuildContext context) {
     final opportunitiesState = ref.watch(opportunitiesProvider);
+
+    if (opportunitiesState.isLoading) {
+      return LoadingModal();
+    }
 
     return opportunitiesState.opportunities.length > 0
         ? _ListOpportunities(opportunities: opportunitiesState.opportunities)

@@ -54,7 +54,7 @@ class SelectCustomForm extends StatelessWidget {
                 color: Colors.black,
               ),
               decoration: InputDecoration(
-                contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                contentPadding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                 ),

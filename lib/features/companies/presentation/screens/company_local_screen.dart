@@ -10,6 +10,7 @@ import 'package:crm_app/features/location/presentation/providers/gps_provider.da
 import 'package:crm_app/features/location/presentation/providers/selected_map_provider.dart';
 import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
 import 'package:crm_app/features/shared/shared.dart';
+import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
 import 'package:crm_app/features/shared/widgets/select_custom_form.dart';
 import 'package:crm_app/features/shared/widgets/text_address.dart';
 import 'package:flutter/material.dart';
@@ -43,15 +44,13 @@ class CompanyLocalScreen extends ConsumerWidget {
         ),
         body: companyLocalState.isLoading
             ? const FullScreenLoader()
-            : _CompanyLocalView(
-                companyLocal: companyLocalState.companyLocal!),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
+            : _CompanyLocalView(companyLocal: companyLocalState.companyLocal!),
+        floatingActionButton: FloatingActionButtonCustom(
+          callOnPressed: () {
             if (companyLocalState.companyLocal == null) return;
 
             ref
-                .read(companyLocalFormProvider(
-                        companyLocalState.companyLocal!)
+                .read(companyLocalFormProvider(companyLocalState.companyLocal!)
                     .notifier)
                 .onFormSubmit()
                 .then((CreateUpdateCompanyLocalResponse value) {
@@ -60,16 +59,15 @@ class CompanyLocalScreen extends ConsumerWidget {
                 showSnackbar(context, value.message);
                 if (value.response) {
                   //Timer(const Duration(seconds: 3), () {
-                    context.pop();
-                    //context.push('/company_local/${ruc}');
-                    //context.push('/company/${company.ruc}');
+                  context.pop();
+                  //context.push('/company_local/${ruc}');
+                  //context.push('/company/${company.ruc}');
                   //});
                 }
               }
             });
-          },
-          child: const Icon(Icons.save),
-        ),
+          }, 
+          iconData: Icons.save),
       ),
     );
   }
@@ -91,20 +89,64 @@ class _CompanyLocalView extends ConsumerWidget {
   }
 }
 
-class _CompanyLocalInformation extends ConsumerWidget {
+class _CompanyLocalInformation extends ConsumerStatefulWidget {
   final CompanyLocal companyLocal;
 
-  const _CompanyLocalInformation({required this.companyLocal});
+  const _CompanyLocalInformation({super.key, required this.companyLocal});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final companyLocalForm =
-        ref.watch(companyLocalFormProvider(companyLocal));
-        
+  _CompanyLocalInformationState createState() =>
+      _CompanyLocalInformationState();
+}
+
+class _CompanyLocalInformationState
+    extends ConsumerState<_CompanyLocalInformation> {
+
+  late TextEditingController _controllerLocalName;
+  late Key _fieldKeyLocalName;
+
+  @override
+  void initState() {
+    super.initState();
+    // Inicializar el controlador y la clave
+    _controllerLocalName =
+        TextEditingController(text: widget.companyLocal.localNombre);
+    _fieldKeyLocalName = UniqueKey();
+  }
+
+  @override
+  void dispose() {
+    // Dispose del controlador cuando ya no se necesita
+    _controllerLocalName.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var companyLocal = widget.companyLocal;
+
+    final companyLocalForm = ref.watch(companyLocalFormProvider(companyLocal));
+    
     List<DropdownOption> optionsLocalTipo = [
       DropdownOption('', 'Seleccione tipo de local'),
       DropdownOption('2', 'PLANTA'),
     ];
+
+    /*ref.listen(companyLocalFormProvider(widget.companyLocal), (previous, next) {
+      print('previous.localNombre: ${previous?.localNombre}');
+      print('next.localNombre: ${next.localNombre}');
+
+      setState(() {
+        _fieldKeyLocalName = UniqueKey();
+        _controllerLocalName.text = next.localNombre.value;
+      });
+
+      //if (previous?.localNombre != next.localNombre) {
+      //}
+
+      // if ( next.errorMessage.isEmpty ) return;
+      //showSnackbar( context, next.errorMessage );
+    });*/
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -120,21 +162,18 @@ class _CompanyLocalInformation extends ConsumerWidget {
               Expanded(
                 child: Wrap(
                   spacing: 8.0,
-                  children: [
-                    Chip(label: Text(companyLocalForm.razon ?? ''))
-                  ],
+                  children: [Chip(label: Text(companyLocalForm.razon ?? ''))],
                 ),
               ),
             ],
           ),
-
           SelectCustomForm(
             label: 'Tipo de local',
             value: companyLocalForm.localTipo ?? '',
             callbackChange: (String? newValue) {
               DropdownOption searchDropdown = optionsLocalTipo
-              .where((option) => option.id == newValue!)
-              .first;
+                  .where((option) => option.id == newValue!)
+                  .first;
 
               ref
                   .read(companyLocalFormProvider(companyLocal).notifier)
@@ -142,40 +181,6 @@ class _CompanyLocalInformation extends ConsumerWidget {
             },
             items: optionsLocalTipo,
           ),
-          CustomCompanyField(
-            label: 'Nombre de local',
-            initialValue:
-                companyLocalForm.localNombre.value,
-            onChanged:
-                ref.read(companyLocalFormProvider(companyLocal).notifier).onNombreChanged,
-            errorMessage: companyLocalForm.localNombre.errorMessage,
-          ),
-
-          if (companyLocalForm.localNombre.value != "") 
-            Column(
-              children: [
-                Row(
-                  children: [
-                    const Text(
-                      'Nombre de local actual:',
-                      style: TextStyle(
-                          color: Colors.black54
-                      )),
-                    const SizedBox(width: 5),
-                    Text(
-                      companyLocalForm.localNombre.value, 
-                      style: const TextStyle(
-                        color: Colors.black87
-                      )
-                    )
-                  ],
-                ),
-                const SizedBox(
-                  height: 16,
-                ),
-              ],
-            ),
-            
           TextAddress(
               text: companyLocalForm.localDireccion.value,
               error: companyLocalForm.localDireccion.errorMessage,
@@ -186,17 +191,81 @@ class _CompanyLocalInformation extends ConsumerWidget {
                 //context.push('/company_map/${companyForm.rucId}/direction');
               },
               paramContext: context),
+          companyLocalForm.isEditLocalNombre!
+              ? CustomCompanyField(
+                  label: 'Nombre de local',
+                  initialValue: companyLocalForm.localNombre.value,
+                  controller: _controllerLocalName,
+                  onChanged: ref
+                      .read(companyLocalFormProvider(companyLocal).notifier)
+                      .onNombreChanged,
+                  errorMessage: companyLocalForm.localNombre.errorMessage,
+                )
+              : GestureDetector(
+                  onTap: () {
+
+                    setState(() {
+                      _fieldKeyLocalName = UniqueKey();
+                      _controllerLocalName.text = companyLocalForm.localNombre.value;
+                    });
+
+                    ref
+                        .read(companyLocalFormProvider(widget.companyLocal).notifier)
+                        .onChangeEditLocalNombre();
+
+                  },
+                  child: TextViewCustom(
+                      text: companyLocalForm.localNombre.value,
+                      label: 'Nombre de local',
+                      placeholder: 'Nombre de local'),
+                ),
           const SizedBox(
-            height: 6,
+            height: 4,
           ),
-          TextViewCustom(text: companyLocalForm.localDepartamentoDesc ?? '', label: 'Departamento local', placeholder: 'Departamento del local'),
-          TextViewCustom(text: companyLocalForm.localProvinciaDesc ?? '', label: 'Provincia local', placeholder: 'Provincia del local'),
-          TextViewCustom(text: companyLocalForm.localDistritoDesc ?? '', label: 'Distrito local', placeholder: 'Distrito del local'),
-          TextViewCustom(text: companyLocalForm.localCodigoPostal ?? '', label: 'Código postal local', placeholder: 'Código postal del local'),
-          
-          TextViewCustom(text: companyLocalForm.coordenadasLatitud ?? '', label: 'Latitud', placeholder: 'Latitud'),
-          TextViewCustom(text: companyLocalForm.coordenadasLongitud ?? '', label: 'Longitud', placeholder: 'Longitud'),
-          
+          /*if (companyLocalForm.localNombre.value != "UUUUU")
+            Column(
+              children: [
+                Row(
+                  children: [
+                    const Text('Nombre de local actual:',
+                        style: TextStyle(color: Colors.black54)),
+                    const SizedBox(width: 5),
+                    Text(companyLocalForm.localNombre.value,
+                        style: const TextStyle(color: Colors.black87))
+                  ],
+                ),
+                const SizedBox(
+                  height: 16,
+                ),
+              ],
+            ),*/
+          /*const SizedBox(
+            height: 6,
+          ),*/
+          TextViewCustom(
+              text: companyLocalForm.localDepartamentoDesc ?? '',
+              label: 'Departamento local',
+              placeholder: 'Departamento del local'),
+          TextViewCustom(
+              text: companyLocalForm.localProvinciaDesc ?? '',
+              label: 'Provincia local',
+              placeholder: 'Provincia del local'),
+          TextViewCustom(
+              text: companyLocalForm.localDistritoDesc ?? '',
+              label: 'Distrito local',
+              placeholder: 'Distrito del local'),
+          TextViewCustom(
+              text: companyLocalForm.localCodigoPostal ?? '',
+              label: 'Código postal local',
+              placeholder: 'Código postal del local'),
+          TextViewCustom(
+              text: companyLocalForm.coordenadasLatitud ?? '',
+              label: 'Latitud',
+              placeholder: 'Latitud'),
+          TextViewCustom(
+              text: companyLocalForm.coordenadasLongitud ?? '',
+              label: 'Longitud',
+              placeholder: 'Longitud'),
           const SizedBox(height: 100),
         ],
       ),
@@ -251,8 +320,8 @@ class _CompanyLocalInformation extends ConsumerWidget {
                   final selectedMapNotifier =
                       ref.read(selectedMapProvider.notifier);
                   bool isNew = id == 'new' ? true : false;
-                  await selectedMapNotifier.onSelectMapLocation(
-                      true, isNew, id, 'company-local', identificator, companyLocal);
+                  await selectedMapNotifier.onSelectMapLocation(true, isNew, id,
+                      'company-local', identificator, companyLocal);
 
                   var stateSelectedMap = selectedMapNotifier.state;
 
@@ -271,7 +340,7 @@ class _CompanyLocalInformation extends ConsumerWidget {
                         stateSelectedMap.province ?? '',
                         stateSelectedMap.district ?? '',
                       );
-                  
+
                   selectedMapNotifier.onFreeIsUpdateAddress();
                   selectedMapNotifier.onChangeStateProcess('updated');
 
@@ -288,8 +357,8 @@ class _CompanyLocalInformation extends ConsumerWidget {
                   final selectedMapNotifier =
                       ref.read(selectedMapProvider.notifier);
                   bool isNew = id == 'new' ? true : false;
-                  await selectedMapNotifier.onSelectMapLocation(
-                      false, isNew, id, 'company-local', identificator, companyLocal);
+                  await selectedMapNotifier.onSelectMapLocation(false, isNew,
+                      id, 'company-local', identificator, companyLocal);
 
                   context.push('/map');
 
@@ -316,8 +385,5 @@ class _CompanyLocalInformation extends ConsumerWidget {
       },
     );
   }
-
-  
-
 }
 

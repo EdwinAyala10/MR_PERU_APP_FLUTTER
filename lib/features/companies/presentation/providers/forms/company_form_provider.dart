@@ -270,6 +270,10 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
         ]));
   }*/
 
+  void onChangeEditLocalNombre() {
+    state = state.copyWith(isEditLocalNombre: true);
+  }
+
   void onLoadAddressCompanyLocalChanged(
       String direccion,
       String coors,
@@ -289,7 +293,8 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
         localDistritoDesc: dist,
         localProvinciaDesc: prov,
         localCantidad: state.rucId == 'new' ? '1' : state.localCantidad,
-        localNombre: 'PLANTA ${dist}',
+        localNombre: 'PLANTA ${dist.toUpperCase()}',
+        isEditLocalNombre: false,
         isFormValid: Formz.validate([
           Ruc.dirty(state.ruc.value),
           Razon.dirty(state.razon.value),
@@ -385,6 +390,7 @@ class CompanyFormState {
   final String tipoCliente;
   final String estado;
   final String localNombre;
+  final bool isEditLocalNombre;
   final Address localDireccion;
   final String localDepartamento;
   final String localProvincia;
@@ -439,6 +445,7 @@ class CompanyFormState {
       this.tipoCliente = '',
       this.estado = '',
       this.localNombre = '',
+      this.isEditLocalNombre = true,
       this.localCodigoPostal = '',
       this.localDireccion = const Address.dirty(''),
       this.localProvincia = '',
@@ -489,6 +496,7 @@ class CompanyFormState {
     String? email,
     String? codigoPostal,
     String? tipoCliente,
+    bool? isEditLocalNombre,
     String? estado,
     String? localNombre,
     Address? localDireccion,
@@ -547,6 +555,7 @@ class CompanyFormState {
         tipoCliente: tipoCliente ?? this.tipoCliente,
         estado: estado ?? this.estado,
         localNombre: localNombre ?? this.localNombre,
+        isEditLocalNombre: isEditLocalNombre ?? this.isEditLocalNombre,
         localDireccion: localDireccion ?? this.localDireccion,
         localDepartamento: localDepartamento ?? this.localDepartamento,
         localDistrito: localDistrito ?? this.localDistrito,

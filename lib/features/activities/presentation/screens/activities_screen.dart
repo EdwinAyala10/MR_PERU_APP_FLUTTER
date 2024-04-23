@@ -2,6 +2,7 @@ import 'package:crm_app/features/activities/domain/domain.dart';
 import 'package:crm_app/features/activities/presentation/providers/providers.dart';
 import 'package:crm_app/features/activities/presentation/widgets/item_activity.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
+import 'package:crm_app/features/shared/widgets/loading_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -110,6 +111,10 @@ class _ActivitiesViewState extends ConsumerState {
   @override
   Widget build(BuildContext context) {
     final activitiesState = ref.watch(activitiesProvider);
+
+    if (activitiesState.isLoading) {
+      return LoadingModal();
+    }
 
     return activitiesState.activities.length > 0
         ? _ListActivities(activities: activitiesState.activities)

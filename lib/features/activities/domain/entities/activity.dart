@@ -19,6 +19,9 @@ class Activity {
   String? actiIdUsuarioActualizacion;
   String? opt;
   String? actiIdActividadIn;
+  String? cchkComentarioCheckIn;
+  String? cchkComentarioCheckOut;
+  String? actiTiempoGestion;
   String? actiNombreResponsable;
   List<ContactArray>? actividadesContacto;
   List<ContactArray>? actividadesContactoEliminar;
@@ -44,5 +47,8 @@ class Activity {
       this.actividadesContacto,
       this.actividadesContactoEliminar,
       this.actiRazon,
+      this.cchkComentarioCheckIn,
+      this.cchkComentarioCheckOut,
+      this.actiTiempoGestion,
       this.actiNombreResponsable});
 }

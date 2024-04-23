@@ -128,10 +128,7 @@ class CompanyLocalFormNotifier extends StateNotifier<CompanyLocalFormState> {
     state = state.copyWith(departamento: id, localDepartamento: value);
   }
 
-  void onTipoChanged(
-    String id,
-    String name
-  ) {
+  void onTipoChanged(String id, String name) {
     state = state.copyWith(
       localTipo: id,
       localTipoDescripcion: name,
@@ -146,6 +143,10 @@ class CompanyLocalFormNotifier extends StateNotifier<CompanyLocalFormState> {
     state = state.copyWith(provincia: id, localProvincia: value);
   }
 
+  void onChangeEditLocalNombre() {
+    state = state.copyWith(isEditLocalNombre: true);
+  }
+
   void onLoadAddressChanged(String direccion, String coors, String lat,
       String lng, String codigoPostal, String dep, String prov, String dist) {
     state = state.copyWith(
@@ -153,7 +154,8 @@ class CompanyLocalFormNotifier extends StateNotifier<CompanyLocalFormState> {
         localDepartamentoDesc: dep,
         localProvinciaDesc: prov,
         localDistritoDesc: dist,
-        localNombre: Name.dirty('PLANTA ${dist}'),
+        localNombre: Name.dirty('PLANTA ${dist.toUpperCase()}'),
+        isEditLocalNombre: false,
         departamento: dep,
         provincia: prov,
         distrito: dist,
@@ -192,6 +194,7 @@ class CompanyLocalFormState {
   final String? localCodigoPostal;
   final String? distrito;
   final String? localTipoDescripcion;
+  final bool? isEditLocalNombre;
 
   CompanyLocalFormState({
     this.isFormValid = false,
@@ -215,6 +218,7 @@ class CompanyLocalFormState {
     this.provincia = '',
     this.localCodigoPostal = '',
     this.localTipoDescripcion = '',
+    this.isEditLocalNombre = true,
     this.ubigeoCodigo = '',
   });
 
@@ -240,6 +244,7 @@ class CompanyLocalFormState {
     String? provincia,
     String? distrito,
     String? localCodigoPostal,
+    bool? isEditLocalNombre,
     String? localTipoDescripcion,
   }) =>
       CompanyLocalFormState(
@@ -257,6 +262,7 @@ class CompanyLocalFormState {
             localDepartamentoDesc ?? this.localDepartamentoDesc,
         localDireccion: localDireccion ?? this.localDireccion,
         localDistrito: localDistrito ?? this.localDistrito,
+        isEditLocalNombre: isEditLocalNombre ?? this.isEditLocalNombre,
         localDistritoDesc: localDistritoDesc ?? this.localDistritoDesc,
         localNombre: localNombre ?? this.localNombre,
         localProvincia: localProvincia ?? this.localProvincia,

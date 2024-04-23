@@ -9,13 +9,13 @@ class ResourceDetail {
     String recdGrupo;
     String recdCodigo;
     String recdNombre;
-    dynamic recdNombreCorto;
+    String? recdNombreCorto;
     String recdNombreTabla;
     String recdOrden;
-    dynamic recdSimbolo;
-    dynamic recdColorTexto;
-    dynamic recdIcono;
-    dynamic recdIconoTexto;
+    String? recdSimbolo;
+    String? recdColorTexto;
+    String? recdIcono;
+    String? recdIconoTexto;
     String recdParentIdRecursos;
     String recdEstadoReg;
 
@@ -24,15 +24,15 @@ class ResourceDetail {
         required this.recdGrupo,
         required this.recdCodigo,
         required this.recdNombre,
-        required this.recdNombreCorto,
         required this.recdNombreTabla,
         required this.recdOrden,
-        required this.recdSimbolo,
-        required this.recdColorTexto,
-        required this.recdIcono,
-        required this.recdIconoTexto,
         required this.recdParentIdRecursos,
         required this.recdEstadoReg,
+        this.recdNombreCorto,
+        this.recdSimbolo,
+        this.recdColorTexto,
+        this.recdIcono,
+        this.recdIconoTexto,
     });
 
     factory ResourceDetail.fromJson(Map<String, dynamic> json) => ResourceDetail(

@@ -1,5 +1,7 @@
 import 'package:crm_app/features/auth/domain/domain.dart';
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:crm_app/features/companies/domain/entities/check_in_by_ruc_local.dart';
+import 'package:crm_app/features/companies/domain/entities/check_in_by_ruc_local_response.dart';
 import 'package:crm_app/features/companies/presentation/providers/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:crm_app/features/companies/domain/domain.dart';
@@ -63,10 +65,44 @@ class CompanyCheckInNotifier extends StateNotifier<CompanyCheckInState> {
 
   Future<void> loadCompanyCheckIn(String idCheck) async {
     try {
+      CompanyCheckIn companyCheckInNew = newEmptyCompanyCheckIn(idCheck);
+
+      print('IDCHEKKKKK: ${idCheck}');
+
+      if (idCheck == '06') {
+        // CHECKIN
+        CheckInByRucLocalResponse checkInByRucLocalResponse =
+            await companiesRepository.getCheckInByRucLocal(ruc, user.code);
+
+        if (checkInByRucLocalResponse.checkInByRucLocal != null) {
+          CheckInByRucLocal checkInByRucLocal =
+              checkInByRucLocalResponse.checkInByRucLocal!;
+
+          companyCheckInNew = CompanyCheckIn(
+              cchkIdClientesCheck: 'new',
+              cchkRuc: checkInByRucLocal.ruc,
+              cchkIdOportunidad: checkInByRucLocal.idOportunidad,
+              cchkNombreOportunidad: checkInByRucLocal.oprtNombre,
+              cchkIdContacto: checkInByRucLocal.idContacto,
+              cchkNombreContacto: checkInByRucLocal.contactoDesc,
+              cchkIdEstadoCheck: idCheck,
+              cchkIdComentario: '',
+              cchkIdUsuarioResponsable: user.code,
+              cchkNombreUsuarioResponsable: user.name,
+              cchkLocalCodigo: checkInByRucLocal.cchkLocalCodigo,
+              cchkLocalNombre: '${checkInByRucLocal.localNombre} ${checkInByRucLocal.localDireccion}',
+              cchkCoordenadaLatitud: checkInByRucLocal.coordenadasLatitud,
+              cchkCoordenadaLongitud: checkInByRucLocal.coordenadasLongitud,
+              cchkRazon: checkInByRucLocal.razon,
+              cchkDireccionMapa: checkInByRucLocal.localDireccion,
+              );
+        }
+      }
+
       //if (state.id == 'new') {
       state = state.copyWith(
         isLoading: false,
-        companyCheckIn: newEmptyCompanyCheckIn(idCheck),
+        companyCheckIn: companyCheckInNew,
       );
       //return;
       //}

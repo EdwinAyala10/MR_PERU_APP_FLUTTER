@@ -6,8 +6,8 @@ class Contact {
   String contactoDesc;
   String contactoCargo;
   String? contactoEmail;
-  String contactoTelefonof;
-  String? contactoTelefonoc;
+  String? contactoTelefonof;
+  String contactoTelefonoc;
   String? contactoFax;
   String? opt;
   String? contactIdIn;
@@ -22,12 +22,12 @@ class Contact {
     required this.contactoTitulo,
     required this.contactoDesc,
     required this.contactoCargo,
-    required this.contactoTelefonof,
+    required this.contactoTelefonoc,
     this.contactoEmail,
     this.opt,
     this.razon,
     this.contactIdIn,
-    this.contactoTelefonoc,
+    this.contactoTelefonof,
     this.contactoFax,
     this.contactoNotas,
     this.contactoIdCargo,

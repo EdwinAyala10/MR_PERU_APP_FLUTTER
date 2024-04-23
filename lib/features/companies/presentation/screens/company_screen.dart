@@ -27,7 +27,8 @@ class CompanyScreen extends ConsumerWidget {
 
     print('company state: ${companyState.company?.rucId}');
     print('company state name: ${companyState.company?.razon}');
-    print('company state segComentario: ${companyState.company?.seguimientoComentario}');
+    print(
+        'company state segComentario: ${companyState.company?.seguimientoComentario}');
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -57,7 +58,8 @@ class CompanyScreen extends ConsumerWidget {
                   showSnackbar(context, value.message);
                   if (value.response) {
                     //Timer(const Duration(seconds: 3), () {
-                    context.push('/companies');
+                    //context.push('/companies');
+                    context.pop();
                     //});
                   }
                 }
@@ -80,7 +82,7 @@ class _CompanyView extends ConsumerWidget {
       children: [
         const SizedBox(height: 10),
         company != null
-            ? _CompanyInformation(company: company)
+            ? _CompanyInformationv2(company: company)
             : const Center(
                 child: Text('No se encontro información de la empresa'),
               )
@@ -89,13 +91,37 @@ class _CompanyView extends ConsumerWidget {
   }
 }
 
-class _CompanyInformation extends ConsumerWidget {
+class _CompanyInformationv2 extends ConsumerStatefulWidget {
   final Company company;
 
-  const _CompanyInformation({required this.company});
+  const _CompanyInformationv2({required this.company});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  __CompanyInformationv2State createState() => __CompanyInformationv2State();
+}
+
+class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
+  late TextEditingController _controllerLocalName;
+  late Key _fieldKeyLocalName;
+
+  @override
+  void initState() {
+    super.initState();
+    // Inicializar el controlador y la clave
+    _controllerLocalName =
+        TextEditingController(text: widget.company.localNombre);
+    _fieldKeyLocalName = UniqueKey();
+  }
+
+  @override
+  void dispose() {
+    // Dispose del controlador cuando ya no se necesita
+    _controllerLocalName.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     List<DropdownOption> optionsTipoCliente = [
       DropdownOption('01', 'Proveedor'),
       DropdownOption('02', 'Distribuidor'),
@@ -120,10 +146,10 @@ class _CompanyInformation extends ConsumerWidget {
       DropdownOption('2', 'PLANTA'),
     ];
 
-    print('COMPANY 2: ${company}');
-    print('COMPANY 2 RUC: ${company.rucId}');
+    print('COMPANY 2: ${widget.company}');
+    print('COMPANY 2 RUC: ${widget.company.rucId}');
 
-    final companyForm = ref.watch(companyFormProvider(company));
+    final companyForm = ref.watch(companyFormProvider(widget.company));
 
     print('COMPANY FORM ID: ${companyForm.rucId}');
     print('COMPANY FORM RAZON: ${companyForm.razon.value}');
@@ -165,7 +191,21 @@ class _CompanyInformation extends ConsumerWidget {
         ); */
     //}
 
-    TextEditingController _controllerNameLocal = TextEditingController();
+    /*ref.listen(companyFormProvider(widget.company), (previous, next) {
+      print('previous.localNombre: ${previous?.localNombre}');
+      print('next.localNombre: ${next.localNombre}');
+
+      setState(() {
+        _fieldKeyLocalName = UniqueKey();
+        _controllerLocalName.text = next.localNombre;
+      });
+
+      //if (previous?.localNombre != next.localNombre) {
+      //}
+
+      // if ( next.errorMessage.isEmpty ) return;
+      //showSnackbar( context, next.errorMessage );
+    });*/
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -176,16 +216,18 @@ class _CompanyInformation extends ConsumerWidget {
           CustomCompanyField(
             label: 'Nombre de la empresa *',
             initialValue: companyForm.razon.value,
-            onChanged:
-                ref.read(companyFormProvider(company).notifier).onRazonChanged,
+            onChanged: ref
+                .read(companyFormProvider(widget.company).notifier)
+                .onRazonChanged,
             errorMessage: companyForm.razon.errorMessage,
           ),
           CustomCompanyField(
             label: 'RUC *',
             initialValue:
                 companyForm.ruc.value == 'new' ? '' : companyForm.ruc.value,
-            onChanged:
-                ref.read(companyFormProvider(company).notifier).onRucChanged,
+            onChanged: ref
+                .read(companyFormProvider(widget.company).notifier)
+                .onRucChanged,
             errorMessage: companyForm.ruc.errorMessage,
           ),
           SelectCustomForm(
@@ -197,7 +239,7 @@ class _CompanyInformation extends ConsumerWidget {
                   .first;
 
               ref
-                  .read(companyFormProvider(company).notifier)
+                  .read(companyFormProvider(widget.company).notifier)
                   .onTipoChanged(newValue!, searchDropdown.name);
             },
             items: optionsTipoCliente,
@@ -206,13 +248,11 @@ class _CompanyInformation extends ConsumerWidget {
             label: 'Estado',
             value: companyForm.estado,
             callbackChange: (String? newValue) {
-
-              DropdownOption searchDropdown = optionsEstado
-                  .where((option) => option.id == newValue!)
-                  .first;
+              DropdownOption searchDropdown =
+                  optionsEstado.where((option) => option.id == newValue!).first;
 
               ref
-                  .read(companyFormProvider(company).notifier)
+                  .read(companyFormProvider(widget.company).notifier)
                   .onEstadoChanged(newValue!, searchDropdown.name);
             },
             items: optionsEstado,
@@ -222,7 +262,7 @@ class _CompanyInformation extends ConsumerWidget {
             value: companyForm.calificacion,
             callbackChange: (String? newValue) {
               ref
-                  .read(companyFormProvider(company).notifier)
+                  .read(companyFormProvider(widget.company).notifier)
                   .onCalificacionChanged(newValue!);
             },
             items: optionsCalificacion,
@@ -245,7 +285,8 @@ class _CompanyInformation extends ConsumerWidget {
                                                 const TextStyle(fontSize: 12)),
                                         onDeleted: () {
                                           ref
-                                              .read(companyFormProvider(company)
+                                              .read(companyFormProvider(
+                                                      widget.company)
                                                   .notifier)
                                               .onDeleteUserChanged(item);
                                         },
@@ -281,7 +322,7 @@ class _CompanyInformation extends ConsumerWidget {
                 value: companyForm.visibleTodos == '1' ? true : false,
                 onChanged: (bool? newValue) {
                   ref
-                      .read(companyFormProvider(company).notifier)
+                      .read(companyFormProvider(widget.company).notifier)
                       .onVisibleTodosChanged(newValue! ? '1' : '0');
                 },
               ),
@@ -294,7 +335,7 @@ class _CompanyInformation extends ConsumerWidget {
             keyboardType: TextInputType.multiline,
             initialValue: companyForm.seguimientoComentario,
             onChanged: ref
-                .read(companyFormProvider(company).notifier)
+                .read(companyFormProvider(widget.company).notifier)
                 .onComentarioChanged,
           ),
           CustomCompanyField(
@@ -303,7 +344,7 @@ class _CompanyInformation extends ConsumerWidget {
             keyboardType: TextInputType.multiline,
             initialValue: companyForm.observaciones,
             onChanged: ref
-                .read(companyFormProvider(company).notifier)
+                .read(companyFormProvider(widget.company).notifier)
                 .onRecomendacionChanged,
           ),
           TitleSectionForm(title: 'DATOS DE CONTACTO'),
@@ -312,7 +353,7 @@ class _CompanyInformation extends ConsumerWidget {
             label: 'Teléfono',
             initialValue: companyForm.telefono.value,
             onChanged: ref
-                .read(companyFormProvider(company).notifier)
+                .read(companyFormProvider(widget.company).notifier)
                 .onTelefonoChanged,
             errorMessage: companyForm.telefono.errorMessage,
           ),
@@ -320,15 +361,17 @@ class _CompanyInformation extends ConsumerWidget {
             isTopField: true,
             label: 'Email',
             initialValue: companyForm.email,
-            onChanged:
-                ref.read(companyFormProvider(company).notifier).onEmailChanged,
+            onChanged: ref
+                .read(companyFormProvider(widget.company).notifier)
+                .onEmailChanged,
           ),
           CustomCompanyField(
             isTopField: true,
             label: 'Web',
             initialValue: companyForm.website,
-            onChanged:
-                ref.read(companyFormProvider(company).notifier).onWebChanged,
+            onChanged: ref
+                .read(companyFormProvider(widget.company).notifier)
+                .onWebChanged,
           ),
           /*TextCustom(text: companyForm.codigoPostal, label: 'Código postal', placeholder: 'Código postal'),
           const SizedBox(
@@ -340,66 +383,94 @@ class _CompanyInformation extends ConsumerWidget {
             value: companyForm.localTipo,
             callbackChange: (String? newValue) {
               ref
-                  .read(companyFormProvider(company).notifier)
+                  .read(companyFormProvider(widget.company).notifier)
                   .onTipoLocalChanged(newValue!);
             },
             items: optionsLocalTipo,
           ),
           const SizedBox(
-            height: 4,
+            height: 6,
           ),
-          CustomCompanyField(
-            label: 'Nombre de local',
-            initialValue: companyForm.localNombre,
-            onChanged: ref
-                .read(companyFormProvider(company).notifier)
-                .onNombreLocalChanged,
-          ),
-          Column(
-            children: [
-              Row(
-                children: [
-                  const Text(
-                    'Nombre de local actual:',
-                    style: TextStyle(
-                        color: Colors.black54
-                    )),
-                  const SizedBox(width: 5),
-                  Text(
-                    companyForm.localNombre, 
-                    style: const TextStyle(
-                      color: Colors.black87
-                    )
-                  )
-                ],
-              ),
-            const SizedBox(height: 10),
-            ],
-          ),
-          const SizedBox(
-            height: 4,
-          ),
-
           TextAddress(
               text: companyForm.localDireccion.value,
               error: companyForm.localDireccion.errorMessage,
               placeholder: 'Dirección de local',
               callback: () {
                 showModalSearch(context, ref, companyForm.rucId ?? '',
-                    'direction-local', company);
+                    'direction-local', widget.company);
                 //context.push('/company_map/${companyForm.rucId}/direction');
               },
               paramContext: context),
           const SizedBox(
-            height: 6,
+            height: 4,
           ),
-          TextViewCustom(text: companyForm.localDepartamentoDesc, label: 'Departamento local', placeholder: 'Departamento del local'),
-          TextViewCustom(text: companyForm.localProvinciaDesc, label: 'Provincia local', placeholder: 'Provincia del local'),
-          TextViewCustom(text: companyForm.localDistritoDesc, label: 'Distrito local', placeholder: 'Distrito del local'),
-          TextViewCustom(text: companyForm.localCodigoPostal ?? '', label: 'Código postal local', placeholder: 'Código postal del local'),
-          
-          TextViewCustom(text: companyForm.coordenadasLatitud ?? '', label: 'Latitud', placeholder: 'Latitud'),
-          TextViewCustom(text: companyForm.coordenadasLongitud ?? '', label: 'Longitud', placeholder: 'Longitud'),
+          companyForm.isEditLocalNombre
+              ? CustomCompanyField(
+                  key: _fieldKeyLocalName,
+                  label: 'Nombre de local',
+                  initialValue: companyForm.localNombre,
+                  controller: _controllerLocalName,
+                  onChanged: ref
+                      .read(companyFormProvider(widget.company).notifier)
+                      .onNombreLocalChanged,
+                )
+              : GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _fieldKeyLocalName = UniqueKey();
+                      _controllerLocalName.text = companyForm.localNombre;
+                    });
+
+                    ref
+                        .read(companyFormProvider(widget.company).notifier)
+                        .onChangeEditLocalNombre();
+                  },
+                  child: TextViewCustom(
+                      text: companyForm.localNombre,
+                      label: 'Nombre de local',
+                      placeholder: 'Nombre de local'),
+                ),
+          /*Column(
+            children: [
+              Row(
+                children: [
+                  const Text('Nombre de local actual:',
+                      style: TextStyle(color: Colors.black54)),
+                  const SizedBox(width: 5),
+                  Text(companyForm.localNombre,
+                      style: const TextStyle(color: Colors.black87))
+                ],
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),*/
+          /*const SizedBox(
+            height: 4,
+          ),*/
+          TextViewCustom(
+              text: companyForm.localDepartamentoDesc,
+              label: 'Departamento local',
+              placeholder: 'Departamento del local'),
+          TextViewCustom(
+              text: companyForm.localProvinciaDesc,
+              label: 'Provincia local',
+              placeholder: 'Provincia del local'),
+          TextViewCustom(
+              text: companyForm.localDistritoDesc,
+              label: 'Distrito local',
+              placeholder: 'Distrito del local'),
+          TextViewCustom(
+              text: companyForm.localCodigoPostal ?? '',
+              label: 'Código postal local',
+              placeholder: 'Código postal del local'),
+          TextViewCustom(
+              text: companyForm.coordenadasLatitud ?? '',
+              label: 'Latitud',
+              placeholder: 'Latitud'),
+          TextViewCustom(
+              text: companyForm.coordenadasLongitud ?? '',
+              label: 'Longitud',
+              placeholder: 'Longitud'),
           /*SelectCustomForm(
             label: 'Departamento',
             value: companyForm.localDepartamento,
@@ -434,6 +505,14 @@ class _CompanyInformation extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  @override
+  void didUpdateWidget(covariant _CompanyInformationv2 oldWidget) {
+    // Actualizar el controlador y la clave cuando el widget cambia
+    _controllerLocalName.text = widget.company.localNombre!;
+    _fieldKeyLocalName = UniqueKey();
+    super.didUpdateWidget(oldWidget);
   }
 
   Future<dynamic> showModalSearch(BuildContext context, WidgetRef ref,
@@ -580,7 +659,9 @@ class _CompanyInformation extends ConsumerWidget {
         .then((user) {
       if (user == null) return;
 
-      ref.read(companyFormProvider(company).notifier).onUsuarioChanged(user);
+      ref
+          .read(companyFormProvider(widget.company).notifier)
+          .onUsuarioChanged(user);
     });
   }
 }
@@ -589,4 +670,3 @@ void showSnackbar(BuildContext context, String message) {
   ScaffoldMessenger.of(context).clearSnackBars();
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 }
-

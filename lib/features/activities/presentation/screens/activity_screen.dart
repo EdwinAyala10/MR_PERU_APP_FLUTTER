@@ -131,6 +131,7 @@ class _ActivityInformation extends ConsumerWidget {
             items: optionsTipoGestion,
             errorMessage: activityForm.actiIdTipoGestion.errorMessage,
           ),
+          
           const SizedBox(height: 10),
           const Text(
             'Fecha',

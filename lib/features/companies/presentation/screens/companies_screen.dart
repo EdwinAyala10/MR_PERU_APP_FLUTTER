@@ -2,6 +2,7 @@ import 'package:crm_app/features/companies/domain/domain.dart';
 import 'package:crm_app/features/companies/presentation/providers/providers.dart';
 import 'package:crm_app/features/companies/presentation/widgets/item_company.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
+import 'package:crm_app/features/shared/widgets/loading_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -25,10 +26,10 @@ class CompaniesScreen extends StatelessWidget {
       ),
       body: const _CompaniesView(),
       floatingActionButton: FloatingActionButtonCustom(
-        iconData: Icons.add,
-        callOnPressed: () {
-        context.push('/company/new');
-      }),
+          iconData: Icons.add,
+          callOnPressed: () {
+            context.push('/company/new');
+          }),
     );
   }
 }
@@ -69,8 +70,13 @@ class _CompaniesViewState extends ConsumerState {
   Widget build(BuildContext context) {
     final companiesState = ref.watch(companiesProvider);
 
-    return companiesState.companies.length > 0 
-    ? _ListCompanies(companies: companiesState.companies) : const _NoExistData();
+    if (companiesState.isLoading) {
+      return LoadingModal();
+    }
+
+    return companiesState.companies.length > 0
+        ? _ListCompanies(companies: companiesState.companies)
+        : const _NoExistData();
   }
 }
 
@@ -88,9 +94,11 @@ class _ListCompanies extends StatelessWidget {
         itemBuilder: (context, index) {
           final company = companies[index];
 
-          return ItemCompany(company: company, callbackOnTap: () {
-              context.push('/company_detail/${company.ruc}');
-            });
+          return ItemCompany(
+              company: company,
+              callbackOnTap: () {
+                context.push('/company_detail/${company.ruc}');
+              });
         },
       ),
     );
@@ -123,7 +131,6 @@ class _NoExistData extends StatelessWidget {
             style: TextStyle(fontSize: 20, color: Colors.grey),
           ),
         ),
-        
       ],
     ));
   }

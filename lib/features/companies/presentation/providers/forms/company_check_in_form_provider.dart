@@ -36,7 +36,7 @@ class CompanyCheckInFormNotifier
           cchkCoordenadaLatitud: companyCheckIn.cchkCoordenadaLatitud,
           cchkCoordenadaLongitud: companyCheckIn.cchkCoordenadaLongitud,
           cchkDireccionMapa: companyCheckIn.cchkDireccionMapa ?? '',
-          cchkIdComentario: companyCheckIn.cchkIdComentario ?? '',
+          cchkIdComentario: Comment.dirty(companyCheckIn.cchkIdComentario),
           cchkIdEstadoCheck: companyCheckIn.cchkIdEstadoCheck ?? '01',
           cchkIdUsuarioRegistro: companyCheckIn.cchkIdUsuarioRegistro ?? '',
           cchkIdUsuarioResponsable:
@@ -69,7 +69,7 @@ class CompanyCheckInFormNotifier
       'CCHK_ID_OPORTUNIDAD': state.cchkIdOportunidad.value,
       'CCHK_ID_CONTACTO': state.cchkIdContacto.value,
       'CCHK_ID_ESTADO_CHECK': state.cchkIdEstadoCheck,
-      'CCHK_ID_COMENTARIO': state.cchkIdComentario,
+      'CCHK_ID_COMENTARIO': state.cchkIdComentario.value,
       'CCHK_ID_USUARIO_RESPONSABLE': state.cchkIdUsuarioResponsable,
       'CCHK_NOMBRE_USUARIO_RESPONSABLE': state.cchkNombreUsuarioResponsable,
       'CCHK_UBIGEO': state.cchkUbigeo,
@@ -93,6 +93,7 @@ class CompanyCheckInFormNotifier
         Select.dirty(state.cchkIdContacto.value),
         Select.dirty(state.cchkIdOportunidad.value),
         Select.dirty(state.cchkLocalCodigo.value),
+        Select.dirty(state.cchkIdComentario.value),
       ]),
     );
   }
@@ -105,6 +106,7 @@ class CompanyCheckInFormNotifier
           Select.dirty(state.cchkIdContacto.value),
           Select.dirty(state.cchkIdOportunidad.value),
           Select.dirty(state.cchkLocalCodigo.value),
+          Select.dirty(state.cchkIdComentario.value),
         ]));
   }
 
@@ -117,6 +119,7 @@ class CompanyCheckInFormNotifier
           Select.dirty(state.cchkIdContacto.value),
           Select.dirty(value),
           Select.dirty(state.cchkLocalCodigo.value),
+          Select.dirty(state.cchkIdComentario.value),
         ]));
   }
 
@@ -129,6 +132,7 @@ class CompanyCheckInFormNotifier
           Select.dirty(value),
           Select.dirty(state.cchkIdOportunidad.value),
           Select.dirty(state.cchkLocalCodigo.value),
+          Select.dirty(state.cchkIdComentario.value),
         ]));
   }
 
@@ -137,7 +141,16 @@ class CompanyCheckInFormNotifier
   }
 
   void onComentarioChanged(String value) {
-    state = state.copyWith(cchkIdComentario: value);
+    //state = state.copyWith(cchkIdComentario: value);
+    state = state.copyWith(
+        cchkIdComentario: Comment.dirty(value),
+        isFormValid: Formz.validate([
+          Ruc.dirty(state.cchkRuc.value),
+          Select.dirty(state.cchkIdContacto.value),
+          Select.dirty(state.cchkIdOportunidad.value),
+          Select.dirty(state.cchkLocalCodigo.value),
+          Comment.dirty(value),
+        ]));
   }
 
   void onChangeCoors(String lat, String lng) {
@@ -154,6 +167,7 @@ class CompanyCheckInFormNotifier
           Select.dirty(state.cchkIdContacto.value),
           Select.dirty(state.cchkIdOportunidad.value),
           Select.dirty(value),
+          Select.dirty(state.cchkIdComentario.value),
         ]));
   }
 }
@@ -168,7 +182,7 @@ class CompanyCheckInFormState {
   final Select cchkIdContacto;
   final String? cchkNombreContacto;
   final String cchkIdEstadoCheck;
-  final String? cchkIdComentario;
+  final Comment cchkIdComentario;
   final String cchkIdUsuarioResponsable;
   final String? cchkNombreUsuarioResponsable;
   final String? cchkUbigeo;
@@ -191,7 +205,7 @@ class CompanyCheckInFormState {
       this.cchkCoordenadaLatitud = '',
       this.cchkCoordenadaLongitud = '',
       this.cchkDireccionMapa = '',
-      this.cchkIdComentario = '',
+      this.cchkIdComentario = const Comment.dirty(''),
       this.cchkIdEstadoCheck = '01',
       this.cchkIdUsuarioRegistro = '',
       this.cchkIdUsuarioResponsable = '',
@@ -210,7 +224,7 @@ class CompanyCheckInFormState {
     Select? cchkIdContacto,
     String? cchkNombreContacto,
     String? cchkIdEstadoCheck,
-    String? cchkIdComentario,
+    Comment? cchkIdComentario,
     String? cchkIdUsuarioResponsable,
     String? cchkNombreUsuarioResponsable,
     String? cchkUbigeo,

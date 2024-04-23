@@ -78,4 +78,22 @@ class ActivitiesDatasourceImpl extends ActivitiesDatasource {
 
     return activities;
   }
+
+  @override
+  Future<List<Activity>> getActivitiesByRuc(String ruc) async {
+    print('CARGO ACTIVIDADES BY RUC');
+
+    final data = {
+      "RUC": ruc,
+    };
+
+    final response =
+        await dio.post('/actividad/listar-actividad-by-ruc', data: data);
+    final List<Activity> activities = [];
+    for (final activity in response.data['data'] ?? []) {
+      activities.add(ActivityMapper.jsonToEntity(activity));
+    }
+
+    return activities;
+  }
 }

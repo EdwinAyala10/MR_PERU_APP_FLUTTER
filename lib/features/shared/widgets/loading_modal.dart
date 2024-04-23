@@ -11,7 +11,26 @@ class LoadingModal extends StatelessWidget {
           dismissible: false, // No permite cerrar con tap fuera del modal
         ),
         Center(
-          child: CircularProgressIndicator(), // Indicador de carga circular
+          child: Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blue), // Cambia el color del indicador de carga
+                ),
+                SizedBox(height: 16.0),
+                Text(
+                  'Cargando...', // Mensaje de carga
+                  style: TextStyle(fontSize: 16.0),
+                ),
+              ],
+            ),
+          ),
         ),
       ],
     );

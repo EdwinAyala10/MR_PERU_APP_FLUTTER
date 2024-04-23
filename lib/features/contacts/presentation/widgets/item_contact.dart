@@ -22,7 +22,7 @@ class ItemContact extends StatelessWidget {
                       width: 5,
                     ),
                     Expanded(
-                      child: Text(contact.contactoTelefonof, overflow: TextOverflow.ellipsis)
+                      child: Text(contact.contactoTelefonof ?? '', overflow: TextOverflow.ellipsis)
                     ),
                   ],
                 )

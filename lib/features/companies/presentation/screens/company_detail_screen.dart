@@ -26,17 +26,18 @@ class CompanyDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final companyState = ref.watch(companyProvider(companyId));
 
+
     return Scaffold(
       body: companyState.isLoading
           ? const FullScreenLoader()
           : (companyState.company != null
               ? _CompanyDetailView(
                   company: companyState.company!,
-                  contacts: companyState.contacts!,
-                  opportunities: companyState.opportunities!,
-                  activities: companyState.activities!,
-                  events: companyState.events!,
-                  companyLocales: companyState.companyLocales!,
+                  contacts: companyState.contacts,
+                  opportunities: companyState.opportunities,
+                  activities: companyState.activities,
+                  events: companyState.events,
+                  companyLocales: companyState.companyLocales,
                 )
               : Center(
                   child: Column(
@@ -106,6 +107,9 @@ class _CompanyDetailViewState extends State<_CompanyDetailView>
 
   @override
   Widget build(BuildContext context) {
+
+    print('CHECK STATUS COMPANY: ${widget.company.cchkIdEstadoCheck ?? ''}');
+
     TextStyle styleTitle =
         const TextStyle(fontWeight: FontWeight.w600, fontSize: 16);
     TextStyle styleLabel = const TextStyle(

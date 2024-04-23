@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-
 
 const colorSeed = Color.fromARGB(255, 7, 73, 79);
 const scaffoldBackgroundColor = Color.fromARGB(255, 255, 255, 255);
@@ -28,21 +26,11 @@ class AppTheme {
     scaffoldBackgroundColor: scaffoldBackgroundColor,
     
 
-    ///* Buttons
-    filledButtonTheme: FilledButtonThemeData(
-      style: ButtonStyle(
-        textStyle: MaterialStatePropertyAll(
-          GoogleFonts.montserratAlternates()
-            .copyWith(fontWeight: FontWeight.w700)
-          )
-      )
-    ),
-
     ///* AppBar
     appBarTheme: AppBarTheme(
       color: scaffoldBackgroundColor,
-      titleTextStyle: GoogleFonts.montserratAlternates()
-        .copyWith( fontSize: 25, fontWeight: FontWeight.bold, color: Colors.black ),
+      //titleTextStyle: GoogleFonts.montserratAlternates()
+      //  .copyWith( fontSize: 25, fontWeight: FontWeight.bold, color: Colors.black ),
     )
   );
 
