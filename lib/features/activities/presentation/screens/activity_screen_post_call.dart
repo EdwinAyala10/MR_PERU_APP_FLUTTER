@@ -131,9 +131,14 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
 
       bool sendActivityCall = ref.read(activityCallProvider).sendActivityCall!;
 
+      print('STATUS REAL: sendActivityCall: ${sendActivityCall}');
+
       if (!sendActivityCall) {
+        print('STATUS REAL NUMBER: ${number} | PHONE: ${widget.phone}');
+
         if (number == widget.phone &&
             statusCall == PhoneStateStatus.CALL_STARTED) {
+              print('STATUS REAL: INITIAL CALL SCREEN');
           ref.read(activityCallProvider.notifier).onInitialCallChanged();
           //widget.activityPostCallState.onInitialCallChanged();
           /*ref
@@ -144,6 +149,8 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
 
         if (number == widget.phone &&
             statusCall == PhoneStateStatus.CALL_ENDED) {
+              print('STATUS REAL: FIN CALL SCREEN');
+
           ref.read(activityCallProvider.notifier).onFinishCallChanged();
           //widget.activityPostCallState.onFinishCallChanged();
         }

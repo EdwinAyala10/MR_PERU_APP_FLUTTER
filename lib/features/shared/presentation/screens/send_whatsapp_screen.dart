@@ -35,13 +35,11 @@ class SendWhatsappScreen extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButtonCustom(
           callOnPressed: () async {
-            
-            // TODO: DESCOMENTAR
-            /*bool response = await ref
+            bool response = await ref
                 .read(sendWhatsappProvider.notifier)
                 .sendActivityMessage();
 
-            print("RESPONSE LADO DE AQUI : ${response}");*/
+            print("RESPONSE LADO DE AQUI : ${response}");
 
             //context.push('/send_whatsapp');
             context.pop();
@@ -111,7 +109,6 @@ String limpiarNumero(String numero) {
     return numero;
   }
 }
-
 
 whatsapp(String contact, String text) async {
   String androidUrl = "whatsapp://send?phone=$contact&text=$text";

@@ -1,4 +1,6 @@
+import 'package:crm_app/features/contacts/domain/domain.dart';
 import 'package:crm_app/features/contacts/presentation/providers/contact_provider.dart';
+import 'package:crm_app/features/contacts/presentation/providers/providers.dart';
 //import 'package:crm_app/features/shared/presentation/providers/notifications_provider.dart';
 import 'package:crm_app/features/shared/presentation/providers/send_whatsapp_provider.dart';
 import 'package:crm_app/features/shared/shared.dart';
@@ -6,22 +8,61 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class ContactDetailScreen extends ConsumerWidget {
+class ContactDetailScreen extends ConsumerStatefulWidget {
   final String contactId;
 
-  ContactDetailScreen({
-    required this.contactId,
-  });
+  const ContactDetailScreen({super.key, required this.contactId,});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final contactState = ref.watch(contactProvider(contactId));
+  _ContactDetailScreenState createState() => _ContactDetailScreenState();
+}
 
-    final contact = contactState.contact;
+class _ContactDetailScreenState extends ConsumerState<ContactDetailScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      ref.read(contactProvider(widget.contactId).notifier).loadContact(widget.contactId);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    final contactState = ref.watch(contactProvider(widget.contactId));
 
     if (contactState.isLoading) {
       return const FullScreenLoader();
     }
+
+    return _ViewContactDetailScreen(contact: contactState.contact!);
+  }
+}
+
+class _ViewContactDetailScreen extends ConsumerWidget {
+  final Contact contact;
+
+  _ViewContactDetailScreen({
+    required this.contact,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    //ref.read(contactProvider(contactId).notifier).loadContact();
+    //final contactState = ref.watch(contactProvider(contactId));
+
+
+    //print('CONTACT STATE ${contactId}');
+
+    //final contact = contactState.contact;
+
+    /*if (contactState.isLoading) {
+      return const FullScreenLoader();
+    }*/
+
+    print('CONTACT NOMBRE: ${contact?.contactoDesc ?? ''}');
 
     if (contact == null) {
       return Scaffold(
@@ -129,7 +170,7 @@ class ContactDetailScreen extends ConsumerWidget {
                 text: contact.contactoCargo ?? '',
               ),
               ContainerCustom(
-                label: 'Móvil:',
+                label: 'Celular:',
                 text: contact.contactoTelefonoc ?? '',
                 icon: Icons.call_sharp,
                 callbackIcon: () {

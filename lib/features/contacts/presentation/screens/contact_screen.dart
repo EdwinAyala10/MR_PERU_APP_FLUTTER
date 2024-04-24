@@ -66,7 +66,7 @@ class ContactScreen extends ConsumerWidget {
 
                   if (value.response) {
                     //Timer(const Duration(seconds: 3), () {
-                      context.push('/contacts');
+                      context.replace('/contacts');
                     //});
                   }
                 }

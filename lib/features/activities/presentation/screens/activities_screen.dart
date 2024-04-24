@@ -129,21 +129,18 @@ class _ListActivities extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: ListView.separated(
-        itemCount: activities.length,
-        separatorBuilder: (BuildContext context, int index) => const Divider(),
-        itemBuilder: (context, index) {
-          final activity = activities[index];
-
-          return ItemActivity(
-            activity: activity,
-            callbackOnTap: () {
-              context.push('/activity/${activity.id}');
-            });
-        },
-      ),
+    return ListView.separated(
+      itemCount: activities.length,
+      separatorBuilder: (BuildContext context, int index) => const Divider(),
+      itemBuilder: (context, index) {
+        final activity = activities[index];
+    
+        return ItemActivity(
+          activity: activity,
+          callbackOnTap: () {
+            context.push('/activity_detail/${activity.id}');
+          });
+      },
     );
   }
 }

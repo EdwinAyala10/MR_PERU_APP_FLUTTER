@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "296671498266",
+    "project_id": "crm-app-flutter-a1740",
+    "storage_bucket": "crm-app-flutter-a1740.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:296671498266:android:8ca35bdf1d2306a33741a3",
+        "android_client_info": {
+          "package_name": "com.mr_peru.crm_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1hV5i3F65bt1zJD90ReALAGBUhxs6xUc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

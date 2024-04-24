@@ -14,7 +14,7 @@ class ItemContact extends StatelessWidget {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          contact.contactoTelefonof != ''
+          contact.contactoTelefonoc != ''
               ? Row(
                   children: [
                     const Icon(Icons.phone, size: 14),
@@ -22,7 +22,7 @@ class ItemContact extends StatelessWidget {
                       width: 5,
                     ),
                     Expanded(
-                      child: Text(contact.contactoTelefonof ?? '', overflow: TextOverflow.ellipsis)
+                      child: Text(contact.contactoTelefonoc, overflow: TextOverflow.ellipsis)
                     ),
                   ],
                 )

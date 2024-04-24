@@ -18,12 +18,15 @@ class ContactsDatasourceImpl extends ContactsDatasource {
   @override
   Future<ContactResponse> createUpdateContact(
       Map<dynamic, dynamic> contactLike) async {
-
-        print('CONTACT: ${contactLike}');
+    print('CONTACT: ${contactLike}');
     try {
       final String? id = contactLike['CONTACTO_ID'];
       final String method = 'POST';
-      final String url =  '/contacto/create-contacto-cliente';
+      final String url = id == null
+          ? '/contacto/create-contacto-cliente'
+          : '/contacto/edit-contacto-cliente';
+
+      print('URL CONTACT: ${url}');
 
       if (id == null) {
         contactLike.remove('CONTACTO_ID');
@@ -72,8 +75,8 @@ class ContactsDatasourceImpl extends ContactsDatasource {
       "RUC": ruc,
     };
 
-    final response =
-        await dio.post('/contacto/listar-contacto-by-ruc-cargo-responsable', data: data);
+    final response = await dio
+        .post('/contacto/listar-contacto-by-ruc-cargo-responsable', data: data);
     final List<Contact> contacts = [];
     for (final contact in response.data['data'] ?? []) {
       contacts.add(ContactMapper.jsonToEntity(contact));
@@ -82,10 +85,8 @@ class ContactsDatasourceImpl extends ContactsDatasource {
     return contacts;
   }
 
-  
   @override
   Future<List<Contact>> searchContacts(String query) async {
-
     final data = {
       "SEARCH": query,
     };

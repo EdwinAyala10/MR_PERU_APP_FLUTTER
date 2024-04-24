@@ -28,37 +28,38 @@ class KpiScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Crear objectivo'),
-          /*leading: IconButton(
+          leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
-              context.pop();
+              //context.pop();
+              context.replace('/dashboard');
             },
-          ),*/
+          ),
         ),
         body: kpiState.isLoading
             ? const FullScreenLoader()
             : _KpiView(kpi: kpiState.kpi!),
         floatingActionButton: FloatingActionButtonCustom(
-          iconData: Icons.save,
-          callOnPressed: () {
-            if (kpiState.kpi == null) return;
+            iconData: Icons.save,
+            callOnPressed: () {
+              if (kpiState.kpi == null) return;
 
-            ref
-                .read(kpiFormProvider(kpiState.kpi!).notifier)
-                .onFormSubmit()
-                .then((CreateUpdateKpiResponse value) {
-              //if ( !value.response ) return;
-              if (value.message != '') {
-                showSnackbar(context, value.message);
+              ref
+                  .read(kpiFormProvider(kpiState.kpi!).notifier)
+                  .onFormSubmit()
+                  .then((CreateUpdateKpiResponse value) {
+                //if ( !value.response ) return;
+                if (value.message != '') {
+                  showSnackbar(context, value.message);
 
-                if (value.response) {
-                  Timer(const Duration(seconds: 3), () {
-                    context.push('/dashboard');
-                  });
+                  if (value.response) {
+                    Timer(const Duration(seconds: 3), () {
+                      context.push('/dashboard');
+                    });
+                  }
                 }
-              }
-            });
-        }),
+              });
+            }),
       ),
     );
   }
@@ -157,15 +158,18 @@ class _KpiInformation extends ConsumerWidget {
                     ),
                     child: DropdownButton<String>(
                       value: kpiForm.objrIdAsignacion,
-                      onChanged: kpiForm.id == "new" ? (String? newValue) {
-                        DropdownOption searchAsignacion = optionsAsignacion
-                            .where((option) => option.id == newValue!)
-                            .first;
-                        ref
-                            .read(kpiFormProvider(kpi).notifier)
-                            .onAsignacionChanged(
-                                newValue ?? '', searchAsignacion.name);
-                      } : null,
+                      onChanged: kpiForm.id == "new"
+                          ? (String? newValue) {
+                              DropdownOption searchAsignacion =
+                                  optionsAsignacion
+                                      .where((option) => option.id == newValue!)
+                                      .first;
+                              ref
+                                  .read(kpiFormProvider(kpi).notifier)
+                                  .onAsignacionChanged(
+                                      newValue ?? '', searchAsignacion.name);
+                            }
+                          : null,
                       isExpanded: true,
                       style: const TextStyle(
                         fontSize: 16.0,
@@ -221,14 +225,17 @@ class _KpiInformation extends ConsumerWidget {
                 ],
               )),
               ElevatedButton(
-                onPressed: kpiForm.id == "new" ? () {
-                  if (kpiForm.objrIdAsignacion == '01' &&
-                      kpiForm.arrayuserasignacion?.length == 1) {
-                    showSnackbar(context, 'Solo debe seleccionar un usuario');
-                  } else {
-                    _openSearchUsers(context, ref);
-                  }
-                } : null,
+                onPressed: kpiForm.id == "new"
+                    ? () {
+                        if (kpiForm.objrIdAsignacion == '01' &&
+                            kpiForm.arrayuserasignacion?.length == 1) {
+                          showSnackbar(
+                              context, 'Solo debe seleccionar un usuario');
+                        } else {
+                          _openSearchUsers(context, ref);
+                        }
+                      }
+                    : null,
                 child: const Row(
                   children: [
                     Icon(Icons.add),
@@ -263,15 +270,17 @@ class _KpiInformation extends ConsumerWidget {
                     ),
                     child: DropdownButton<String>(
                       value: kpiForm.objrIdCategoria,
-                      onChanged: kpiForm.id == "new" ? (String? newValue) {
-                        DropdownOption searchCategoria = optionsCategoria
-                            .where((option) => option.id == newValue!)
-                            .first;
-                        ref
-                            .read(kpiFormProvider(kpi).notifier)
-                            .onCategoriaChanged(
-                                newValue ?? '', searchCategoria.name);
-                      } : null,
+                      onChanged: kpiForm.id == "new"
+                          ? (String? newValue) {
+                              DropdownOption searchCategoria = optionsCategoria
+                                  .where((option) => option.id == newValue!)
+                                  .first;
+                              ref
+                                  .read(kpiFormProvider(kpi).notifier)
+                                  .onCategoriaChanged(
+                                      newValue ?? '', searchCategoria.name);
+                            }
+                          : null,
                       isExpanded: true,
                       style: const TextStyle(
                         fontSize: 16.0,
@@ -317,15 +326,18 @@ class _KpiInformation extends ConsumerWidget {
                           ),
                           child: DropdownButton<String>(
                             value: kpiForm.objrIdTipo,
-                            onChanged: kpiForm.id == "new" ? (String? newValue) {
-                              DropdownOption searchTipo = optionsTipo
-                                  .where((option) => option.id == newValue!)
-                                  .first;
-                              ref
-                                  .read(kpiFormProvider(kpi).notifier)
-                                  .onTipoChanged(
-                                      newValue ?? '', searchTipo.name);
-                            } : null,
+                            onChanged: kpiForm.id == "new"
+                                ? (String? newValue) {
+                                    DropdownOption searchTipo = optionsTipo
+                                        .where(
+                                            (option) => option.id == newValue!)
+                                        .first;
+                                    ref
+                                        .read(kpiFormProvider(kpi).notifier)
+                                        .onTipoChanged(
+                                            newValue ?? '', searchTipo.name);
+                                  }
+                                : null,
                             isExpanded: true,
                             style: const TextStyle(
                               fontSize: 16.0,
@@ -377,15 +389,18 @@ class _KpiInformation extends ConsumerWidget {
                     ),
                     child: DropdownButton<String>(
                       value: kpiForm.objrIdPeriodicidad,
-                      onChanged: kpiForm.id == "new" ? (String? newValue) {
-                        DropdownOption searchPeriodicidad = optionsPeriodicidad
-                            .where((option) => option.id == newValue!)
-                            .first;
-                        ref
-                            .read(kpiFormProvider(kpi).notifier)
-                            .onPeriodicidadChanged(
-                                newValue ?? '', searchPeriodicidad.name);
-                      } : null,
+                      onChanged: kpiForm.id == "new"
+                          ? (String? newValue) {
+                              DropdownOption searchPeriodicidad =
+                                  optionsPeriodicidad
+                                      .where((option) => option.id == newValue!)
+                                      .first;
+                              ref
+                                  .read(kpiFormProvider(kpi).notifier)
+                                  .onPeriodicidadChanged(
+                                      newValue ?? '', searchPeriodicidad.name);
+                            }
+                          : null,
                       isExpanded: true,
                       style: const TextStyle(
                         fontSize: 16.0,
@@ -476,8 +491,9 @@ class _KpiInformation extends ConsumerWidget {
             label: 'Comentarios',
             maxLines: 2,
             initialValue: kpiForm.objrObservaciones ?? '',
-            onChanged: kpiForm.id == "new" ?
-                ref.read(kpiFormProvider(kpi).notifier).onObservacionesChanged : null,
+            onChanged: kpiForm.id == "new"
+                ? ref.read(kpiFormProvider(kpi).notifier).onObservacionesChanged
+                : null,
           ),
           const SizedBox(height: 80),
         ],
@@ -514,7 +530,11 @@ class ItemMes extends StatelessWidget {
   WidgetRef ref;
   Periodicidad periodicidad;
   Kpi kpi;
-  ItemMes({super.key, required this.periodicidad, required this.ref, required this.kpi});
+  ItemMes(
+      {super.key,
+      required this.periodicidad,
+      required this.ref,
+      required this.kpi});
 
   @override
   Widget build(BuildContext context) {

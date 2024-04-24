@@ -63,22 +63,46 @@ class ActivityCallNotifier extends StateNotifier<ActivityCallState> {
 
   void onInitialCallChanged() {
     var initialDateTime = DateTime.now();
+    print('STATUS REAL initialDateTime: $initialDateTime');
     print('INICIO LLAMADA ${state.phone}');
     state = state.copyWith(callStarting: initialDateTime);
+  }
+
+  
+  String formatDuration(Duration duration) {
+    if (duration.inSeconds < 1) {
+      return '0';
+    }
+    String tiempoTranscurrido = '';
+    if (duration.inHours > 0) {
+      tiempoTranscurrido += '${duration.inHours} horas ';
+      duration -= Duration(hours: duration.inHours);
+    }
+    if (duration.inMinutes > 0) {
+      tiempoTranscurrido += '${duration.inMinutes} minutos ';
+      duration -= Duration(minutes: duration.inMinutes);
+    }
+    if (duration.inSeconds > 0) {
+      tiempoTranscurrido += '${duration.inSeconds} segundos';
+    }
+    return tiempoTranscurrido.trim();
   }
 
   void onFinishCallChanged() async {
     print('FIN LLAMADA ${state.phone}');
 
     var finishDateTime = DateTime.now();
+    print('STATUS REAL finishDateTime: $finishDateTime');
 
-    var durationHours = state.callStarting?.difference(finishDateTime).inHours;
+    var durationDiff = finishDateTime.difference(state.callStarting!);
 
-    String duration = durationHours.toString();
+    print('STATUS REAL durationSeconds: $durationDiff');
 
-    print('DURATION: ${duration}');
+    String duration = formatDuration(durationDiff);
 
-    print('ENVIAR ACTIVIDAD LLAMADA');
+    print('STATUS REAL DURATION: $duration');
+
+    print('STATUS REAL ENVIAR ACTIVIDAD LLAMADA');
 
     var activityCall = newActivityCall(
         state.activity?.actividadesContacto?[0].acntIdContacto ?? '',
@@ -118,13 +142,13 @@ class ActivityCallNotifier extends StateNotifier<ActivityCallState> {
         'ACTI_ID_TIPO_GESTION': activityCall.actiIdTipoGestion,
         //'ACTI_FECHA_ACTIVIDAD': activityCall.actiFechaActividad,
         "ACTI_FECHA_ACTIVIDAD":
-          "${activityCall.actiFechaActividad.year.toString().padLeft(4, '0')}-${activityCall.actiFechaActividad?.month.toString().padLeft(2, '0')}-${activityCall.actiFechaActividad.day.toString().padLeft(2, '0')}",
+            "${activityCall.actiFechaActividad.year.toString().padLeft(4, '0')}-${activityCall.actiFechaActividad?.month.toString().padLeft(2, '0')}-${activityCall.actiFechaActividad.day.toString().padLeft(2, '0')}",
         'ACTI_HORA_ACTIVIDAD': activityCall.actiHoraActividad,
         'ACTI_RUC': activityCall.actiRuc,
         'ACTI_RAZON': activityCall.actiRazon,
         //'ACTI_ID_OPORTUNIDAD': activityCall.actiIdOportunidad,
         'ACTI_ID_CONTACTO': activityCall.actiIdContacto,
-        'ACTI_COMENTARIO': '',
+        'ACTI_COMENTARIO': ' - ',
         'ACTI_TIEMPO_GESTION': activityCall.actiTiempoGestion,
         'ACTI_ID_USUARIO_REGISTRO': activityCall.actiIdUsuarioRegistro,
         'ACTI_NOMBRE_TIPO_GESTION': activityCall.actiNombreTipoGestion,

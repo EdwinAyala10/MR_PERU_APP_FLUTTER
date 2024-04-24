@@ -57,7 +57,7 @@ class SendWhatsappNotifier extends StateNotifier<SendWhatsappState> {
         'ACTI_RAZON': state.contact?.razon,
         //'ACTI_ID_OPORTUNIDAD': activityCall.actiIdOportunidad,
         'ACTI_ID_CONTACTO': contact?.id,
-        'ACTI_COMENTARIO': '',
+        'ACTI_COMENTARIO': state.message,
         'ACTI_TIEMPO_GESTION': '',
         'ACTI_ID_USUARIO_REGISTRO': user.code,
         'ACTI_NOMBRE_TIPO_GESTION': 'Whatsapp',

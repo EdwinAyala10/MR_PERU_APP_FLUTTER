@@ -1,3 +1,4 @@
+import 'package:crm_app/features/activities/presentation/screens/activity_detail_screen.dart';
 import 'package:crm_app/features/activities/presentation/screens/activity_screen_post_call.dart';
 import 'package:crm_app/features/contacts/presentation/screens/contact_detail_screen.dart';
 import 'package:crm_app/features/location/presentation/screens/map_screen.dart';
@@ -58,6 +59,12 @@ final goRouterProvider = Provider((ref) {
       GoRoute(
         path: '/activity/:id', // /activity/new
         builder: (context,GoRouterState state) => ActivityScreen(
+          activityId: state.pathParameters['id'] ?? 'no-id',
+        ),
+      ),
+      GoRoute(
+        path: '/activity_detail/:id', // /activity/new
+        builder: (context,GoRouterState state) => ActivityDetailScreen(
           activityId: state.pathParameters['id'] ?? 'no-id',
         ),
       ),

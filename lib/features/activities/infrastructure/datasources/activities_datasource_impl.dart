@@ -23,6 +23,8 @@ class ActivitiesDatasourceImpl extends ActivitiesDatasource {
       final String method = 'POST';
       final String url =  id == null ? '/actividad/create-actividad' : '/actividad/edit-actividad';
 
+      print('ACTIVITY URL: ${url}');
+
       if (id == null) {
         activityLike.remove('ACTI_ID_ACTIVIDAD');
       }

@@ -11,7 +11,7 @@ final contactProvider = StateNotifierProvider.autoDispose
   final user = ref.watch(authProvider).user;
 
   return ContactNotifier(
-      contactsRepository: contactsRepository, user: user!, id: id);
+      contactsRepository: contactsRepository, user: user!, idContact: id);
 });
 
 class ContactNotifier extends StateNotifier<ContactState> {
@@ -21,9 +21,10 @@ class ContactNotifier extends StateNotifier<ContactState> {
   ContactNotifier({
     required this.contactsRepository,
     required this.user,
-    required String id,
-  }) : super(ContactState(id: id)) {
-    loadContact();
+    required String idContact,
+  }) : super(ContactState()) {
+    print('EJECUTa contacNotificer antes de loadContact');
+    loadContact(idContact);
   }
 
   Contact newEmptyContact() {
@@ -47,9 +48,9 @@ class ContactNotifier extends StateNotifier<ContactState> {
     );
   }
 
-  Future<void> loadContact() async {
+  Future<void> loadContact(String idContact) async {
     try {
-      if (state.id == 'new') {
+      if (idContact == 'new') {
         state = state.copyWith(
           isLoading: false,
           contact: newEmptyContact(),
@@ -62,9 +63,9 @@ class ContactNotifier extends StateNotifier<ContactState> {
         state.contact?.contactIdIn = state.id;
       }
 
-      final contact = await contactsRepository.getContactById(state.id);
+      final contact = await contactsRepository.getContactById(idContact);
 
-      state = state.copyWith(isLoading: false, contact: contact);
+      state = state.copyWith(isLoading: false, contact: contact, id: idContact);
     } catch (e) {
       state = state.copyWith(isLoading: false, contact: null);
       // 404 product not found
@@ -74,13 +75,13 @@ class ContactNotifier extends StateNotifier<ContactState> {
 }
 
 class ContactState {
-  final String id;
+  final String? id;
   final Contact? contact;
   final bool isLoading;
   final bool isSaving;
 
   ContactState({
-    required this.id,
+    this.id,
     this.contact,
     this.isLoading = true,
     this.isSaving = false,

@@ -46,28 +46,31 @@ class CompanyLocalScreen extends ConsumerWidget {
             ? const FullScreenLoader()
             : _CompanyLocalView(companyLocal: companyLocalState.companyLocal!),
         floatingActionButton: FloatingActionButtonCustom(
-          callOnPressed: () {
-            if (companyLocalState.companyLocal == null) return;
+            callOnPressed: () {
+              if (companyLocalState.companyLocal == null) return;
 
-            ref
-                .read(companyLocalFormProvider(companyLocalState.companyLocal!)
-                    .notifier)
-                .onFormSubmit()
-                .then((CreateUpdateCompanyLocalResponse value) {
-              //if ( !value.response ) return;
-              if (value.message != '') {
-                showSnackbar(context, value.message);
-                if (value.response) {
-                  //Timer(const Duration(seconds: 3), () {
-                  context.pop();
-                  //context.push('/company_local/${ruc}');
-                  //context.push('/company/${company.ruc}');
-                  //});
+              ref
+                  .read(
+                      companyLocalFormProvider(companyLocalState.companyLocal!)
+                          .notifier)
+                  .onFormSubmit()
+                  .then((CreateUpdateCompanyLocalResponse value) {
+                //if ( !value.response ) return;
+                if (value.message != '') {
+                  showSnackbar(context, value.message);
+                  if (value.response) {
+                    //Timer(const Duration(seconds: 3), () {
+                    ref.read(companiesProvider.notifier).loadAddressCompanyByRuc(companyLocalState.companyLocal?.ruc ?? '');
+                    context.pop();
+
+                    //context.push('/company_local/${ruc}');
+                    //context.push('/company/${company.ruc}');
+                    //});
+                  }
                 }
-              }
-            });
-          }, 
-          iconData: Icons.save),
+              });
+            },
+            iconData: Icons.save),
       ),
     );
   }
@@ -101,7 +104,6 @@ class _CompanyLocalInformation extends ConsumerStatefulWidget {
 
 class _CompanyLocalInformationState
     extends ConsumerState<_CompanyLocalInformation> {
-
   late TextEditingController _controllerLocalName;
   late Key _fieldKeyLocalName;
 
@@ -126,7 +128,7 @@ class _CompanyLocalInformationState
     var companyLocal = widget.companyLocal;
 
     final companyLocalForm = ref.watch(companyLocalFormProvider(companyLocal));
-    
+
     List<DropdownOption> optionsLocalTipo = [
       DropdownOption('', 'Seleccione tipo de local'),
       DropdownOption('2', 'PLANTA'),
@@ -203,16 +205,16 @@ class _CompanyLocalInformationState
                 )
               : GestureDetector(
                   onTap: () {
-
                     setState(() {
                       _fieldKeyLocalName = UniqueKey();
-                      _controllerLocalName.text = companyLocalForm.localNombre.value;
+                      _controllerLocalName.text =
+                          companyLocalForm.localNombre.value;
                     });
 
                     ref
-                        .read(companyLocalFormProvider(widget.companyLocal).notifier)
+                        .read(companyLocalFormProvider(widget.companyLocal)
+                            .notifier)
                         .onChangeEditLocalNombre();
-
                   },
                   child: TextViewCustom(
                       text: companyLocalForm.localNombre.value,
@@ -386,4 +388,3 @@ class _CompanyLocalInformationState
     );
   }
 }
-

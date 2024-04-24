@@ -26,7 +26,6 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
       final message = companyResponse.message;
 
       if (companyResponse.status) {
-
         final company = companyResponse.company as Company;
         final isCompanyInList =
             state.companies.any((element) => element.ruc == company.ruc);
@@ -48,7 +47,8 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
 
       return CreateUpdateCompanyResponse(response: false, message: message);
     } catch (e) {
-      return CreateUpdateCompanyResponse(response: false, message: 'Error, revisar con su administrador.');
+      return CreateUpdateCompanyResponse(
+          response: false, message: 'Error, revisar con su administrador.');
     }
   }
 
@@ -61,7 +61,6 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
       final message = companyCheckInResponse.message;
 
       if (companyCheckInResponse.status) {
-
         //final companyCheckIn = companyCheckInResponse.companyCheckIn as CompanyCheckIn;
         /*final companyCheckIn = companyCheckInResponse.company as Company;
         final isCompanyInList =
@@ -79,12 +78,15 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
                 )
                 .toList());*/
 
-        return CreateUpdateCompanyCheckInResponse(response: true, message: message);
+        return CreateUpdateCompanyCheckInResponse(
+            response: true, message: message);
       }
 
-      return CreateUpdateCompanyCheckInResponse(response: false, message: message);
+      return CreateUpdateCompanyCheckInResponse(
+          response: false, message: message);
     } catch (e) {
-      return CreateUpdateCompanyCheckInResponse(response: false, message: 'Error, revisar con su administrador.');
+      return CreateUpdateCompanyCheckInResponse(
+          response: false, message: 'Error, revisar con su administrador.');
     }
   }
 
@@ -124,6 +126,19 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
     }
   }*/
 
+  void loadAddressCompanyByRuc(String ruc) {
+    Company foundCompany =
+        state.companies.firstWhere((company) => company.ruc == ruc);
+
+    foundCompany.localCantidad = '2';
+
+    state = state.copyWith(
+        companies: state.companies
+            .map(
+              (element) => (element.ruc == ruc) ? foundCompany : element,
+            )
+            .toList());
+  }
 
   Future loadNextPage() async {
     if (state.isLoading || state.isLastPage) return;
