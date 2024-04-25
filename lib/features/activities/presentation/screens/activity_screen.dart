@@ -131,7 +131,6 @@ class _ActivityInformation extends ConsumerWidget {
             items: optionsTipoGestion,
             errorMessage: activityForm.actiIdTipoGestion.errorMessage,
           ),
-          
           const SizedBox(height: 10),
           const Text(
             'Fecha',
@@ -210,7 +209,8 @@ class _ActivityInformation extends ConsumerWidget {
                 const SizedBox(height: 6),
                 GestureDetector(
                   onTap: () {
-                    _openSearchCompanies(context, ref, activityForm.actiIdUsuarioRegistro);
+                    _openSearchCompanies(
+                        context, ref, activityForm.actiIdUsuarioRegistro);
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -235,7 +235,8 @@ class _ActivityInformation extends ConsumerWidget {
                         IconButton(
                           icon: const Icon(Icons.search),
                           onPressed: () {
-                            _openSearchCompanies(context, ref, activityForm.actiIdUsuarioRegistro);
+                            _openSearchCompanies(context, ref,
+                                activityForm.actiIdUsuarioRegistro);
                           },
                         ),
                       ],
@@ -270,11 +271,12 @@ class _ActivityInformation extends ConsumerWidget {
                 const SizedBox(height: 6),
                 GestureDetector(
                   onTap: () {
-                    if (activityForm.actiRuc.value == null) {
+                    if (activityForm.actiRuc.value == '') {
                       showSnackbar(context, 'Seleccione una empresa');
                       return;
                     }
-                    _openSearchOportunities(context, ref, activityForm.actiRuc.value);
+                    _openSearchOportunities(
+                        context, ref, activityForm.actiRuc.value);
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -299,11 +301,12 @@ class _ActivityInformation extends ConsumerWidget {
                         IconButton(
                           icon: const Icon(Icons.search),
                           onPressed: () {
-                            if (activityForm.actiRuc.value == null) {
+                            if (activityForm.actiRuc.value == '') {
                               showSnackbar(context, 'Seleccione una empresa');
                               return;
                             }
-                            _openSearchOportunities(context, ref, activityForm.actiRuc.value);
+                            _openSearchOportunities(
+                                context, ref, activityForm.actiRuc.value);
                           },
                         ),
                       ],
@@ -355,7 +358,7 @@ class _ActivityInformation extends ConsumerWidget {
               )),
               ElevatedButton(
                 onPressed: () {
-                  _openSearchContacts(context, ref);
+                  _openSearchContacts(context, ref, activityForm.actiRuc.value);
                 },
                 child: const Row(
                   children: [
@@ -519,7 +522,8 @@ class _ActivityInformation extends ConsumerWidget {
     }
   }
 
-  void _openSearchCompanies(BuildContext context, WidgetRef ref, String dni) async {
+  void _openSearchCompanies(
+      BuildContext context, WidgetRef ref, String dni) async {
     final searchedCompanies = ref.read(searchedCompaniesProvider);
     final searchQuery = ref.read(searchQueryCompaniesProvider);
 
@@ -541,7 +545,8 @@ class _ActivityInformation extends ConsumerWidget {
     });
   }
 
-  void _openSearchOportunities(BuildContext context, WidgetRef ref, String ruc) async {
+  void _openSearchOportunities(
+      BuildContext context, WidgetRef ref, String ruc) async {
     final searchedOpportunities = ref.read(searchedOpportunitiesProvider);
     final searchQuery = ref.read(searchQueryOpportunitiesProvider);
 
@@ -549,11 +554,11 @@ class _ActivityInformation extends ConsumerWidget {
             query: searchQuery,
             context: context,
             delegate: SearchOpportunityDelegate(
-              ruc: ruc,
-              initialOpportunities: searchedOpportunities,
-              searchOpportunities: ref
-                  .read(searchedOpportunitiesProvider.notifier)
-                  .searchOpportunitiesByQuery))
+                ruc: ruc,
+                initialOpportunities: searchedOpportunities,
+                searchOpportunities: ref
+                    .read(searchedOpportunitiesProvider.notifier)
+                    .searchOpportunitiesByQuery))
         .then((opportunity) {
       if (opportunity == null) return;
 
@@ -563,7 +568,8 @@ class _ActivityInformation extends ConsumerWidget {
     });
   }
 
-  void _openSearchContacts(BuildContext context, WidgetRef ref) async {
+  void _openSearchContacts(
+      BuildContext context, WidgetRef ref, String ruc) async {
     final searchedContacts = ref.read(searchedContactsProvider);
     final searchQuery = ref.read(searchQueryContactsProvider);
 
@@ -571,6 +577,7 @@ class _ActivityInformation extends ConsumerWidget {
             query: searchQuery,
             context: context,
             delegate: SearchContactDelegate(
+                ruc: ruc,
                 initialContacts: searchedContacts,
                 searchContacts: ref
                     .read(searchedContactsProvider.notifier)
@@ -587,6 +594,5 @@ class _ActivityInformation extends ConsumerWidget {
 
 void showSnackbar(BuildContext context, String message) {
   ScaffoldMessenger.of(context).clearSnackBars();
-  ScaffoldMessenger.of(context)
-      .showSnackBar(SnackBar(content: Text(message)));
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 }

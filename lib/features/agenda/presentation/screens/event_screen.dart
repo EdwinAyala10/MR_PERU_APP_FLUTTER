@@ -484,7 +484,7 @@ class _EventInformation extends ConsumerWidget {
                                       Text('Invitar contactos de la empresa')),
                               onTap: () {
                                 Navigator.pop(context);
-                                _openSearchContacts(context, ref);
+                                _openSearchContacts(context, ref, eventForm.evntRuc ?? '');
                               },
                             ),
                             const Divider(),
@@ -743,7 +743,7 @@ class _EventInformation extends ConsumerWidget {
     });
   }
 
-  void _openSearchContacts(BuildContext context, WidgetRef ref) async {
+  void _openSearchContacts(BuildContext context, WidgetRef ref, String ruc) async {
     final searchedContacts = ref.read(searchedContactsProvider);
     final searchQuery = ref.read(searchQueryContactsProvider);
 
@@ -751,6 +751,7 @@ class _EventInformation extends ConsumerWidget {
             query: searchQuery,
             context: context,
             delegate: SearchContactDelegate(
+              ruc: ruc,
                 initialContacts: searchedContacts,
                 searchContacts: ref
                     .read(searchedContactsProvider.notifier)

@@ -425,7 +425,7 @@ class _CompanyCheckInInformation extends ConsumerWidget {
                 const SizedBox(height: 6),
                 GestureDetector(
                   onTap: () {
-                    _openSearchContacts(context, ref);
+                    _openSearchContacts(context, ref, companyCheckInForm.cchkRuc.value);
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -457,7 +457,7 @@ class _CompanyCheckInInformation extends ConsumerWidget {
                         IconButton(
                           icon: const Icon(Icons.search),
                           onPressed: () {
-                            _openSearchContacts(context, ref);
+                            _openSearchContacts(context, ref, companyCheckInForm.cchkRuc.value);
                           },
                         ),
                       ],
@@ -564,7 +564,7 @@ class _CompanyCheckInInformation extends ConsumerWidget {
     });
   }
 
-  void _openSearchContacts(BuildContext context, WidgetRef ref) async {
+  void _openSearchContacts(BuildContext context, WidgetRef ref, String ruc) async {
     final searchedContacts = ref.read(searchedContactsProvider);
     final searchQuery = ref.read(searchQueryContactsProvider);
 
@@ -572,6 +572,7 @@ class _CompanyCheckInInformation extends ConsumerWidget {
             query: searchQuery,
             context: context,
             delegate: SearchContactDelegate(
+                ruc: ruc,
                 initialContacts: searchedContacts,
                 searchContacts: ref
                     .read(searchedContactsProvider.notifier)

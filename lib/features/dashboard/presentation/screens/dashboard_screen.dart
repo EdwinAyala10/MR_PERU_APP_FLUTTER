@@ -1,6 +1,7 @@
 import 'package:crm_app/features/kpis/domain/domain.dart';
 import 'package:crm_app/features/kpis/presentation/providers/kpis_provider.dart';
 import 'package:crm_app/features/location/presentation/providers/gps_provider.dart';
+import 'package:crm_app/features/shared/presentation/providers/notifications_provider.dart';
 import 'package:crm_app/features/shared/shared.dart';
 import 'package:floating_action_bubble_custom/floating_action_bubble_custom.dart';
 import 'package:flutter/material.dart';
@@ -138,6 +139,8 @@ class _DashboardViewState extends ConsumerState {
     super.initState();
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       ref.read(kpisProvider.notifier).loadNextPage();
+
+      ref.read(notificationsProvider.notifier).requestPermission();
     });
 
     final isGpsPermissionGranted =
@@ -146,6 +149,7 @@ class _DashboardViewState extends ConsumerState {
     if (!isGpsPermissionGranted) {
         ref.read(gpsProvider.notifier).askGpsAccess();
     }
+    
   }
 
   @override

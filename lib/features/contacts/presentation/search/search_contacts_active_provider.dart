@@ -16,7 +16,7 @@ final searchedContactsProvider = StateNotifierProvider<SearchedContactsNotifier,
 });
 
 
-typedef SearchContactsCallback = Future<List<Contact>> Function(String query);
+typedef SearchContactsCallback = Future<List<Contact>> Function(String query, String ruc);
 
 class SearchedContactsNotifier extends StateNotifier<List<Contact>> {
 
@@ -29,11 +29,11 @@ class SearchedContactsNotifier extends StateNotifier<List<Contact>> {
   }): super([]);
 
 
-  Future<List<Contact>> searchContactsByQuery( String query ) async{
+  Future<List<Contact>> searchContactsByQuery( String query, String ruc ) async{
     
     print('SEARCH CONTAC');
 
-    final List<Contact> contacts = await searchContacts(query);
+    final List<Contact> contacts = await searchContacts(query, ruc);
     ref.read(searchQueryContactsProvider.notifier).update((state) => query);
 
     state = contacts;

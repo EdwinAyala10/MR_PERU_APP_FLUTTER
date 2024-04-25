@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 
 
-typedef SearchContactsCallback = Future<List<Contact>> Function( String query );
+typedef SearchContactsCallback = Future<List<Contact>> Function( String query, String ruc );
 
 class SearchContactDelegate extends SearchDelegate<Contact?>{
 
@@ -18,8 +18,11 @@ class SearchContactDelegate extends SearchDelegate<Contact?>{
 
   Timer? _debounceTimer;
 
+  String ruc;
+
   SearchContactDelegate({
     required this.searchContacts,
+    required this.ruc,
     required this.initialContacts,
   }):super(
     searchFieldLabel: 'Buscar contactos',
@@ -41,7 +44,7 @@ class SearchContactDelegate extends SearchDelegate<Contact?>{
       //   return;
       // }
 
-      final contacts = await searchContacts( query );
+      final contacts = await searchContacts( query, ruc );
       initialContacts = contacts;
       debouncedContacts.add(contacts);
       isLoadingStream.add(false);
@@ -194,7 +197,8 @@ class _ContactItem extends StatelessWidget {
                   ],
                 ),
               ),
-          
+
+              const Divider()
             ],
           ),
         ),

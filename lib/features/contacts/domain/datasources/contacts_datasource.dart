@@ -7,7 +7,7 @@ abstract class ContactsDatasource {
 
   Future<ContactResponse> createUpdateContact( Map<dynamic,dynamic> contactLike );
 
-  Future<List<Contact>> searchContacts(String query);
+  Future<List<Contact>> searchContacts(String query, String ruc);
 
 }
 

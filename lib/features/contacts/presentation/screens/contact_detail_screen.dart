@@ -1,7 +1,6 @@
 import 'package:crm_app/features/contacts/domain/domain.dart';
 import 'package:crm_app/features/contacts/presentation/providers/contact_provider.dart';
 import 'package:crm_app/features/contacts/presentation/providers/providers.dart';
-//import 'package:crm_app/features/shared/presentation/providers/notifications_provider.dart';
 import 'package:crm_app/features/shared/presentation/providers/send_whatsapp_provider.dart';
 import 'package:crm_app/features/shared/shared.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +29,6 @@ class _ContactDetailScreenState extends ConsumerState<ContactDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     final contactState = ref.watch(contactProvider(widget.contactId));
 
     if (contactState.isLoading) {
@@ -53,7 +51,6 @@ class _ViewContactDetailScreen extends ConsumerWidget {
     //ref.read(contactProvider(contactId).notifier).loadContact();
     //final contactState = ref.watch(contactProvider(contactId));
 
-
     //print('CONTACT STATE ${contactId}');
 
     //final contact = contactState.contact;
@@ -61,8 +58,6 @@ class _ViewContactDetailScreen extends ConsumerWidget {
     /*if (contactState.isLoading) {
       return const FullScreenLoader();
     }*/
-
-    print('CONTACT NOMBRE: ${contact?.contactoDesc ?? ''}');
 
     if (contact == null) {
       return Scaffold(
@@ -102,14 +97,6 @@ class _ViewContactDetailScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              //Text('${ref.watch(notificationsProvider).status}'),
-              IconButton(
-                  onPressed: () {
-                    /*ref
-                        .read(notificationsProvider.notifier)
-                        .requestPermission();*/
-                  },
-                  icon: const Icon(Icons.notifications_on_rounded)),
               Container(
                 width: double.infinity, // Ocupa todo el ancho disponible
                 alignment: Alignment.center,

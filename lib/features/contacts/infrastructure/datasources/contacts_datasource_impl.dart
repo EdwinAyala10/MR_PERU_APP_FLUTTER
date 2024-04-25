@@ -86,9 +86,10 @@ class ContactsDatasourceImpl extends ContactsDatasource {
   }
 
   @override
-  Future<List<Contact>> searchContacts(String query) async {
+  Future<List<Contact>> searchContacts(String query, String ruc) async {
     final data = {
       "SEARCH": query,
+      "RUC": ruc,
     };
 
     final response =

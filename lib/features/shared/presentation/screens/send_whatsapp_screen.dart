@@ -35,11 +35,10 @@ class SendWhatsappScreen extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButtonCustom(
           callOnPressed: () async {
-            bool response = await ref
-                .read(sendWhatsappProvider.notifier)
-                .sendActivityMessage();
 
-            print("RESPONSE LADO DE AQUI : ${response}");
+            ref
+            .read(sendWhatsappProvider.notifier)
+            .sendActivityMessage();
 
             //context.push('/send_whatsapp');
             context.pop();
@@ -48,6 +47,8 @@ class SendWhatsappScreen extends ConsumerWidget {
             String message = params.message ?? '';
 
             await whatsapp(phone, message);
+
+
 
             /*if (await canLaunchUrl(Uri.parse(whatsappUrl))) {
               await launchUrl(Uri.parse(whatsappUrl));
