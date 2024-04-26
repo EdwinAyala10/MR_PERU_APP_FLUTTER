@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:crm_app/features/contacts/domain/domain.dart';
 import 'package:crm_app/features/contacts/presentation/providers/providers.dart';
 import 'package:crm_app/features/contacts/presentation/widgets/item_contact.dart';
@@ -9,27 +11,67 @@ import 'package:go_router/go_router.dart';
 
 import 'package:crm_app/features/shared/shared.dart';
 
-class ContactsScreen extends StatelessWidget {
+class ContactsScreen extends ConsumerWidget {
   const ContactsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final scaffoldKey = GlobalKey<ScaffoldState>();
+    //final TextEditingController _searchController = TextEditingController();
+    Timer? _debounce;
+
+    final isActiveSearch = ref.watch(contactsProvider).isActiveSearch;
 
     return Scaffold(
       drawer: SideMenu(scaffoldKey: scaffoldKey),
       appBar: AppBar(
         title: const Text('Contacto'),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.search_rounded))
+          if (isActiveSearch) const SizedBox(width: 58),
+          if (isActiveSearch)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: TextFormField(
+                  //controller: _searchController,
+                  onChanged: (String value) {
+                    if (_debounce?.isActive ?? false) _debounce?.cancel();
+                    _debounce = Timer(const Duration(milliseconds: 500), () {
+                      print('Searching for: $value');
+                      ref
+                          .read(contactsProvider.notifier)
+                          .onChangeTextSearch(value);
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    hintText: 'Buscar contacto...',
+                    //border: InputBorder.none,
+                  ),
+                ),
+              ),
+            ),
+          if (isActiveSearch)
+            IconButton(
+              onPressed: () {
+                //_searchController.clear();
+                ref.read(contactsProvider.notifier).onChangeNotIsActiveSearch();
+              },
+              icon: const Icon(Icons.clear),
+            ),
+          if (!isActiveSearch)
+            IconButton(
+                onPressed: () {
+                  ref.read(contactsProvider.notifier).onChangeIsActiveSearch();
+                },
+                icon: const Icon(Icons.search_rounded))
         ],
       ),
       body: const _ContactsView(),
       floatingActionButton: FloatingActionButtonCustom(
-        iconData: Icons.add,
-        callOnPressed: () {
-        context.push('/contact/new');
-      }),
+          iconData: Icons.add,
+          callOnPressed: () {
+            context.push('/contact/new');
+          }),
     );
   }
 }
@@ -56,7 +98,8 @@ class _ContactsViewState extends ConsumerState {
     });
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      ref.read(contactsProvider.notifier).loadNextPage();
+      ref.read(contactsProvider.notifier).loadNextPage('');
+      ref.read(contactsProvider.notifier).onChangeNotIsActiveSearch();
     });
   }
 
@@ -94,10 +137,12 @@ class _ListContacts extends StatelessWidget {
         itemBuilder: (context, index) {
           final contact = contacts[index];
 
-          return ItemContact(contact: contact, callbackOnTap: () {
-              context.push('/contact_detail/${contact.id}');
-              //context.push('/contact/${contact.id}');
-          });
+          return ItemContact(
+              contact: contact,
+              callbackOnTap: () {
+                context.push('/contact_detail/${contact.id}');
+                //context.push('/contact/${contact.id}');
+              });
         },
       ),
     );

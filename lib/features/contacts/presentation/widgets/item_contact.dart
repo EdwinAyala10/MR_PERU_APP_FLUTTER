@@ -60,7 +60,7 @@ class ItemContact extends StatelessWidget {
       //trailing: Text(contact.contactoCargo),
       leading: CircleAvatar(
         backgroundColor: Colors.grey[300],
-        radius: 30,
+        radius: 24,
         child: Text(
           contact.contactoDesc.isNotEmpty ? contact.contactoDesc[0].toUpperCase() : '',
           style: const TextStyle(fontSize: 16),

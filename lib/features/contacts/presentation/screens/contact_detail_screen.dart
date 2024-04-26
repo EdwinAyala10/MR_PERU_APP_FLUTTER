@@ -32,10 +32,19 @@ class _ContactDetailScreenState extends ConsumerState<ContactDetailScreen> {
     final contactState = ref.watch(contactProvider(widget.contactId));
 
     if (contactState.isLoading) {
-      return const FullScreenLoader();
+      return const Scaffold(
+        body: FullScreenLoader(),
+      );
     }
 
-    return _ViewContactDetailScreen(contact: contactState.contact!);
+    return contactState.contact != null 
+      ? _ViewContactDetailScreen(contact: contactState.contact!)
+      : Scaffold(
+        appBar: AppBar(
+          title: Text('Contacto'),
+        ),
+        body: Center(child: Text('No existe información del contacto.'),),
+      );
   }
 }
 
@@ -58,6 +67,7 @@ class _ViewContactDetailScreen extends ConsumerWidget {
     /*if (contactState.isLoading) {
       return const FullScreenLoader();
     }*/
+
 
     if (contact == null) {
       return Scaffold(

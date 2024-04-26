@@ -74,7 +74,7 @@ class ItemActivity extends StatelessWidget {
     return ListTile(
       title: Text(
         activity.actiRazon ?? '',
-        style: const TextStyle(fontWeight: FontWeight.w500),
+        style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
       ),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,7 +86,7 @@ class ItemActivity extends StatelessWidget {
                 const Icon(Icons.mode_comment, size: 14),
                 const SizedBox(width: 4),
                 SizedBox(
-                  width: 160,
+                  width: 120,
                   child: Text(activity.actiComentario,
                     style: const TextStyle(
                       fontSize: 12,

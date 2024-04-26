@@ -17,8 +17,8 @@ class ContactsRepositoryImpl extends ContactsRepository {
   }
 
   @override
-  Future<List<Contact>> getContacts(String ruc) {
-    return datasource.getContacts(ruc);
+  Future<List<Contact>> getContacts(String ruc, String search) {
+    return datasource.getContacts(ruc, search);
   }
 
   @override

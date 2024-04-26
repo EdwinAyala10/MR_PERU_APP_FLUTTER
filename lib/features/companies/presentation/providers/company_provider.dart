@@ -128,7 +128,7 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
       final company = await companiesRepository.getCompanyById(state.rucId, user.code);
       company.rucId = company.ruc;
 
-      final contacts = await contactsRepository.getContacts(company.ruc);
+      final contacts = await contactsRepository.getContacts(company.ruc, '');
       final opportunities =
           await opportunitiesRepository.getOpportunities(company.ruc);
       final activities = await activitiesRepository.getActivitiesByRuc(company.ruc);
@@ -156,7 +156,7 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
 
   Future<void> loadContacts(String ruc) async {
     try {
-      final contacts = await contactsRepository.getContacts(ruc);
+      final contacts = await contactsRepository.getContacts(ruc, '');
       state = state.copyWith(contacts: contacts);
     } catch (e) {
       state = state.copyWith(contacts: []);
