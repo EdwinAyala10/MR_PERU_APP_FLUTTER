@@ -17,8 +17,8 @@ class ActivitiesRepositoryImpl extends ActivitiesRepository {
   }
 
   @override
-  Future<List<Activity>> getActivities() {
-    return datasource.getActivities();
+  Future<List<Activity>> getActivities(String search) {
+    return datasource.getActivities(search);
   }
 
   @override

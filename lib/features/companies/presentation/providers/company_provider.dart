@@ -130,7 +130,7 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
 
       final contacts = await contactsRepository.getContacts(company.ruc, '');
       final opportunities =
-          await opportunitiesRepository.getOpportunities(company.ruc);
+          await opportunitiesRepository.getOpportunities(company.ruc, '');
       final activities = await activitiesRepository.getActivitiesByRuc(company.ruc);
       final events = await eventsRepository.getEventsListByRuc(company.ruc);
       final companyLocales =

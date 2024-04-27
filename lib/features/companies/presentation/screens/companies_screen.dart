@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:crm_app/features/companies/domain/domain.dart';
 import 'package:crm_app/features/companies/presentation/providers/providers.dart';
 import 'package:crm_app/features/companies/presentation/widgets/item_company.dart';
@@ -9,19 +11,59 @@ import 'package:go_router/go_router.dart';
 
 import 'package:crm_app/features/shared/shared.dart';
 
-class CompaniesScreen extends StatelessWidget {
+class CompaniesScreen extends ConsumerWidget {
   const CompaniesScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final scaffoldKey = GlobalKey<ScaffoldState>();
+
+    Timer? _debounce;
+
+    final isActiveSearch = ref.watch(companiesProvider).isActiveSearch;
 
     return Scaffold(
       drawer: SideMenu(scaffoldKey: scaffoldKey),
       appBar: AppBar(
         title: const Text('Empresas'),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.search_rounded))
+          if (isActiveSearch) const SizedBox(width: 58),
+          if (isActiveSearch)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: TextFormField(
+                  //controller: _searchController,
+                  onChanged: (String value) {
+                    if (_debounce?.isActive ?? false) _debounce?.cancel();
+                    _debounce = Timer(const Duration(milliseconds: 500), () {
+                      print('Searching for: $value');
+                      ref
+                          .read(companiesProvider.notifier)
+                          .onChangeTextSearch(value);
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    hintText: 'Buscar empresa...',
+                    //border: InputBorder.none,
+                  ),
+                ),
+              ),
+            ),
+          if (isActiveSearch)
+            IconButton(
+              onPressed: () {
+                //_searchController.clear();
+                ref.read(companiesProvider.notifier).onChangeNotIsActiveSearch();
+              },
+              icon: const Icon(Icons.clear),
+            ),
+          if (!isActiveSearch)
+            IconButton(
+                onPressed: () {
+                  ref.read(companiesProvider.notifier).onChangeIsActiveSearch();
+                },
+                icon: const Icon(Icons.search_rounded))
         ],
       ),
       body: const _CompaniesView(),
@@ -56,7 +98,8 @@ class _CompaniesViewState extends ConsumerState {
     });
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      ref.read(companiesProvider.notifier).loadNextPage();
+      ref.read(companiesProvider.notifier).loadNextPage('');
+      ref.read(companiesProvider.notifier).onChangeNotIsActiveSearch();
     });
   }
 
@@ -64,6 +107,17 @@ class _CompaniesViewState extends ConsumerState {
   void dispose() {
     scrollController.dispose();
     super.dispose();
+  }
+
+  Future<void> _refresh() async {
+    // Simula una operación asíncrona de actualización de datos
+    //await Future.delayed(Duration(seconds: 1));
+    //setState(() {
+    // Simula la adición de nuevos datos o actualización de los existentes
+    //items = List.generate(20, (index) => "Item ${index + 100}");
+    String text = ref.watch(companiesProvider).textSearch;
+    ref.read(companiesProvider.notifier).loadNextPage(text);
+    //});
   }
 
   @override
@@ -75,33 +129,59 @@ class _CompaniesViewState extends ConsumerState {
     }
 
     return companiesState.companies.length > 0
-        ? _ListCompanies(companies: companiesState.companies)
+        ? _ListCompanies(companies: companiesState.companies, onRefreshCallback: _refresh)
         : const _NoExistData();
   }
 }
 
 class _ListCompanies extends StatelessWidget {
   final List<Company> companies;
-  const _ListCompanies({super.key, required this.companies});
+  final Future<void> Function() onRefreshCallback;
+
+  const _ListCompanies({super.key, required this.companies, required this.onRefreshCallback});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 0),
-      child: ListView.separated(
-        itemCount: companies.length,
-        separatorBuilder: (BuildContext context, int index) => const Divider(),
-        itemBuilder: (context, index) {
-          final company = companies[index];
+    final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+        GlobalKey<RefreshIndicatorState>();
 
-          return ItemCompany(
-              company: company,
-              callbackOnTap: () {
-                context.push('/company_detail/${company.ruc}');
-              });
-        },
-      ),
-    );
+    return companies.isEmpty 
+      ? Center(
+        child: RefreshIndicator(
+          onRefresh: onRefreshCallback,
+          key: _refreshIndicatorKey,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              children: [
+                ElevatedButton(
+                  onPressed: onRefreshCallback,
+                  child: const Text('Recargar'),
+                ),
+                const Center(
+                  child: Text('No hay registros'),
+                ),
+              ],
+            ),
+          )
+        ),
+      ) : RefreshIndicator(
+        onRefresh: onRefreshCallback,
+        key: _refreshIndicatorKey,
+        child: ListView.separated(
+          itemCount: companies.length,
+          separatorBuilder: (BuildContext context, int index) => const Divider(),
+          itemBuilder: (context, index) {
+            final company = companies[index];
+        
+            return ItemCompany(
+                company: company,
+                callbackOnTap: () {
+                  context.push('/company_detail/${company.ruc}');
+                });
+          },
+        )
+      );
   }
 }
 

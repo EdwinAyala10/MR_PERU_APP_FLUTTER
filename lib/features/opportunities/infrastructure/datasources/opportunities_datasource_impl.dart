@@ -67,9 +67,10 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
   }
 
   @override
-  Future<List<Opportunity>> getOpportunities(String ruc) async {
+  Future<List<Opportunity>> getOpportunities(String ruc, String search) async {
     final data = {
       "RUC": ruc,
+      "SEARCH": search
     };
 
     final response = await dio

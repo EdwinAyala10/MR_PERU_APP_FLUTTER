@@ -117,9 +117,9 @@ class _ViewContactDetailScreen extends ConsumerWidget {
                     CircleAvatar(
                       radius: 30,
                       child: Text(
-                        contact.contactoDesc
+                        contact.contactoDesc != "" ? contact.contactoDesc
                             .trim()
-                            .substring(0, 1)
+                            .substring(0, 1) : "-"
                             .toUpperCase(),
                         style: const TextStyle(
                           fontSize: 20,

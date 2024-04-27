@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:crm_app/features/contacts/domain/domain.dart';
+import 'package:crm_app/features/contacts/presentation/providers/contacts_provider.dart';
 import 'package:crm_app/features/contacts/presentation/providers/providers.dart';
 import 'package:crm_app/features/contacts/presentation/widgets/item_contact.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
@@ -109,6 +110,17 @@ class _ContactsViewState extends ConsumerState {
     super.dispose();
   }
 
+  Future<void> _refresh() async {
+    // Simula una operación asíncrona de actualización de datos
+    //await Future.delayed(Duration(seconds: 1));
+    //setState(() {
+    // Simula la adición de nuevos datos o actualización de los existentes
+    //items = List.generate(20, (index) => "Item ${index + 100}");
+    String text = ref.watch(contactsProvider).textSearch;
+    ref.read(contactsProvider.notifier).loadNextPage(text);
+    //});
+  }
+
   @override
   Widget build(BuildContext context) {
     final contactsState = ref.watch(contactsProvider);
@@ -118,34 +130,62 @@ class _ContactsViewState extends ConsumerState {
     }
 
     return contactsState.contacts.length > 0
-        ? _ListContacts(contacts: contactsState.contacts)
+        ? _ListContacts(
+            contacts: contactsState.contacts, onRefreshCallback: _refresh)
         : const _NoExistData();
   }
 }
 
 class _ListContacts extends StatelessWidget {
   final List<Contact> contacts;
-  const _ListContacts({super.key, required this.contacts});
+  final Future<void> Function() onRefreshCallback;
+
+  const _ListContacts(
+      {super.key, required this.contacts, required this.onRefreshCallback});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: ListView.separated(
-        itemCount: contacts.length,
-        separatorBuilder: (BuildContext context, int index) => const Divider(),
-        itemBuilder: (context, index) {
-          final contact = contacts[index];
+    final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+        GlobalKey<RefreshIndicatorState>();
 
-          return ItemContact(
-              contact: contact,
-              callbackOnTap: () {
-                context.push('/contact_detail/${contact.id}');
-                //context.push('/contact/${contact.id}');
-              });
-        },
-      ),
-    );
+    return contacts.isEmpty
+        ? Center(
+            child: RefreshIndicator(
+                onRefresh: onRefreshCallback,
+                key: _refreshIndicatorKey,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Column(
+                    children: [
+                      ElevatedButton(
+                        onPressed: onRefreshCallback,
+                        child: const Text('Recargar'),
+                      ),
+                      const Center(
+                        child: Text('No hay registros'),
+                      ),
+                    ],
+                  ),
+                )),
+          )
+        : RefreshIndicator(
+            onRefresh: onRefreshCallback,
+            key: _refreshIndicatorKey,
+            child: ListView.separated(
+              itemCount: contacts.length,
+              separatorBuilder: (BuildContext context, int index) =>
+                  const Divider(),
+              itemBuilder: (context, index) {
+                final contact = contacts[index];
+
+                return ItemContact(
+                    contact: contact,
+                    callbackOnTap: () {
+                      context.push('/contact_detail/${contact.id}');
+                      //context.push('/contact/${contact.id}');
+                    });
+              },
+            ));
   }
 }
 

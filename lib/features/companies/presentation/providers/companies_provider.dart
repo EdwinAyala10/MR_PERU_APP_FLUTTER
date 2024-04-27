@@ -14,7 +14,7 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
 
   CompaniesNotifier({required this.companiesRepository})
       : super(CompaniesState()) {
-    loadNextPage();
+    loadNextPage('');
   }
 
   Future<CreateUpdateCompanyResponse> createOrUpdateCompany(
@@ -140,12 +140,30 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
             .toList());
   }
 
-  Future loadNextPage() async {
+  void onChangeIsActiveSearch() {
+    state = state.copyWith(
+      isActiveSearch: true,
+    );
+  }
+
+  void onChangeTextSearch(String text) {
+    state = state.copyWith(textSearch: text);
+    loadNextPage(text);
+  }
+
+  void onChangeNotIsActiveSearch() {
+    state = state.copyWith(isActiveSearch: false, textSearch: '');
+    if (state.textSearch != "") {
+      loadNextPage('');
+    }
+  }
+
+  Future loadNextPage(String search) async {
     if (state.isLoading || state.isLastPage) return;
 
     state = state.copyWith(isLoading: true);
 
-    final companies = await companiesRepository.getCompanies();
+    final companies = await companiesRepository.getCompanies(search);
 
     if (companies.isEmpty) {
       state = state.copyWith(isLoading: false, isLastPage: true);
@@ -156,7 +174,9 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
         isLastPage: false,
         isLoading: false,
         offset: state.offset + 10,
-        companies: [...state.companies, ...companies]);
+        //companies: [...state.companies, ...companies]);
+        companies: companies
+    );
   }
 }
 
@@ -166,12 +186,16 @@ class CompaniesState {
   final int offset;
   final bool isLoading;
   final List<Company> companies;
+  final bool isActiveSearch;
+  final String textSearch;
 
   CompaniesState(
       {this.isLastPage = false,
       this.limit = 10,
       this.offset = 0,
       this.isLoading = false,
+      this.isActiveSearch = false,
+      this.textSearch = '',
       this.companies = const []});
 
   CompaniesState copyWith({
@@ -179,6 +203,8 @@ class CompaniesState {
     int? limit,
     int? offset,
     bool? isLoading,
+    bool? isActiveSearch,
+    String? textSearch,
     List<Company>? companies,
   }) =>
       CompaniesState(
@@ -187,5 +213,7 @@ class CompaniesState {
         offset: offset ?? this.offset,
         isLoading: isLoading ?? this.isLoading,
         companies: companies ?? this.companies,
+        isActiveSearch: isActiveSearch ?? this.isActiveSearch,
+        textSearch: textSearch ?? this.textSearch,
       );
 }

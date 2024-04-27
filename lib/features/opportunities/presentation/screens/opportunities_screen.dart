@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:crm_app/features/opportunities/domain/domain.dart';
 import 'package:crm_app/features/opportunities/presentation/providers/providers.dart';
 import 'package:crm_app/features/opportunities/presentation/widgets/item_opportunity.dart';
@@ -9,19 +11,60 @@ import 'package:go_router/go_router.dart';
 
 import 'package:crm_app/features/shared/shared.dart';
 
-class OpportunitiesScreen extends StatelessWidget {
+class OpportunitiesScreen extends ConsumerWidget {
   const OpportunitiesScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final scaffoldKey = GlobalKey<ScaffoldState>();
+
+    Timer? _debounce;
+
+    final isActiveSearch = ref.watch(opportunitiesProvider).isActiveSearch;
 
     return Scaffold(
       drawer: SideMenu(scaffoldKey: scaffoldKey),
       appBar: AppBar(
         title: const Text('Oportunidades'),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.search_rounded)),
+          if (isActiveSearch) const SizedBox(width: 58),
+          if (isActiveSearch)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: TextFormField(
+                  //controller: _searchController,
+                  onChanged: (String value) {
+                    if (_debounce?.isActive ?? false) _debounce?.cancel();
+                    _debounce = Timer(const Duration(milliseconds: 500), () {
+                      print('Searching for: $value');
+                      ref
+                          .read(opportunitiesProvider.notifier)
+                          .onChangeTextSearch(value);
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    hintText: 'Buscar oportunidad...',
+                    //border: InputBorder.none,
+                  ),
+                ),
+              ),
+            ),
+          if (isActiveSearch)
+            IconButton(
+              onPressed: () {
+                //_searchController.clear();
+                ref.read(opportunitiesProvider.notifier).onChangeNotIsActiveSearch();
+              },
+              icon: const Icon(Icons.clear),
+            ),
+            
+          if (!isActiveSearch)
+            IconButton(
+                onPressed: () {
+                  ref.read(opportunitiesProvider.notifier).onChangeIsActiveSearch();
+                },
+                icon: const Icon(Icons.search_rounded))
         ],
       ),
       body: const _OpportunitiesView(),
@@ -57,7 +100,8 @@ class _OpportunitiesViewState extends ConsumerState {
     });
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      ref.read(opportunitiesProvider.notifier).loadNextPage();
+      ref.read(opportunitiesProvider.notifier).loadNextPage('');
+      ref.read(opportunitiesProvider.notifier).onChangeNotIsActiveSearch();
     });
   }
 
@@ -65,6 +109,17 @@ class _OpportunitiesViewState extends ConsumerState {
   void dispose() {
     scrollController.dispose();
     super.dispose();
+  }
+
+  Future<void> _refresh() async {
+    // Simula una operación asíncrona de actualización de datos
+    //await Future.delayed(Duration(seconds: 1));
+    //setState(() {
+    // Simula la adición de nuevos datos o actualización de los existentes
+    //items = List.generate(20, (index) => "Item ${index + 100}");
+    String text = ref.watch(opportunitiesProvider).textSearch;
+    ref.read(opportunitiesProvider.notifier).loadNextPage(text);
+    //});
   }
 
   @override
@@ -76,32 +131,57 @@ class _OpportunitiesViewState extends ConsumerState {
     }
 
     return opportunitiesState.opportunities.length > 0
-        ? _ListOpportunities(opportunities: opportunitiesState.opportunities)
+        ? _ListOpportunities(opportunities: opportunitiesState.opportunities, onRefreshCallback: _refresh)
         : const _NoExistData();
   }
 }
 
 class _ListOpportunities extends StatelessWidget {
   final List<Opportunity> opportunities;
+  final Future<void> Function() onRefreshCallback;
 
-  const _ListOpportunities({super.key, required this.opportunities});
+  const _ListOpportunities({super.key, required this.opportunities, required this.onRefreshCallback});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: ListView.separated(
-        itemCount: opportunities.length,
-        separatorBuilder: (BuildContext context, int index) => const Divider(),
-        itemBuilder: (context, index) {
-          final opportunity = opportunities[index];
-          return ItemOpportunity(
-              opportunity: opportunity, callbackOnTap: () {
-                context.push('/opportunity/${opportunity.id}');
-              });
-        },
-      ),
-    );
+    final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+        GlobalKey<RefreshIndicatorState>();
+
+    return opportunities.isEmpty 
+    ? Center(
+        child: RefreshIndicator(
+          onRefresh: onRefreshCallback,
+          key: _refreshIndicatorKey,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              children: [
+                ElevatedButton(
+                  onPressed: onRefreshCallback,
+                  child: const Text('Recargar'),
+                ),
+                const Center(
+                  child: Text('No hay registros'),
+                ),
+              ],
+            ),
+          )),
+    ) 
+    : RefreshIndicator(
+            onRefresh: onRefreshCallback,
+            key: _refreshIndicatorKey,
+            child: ListView.separated(
+              itemCount: opportunities.length,
+              separatorBuilder: (BuildContext context, int index) => const Divider(),
+              itemBuilder: (context, index) {
+                final opportunity = opportunities[index];
+                return ItemOpportunity(
+                    opportunity: opportunity, callbackOnTap: () {
+                      context.push('/opportunity/${opportunity.id}');
+                    });
+              },
+            )
+      );
   }
 }
 

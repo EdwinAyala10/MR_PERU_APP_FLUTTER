@@ -111,7 +111,8 @@ class _ListKpis extends StatelessWidget {
                       ),
                     ],
                   ),
-                )),
+                )
+            ),
           )
         : RefreshIndicator(
             onRefresh: onRefreshCallback,

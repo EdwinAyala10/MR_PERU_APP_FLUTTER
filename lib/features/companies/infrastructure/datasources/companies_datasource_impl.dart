@@ -78,9 +78,11 @@ class CompaniesDatasourceImpl extends CompaniesDatasource {
   }
 
   @override
-  Future<List<Company>> getCompanies() async {
+  Future<List<Company>> getCompanies(String search) async {
     final response =
-        await dio.post('/cliente/listar-clientes-by-ruc-tipo-est-Cal');
+        await dio.post('/cliente/listar-clientes-by-ruc-tipo-est-Cal', data: {
+          'SEARCH': search
+        });
     
     print('RESP COMPANIES: ${response}');
 

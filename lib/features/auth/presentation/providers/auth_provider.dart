@@ -21,8 +21,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     required this.authRepository,
     required this.keyValueStorageService,
   }) : super(AuthState()) {
-    // TODO: AGREGAR VALIDACION DE TOKEN
-    //checkAuthStatus();
+    checkAuthStatus();
   }
 
   Future<void> loginUser(String email, String password) async {

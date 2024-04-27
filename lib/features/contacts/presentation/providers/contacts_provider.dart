@@ -66,7 +66,9 @@ class ContactsNotifier extends StateNotifier<ContactsState> {
 
   void onChangeNotIsActiveSearch() {
     state = state.copyWith(isActiveSearch: false, textSearch: '');
-    loadNextPage('');
+    if (state.textSearch != "") {
+      loadNextPage('');
+    }
   }
 
   Future loadNextPage(String search) async {
@@ -110,7 +112,9 @@ class ContactsNotifier extends StateNotifier<ContactsState> {
         isLastPage: false,
         isLoading: false,
         offset: state.offset + 10,
-        contacts: [...state.contacts, ...contacts]);
+        //contacts: [...state.contacts, ...contacts]
+        contacts: contacts
+    );
   }
 }
 

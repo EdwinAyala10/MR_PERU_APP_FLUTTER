@@ -2,6 +2,7 @@ import 'package:crm_app/features/activities/domain/domain.dart';
 import 'package:crm_app/features/shared/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ItemActivity extends StatelessWidget {
   final Activity activity;
@@ -160,9 +161,11 @@ class ItemActivity extends StatelessWidget {
         width: 10,
         child: Column(
           children: [
-            Icon(
+            activity.actiIdTipoGestion == '05' 
+            ? const FaIcon(FontAwesomeIcons.whatsapp, color: Colors.green, size: 32,) 
+            : Icon(
               //Icons.airline_stops_sharp
-              icono,
+              icono, 
               size: 30,
               color: color,
             ),

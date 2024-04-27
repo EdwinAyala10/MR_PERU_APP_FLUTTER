@@ -69,10 +69,12 @@ class ActivitiesDatasourceImpl extends ActivitiesDatasource {
   }
 
   @override
-  Future<List<Activity>> getActivities() async {
+  Future<List<Activity>> getActivities(String search) async {
     print('CARGO ACTIVIDADES');
     final response =
-        await dio.post('/actividad/listar-actividad-by-id-tipo-gestion');
+        await dio.post('/actividad/listar-actividad-by-id-tipo-gestion', data: {
+          'SEARCH': search
+        });
     final List<Activity> activities = [];
     for (final activity in response.data['data'] ?? []) {
       activities.add(ActivityMapper.jsonToEntity(activity));

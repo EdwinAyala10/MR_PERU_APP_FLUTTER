@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:crm_app/features/activities/domain/domain.dart';
 import 'package:crm_app/features/activities/presentation/providers/providers.dart';
 import 'package:crm_app/features/activities/presentation/widgets/item_activity.dart';
@@ -9,27 +11,72 @@ import 'package:go_router/go_router.dart';
 
 import 'package:crm_app/features/shared/shared.dart';
 
-class ActivitiesScreen extends StatelessWidget {
+class ActivitiesScreen extends ConsumerWidget {
   const ActivitiesScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final scaffoldKey = GlobalKey<ScaffoldState>();
 
+    Timer? _debounce;
+    FocusNode _focusNode = FocusNode();
+    final isActiveSearch = ref.watch(activitiesProvider).isActiveSearch;
+    
     return Scaffold(
       drawer: SideMenu(scaffoldKey: scaffoldKey),
       appBar: AppBar(
         title: const Text('Actividades'),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.search_rounded))
+          if (isActiveSearch) const SizedBox(width: 58),
+          if (isActiveSearch)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: TextFormField(
+                  focusNode: _focusNode,
+                  //controller: _searchController,
+                  onChanged: (String value) {
+                    if (_debounce?.isActive ?? false) _debounce?.cancel();
+                    _debounce = Timer(const Duration(milliseconds: 500), () {
+                      print('Searching for: $value');
+                      ref
+                          .read(activitiesProvider.notifier)
+                          .onChangeTextSearch(value);
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    hintText: 'Buscar actividad...',
+                    //border: InputBorder.none,
+                  ),
+                ),
+              ),
+            ),
+          if (isActiveSearch)
+            IconButton(
+              onPressed: () {
+                //_searchController.clear();
+                ref.read(activitiesProvider.notifier).onChangeNotIsActiveSearch();
+              },
+              icon: const Icon(Icons.clear),
+            ),
+            
+          if (!isActiveSearch)
+            IconButton(
+                onPressed: () async {
+                  await ref.read(activitiesProvider.notifier).onChangeIsActiveSearch();
+                  //Future.delayed(Duration(milliseconds: 2000), () {
+                    _focusNode.requestFocus();
+                  //});
+                },
+                icon: const Icon(Icons.search_rounded))
         ],
       ),
       body: const _ActivitiesView(),
       floatingActionButton: FloatingActionButtonCustom(
-        iconData: Icons.add,
-        callOnPressed: () {
-        context.push('/activity/new');
-        /*showModalBottomSheet(
+          iconData: Icons.add,
+          callOnPressed: () {
+            context.push('/activity/new');
+            /*showModalBottomSheet(
             context: context,
             builder: (BuildContext context) {
               return Container(
@@ -71,7 +118,7 @@ class ActivitiesScreen extends StatelessWidget {
               );
             },
           );*/
-      }),
+          }),
     );
   }
 }
@@ -98,7 +145,8 @@ class _ActivitiesViewState extends ConsumerState {
     });
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      ref.read(activitiesProvider.notifier).loadNextPage();
+      ref.read(activitiesProvider.notifier).loadNextPage('');
+      ref.read(activitiesProvider.notifier).onChangeNotIsActiveSearch();
     });
   }
 
@@ -106,6 +154,17 @@ class _ActivitiesViewState extends ConsumerState {
   void dispose() {
     scrollController.dispose();
     super.dispose();
+  }
+
+  Future<void> _refresh() async {
+    // Simula una operación asíncrona de actualización de datos
+    //await Future.delayed(Duration(seconds: 1));
+    //setState(() {
+    // Simula la adición de nuevos datos o actualización de los existentes
+    //items = List.generate(20, (index) => "Item ${index + 100}");
+    String text = ref.watch(activitiesProvider).textSearch;
+    ref.read(activitiesProvider.notifier).loadNextPage(text);
+    //});
   }
 
   @override
@@ -117,31 +176,62 @@ class _ActivitiesViewState extends ConsumerState {
     }
 
     return activitiesState.activities.length > 0
-        ? _ListActivities(activities: activitiesState.activities)
+        ? _ListActivities(activities: activitiesState.activities, onRefreshCallback: _refresh)
         : const _NoExistData();
   }
 }
 
 class _ListActivities extends StatelessWidget {
   final List<Activity> activities;
+  final Future<void> Function() onRefreshCallback;
 
-  const _ListActivities({super.key, required this.activities});
+  const _ListActivities(
+      {super.key, required this.activities, required this.onRefreshCallback});
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      itemCount: activities.length,
-      separatorBuilder: (BuildContext context, int index) => const Divider(),
-      itemBuilder: (context, index) {
-        final activity = activities[index];
-    
-        return ItemActivity(
-          activity: activity,
-          callbackOnTap: () {
-            context.push('/activity_detail/${activity.id}');
-          });
-      },
-    );
+    final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+        GlobalKey<RefreshIndicatorState>();
+
+    return activities.isEmpty
+        ? Center(
+            child: RefreshIndicator(
+                onRefresh: onRefreshCallback,
+                key: _refreshIndicatorKey,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Column(
+                    children: [
+                      ElevatedButton(
+                        onPressed: onRefreshCallback,
+                        child: const Text('Recargar'),
+                      ),
+                      const Center(
+                        child: Text('No hay registros'),
+                      ),
+                    ],
+                  ),
+                )
+            ),
+          )
+        : RefreshIndicator(
+            onRefresh: onRefreshCallback,
+            key: _refreshIndicatorKey,
+            child: ListView.separated(
+              itemCount: activities.length,
+              separatorBuilder: (BuildContext context, int index) =>
+                  const Divider(),
+              itemBuilder: (context, index) {
+                final activity = activities[index];
+
+                return ItemActivity(
+                    activity: activity,
+                    callbackOnTap: () {
+                      context.push('/activity_detail/${activity.id}');
+                    });
+              },
+            ),
+          );
   }
 }
 

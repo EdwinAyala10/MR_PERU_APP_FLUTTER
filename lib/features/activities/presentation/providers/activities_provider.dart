@@ -14,7 +14,7 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
 
   ActivitiesNotifier({required this.activitiesRepository})
       : super(ActivitiesState()) {
-    loadNextPage();
+    loadNextPage('');
   }
 
   Future<CreateUpdateActivityResponse> createOrUpdateActivity(
@@ -52,12 +52,30 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
     }
   }
 
-  Future loadNextPage() async {
+  Future<void> onChangeIsActiveSearch() async {
+    state = state.copyWith(
+      isActiveSearch: true,
+    );
+  }
+
+  void onChangeTextSearch(String text) {
+    state = state.copyWith(textSearch: text);
+    loadNextPage(text);
+  }
+
+  void onChangeNotIsActiveSearch() {
+    state = state.copyWith(isActiveSearch: false, textSearch: '');
+    if (state.textSearch != "") {
+      loadNextPage('');
+    }
+  }
+
+  Future loadNextPage(String search) async {
     if (state.isLoading || state.isLastPage) return;
 
     state = state.copyWith(isLoading: true);
 
-    final activities = await activitiesRepository.getActivities();
+    final activities = await activitiesRepository.getActivities(search);
 
     if (activities.isEmpty) {
       state = state.copyWith(isLoading: false, isLastPage: true);
@@ -80,12 +98,16 @@ class ActivitiesState {
   final int offset;
   final bool isLoading;
   final List<Activity> activities;
+  final bool isActiveSearch;
+  final String textSearch;
 
   ActivitiesState(
       {this.isLastPage = false,
       this.limit = 10,
       this.offset = 0,
       this.isLoading = false,
+      this.isActiveSearch = false,
+      this.textSearch = '',
       this.activities = const []});
 
   ActivitiesState copyWith({
@@ -93,6 +115,8 @@ class ActivitiesState {
     int? limit,
     int? offset,
     bool? isLoading,
+    bool? isActiveSearch,
+    String? textSearch,
     List<Activity>? activities,
   }) =>
       ActivitiesState(
@@ -101,5 +125,7 @@ class ActivitiesState {
         offset: offset ?? this.offset,
         isLoading: isLoading ?? this.isLoading,
         activities: activities ?? this.activities,
+        textSearch: textSearch ?? this.textSearch,
+        isActiveSearch: isActiveSearch ?? this.isActiveSearch,
       );
 }
