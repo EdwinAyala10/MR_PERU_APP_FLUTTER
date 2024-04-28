@@ -32,6 +32,7 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
           actiFechaActividad: activity.actiFechaActividad ?? DateTime.now(),
           actiHoraActividad: activity.actiHoraActividad ?? '',
           actiIdActividadIn: activity.actiIdActividadIn ?? '',
+          contactoDesc: activity.contactoDesc ?? '',
           //actiIdContacto: Contacto.dirty(activity.actiIdContacto),
           actiIdOportunidad: Oportunidad.dirty(activity.actiIdOportunidad),
           actiIdTipoGestion: TipoGestion.dirty(activity.actiIdTipoGestion),
@@ -81,6 +82,7 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
       'ACTI_ID_USUARIO_REGISTRO': state.actiIdUsuarioRegistro,
       'OPT': (state.id == 'new') ? 'INSERT' : 'UPDATE',
       'ACTI_NOMBRE_TIPO_GESTION': state.actiNombreTipoGestion,
+      'CONTACTO_DESC': state.contactoDesc,
       'ACTI_NOMBRE_OPORTUNIDAD': state.actiNombreOportunidad,
       'ACTIVIDADES_CONTACTO': state.actividadesContacto != null
           ? List<dynamic>.from(
@@ -244,6 +246,7 @@ class ActivityFormState {
   final String actiNombreOportunidad;
   final String actiIdUsuarioActualizacion;
   final String opt;
+  final String contactoDesc;
   final String actiIdActividadIn;
   final String actiNombreResponsable;
   final List<ContactArray>? actividadesContacto;
@@ -271,6 +274,7 @@ class ActivityFormState {
       this.actiNombreResponsable = '',
       this.actiRuc = const Ruc.dirty(''),
       this.actiRazon = '',
+      this.contactoDesc = '',
       this.actividadesContactoEliminar,
       this.opt = ''});
 
@@ -294,6 +298,7 @@ class ActivityFormState {
           String? actiNombreOportunidad,
           String? actiIdUsuarioActualizacion,
           String? opt,
+          String? contactoDesc,
           String? actiNombreResponsable,
           String? actiIdActividadIn,
           List<ContactArray>? actividadesContacto,
@@ -326,6 +331,7 @@ class ActivityFormState {
             actiNombreTipoGestion ?? this.actiNombreTipoGestion,
         actiRuc: actiRuc ?? this.actiRuc,
         actiRazon: actiRazon ?? this.actiRazon,
+        contactoDesc: contactoDesc ?? this.contactoDesc,
         actiNombreResponsable:
             actiNombreResponsable ?? this.actiNombreResponsable,
         opt: opt ?? this.opt,

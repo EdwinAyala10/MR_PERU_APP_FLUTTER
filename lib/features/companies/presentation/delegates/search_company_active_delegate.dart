@@ -57,7 +57,8 @@ class SearchCompanyDelegate extends SearchDelegate<Company?> {
       builder: (context, snapshot) {
         final companies = snapshot.data ?? [];
 
-        return ListView.builder(
+        return ListView.separated(
+          separatorBuilder: (BuildContext context, int index) => const Divider(),
           itemCount: companies.length,
           itemBuilder: (context, index) => _CompanyItem(
             company: companies[index],
@@ -141,16 +142,14 @@ class _CompanyItem extends StatelessWidget {
       },
       child: FadeIn(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
           child: Row(
             children: [
               // Image
               SizedBox(
-                width: size.width * 0.2,
+                width: size.width * 0.16,
                 child: const Icon(Icons.blinds_outlined),
               ),
-
-              const SizedBox(width: 10),
 
               // Description
               SizedBox(
@@ -162,7 +161,12 @@ class _CompanyItem extends StatelessWidget {
                       company.razon,
                       style: textStyles.titleMedium,
                     ),
-                    Text(company.ruc),
+                    Row(
+                      children: [
+                        const Text('RUC: ', style: TextStyle( color: Colors.black87, fontWeight: FontWeight.w600 )),
+                        Text(company.ruc, style: const TextStyle( color: Colors.black87, fontWeight: FontWeight.w400 ),),
+                      ],
+                    )
                   ],
                 ),
               ),

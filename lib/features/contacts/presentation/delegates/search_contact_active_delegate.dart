@@ -160,7 +160,7 @@ class _ContactItem extends StatelessWidget {
               // Image
               SizedBox(
                 width: size.width * 0.2,
-                child: const Icon(Icons.blinds_outlined),
+                child: const Icon(Icons.perm_contact_cal),
               ),
 
               const SizedBox(width: 10),

@@ -57,7 +57,8 @@ class SearchUserDelegate extends SearchDelegate<UserMaster?>{
         
         final users = snapshot.data ?? [];
 
-        return ListView.builder(
+        return ListView.separated(
+          separatorBuilder: (BuildContext context, int index) => const Divider(),
           itemCount: users.length,
           itemBuilder: (context, index) => _UserItem(
             user: users[index],
@@ -158,19 +159,17 @@ class _UserItem extends StatelessWidget {
       },
       child: FadeIn(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
           child: Row(
             children: [
           
               // Image
               SizedBox(
-                width: size.width * 0.2,
+                width: size.width * 0.17,
                 child: const Icon(
-                  Icons.blinds_outlined
+                  Icons.perm_contact_cal
                 ),
               ),
-          
-              const SizedBox(width: 10),
               
               // Description
               SizedBox(

@@ -57,7 +57,8 @@ class SearchOpportunityDelegate extends SearchDelegate<Opportunity?> {
       builder: (context, snapshot) {
         final opportunities = snapshot.data ?? [];
 
-        return ListView.builder(
+        return ListView.separated(
+          separatorBuilder: (BuildContext context, int index) => const Divider(),
           itemCount: opportunities.length,
           itemBuilder: (context, index) => _OpportunityItem(
             opportunity: opportunities[index],
@@ -119,7 +120,6 @@ class SearchOpportunityDelegate extends SearchDelegate<Opportunity?> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    print('QUE PASO');
 
     _onQueryChanged(query);
     return buildResultsAndSuggestions();
@@ -144,13 +144,13 @@ class _OpportunityItem extends StatelessWidget {
       },
       child: FadeIn(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
           child: Row(
             children: [
               // Image
               SizedBox(
-                width: size.width * 0.2,
-                child: const Icon(Icons.blinds_outlined),
+                width: size.width * 0.17,
+                child: const Icon(Icons.adf_scanner_rounded),
               ),
 
               const SizedBox(width: 10),

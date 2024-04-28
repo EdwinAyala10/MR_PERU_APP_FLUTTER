@@ -73,9 +73,20 @@ class ItemActivity extends StatelessWidget {
     }
 
     return ListTile(
-      title: Text(
-        activity.actiRazon ?? '',
-        style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
+      title: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (activity.contactoDesc != "") 
+            Text(
+              activity.contactoDesc ?? '',
+              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
+            ),
+          Text(
+            activity.actiRazon ?? '',
+            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
+          ),
+        ],
       ),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
