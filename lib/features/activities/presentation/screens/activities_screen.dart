@@ -25,8 +25,9 @@ class ActivitiesScreen extends ConsumerWidget {
     return Scaffold(
       drawer: SideMenu(scaffoldKey: scaffoldKey),
       appBar: AppBar(
-        title: const Text('Actividades'),
-        actions: [
+        centerTitle: true,
+        title: const Text('Actividades', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20), textAlign: TextAlign.center) ,
+        /*actions: [
           if (isActiveSearch) const SizedBox(width: 58),
           if (isActiveSearch)
             Expanded(
@@ -69,9 +70,14 @@ class ActivitiesScreen extends ConsumerWidget {
                   //});
                 },
                 icon: const Icon(Icons.search_rounded))
+        ],*/
+      ),
+      body: const Column(
+        children: [
+          _SearchComponent(),
+          Expanded(child: _ActivitiesView()),
         ],
       ),
-      body: const _ActivitiesView(),
       floatingActionButton: FloatingActionButtonCustom(
           iconData: Icons.add,
           callOnPressed: () {
@@ -179,7 +185,72 @@ class _ActivitiesViewState extends ConsumerState {
         ? _ListActivities(activities: activitiesState.activities, onRefreshCallback: _refresh)
         : const _NoExistData();
   }
+
 }
+
+
+
+class _SearchComponent extends ConsumerWidget {
+  const _SearchComponent({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+
+    Timer? _debounce;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+      width: double.infinity,
+      child: Stack(
+        alignment: Alignment.centerRight,
+        children: [
+          TextFormField(
+            style: const TextStyle(fontSize: 12.0),
+            //controller: _searchController,
+            onChanged: (String value) {
+              if (_debounce?.isActive ?? false) _debounce?.cancel();
+              _debounce = Timer(const Duration(milliseconds: 500), () {
+                print('Searching for: $value');
+                ref
+                    .read(activitiesProvider.notifier)
+                    .onChangeTextSearch(value);
+              });
+            },
+            decoration: InputDecoration(
+              hintText: 'Buscar actividad...',
+              filled: true,
+              fillColor: Colors.grey[200],
+              border: OutlineInputBorder( 
+                borderRadius: BorderRadius.circular(20.0),
+                borderSide: BorderSide.none, 
+              ),
+              enabledBorder: OutlineInputBorder( 
+                borderRadius: BorderRadius.circular(20.0),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20.0),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 18.0),
+              hintStyle: const TextStyle(fontSize: 12.0),
+            ),
+          ),
+          if (ref.watch(activitiesProvider).textSearch != "")
+            IconButton(
+              onPressed: () {
+                ref.read(activitiesProvider.notifier).onChangeNotIsActiveSearch();
+              },
+              icon: const Icon(Icons.clear, size: 18.0), 
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+
+
 
 class _ListActivities extends StatelessWidget {
   final List<Activity> activities;

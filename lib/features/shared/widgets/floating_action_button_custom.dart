@@ -14,8 +14,8 @@ class FloatingActionButtonCustom extends StatelessWidget {
   Widget build(BuildContext context) {
     bool styleDisabled = isDisabled ?? false;
     return SizedBox(
-      width: 50 + 6.0 * 2,
-      height: 50 + 6.0 * 2,
+      width: 40 + 6.0 * 2,
+      height: 40 + 6.0 * 2,
       child: FloatingActionButton(
         onPressed: callOnPressed,
         backgroundColor: styleDisabled

@@ -23,7 +23,7 @@ class FloatingActionButtonIconCustom extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
-            padding: const EdgeInsets.only(right: 8.0),
+            padding: const EdgeInsets.only(right: 6.0),
             child: Text(
               label,
               style: TextStyle(
@@ -35,7 +35,7 @@ class FloatingActionButtonIconCustom extends StatelessWidget {
           Icon(
             iconData,
             color: Colors.white,
-            size: 30, // Tamaño del icono ajustable según tus necesidades
+            size: 28, // Tamaño del icono ajustable según tus necesidades
           ),
         ],
       ),

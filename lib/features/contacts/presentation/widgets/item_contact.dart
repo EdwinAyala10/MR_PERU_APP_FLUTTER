@@ -10,10 +10,13 @@ class ItemContact extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(contact.contactoDesc, overflow: TextOverflow.ellipsis),
+      title: Text(contact.contactoDesc, overflow: TextOverflow.ellipsis, style: const TextStyle(
+            fontWeight: FontWeight.w600
+          ),),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text(contact.razon ?? ''),
           contact.contactoTelefonoc != ''
               ? Row(
                   children: [
@@ -54,7 +57,6 @@ class ItemContact extends StatelessWidget {
                 )
               : Container(),
           
-          Text('ID: ${contact.id}')
         ],
       ),
       //trailing: Text(contact.contactoCargo),

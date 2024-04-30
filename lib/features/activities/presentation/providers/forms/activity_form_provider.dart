@@ -76,7 +76,7 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
       'ACTI_RAZON': state.actiRazon,
       'ACTI_ID_OPORTUNIDAD': state.actiIdOportunidad.value,
       //'ACTI_ID_CONTACTO': state.actiIdContacto.value,
-      'ACTI_ID_CONTACTO': '0',
+      'ACTI_ID_CONTACTO': state.actividadesContacto?[0].acntIdContacto ?? '',
       'ACTI_COMENTARIO': state.actiComentario,
       'ACTI_NOMBRE_ARCHIVO': state.actiNombreArchivo,
       'ACTI_ID_USUARIO_REGISTRO': state.actiIdUsuarioRegistro,
