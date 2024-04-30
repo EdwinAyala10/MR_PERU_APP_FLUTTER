@@ -153,9 +153,9 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
 
   void onChangeNotIsActiveSearch() {
     state = state.copyWith(isActiveSearch: false, textSearch: '');
-    if (state.textSearch != "") {
+    //if (state.textSearch != "") {
       loadNextPage('');
-    }
+    //}
   }
 
   Future loadNextPage(String search) async {
@@ -163,7 +163,11 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
 
     state = state.copyWith(isLoading: true);
 
-    final companies = await companiesRepository.getCompanies(search);
+    final companies = await companiesRepository.getCompanies(
+      search: search,
+      limit: state.limit,
+      offset: state.offset
+    );
 
     if (companies.isEmpty) {
       state = state.copyWith(isLoading: false, isLastPage: true);
@@ -174,8 +178,8 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
         isLastPage: false,
         isLoading: false,
         offset: state.offset + 10,
-        //companies: [...state.companies, ...companies]);
-        companies: companies
+        companies: [...state.companies, ...companies]
+        //companies: companies
     );
   }
 }

@@ -4,7 +4,7 @@ import 'package:crm_app/features/companies/domain/entities/check_in_by_ruc_local
 
 abstract class CompaniesRepository {
 
-  Future<List<Company>> getCompanies(String search);
+  Future<List<Company>> getCompanies({ int limit = 10, int offset = 0, String search });
   Future<Company> getCompanyById(String rucId, String userId);
 
   Future<CompanyResponse> createUpdateCompany( Map<dynamic,dynamic> companyLike );

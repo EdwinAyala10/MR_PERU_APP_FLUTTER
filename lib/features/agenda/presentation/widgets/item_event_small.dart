@@ -1,16 +1,20 @@
 import 'package:crm_app/features/agenda/domain/domain.dart';
+import 'package:crm_app/features/shared/widgets/capitalize.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 
-class ItemEvent extends StatelessWidget {
+class ItemEventSmall extends StatelessWidget {
   final Event event;
   final Function()? callbackOnTap;
 
-  const ItemEvent({super.key, required this.event, this.callbackOnTap});
+  const ItemEventSmall({super.key, required this.event, this.callbackOnTap});
 
   @override
   Widget build(BuildContext context) {
+
+    String formattedDate = DateFormat.yMMMMEEEEd('es').format(event.evntFechaInicioEvento ?? DateTime.now());
+
     return Column(
       children: [
         ListTile(
@@ -39,9 +43,10 @@ class ItemEvent extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Text(capitalize(formattedDate), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),),
               Text(event.evntAsunto,
                   style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.w500)),
+                      fontSize: 14, fontWeight: FontWeight.w500)),
               Text('${event.evntNombreTipoGestion}',
                   style: const TextStyle(fontSize: 14)),
             ],

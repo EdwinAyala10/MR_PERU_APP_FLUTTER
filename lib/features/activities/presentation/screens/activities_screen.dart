@@ -21,12 +21,14 @@ class ActivitiesScreen extends ConsumerWidget {
     Timer? _debounce;
     FocusNode _focusNode = FocusNode();
     final isActiveSearch = ref.watch(activitiesProvider).isActiveSearch;
-    
+
     return Scaffold(
       drawer: SideMenu(scaffoldKey: scaffoldKey),
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Actividades', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20), textAlign: TextAlign.center) ,
+        title: const Text('Actividades',
+            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
+            textAlign: TextAlign.center),
         /*actions: [
           if (isActiveSearch) const SizedBox(width: 58),
           if (isActiveSearch)
@@ -182,21 +184,26 @@ class _ActivitiesViewState extends ConsumerState {
     }
 
     return activitiesState.activities.length > 0
-        ? _ListActivities(activities: activitiesState.activities, onRefreshCallback: _refresh)
+        ? _ListActivities(
+            activities: activitiesState.activities, onRefreshCallback: _refresh)
         : const _NoExistData();
   }
-
 }
 
 
-
-class _SearchComponent extends ConsumerWidget {
+class _SearchComponent extends ConsumerStatefulWidget {
   const _SearchComponent({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  _SearchComponentState createState() => _SearchComponentState();
+}
+
+class _SearchComponentState extends ConsumerState {
+  @override
+  Widget build(BuildContext context) {
 
     Timer? _debounce;
+    TextEditingController _searchController = TextEditingController(text: ref.read(activitiesProvider).textSearch);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
@@ -205,26 +212,25 @@ class _SearchComponent extends ConsumerWidget {
         alignment: Alignment.centerRight,
         children: [
           TextFormField(
-            style: const TextStyle(fontSize: 12.0),
-            //controller: _searchController,
+            style: const TextStyle(fontSize: 14.0),
+            //initialValue:  ?? '',
+            controller: _searchController,
             onChanged: (String value) {
               if (_debounce?.isActive ?? false) _debounce?.cancel();
               _debounce = Timer(const Duration(milliseconds: 500), () {
                 print('Searching for: $value');
-                ref
-                    .read(activitiesProvider.notifier)
-                    .onChangeTextSearch(value);
+                ref.read(activitiesProvider.notifier).onChangeTextSearch(value);
               });
             },
             decoration: InputDecoration(
               hintText: 'Buscar actividad...',
               filled: true,
               fillColor: Colors.grey[200],
-              border: OutlineInputBorder( 
+              border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(20.0),
-                borderSide: BorderSide.none, 
+                borderSide: BorderSide.none,
               ),
-              enabledBorder: OutlineInputBorder( 
+              enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(20.0),
                 borderSide: BorderSide.none,
               ),
@@ -232,24 +238,28 @@ class _SearchComponent extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(20.0),
                 borderSide: BorderSide.none,
               ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 18.0),
-              hintStyle: const TextStyle(fontSize: 12.0),
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 0, horizontal: 18.0),
+              hintStyle: const TextStyle(fontSize: 14.0, color: Colors.black38),
             ),
           ),
           if (ref.watch(activitiesProvider).textSearch != "")
             IconButton(
               onPressed: () {
-                ref.read(activitiesProvider.notifier).onChangeNotIsActiveSearch();
+                ref
+                    .read(activitiesProvider.notifier)
+                    .onChangeNotIsActiveSearch();
+                _searchController.text = '';
+                /*setState(() {
+                });*/
               },
-              icon: const Icon(Icons.clear, size: 18.0), 
+              icon: const Icon(Icons.clear, size: 18.0),
             ),
         ],
       ),
     );
   }
 }
-
-
 
 
 class _ListActivities extends StatelessWidget {
@@ -282,8 +292,7 @@ class _ListActivities extends StatelessWidget {
                       ),
                     ],
                   ),
-                )
-            ),
+                )),
           )
         : RefreshIndicator(
             onRefresh: onRefreshCallback,

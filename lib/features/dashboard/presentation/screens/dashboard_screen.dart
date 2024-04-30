@@ -1,3 +1,7 @@
+import 'package:crm_app/features/activities/presentation/providers/activities_provider.dart';
+import 'package:crm_app/features/activities/presentation/widgets/item_activity_small.dart';
+import 'package:crm_app/features/agenda/presentation/providers/events_provider.dart';
+import 'package:crm_app/features/agenda/presentation/widgets/item_event_small.dart';
 import 'package:crm_app/features/kpis/domain/domain.dart';
 import 'package:crm_app/features/kpis/presentation/providers/kpis_provider.dart';
 import 'package:crm_app/features/location/presentation/providers/gps_provider.dart';
@@ -147,9 +151,8 @@ class _DashboardViewState extends ConsumerState {
         ref.read(gpsProvider.notifier).state.isGpsPermissionGranted;
 
     if (!isGpsPermissionGranted) {
-        ref.read(gpsProvider.notifier).askGpsAccess();
+      ref.read(gpsProvider.notifier).askGpsAccess();
     }
-    
   }
 
   @override
@@ -160,6 +163,9 @@ class _DashboardViewState extends ConsumerState {
   @override
   Widget build(BuildContext context) {
     final kpisState = ref.watch(kpisProvider);
+
+    final activitiesState = ref.watch(activitiesProvider);
+    final eventsState = ref.watch(eventsProvider);
 
     DateTime date = DateTime.now();
     String dateCurrent = DateFormat.yMMMMEEEEd('es').format(date);
@@ -273,9 +279,144 @@ class _DashboardViewState extends ConsumerState {
                         ],
                       )),
                 )
-              : Container()
+              : Container(),
+          
+          if (eventsState.linkedEventsList.length >= 0)
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.all(20),
+              height: 300,
+              decoration: BoxDecoration(
+                color: Colors
+                    .white,
+                borderRadius: BorderRadius.circular(
+                    14),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(
+                        0.3), 
+                    spreadRadius: 5,
+                    blurRadius: 7,
+                    offset: const Offset(
+                        0, 3),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                        child: Text(
+                          'Eventos',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            context.push('/agenda');
+                            // Acción cuando se presiona el botón
+                          },
+                          child: Text('Ver más'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Container(
+                    width: double.infinity,
+                    height: 220,
+                    child: ListView.separated(
+                      separatorBuilder: (BuildContext context, int index) =>
+                            const Divider(height: 2),
+                        itemCount: eventsState.linkedEventsList.length > 5
+                            ? 5
+                            : eventsState.linkedEventsList.length,
+                        itemBuilder: (context, index) {
+                          final event = eventsState.linkedEventsList[index];
+
+                          return ItemEventSmall(
+                            event: event,
+                          );
+                        }),
+                  )
+                ],
+              ),
+            ),
+          
+          if (activitiesState.activities.length >= 0)
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.all(20),
+              height: 300,
+              decoration: BoxDecoration(
+                color: Colors
+                    .white,
+                borderRadius: BorderRadius.circular(
+                    14),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(
+                        0.3), 
+                    spreadRadius: 5,
+                    blurRadius: 7,
+                    offset: const Offset(
+                        0, 3),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                        child: Text(
+                          'Actividades',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            context.push('/activities');
+                            // Acción cuando se presiona el botón
+                          },
+                          child: Text('Ver más'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Container(
+                    width: double.infinity,
+                    height: 220,
+                    child: ListView.separated(
+                      separatorBuilder: (BuildContext context, int index) =>
+                            const Divider(height: 2),
+                        itemCount: activitiesState.activities.length > 5
+                            ? 5
+                            : activitiesState.activities.length,
+                        itemBuilder: (context, index) {
+                          final activity = activitiesState.activities[index];
+
+                          return ItemActivitySmall(
+                            activity: activity,
+                          );
+                        }),
+                  )
+                ],
+              ),
+            ),
         ],
       ),
+
     );
   }
 

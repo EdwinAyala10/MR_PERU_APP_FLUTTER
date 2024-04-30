@@ -27,7 +27,9 @@ class ContactsScreen extends ConsumerWidget {
       drawer: SideMenu(scaffoldKey: scaffoldKey),
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Contacto', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20), textAlign: TextAlign.center) ,
+        title: const Text('Contacto',
+            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
+            textAlign: TextAlign.center),
         /*actions: [
           if (isActiveSearch) const SizedBox(width: 58),
           if (isActiveSearch)
@@ -144,8 +146,9 @@ class _SearchComponent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     Timer? _debounce;
+    TextEditingController _searchController =
+        TextEditingController(text: ref.read(contactsProvider).textSearch);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
@@ -154,26 +157,24 @@ class _SearchComponent extends ConsumerWidget {
         alignment: Alignment.centerRight,
         children: [
           TextFormField(
-            style: const TextStyle(fontSize: 12.0),
-            //controller: _searchController,
+            style: const TextStyle(fontSize: 14.0),
+            controller: _searchController,
             onChanged: (String value) {
               if (_debounce?.isActive ?? false) _debounce?.cancel();
               _debounce = Timer(const Duration(milliseconds: 500), () {
                 print('Searching for: $value');
-                ref
-                    .read(contactsProvider.notifier)
-                    .onChangeTextSearch(value);
+                ref.read(contactsProvider.notifier).onChangeTextSearch(value);
               });
             },
             decoration: InputDecoration(
               hintText: 'Buscar contacto...',
               filled: true,
               fillColor: Colors.grey[200],
-              border: OutlineInputBorder( 
+              border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(20.0),
-                borderSide: BorderSide.none, 
+                borderSide: BorderSide.none,
               ),
-              enabledBorder: OutlineInputBorder( 
+              enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(20.0),
                 borderSide: BorderSide.none,
               ),
@@ -181,16 +182,18 @@ class _SearchComponent extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(20.0),
                 borderSide: BorderSide.none,
               ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 18.0),
-              hintStyle: const TextStyle(fontSize: 12.0),
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 0, horizontal: 18.0),
+              hintStyle: const TextStyle(fontSize: 14.0, color: Colors.black38),
             ),
           ),
           if (ref.watch(contactsProvider).textSearch != "")
             IconButton(
               onPressed: () {
                 ref.read(contactsProvider.notifier).onChangeNotIsActiveSearch();
+                _searchController.text = '';
               },
-              icon: const Icon(Icons.clear, size: 18.0), 
+              icon: const Icon(Icons.clear, size: 18.0),
             ),
         ],
       ),

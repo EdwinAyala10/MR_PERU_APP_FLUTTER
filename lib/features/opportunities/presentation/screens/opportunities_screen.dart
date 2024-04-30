@@ -151,16 +151,17 @@ class _SearchComponent extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
 
     Timer? _debounce;
+    TextEditingController _searchController = TextEditingController(text: ref.read(opportunitiesProvider).textSearch);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+      padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 6.0),
       width: double.infinity,
       child: Stack(
         alignment: Alignment.centerRight,
         children: [
           TextFormField(
             style: const TextStyle(fontSize: 12.0),
-            //controller: _searchController,
+            controller: _searchController,
             onChanged: (String value) {
               if (_debounce?.isActive ?? false) _debounce?.cancel();
               _debounce = Timer(const Duration(milliseconds: 500), () {
@@ -187,13 +188,14 @@ class _SearchComponent extends ConsumerWidget {
                 borderSide: BorderSide.none,
               ),
               contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 18.0),
-              hintStyle: const TextStyle(fontSize: 12.0),
+              hintStyle: const TextStyle(fontSize: 14.0, color: Colors.black38),
             ),
           ),
           if (ref.watch(opportunitiesProvider).textSearch != "")
             IconButton(
               onPressed: () {
                 ref.read(opportunitiesProvider.notifier).onChangeNotIsActiveSearch();
+                _searchController.text = '';
               },
               icon: const Icon(Icons.clear, size: 18.0), 
             ),

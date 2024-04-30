@@ -71,9 +71,9 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
 
   void onChangeNotIsActiveSearch() {
     state = state.copyWith(isActiveSearch: false, textSearch: '');
-    if (state.textSearch != "") {
+    //if (state.textSearch != "") {
       loadNextPage('');
-    }
+    //}
   }
 
   Future loadNextPage(String search) async {

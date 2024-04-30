@@ -18,8 +18,8 @@ class CompaniesRepositoryImpl extends CompaniesRepository {
   }
 
   @override
-  Future<List<Company>> getCompanies(String search) {
-    return datasource.getCompanies(search);
+  Future<List<Company>> getCompanies({ int limit = 10, int offset = 0, String search = '' }) {
+    return datasource.getCompanies(limit: limit, offset: offset, search: search);
   }
 
   @override

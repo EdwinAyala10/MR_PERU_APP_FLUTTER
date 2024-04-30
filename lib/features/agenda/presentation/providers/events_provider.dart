@@ -92,6 +92,7 @@ class EventsNotifier extends StateNotifier<EventsState> {
     state = state.copyWith(isLoading: true);
 
     final linkedEvents = await eventsRepository.getEvents();
+    final linkedEventsList = await eventsRepository.getEventsList();
 
     if (linkedEvents.isEmpty) {
       state = state.copyWith(isLoading: false, isLastPage: true);
@@ -102,6 +103,7 @@ class EventsNotifier extends StateNotifier<EventsState> {
         isLastPage: false,
         isLoading: false,
         offset: state.offset + 10,
+        linkedEventsList:  linkedEventsList,
         //linkedEvents: [...state.linkedEvents, ...linkedEvents]
         linkedEvents: LinkedHashMap.from(state.linkedEvents)
           ..addAll(linkedEvents));
@@ -118,6 +120,7 @@ class EventsState {
   final DateTime focusedDay;
   final List<Event> selectedEvents;
   final LinkedHashMap<DateTime, List<Event>> linkedEvents;
+  final List<Event> linkedEventsList;
 
   EventsState(
       {this.isLastPage = false,
@@ -126,6 +129,7 @@ class EventsState {
       this.isLoading = false,
       this.events = const [],
       this.selectedEvents = const [],
+      this.linkedEventsList = const [],
       DateTime? selectedDay,
       DateTime? focusedDay,
       LinkedHashMap<DateTime, List<Event>>? linkedEvents})
@@ -143,6 +147,7 @@ class EventsState {
     DateTime? selectedDay,
     DateTime? focusedDay,
     LinkedHashMap<DateTime, List<Event>>? linkedEvents,
+    List<Event>? linkedEventsList,
   }) =>
       EventsState(
         isLastPage: isLastPage ?? this.isLastPage,
@@ -151,6 +156,7 @@ class EventsState {
         isLoading: isLoading ?? this.isLoading,
         events: events ?? this.events,
         selectedEvents: selectedEvents ?? this.selectedEvents,
+        linkedEventsList: linkedEventsList ?? this.linkedEventsList,
         selectedDay: selectedDay ?? this.selectedDay,
         focusedDay: focusedDay ?? this.focusedDay,
         linkedEvents: linkedEvents ?? this.linkedEvents,
