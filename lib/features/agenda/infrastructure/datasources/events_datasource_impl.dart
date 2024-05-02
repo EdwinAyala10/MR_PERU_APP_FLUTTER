@@ -75,6 +75,7 @@ class EventsDatasourceImpl extends EventsDatasource {
 
   @override
   Future<LinkedHashMap<DateTime, List<Event>>> getEvents() async {
+    try {
     final response = await dio.post('/evento/listar-evento-by-id-tipo-gestion');
     //final List<Event> events = [];
     LinkedHashMap<DateTime, List<Event>> linkedEvents = LinkedHashMap();
@@ -96,17 +97,28 @@ class EventsDatasourceImpl extends EventsDatasource {
     }
 
     return linkedEvents;
+    } on DioException catch (e) {
+      throw Exception();
+    } catch (e) {
+      throw Exception();
+    }
   }
 
   @override
   Future<List<Event>> getEventsList() async {
-    final response = await dio.post('/evento/listar-evento-by-id-tipo-gestion');
-    final List<Event> events = [];
-    for (final event in response.data['data'] ?? []) {
-      events.add(EventMapper.jsonToEntity(event));
-    }
+    try {
+      final response = await dio.post('/evento/listar-evento-by-id-tipo-gestion');
+      final List<Event> events = [];
+      for (final event in response.data['data'] ?? []) {
+        events.add(EventMapper.jsonToEntity(event));
+      }
 
-    return events;
+      return events;
+    } on DioException catch (e) {
+      throw Exception();
+    } catch (e) {
+      throw Exception();
+    }
   }
 
   @override

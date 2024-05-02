@@ -28,7 +28,6 @@ class ActivityCallNotifier extends StateNotifier<ActivityCallState> {
 
   Activity newActivityCall(String contactoId, String contactoNombre,
       String horaActividad, String duracion, String ruc, String razon) {
-    var activity = state.activity;
 
     List<ContactArray> actividadesContacto = [];
 
@@ -63,8 +62,6 @@ class ActivityCallNotifier extends StateNotifier<ActivityCallState> {
 
   void onInitialCallChanged() {
     var initialDateTime = DateTime.now();
-    print('STATUS REAL initialDateTime: $initialDateTime');
-    print('INICIO LLAMADA ${state.phone}');
     state = state.copyWith(callStarting: initialDateTime);
   }
 
@@ -142,7 +139,7 @@ class ActivityCallNotifier extends StateNotifier<ActivityCallState> {
         'ACTI_ID_TIPO_GESTION': activityCall.actiIdTipoGestion,
         //'ACTI_FECHA_ACTIVIDAD': activityCall.actiFechaActividad,
         "ACTI_FECHA_ACTIVIDAD":
-            "${activityCall.actiFechaActividad.year.toString().padLeft(4, '0')}-${activityCall.actiFechaActividad?.month.toString().padLeft(2, '0')}-${activityCall.actiFechaActividad.day.toString().padLeft(2, '0')}",
+            "${activityCall.actiFechaActividad.year.toString().padLeft(4, '0')}-${activityCall.actiFechaActividad.month.toString().padLeft(2, '0')}-${activityCall.actiFechaActividad.day.toString().padLeft(2, '0')}",
         'ACTI_HORA_ACTIVIDAD': activityCall.actiHoraActividad,
         'ACTI_RUC': activityCall.actiRuc,
         'ACTI_RAZON': activityCall.actiRazon,

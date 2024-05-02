@@ -74,11 +74,11 @@ class KpiFormNotifier extends StateNotifier<KpiFormState> {
       'OBJR_NOMNRE_TIPO': state.objrNombreTipo,
       'OBJR_CANTIDAD': state.objrCantidad,
       'OBJR_NOMNRE_PERIODICIDAD': state.objrNombrePeriodicidad,
-      'ARRAYUSERASIGNACION': state.arrayuserasignacion != null
+      'USUARIOS_ASIGNADOS': state.arrayuserasignacion != null
           ? List<dynamic>.from(
               state.arrayuserasignacion!.map((x) => x.toJson()))
           : [],
-      'PEOB_ID_PERIODICIDAD': state.peobIdPeriodicidad != null
+      'OBJETIVO_PERIODICIDAD_CALENDARIO': state.peobIdPeriodicidad != null
           ? List<dynamic>.from(state.peobIdPeriodicidad!.map((x) => x.toJson()))
           : [],
     };

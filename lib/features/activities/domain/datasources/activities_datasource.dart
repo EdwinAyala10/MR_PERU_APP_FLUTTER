@@ -1,4 +1,5 @@
 import 'package:crm_app/features/activities/domain/domain.dart';
+import 'package:crm_app/features/opportunities/domain/entities/status_opportunity.dart';
 
 abstract class ActivitiesDatasource {
 

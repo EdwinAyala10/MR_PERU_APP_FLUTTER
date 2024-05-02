@@ -1,3 +1,4 @@
+import 'package:crm_app/features/opportunities/domain/entities/status_opportunity.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:crm_app/features/opportunities/domain/domain.dart';
 
@@ -97,6 +98,25 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
         opportunities: opportunities
     );
   }
+
+  Future loadStatusOpportunity() async {
+    if (state.isLoadingStatus) return;
+
+    state = state.copyWith(isLoading: true);
+
+    final statusOpportunitiy =
+        await opportunitiesRepository.getStatusOpportunityByPeriod();
+
+    if (statusOpportunitiy.isEmpty) {
+      state = state.copyWith(isLoadingStatus: false);
+      return;
+    }
+
+    state = state.copyWith(
+        isLoadingStatus: false,
+        statusOpportunity: statusOpportunitiy
+    );
+  }
 }
 
 class OpportunitiesState {
@@ -104,7 +124,9 @@ class OpportunitiesState {
   final int limit;
   final int offset;
   final bool isLoading;
+  final bool isLoadingStatus;
   final List<Opportunity> opportunities;
+  final List<StatusOpportunity> statusOpportunity;
   final bool isActiveSearch;
   final String textSearch;
 
@@ -113,8 +135,10 @@ class OpportunitiesState {
       this.limit = 10,
       this.offset = 0,
       this.isLoading = false,
+      this.isLoadingStatus = false,
       this.isActiveSearch = false,
       this.textSearch = '',
+      this.statusOpportunity = const [],
       this.opportunities = const []});
 
   OpportunitiesState copyWith({
@@ -122,7 +146,9 @@ class OpportunitiesState {
     int? limit,
     int? offset,
     bool? isLoading,
+    bool? isLoadingStatus,
     List<Opportunity>? opportunities,
+    List<StatusOpportunity>? statusOpportunity,
     bool? isActiveSearch,
     String? textSearch,
   }) =>
@@ -131,7 +157,9 @@ class OpportunitiesState {
         limit: limit ?? this.limit,
         offset: offset ?? this.offset,
         isLoading: isLoading ?? this.isLoading,
+        isLoadingStatus: isLoadingStatus ?? this.isLoadingStatus,
         opportunities: opportunities ?? this.opportunities,
+        statusOpportunity: statusOpportunity ?? this.statusOpportunity,
         isActiveSearch: isActiveSearch ?? this.isActiveSearch,
         textSearch: textSearch ?? this.textSearch,
       );

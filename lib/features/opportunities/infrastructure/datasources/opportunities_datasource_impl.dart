@@ -1,4 +1,6 @@
+import 'package:crm_app/features/opportunities/domain/entities/status_opportunity.dart';
 import 'package:crm_app/features/opportunities/infrastructure/mappers/opportunity_response_mapper.dart';
+import 'package:crm_app/features/opportunities/infrastructure/mappers/status_opportunity_mapper.dart';
 import 'package:dio/dio.dart';
 import 'package:crm_app/config/config.dart';
 import 'package:crm_app/features/opportunities/domain/domain.dart';
@@ -70,7 +72,9 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
   Future<List<Opportunity>> getOpportunities(String ruc, String search) async {
     final data = {
       "RUC": ruc,
-      "SEARCH": search
+      "SEARCH": search,
+      "OFFSET": '',
+      "TOP": ''
     };
 
     final response = await dio
@@ -103,5 +107,23 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
     }
 
     return opportunities;
+  }
+
+  @override
+  Future<List<StatusOpportunity>> getStatusOpportunityByPeriod() async {
+    try {
+      final response =
+          await dio.post('/oportunidad/listar-estado-oportunidad-by-periodo');
+      final List<StatusOpportunity> statusOpportunity = [];
+      for (final status in response.data['data'] ?? []) {
+        statusOpportunity.add(StatusOpportunityMapper.jsonToEntity(status));
+      }
+
+      return statusOpportunity;  
+    } on DioException catch (e) {
+      throw Exception();
+    } catch (e) {
+      throw Exception();
+    }
   }
 }

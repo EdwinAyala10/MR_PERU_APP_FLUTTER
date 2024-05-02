@@ -1,4 +1,5 @@
 import 'package:crm_app/features/opportunities/domain/domain.dart';
+import 'package:crm_app/features/opportunities/domain/entities/status_opportunity.dart';
 
 class OpportunitiesRepositoryImpl extends OpportunitiesRepository {
 
@@ -24,6 +25,11 @@ class OpportunitiesRepositoryImpl extends OpportunitiesRepository {
   @override
   Future<List<Opportunity>> searchOpportunities(String ruc, String query) {
     return datasource.searchOpportunities(ruc, query);
+  }
+
+  @override
+  Future<List<StatusOpportunity>> getStatusOpportunityByPeriod() {
+    return datasource.getStatusOpportunityByPeriod();
   }
 
 }

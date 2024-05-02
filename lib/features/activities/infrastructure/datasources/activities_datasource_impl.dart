@@ -70,17 +70,26 @@ class ActivitiesDatasourceImpl extends ActivitiesDatasource {
 
   @override
   Future<List<Activity>> getActivities(String search) async {
-    print('CARGO ACTIVIDADES');
-    final response =
-        await dio.post('/actividad/listar-actividad-by-id-tipo-gestion', data: {
-          'SEARCH': search
-        });
-    final List<Activity> activities = [];
-    for (final activity in response.data['data'] ?? []) {
-      activities.add(ActivityMapper.jsonToEntity(activity));
-    }
+    try {
+      print('CARGO ACTIVIDADES');
+      final response =
+          await dio.post('/actividad/listar-actividad-by-id-tipo-gestion', 
+          data: {
+            'SEARCH': '',
+            'OFFSET': '',
+            'TOP': ''
+          });
+      final List<Activity> activities = [];
+      for (final activity in response.data['data'] ?? []) {
+        activities.add(ActivityMapper.jsonToEntity(activity));
+      }
 
-    return activities;
+      return activities;  
+    } on DioException catch (e) {
+      throw Exception();
+    } catch (e) {
+      throw Exception();
+    }
   }
 
   @override
@@ -100,4 +109,5 @@ class ActivitiesDatasourceImpl extends ActivitiesDatasource {
 
     return activities;
   }
+
 }

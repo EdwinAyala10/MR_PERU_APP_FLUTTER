@@ -1,13 +1,13 @@
 import 'package:crm_app/features/activities/domain/domain.dart';
 
 class ActivitiesRepositoryImpl extends ActivitiesRepository {
-
   final ActivitiesDatasource datasource;
 
   ActivitiesRepositoryImpl(this.datasource);
 
   @override
-  Future<ActivityResponse> createUpdateActivity(Map<dynamic, dynamic> activityLike) {
+  Future<ActivityResponse> createUpdateActivity(
+      Map<dynamic, dynamic> activityLike) {
     return datasource.createUpdateActivity(activityLike);
   }
 
