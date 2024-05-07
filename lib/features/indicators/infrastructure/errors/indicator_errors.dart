@@ -1,0 +1,4 @@
+
+
+
+class IndicatorNotFound implements Exception {}
