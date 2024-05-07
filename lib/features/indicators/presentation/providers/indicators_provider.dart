@@ -4,8 +4,6 @@ import 'package:crm_app/features/indicators/presentation/providers/indicators_re
 import 'package:crm_app/features/kpis/domain/entities/array_user.dart';
 import 'package:crm_app/features/users/domain/domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:crm_app/features/kpis/domain/domain.dart';
-
 
 final indicatorsProvider =
     StateNotifierProvider<IndicatorsNotifier, IndicatorsState>((ref) {
@@ -16,7 +14,8 @@ final indicatorsProvider =
 class IndicatorsNotifier extends StateNotifier<IndicatorsState> {
   final IndicatorsRepository indicatorsRepository;
 
-  IndicatorsNotifier({required this.indicatorsRepository}) : super(IndicatorsState()) {
+  IndicatorsNotifier({required this.indicatorsRepository})
+      : super(IndicatorsState()) {
     //loadNextPage();
   }
 
@@ -50,17 +49,24 @@ class IndicatorsNotifier extends StateNotifier<IndicatorsState> {
 
   void onDeleteUserChanged(ArrayUser item) {
     List<ArrayUser> arrayUsuarios = state.arrayresponsables!
-        .where((user) => user.oresIdOportunidadResp != item.oresIdOportunidadResp)
+        .where(
+            (user) => user.oresIdOportunidadResp != item.oresIdOportunidadResp)
         .toList();
-    state = state.copyWith(
-        arrayresponsables: arrayUsuarios);
+    state = state.copyWith(arrayresponsables: arrayUsuarios);
   }
 
+  void resetForm() {
+    state = state.copyWith(
+        dateEnd: DateTime.now(),
+        dateInitial: DateTime.now(),
+        arrayresponsables: []);
+  }
 
   Future<SendIndicatorsResponse> sendIndicators(
       Map<dynamic, dynamic> params) async {
     try {
-      final indicatorsResponse = await indicatorsRepository.sendIndicators(params);
+      final indicatorsResponse =
+          await indicatorsRepository.sendIndicators(params);
 
       final message = indicatorsResponse.message;
 
@@ -74,7 +80,6 @@ class IndicatorsNotifier extends StateNotifier<IndicatorsState> {
           response: false, message: 'Error, revisar con su administrador.');
     }
   }
-
 }
 
 class IndicatorsState {
@@ -84,7 +89,10 @@ class IndicatorsState {
   final bool isSend;
 
   IndicatorsState(
-      {this.dateInitial, this.dateEnd, this.arrayresponsables = const [], this.isSend = false});
+      {this.dateInitial,
+      this.dateEnd,
+      this.arrayresponsables = const [],
+      this.isSend = false});
 
   IndicatorsState copyWith({
     DateTime? dateInitial,
