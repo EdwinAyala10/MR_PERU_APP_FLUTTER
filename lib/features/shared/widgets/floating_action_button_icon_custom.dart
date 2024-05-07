@@ -5,7 +5,7 @@ class FloatingActionButtonIconCustom extends StatelessWidget {
   final IconData iconData;
   final Function()? callOnPressed;
 
-  FloatingActionButtonIconCustom({
+  const FloatingActionButtonIconCustom({
     required this.label,
     required this.callOnPressed,
     required this.iconData,
@@ -15,7 +15,7 @@ class FloatingActionButtonIconCustom extends StatelessWidget {
   Widget build(BuildContext context) {
     return FloatingActionButton.extended(
       onPressed: callOnPressed,
-      backgroundColor: Color.fromARGB(255, 247, 106, 19),
+      backgroundColor: const Color.fromARGB(255, 247, 106, 19),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(28.0), // Ajusta el radio para cambiar el tamaño del borde redondeado
       ),
@@ -26,7 +26,7 @@ class FloatingActionButtonIconCustom extends StatelessWidget {
             padding: const EdgeInsets.only(right: 6.0),
             child: Text(
               label,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 18,
                 color: Colors.white // Tamaño de fuente ajustable según tus necesidades
               ),

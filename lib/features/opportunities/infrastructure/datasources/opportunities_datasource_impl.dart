@@ -69,18 +69,12 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
   }
 
   @override
-  Future<List<Opportunity>> getOpportunities(String ruc, String search) async {
-    final data = {
-      "RUC": ruc,
-      "SEARCH": search,
-      "OFFSET": '',
-      "TOP": ''
-    };
+  Future<List<Opportunity>> getOpportunities(
+      {String ruc = '', String search = '', int offset = 0, int limit = 10}) async {
+    final data = {"RUC": ruc, "SEARCH": search, "OFFSET": offset, "TOP": limit};
 
     final response = await dio
         .post('/oportunidad/listar-oportunidades-by-ruc-est', data: data);
-
-    print('PRINT CREATE OPPORU_ ${response}');
 
     final List<Opportunity> opportunities = [];
     for (final opportunity in response.data['data'] ?? []) {
@@ -91,16 +85,13 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
   }
 
   @override
-  Future<List<Opportunity>> searchOpportunities(String ruc, String query) async {
-    final data = {
-      "OPRT_NOMBRE": query,
-      "OPRT_RUC": ruc
-    };
+  Future<List<Opportunity>> searchOpportunities(
+      String ruc, String query) async {
+    final data = {"OPRT_NOMBRE": query, "OPRT_RUC": ruc};
 
     final response = await dio
         .post('/oportunidad/listar-oportunidades-by-nombre', data: data);
 
-    print(response);
     final List<Opportunity> opportunities = [];
     for (final opportunity in response.data['data'] ?? []) {
       opportunities.add(OpportunityMapper.jsonToEntity(opportunity));
@@ -114,14 +105,13 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
     try {
       final response =
           await dio.post('/oportunidad/listar-estado-oportunidad-by-periodo');
+
       final List<StatusOpportunity> statusOpportunity = [];
       for (final status in response.data['data'] ?? []) {
         statusOpportunity.add(StatusOpportunityMapper.jsonToEntity(status));
       }
 
-      return statusOpportunity;  
-    } on DioException catch (e) {
-      throw Exception();
+      return statusOpportunity;
     } catch (e) {
       throw Exception();
     }

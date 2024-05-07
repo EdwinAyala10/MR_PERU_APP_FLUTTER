@@ -31,8 +31,6 @@ class SearchedCompanyLocalesNotifier extends StateNotifier<List<CompanyLocal>> {
 
   Future<List<CompanyLocal>> searchCompanyLocalesByQuery(String ruc, String query ) async{
     
-    print('SEARCH COMP LOCAL');
-
     final List<CompanyLocal> companyLocales = await searchCompanyLocalesActive(ruc, query);
     ref.read(searchQueryCompanyLocalesProvider.notifier).update((state) => query);
 

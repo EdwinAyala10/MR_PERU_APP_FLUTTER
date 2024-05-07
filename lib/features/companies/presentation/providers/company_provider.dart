@@ -115,7 +115,6 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
   }
 
   Future<void> loadCompany() async {
-    print('SATE RUC ID: ${state.rucId}');
     try {
       if (state.rucId == 'new') {
         state = state.copyWith(
@@ -128,15 +127,13 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
       final company = await companiesRepository.getCompanyById(state.rucId, user.code);
       company.rucId = company.ruc;
 
-      final contacts = await contactsRepository.getContacts(company.ruc, '');
+      final contacts = await contactsRepository.getContacts(ruc: company.ruc, search: '', limit: 100, offset: 0);
       final opportunities =
-          await opportunitiesRepository.getOpportunities(company.ruc, '');
+          await opportunitiesRepository.getOpportunities(ruc:company.ruc, search: '', limit: 100, offset: 0);
       final activities = await activitiesRepository.getActivitiesByRuc(company.ruc);
       final events = await eventsRepository.getEventsListByRuc(company.ruc);
       final companyLocales =
           await companiesRepository.getCompanyLocales(company.ruc);
-
-      print('LENT OPO: ${opportunities.length}');
 
       state = state.copyWith(
         isLoading: false,
@@ -156,7 +153,7 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
 
   Future<void> loadContacts(String ruc) async {
     try {
-      final contacts = await contactsRepository.getContacts(ruc, '');
+      final contacts = await contactsRepository.getContacts(ruc: ruc, search: '', limit: 100, offset: 0);
       state = state.copyWith(contacts: contacts);
     } catch (e) {
       state = state.copyWith(contacts: []);

@@ -1,10 +1,13 @@
+import 'package:crm_app/features/activities/domain/domain.dart';
 import 'package:crm_app/features/activities/presentation/providers/activities_provider.dart';
 import 'package:crm_app/features/activities/presentation/widgets/item_activity_small.dart';
+import 'package:crm_app/features/agenda/domain/domain.dart';
 import 'package:crm_app/features/agenda/presentation/providers/events_provider.dart';
 import 'package:crm_app/features/agenda/presentation/widgets/item_event_small.dart';
 import 'package:crm_app/features/kpis/domain/domain.dart';
 import 'package:crm_app/features/kpis/presentation/providers/kpis_provider.dart';
 import 'package:crm_app/features/location/presentation/providers/gps_provider.dart';
+import 'package:crm_app/features/opportunities/domain/entities/status_opportunity.dart';
 import 'package:crm_app/features/opportunities/presentation/providers/providers.dart';
 import 'package:crm_app/features/shared/presentation/providers/notifications_provider.dart';
 import 'package:crm_app/features/shared/shared.dart';
@@ -14,17 +17,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-class DashboardScreen extends StatefulWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
+  _DashboardScreenState createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen>
+class _DashboardScreenState extends ConsumerState<DashboardScreen>
     with SingleTickerProviderStateMixin {
   late Animation<double> _animation;
   late AnimationController _animationController;
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
 
   @override
   void initState() {
@@ -49,15 +54,20 @@ class _DashboardScreenState extends State<DashboardScreen>
       appBar: AppBar(
         title: const Text('Dashboard'),
       ),
-      body: const _DashboardView(),
+      body: RefreshIndicator(
+        key: _refreshIndicatorKey,
+        onRefresh: _refreshData,
+        child: _DashboardView()
+      ),
       floatingActionButton: FloatingActionBubble(
         animation: _animation,
         onPressed: () => _animationController.isCompleted
             ? _animationController.reverse()
             : _animationController.forward(),
-        iconColor: Colors.blue,
+        iconColor: Colors.white,
         iconData: Icons.add,
-        backgroundColor: Colors.white,
+        shape: const CircleBorder(),
+        backgroundColor: const Color.fromARGB(255, 247, 106, 19),
         items: <Widget>[
           /*BubbleMenu(
             title: 'Nueva tarea',
@@ -129,6 +139,17 @@ class _DashboardScreenState extends State<DashboardScreen>
       ),
     );
   }
+
+  Future<void> _refreshData() async {
+    // Put here the operations you want to execute when refreshing
+    await Future.wait([
+      ref.read(kpisProvider.notifier).loadNextPage(),
+      ref.read(eventsProvider.notifier).loadNextPage(),
+      ref.read(activitiesProvider.notifier).loadNextPage(isRefresh: true),
+      ref.read(opportunitiesProvider.notifier).loadStatusOpportunity(),
+    ]);
+  }
+  
 }
 
 class _DashboardView extends ConsumerStatefulWidget {
@@ -145,7 +166,8 @@ class _DashboardViewState extends ConsumerState {
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       ref.read(kpisProvider.notifier).loadNextPage();
       ref.read(eventsProvider.notifier).loadNextPage();
-      ref.read(activitiesProvider.notifier).loadNextPage('');
+      ref.read(activitiesProvider.notifier).loadNextPage(isRefresh: true);
+
       ref.read(opportunitiesProvider.notifier).loadStatusOpportunity();
 
       ref.read(notificationsProvider.notifier).requestPermission();
@@ -169,6 +191,7 @@ class _DashboardViewState extends ConsumerState {
     final kpisState = ref.watch(kpisProvider);
 
     final activitiesState = ref.watch(activitiesProvider);
+    final opportunitiesState = ref.watch(opportunitiesProvider);
     final eventsState = ref.watch(eventsProvider);
 
     DateTime date = DateTime.now();
@@ -287,210 +310,12 @@ class _DashboardViewState extends ConsumerState {
                         )),
                   )
                 : Container(),
-            if (eventsState.linkedEventsList.length >= 0)
-              Container(
-                width: double.infinity,
-                margin: const EdgeInsets.all(20),
-                height: 300,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.3),
-                      spreadRadius: 5,
-                      blurRadius: 7,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 14),
-                          child: Text(
-                            'Eventos',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 10),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              context.push('/agenda');
-                              // Acción cuando se presiona el botón
-                            },
-                            child: const Text('Ver más'),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      width: double.infinity,
-                      height: 220,
-                      child: ListView.separated(
-                          separatorBuilder: (BuildContext context, int index) =>
-                              const Divider(height: 2),
-                          itemCount: eventsState.linkedEventsList.length > 5
-                              ? 5
-                              : eventsState.linkedEventsList.length,
-                          itemBuilder: (context, index) {
-                            final event = eventsState.linkedEventsList[index];
-
-                            return ItemEventSmall(
-                              event: event,
-                            );
-                          }),
-                    )
-                  ],
-                ),
-              ),
-            if (activitiesState.activities.length >= 0)
-              Container(
-                width: double.infinity,
-                margin: const EdgeInsets.all(20),
-                height: 300,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.3),
-                      spreadRadius: 5,
-                      blurRadius: 7,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 14),
-                          child: Text(
-                            'Actividades',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 10),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              context.push('/activities');
-                              // Acción cuando se presiona el botón
-                            },
-                            child: const Text('Ver más'),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      width: double.infinity,
-                      height: 220,
-                      child: ListView.separated(
-                          separatorBuilder: (BuildContext context, int index) =>
-                              const Divider(height: 2),
-                          itemCount: activitiesState.activities.length > 5
-                              ? 5
-                              : activitiesState.activities.length,
-                          itemBuilder: (context, index) {
-                            final activity = activitiesState.activities[index];
-
-                            return ItemActivitySmall(
-                              activity: activity,
-                            );
-                          }),
-                    )
-                  ],
-                ),
-              ),
-            Container(
-              width: double.infinity,
-              margin: const EdgeInsets.all(20),
-              height: 486,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(14),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.3),
-                    spreadRadius: 5,
-                    blurRadius: 7,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding:
-                            EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-                        child: Text(
-                          'Oportunidades',
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  Text(ref
-                        .watch(opportunitiesProvider)
-                        .statusOpportunity
-                        .length.toString()),
-                  /*ListView.builder(
-                    itemCount: ref
-                        .watch(opportunitiesProvider)
-                        .statusOpportunity
-                        .length,
-                    itemBuilder: (context, index) {
-                      final status = ref
-                          .watch(opportunitiesProvider)
-                          .statusOpportunity[index];
-
-                      Color color;
-
-                      if (status.recdNombre == '1. Contactado') {
-                        color = Colors.red;
-                      } else if (status.recdNombre == '2. Primera visista') {
-                        color = Colors.green;
-                      } else if (status.recdNombre == '3. Oferta enviada') {
-                        color = Colors.blue;
-                      } else if (status.recdNombre == '4. Esperando pedido') {
-                        color = Colors.yellow;
-                      } else if (status.recdNombre == '5. Vendido') {
-                        color = Colors.cyanAccent;
-                      } else if (status.recdNombre == '6. Perdido') {
-                        color = Colors.indigoAccent;
-                      } else {
-                        color = Colors.brown;
-                      }
-
-                      return _ItemOpportunity(
-                          title: status.recdNombre ?? '',
-                          colorCustom: color,
-                          porcentaje: status.totalPorcentaje ?? '');
-
-                    },
-                  ),*/
-
-                ],
-              ),
-            ),
+            _ContainerDashboardEvents(
+                linkedEventsList: eventsState.linkedEventsList),
+            _ContainerDashboardActivities(
+                activities: activitiesState.activities),
+            _ContainerDashboardOpportunities(
+                statusOpportunities: opportunitiesState.statusOpportunity),
             const SizedBox(
               height: 68,
             )
@@ -508,6 +333,251 @@ class _DashboardViewState extends ConsumerState {
       res = (double.parse(res).toInt()).toString();
     }
     return res;
+  }
+}
+
+class _ContainerDashboardOpportunities extends StatelessWidget {
+  List<StatusOpportunity> statusOpportunities;
+
+  _ContainerDashboardOpportunities(
+      {super.key, required this.statusOpportunities});
+
+  @override
+  Widget build(BuildContext context) {
+    double h1 = statusOpportunities.length * 80;
+    double h2 = statusOpportunities.length * 70;
+
+    if (statusOpportunities.length == 0) {
+      return const SizedBox();
+    }
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.all(20),
+      height: h1,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.3),
+            spreadRadius: 5,
+            blurRadius: 7,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+                child: Text(
+                  'Oportunidades',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          Container(
+            width: double.infinity,
+            height: h2,
+            child: ListView.builder(
+              itemCount: statusOpportunities.length,
+              itemBuilder: (context, index) {
+                final status = statusOpportunities[index];
+
+                Color color;
+
+                if (status.recdNombre == '1. Contactado') {
+                  color = Colors.red;
+                } else if (status.recdNombre == '2. Primera visista') {
+                  color = Colors.green;
+                } else if (status.recdNombre == '3. Oferta enviada') {
+                  color = Colors.blue;
+                } else if (status.recdNombre == '4. Esperando pedido') {
+                  color = Colors.yellow;
+                } else if (status.recdNombre == '5. Vendido') {
+                  color = Colors.cyanAccent;
+                } else if (status.recdNombre == '6. Perdido') {
+                  color = Colors.indigoAccent;
+                } else {
+                  color = Colors.brown;
+                }
+
+                return _ItemOpportunity(
+                    title: status.recdNombre ?? '',
+                    colorCustom: color,
+                    porcentaje: status.totalPorcentaje ?? '');
+              },
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class _ContainerDashboardActivities extends StatelessWidget {
+  List<Activity> activities;
+
+  _ContainerDashboardActivities({super.key, required this.activities});
+
+  @override
+  Widget build(BuildContext context) {
+    double h1 = activities.length >= 2 ? 300 : 180;
+    double h2 = activities.length >= 2 ? 220 : 100;
+
+    if (activities.length == 0) {
+      return SizedBox();
+    }
+
+    if (activities.length >= 0) {
+      return Container(
+        width: double.infinity,
+        margin: const EdgeInsets.all(20),
+        height: h1,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3),
+              spreadRadius: 5,
+              blurRadius: 7,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+                  child: Text(
+                    'Actividades',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      context.push('/activities');
+                      // Acción cuando se presiona el botón
+                    },
+                    child: const Text('Ver más'),
+                  ),
+                ),
+              ],
+            ),
+            Container(
+              width: double.infinity,
+              height: h2,
+              child: ListView.separated(
+                  separatorBuilder: (BuildContext context, int index) =>
+                      const Divider(height: 2),
+                  itemCount: activities.length > 5 ? 5 : activities.length,
+                  itemBuilder: (context, index) {
+                    final activity = activities[index];
+
+                    return ItemActivitySmall(
+                      activity: activity,
+                    );
+                  }),
+            )
+          ],
+        ),
+      );
+    } else {
+      return SizedBox();
+    }
+  }
+}
+
+class _ContainerDashboardEvents extends StatelessWidget {
+  List<Event> linkedEventsList;
+
+  _ContainerDashboardEvents({super.key, required this.linkedEventsList});
+
+  @override
+  Widget build(BuildContext context) {
+    if (linkedEventsList.isEmpty) {
+      return const SizedBox();
+    }
+
+    double h1 = linkedEventsList.length >= 2 ? 300 : 180;
+    double h2 = linkedEventsList.length >= 2 ? 220 : 100;
+
+    if (linkedEventsList.length >= 0) {
+      return Container(
+        width: double.infinity,
+        margin: const EdgeInsets.all(20),
+        height: h1,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3),
+              spreadRadius: 5,
+              blurRadius: 7,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+                  child: Text(
+                    'Eventos',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      context.push('/agenda');
+                      // Acción cuando se presiona el botón
+                    },
+                    child: const Text('Ver más'),
+                  ),
+                ),
+              ],
+            ),
+            Container(
+              width: double.infinity,
+              height: h2,
+              child: ListView.separated(
+                  separatorBuilder: (BuildContext context, int index) =>
+                      const Divider(height: 2),
+                  itemCount:
+                      linkedEventsList.length > 5 ? 5 : linkedEventsList.length,
+                  itemBuilder: (context, index) {
+                    final event = linkedEventsList[index];
+
+                    return ItemEventSmall(
+                      event: event,
+                    );
+                  }),
+            )
+          ],
+        ),
+      );
+    } else {
+      return SizedBox();
+    }
   }
 }
 
@@ -532,7 +602,7 @@ class _ItemOpportunity extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.25),
+            color: colorCustom.withOpacity(0.25),
             spreadRadius: 2,
             blurRadius: 4,
             offset: const Offset(0, 3),

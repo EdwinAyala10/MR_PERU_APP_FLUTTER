@@ -156,7 +156,7 @@ class ItemActivity extends StatelessWidget {
         children: [
           Text(
             formattedDate,
-            style: const TextStyle(fontSize: 14, color: Colors.black45),
+            style: const TextStyle(fontSize: 13, color: Colors.black45),
           ),
           Text(activity.actiNombreResponsable ?? '',
               style: const TextStyle(

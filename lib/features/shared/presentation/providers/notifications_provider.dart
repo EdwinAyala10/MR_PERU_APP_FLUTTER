@@ -64,6 +64,8 @@ class NotificationsNotifier extends StateNotifier<NotificationsState> {
 
   void _initialStatusCheck() async {
     final settings = await messaging.getNotificationSettings();
+
+    
     notificationStatusChanged(settings.authorizationStatus);
   }
 

@@ -333,7 +333,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
 
       List<ArrayUser> arrayUsuarios = [...state.arrayresponsables ?? [], array];
 
-      state = state.copyWith(arrayresponsables: arrayUsuarios);
+      state = state.copyWith(arrayresponsables: arrayUsuarios, userreporteName: usuario.name);
     } else {
       state = state;
     }

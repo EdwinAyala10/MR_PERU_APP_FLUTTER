@@ -16,8 +16,6 @@ class LocalNotifications {
     const initializationSettingsAndroid =
         AndroidInitializationSettings('app_icon');
 
-    //TODO ios Configuration
-
     const initializationSettings =
         InitializationSettings(android: initializationSettingsAndroid);
 

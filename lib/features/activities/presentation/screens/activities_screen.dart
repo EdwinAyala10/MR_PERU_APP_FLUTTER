@@ -5,6 +5,7 @@ import 'package:crm_app/features/activities/presentation/providers/providers.dar
 import 'package:crm_app/features/activities/presentation/widgets/item_activity.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
 import 'package:crm_app/features/shared/widgets/loading_modal.dart';
+import 'package:crm_app/features/shared/widgets/no_exist_listview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -17,10 +18,6 @@ class ActivitiesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scaffoldKey = GlobalKey<ScaffoldState>();
-
-    Timer? _debounce;
-    FocusNode _focusNode = FocusNode();
-    final isActiveSearch = ref.watch(activitiesProvider).isActiveSearch;
 
     return Scaffold(
       drawer: SideMenu(scaffoldKey: scaffoldKey),
@@ -148,12 +145,12 @@ class _ActivitiesViewState extends ConsumerState {
     scrollController.addListener(() {
       if ((scrollController.position.pixels + 400) >=
           scrollController.position.maxScrollExtent) {
-        //ref.read(productsProvider.notifier).loadNextPage();
+          ref.read(activitiesProvider.notifier).loadNextPage(isRefresh: false);
       }
     });
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      ref.read(activitiesProvider.notifier).loadNextPage('');
+      ref.read(activitiesProvider.notifier).loadNextPage(isRefresh: true);
       ref.read(activitiesProvider.notifier).onChangeNotIsActiveSearch();
     });
   }
@@ -165,14 +162,8 @@ class _ActivitiesViewState extends ConsumerState {
   }
 
   Future<void> _refresh() async {
-    // Simula una operación asíncrona de actualización de datos
-    //await Future.delayed(Duration(seconds: 1));
-    //setState(() {
-    // Simula la adición de nuevos datos o actualización de los existentes
-    //items = List.generate(20, (index) => "Item ${index + 100}");
-    String text = ref.watch(activitiesProvider).textSearch;
-    ref.read(activitiesProvider.notifier).loadNextPage(text);
-    //});
+    //String text = ref.watch(activitiesProvider).textSearch;
+    ref.read(activitiesProvider.notifier).loadNextPage(isRefresh: true);
   }
 
   @override
@@ -185,11 +176,13 @@ class _ActivitiesViewState extends ConsumerState {
 
     return activitiesState.activities.length > 0
         ? _ListActivities(
-            activities: activitiesState.activities, onRefreshCallback: _refresh)
-        : const _NoExistData();
+            activities: activitiesState.activities, 
+            onRefreshCallback: _refresh,
+            scrollController: scrollController,
+          )
+        : NoExistData(textCenter: 'No hay actividades registradas', icon: Icons.graphic_eq);
   }
 }
-
 
 class _SearchComponent extends ConsumerStatefulWidget {
   const _SearchComponent({super.key});
@@ -201,9 +194,9 @@ class _SearchComponent extends ConsumerStatefulWidget {
 class _SearchComponentState extends ConsumerState {
   @override
   Widget build(BuildContext context) {
-
     Timer? _debounce;
-    TextEditingController _searchController = TextEditingController(text: ref.read(activitiesProvider).textSearch);
+    TextEditingController _searchController =
+        TextEditingController(text: ref.read(activitiesProvider).textSearch);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
@@ -261,30 +254,35 @@ class _SearchComponentState extends ConsumerState {
   }
 }
 
-
-class _ListActivities extends StatelessWidget {
+class _ListActivities extends ConsumerStatefulWidget {
   final List<Activity> activities;
   final Future<void> Function() onRefreshCallback;
+  final ScrollController scrollController;
 
   const _ListActivities(
-      {super.key, required this.activities, required this.onRefreshCallback});
+      {super.key, required this.activities, required this.onRefreshCallback, required this.scrollController});
 
+  @override
+  _ListActivitiesState createState() => _ListActivitiesState();
+}
+
+class _ListActivitiesState extends ConsumerState<_ListActivities> {
   @override
   Widget build(BuildContext context) {
     final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
         GlobalKey<RefreshIndicatorState>();
 
-    return activities.isEmpty
+    return widget.activities.isEmpty
         ? Center(
             child: RefreshIndicator(
-                onRefresh: onRefreshCallback,
+                onRefresh: widget.onRefreshCallback,
                 key: _refreshIndicatorKey,
                 child: SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   child: Column(
                     children: [
                       ElevatedButton(
-                        onPressed: onRefreshCallback,
+                        onPressed: widget.onRefreshCallback,
                         child: const Text('Recargar'),
                       ),
                       const Center(
@@ -294,54 +292,32 @@ class _ListActivities extends StatelessWidget {
                   ),
                 )),
           )
-        : RefreshIndicator(
-            onRefresh: onRefreshCallback,
-            key: _refreshIndicatorKey,
-            child: ListView.separated(
-              itemCount: activities.length,
-              separatorBuilder: (BuildContext context, int index) =>
-                  const Divider(),
-              itemBuilder: (context, index) {
-                final activity = activities[index];
-
-                return ItemActivity(
-                    activity: activity,
-                    callbackOnTap: () {
-                      context.push('/activity_detail/${activity.id}');
-                    });
-              },
+        : NotificationListener(
+          onNotification: (ScrollNotification scrollInfo) {
+            if (scrollInfo.metrics.pixels + 400 == scrollInfo.metrics.maxScrollExtent) {
+              ref.read(activitiesProvider.notifier).loadNextPage(isRefresh: false);
+            }
+            return false;
+          },
+          child: RefreshIndicator(
+              notificationPredicate: defaultScrollNotificationPredicate,
+              onRefresh: widget.onRefreshCallback,
+              key: _refreshIndicatorKey,
+              child: ListView.separated(
+                itemCount: widget.activities.length,
+                separatorBuilder: (BuildContext context, int index) =>
+                    const Divider(),
+                itemBuilder: (context, index) {
+                  final activity = widget.activities[index];
+          
+                  return ItemActivity(
+                      activity: activity,
+                      callbackOnTap: () {
+                        context.push('/activity_detail/${activity.id}');
+                      });
+                },
+              ),
             ),
-          );
-  }
-}
-
-class _NoExistData extends StatelessWidget {
-  const _NoExistData({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-        child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Icon(
-          Icons.business,
-          size: 100,
-          color: Colors.grey,
-        ),
-        const SizedBox(height: 20),
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: Colors.grey.withOpacity(0.1),
-          ),
-          child: const Text(
-            'No hay actividades registradas',
-            style: TextStyle(fontSize: 20, color: Colors.grey),
-          ),
-        ),
-      ],
-    ));
+        );
   }
 }

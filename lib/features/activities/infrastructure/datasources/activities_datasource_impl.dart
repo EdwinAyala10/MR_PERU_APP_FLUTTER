@@ -14,26 +14,22 @@ class ActivitiesDatasourceImpl extends ActivitiesDatasource {
       : dio = Dio(BaseOptions(
             baseUrl: Environment.apiUrl,
             headers: {'Authorization': 'Bearer $accessToken'}));
-
   @override
   Future<ActivityResponse> createUpdateActivity(
       Map<dynamic, dynamic> activityLike) async {
     try {
       final String? id = activityLike['ACTI_ID_ACTIVIDAD'];
-      final String method = 'POST';
-      final String url =  id == null ? '/actividad/create-actividad' : '/actividad/edit-actividad';
-
-      print('ACTIVITY URL: ${url}');
+      const String method = 'POST';
+      final String url = id == null
+          ? '/actividad/create-actividad'
+          : '/actividad/edit-actividad';
 
       if (id == null) {
         activityLike.remove('ACTI_ID_ACTIVIDAD');
       }
-      print('activity LIKE: ${activityLike}');
 
       final response = await dio.request(url,
           data: activityLike, options: Options(method: method));
-
-      print('RESP:${response}');
 
       final ActivityResponse activityResponse =
           ActivityResponseMapper.jsonToEntity(response.data);
@@ -69,24 +65,17 @@ class ActivitiesDatasourceImpl extends ActivitiesDatasource {
   }
 
   @override
-  Future<List<Activity>> getActivities(String search) async {
+  Future<List<Activity>> getActivities({String search = '', int limit = 10, int offset = 0}) async {
     try {
-      print('CARGO ACTIVIDADES');
-      final response =
-          await dio.post('/actividad/listar-actividad-by-id-tipo-gestion', 
-          data: {
-            'SEARCH': '',
-            'OFFSET': '',
-            'TOP': ''
-          });
+      final response = await dio.post(
+          '/actividad/listar-actividad-by-id-tipo-gestion',
+          data: {'SEARCH': '', 'OFFSET': offset, 'TOP': limit});
       final List<Activity> activities = [];
       for (final activity in response.data['data'] ?? []) {
         activities.add(ActivityMapper.jsonToEntity(activity));
       }
 
-      return activities;  
-    } on DioException catch (e) {
-      throw Exception();
+      return activities;
     } catch (e) {
       throw Exception();
     }
@@ -94,7 +83,6 @@ class ActivitiesDatasourceImpl extends ActivitiesDatasource {
 
   @override
   Future<List<Activity>> getActivitiesByRuc(String ruc) async {
-    print('CARGO ACTIVIDADES BY RUC');
 
     final data = {
       "RUC": ruc,
@@ -109,5 +97,4 @@ class ActivitiesDatasourceImpl extends ActivitiesDatasource {
 
     return activities;
   }
-
 }

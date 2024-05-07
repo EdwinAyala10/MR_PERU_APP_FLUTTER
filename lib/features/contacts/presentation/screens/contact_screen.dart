@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:crm_app/features/companies/domain/domain.dart';
 import 'package:crm_app/features/companies/presentation/delegates/search_company_active_delegate.dart';
 import 'package:crm_app/features/companies/presentation/search/search_companies_active_provider.dart';
@@ -216,6 +214,7 @@ class _ContactInformation extends ConsumerWidget {
           
           CustomCompanyField(
             label: 'Celular *',
+            keyboardType: TextInputType.phone,
             initialValue: contactForm.contactoTelefonoc.value,
             onChanged: (String? newValue) {
               ref
@@ -226,12 +225,14 @@ class _ContactInformation extends ConsumerWidget {
           ),
           CustomCompanyField(
             label: 'Teléfono',
+            keyboardType: TextInputType.phone,
             initialValue: contactForm.contactoTelefonof,
             onChanged:
                 ref.read(contactFormProvider(contact).notifier).onPhoneChanged,
           ),
           CustomCompanyField(
             label: 'Email *',
+            keyboardType: TextInputType.emailAddress,
             initialValue: contactForm.contactoEmail,
             onChanged: (String? newValue) {
               ref

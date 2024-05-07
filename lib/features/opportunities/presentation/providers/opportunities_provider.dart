@@ -16,7 +16,7 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
 
   OpportunitiesNotifier({required this.opportunitiesRepository})
       : super(OpportunitiesState()) {
-    loadNextPage('');
+    loadNextPage(isRefresh: true);
   }
 
   Future<CreateUpdateOpportunityResponse> createOrUpdateOpportunity(
@@ -66,43 +66,68 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
 
   void onChangeTextSearch(String text) {
     state = state.copyWith(textSearch: text);
-    print('AAAAA');
-    loadNextPage(text);
+    loadNextPage(isRefresh: true);
   }
 
   void onChangeNotIsActiveSearch() {
     state = state.copyWith(isActiveSearch: false, textSearch: '');
     //if (state.textSearch != "") {
-      loadNextPage('');
+      loadNextPage(isRefresh: true);
     //}
   }
 
-  Future loadNextPage(String search) async {
+  Future loadNextPage({bool isRefresh = false}) async {
+    final search = state.textSearch;
+
     if (state.isLoading || state.isLastPage) return;
 
     state = state.copyWith(isLoading: true);
 
+    int sLimit = state.limit;
+    int sOffset = state.offset;
+
+    if (isRefresh) {
+      sLimit = 10;
+      sOffset = 0;
+    }
+
     final opportunities =
-        await opportunitiesRepository.getOpportunities('', search);
+        await opportunitiesRepository.getOpportunities(
+          ruc: '', 
+          search: search, 
+          limit: sLimit,
+          offset: sOffset
+        );
 
     if (opportunities.isEmpty) {
       state = state.copyWith(isLoading: false, isLastPage: true);
       return;
     }
 
+    int newOffset;
+    List<Opportunity> newOpportunities;
+
+    if (isRefresh) {
+      newOffset = 0;
+      newOpportunities = opportunities;
+    } else {
+      newOffset = state.offset + 10;
+      newOpportunities = [...state.opportunities, ...opportunities];
+    }
+
     state = state.copyWith(
         isLastPage: false,
         isLoading: false,
-        offset: state.offset + 10,
+        offset: newOffset,
         //opportunities: [...state.opportunities, ...opportunities]);
-        opportunities: opportunities
+        opportunities: newOpportunities
     );
   }
 
   Future loadStatusOpportunity() async {
     if (state.isLoadingStatus) return;
 
-    state = state.copyWith(isLoading: true);
+    state = state.copyWith(isLoadingStatus: true);
 
     final statusOpportunitiy =
         await opportunitiesRepository.getStatusOpportunityByPeriod();

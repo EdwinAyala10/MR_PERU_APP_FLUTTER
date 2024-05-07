@@ -21,15 +21,10 @@ class KpisDatasourceImpl extends KpisDatasource {
   Future<KpiResponse> createUpdateKpi(Map<dynamic, dynamic> kpiLike) async {
     try {
       final String? id = kpiLike['OBJR_ID_OBJETIVO'];
-      print('ID CREATE: ${id}');
-      final String method = 'POST';
+      const String method = 'POST';
       final String url = (id == null)
           ? '/objetivo/create-objetivo'
           : '/objetivo/edit-objetivo';
-
-      print('KPILIKE: ${kpiLike}');
-
-      print('URL: ${url}');
 
       if (id == null) {
         kpiLike.remove('OBJR_ID_OBJETIVO');
@@ -37,8 +32,6 @@ class KpisDatasourceImpl extends KpisDatasource {
 
       final response = await dio.request(url,
           data: kpiLike, options: Options(method: method));
-
-      print('RESP:${response}');
 
       final KpiResponse kpiResponse =
           KpiResponseMapper.jsonToEntity(response.data);
@@ -59,13 +52,9 @@ class KpisDatasourceImpl extends KpisDatasource {
   @override
   Future<Kpi> getKpiById(String id) async {
     try {
-      print('ID: ${id}');
       final response = await dio.get('/objetivo/listar-objetivo-by-id/$id');
-      print('RESPONSE KPI ID: ${response}');
 
       final Kpi kpi = KpiMapper.jsonToEntity(response.data['data']);
-
-      print('KPI: ${kpi}');
 
       return kpi;
     } on DioException catch (e) {
@@ -78,8 +67,6 @@ class KpisDatasourceImpl extends KpisDatasource {
 
   @override
   Future<List<Kpi>> getKpis() async {
-    print('CARGO LISTA KPIS');
-    //final response = await dio.post('/objetivo/listar-objetivo-by-asignacion');
     final response = await dio.get('/objetivo/listar-objetivo-dashboard');
 
     final List<Kpi> kpis = [];

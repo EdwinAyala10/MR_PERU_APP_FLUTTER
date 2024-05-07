@@ -16,8 +16,8 @@ void showLoadingMessage( BuildContext context ) {
           width: 100,
           height: 100,
           margin: const EdgeInsets.only( top: 10),
-          child: Column(
-            children: const [
+          child: const Column(
+            children: [
               Text('Procesando...'),
               SizedBox( height: 15 ),
               CircularProgressIndicator( strokeWidth: 3, color: Colors.black )

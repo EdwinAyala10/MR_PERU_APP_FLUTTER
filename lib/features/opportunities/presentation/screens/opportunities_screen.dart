@@ -100,13 +100,13 @@ class _OpportunitiesViewState extends ConsumerState {
     scrollController.addListener(() {
       if ((scrollController.position.pixels + 400) >=
           scrollController.position.maxScrollExtent) {
-        //ref.read(productsProvider.notifier).loadNextPage();
+        ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: true);
       }
       
     });
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      ref.read(opportunitiesProvider.notifier).loadNextPage('');
+      ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: true);
       ref.read(opportunitiesProvider.notifier).onChangeNotIsActiveSearch();
     });
   }
@@ -118,14 +118,8 @@ class _OpportunitiesViewState extends ConsumerState {
   }
 
   Future<void> _refresh() async {
-    // Simula una operación asíncrona de actualización de datos
-    //await Future.delayed(Duration(seconds: 1));
-    //setState(() {
-    // Simula la adición de nuevos datos o actualización de los existentes
-    //items = List.generate(20, (index) => "Item ${index + 100}");
-    String text = ref.watch(opportunitiesProvider).textSearch;
-    ref.read(opportunitiesProvider.notifier).loadNextPage(text);
-    //});
+    //String text = ref.watch(opportunitiesProvider).textSearch;
+    ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: true);
   }
 
   @override
@@ -137,12 +131,14 @@ class _OpportunitiesViewState extends ConsumerState {
     }
 
     return opportunitiesState.opportunities.length > 0
-        ? _ListOpportunities(opportunities: opportunitiesState.opportunities, onRefreshCallback: _refresh)
+        ? _ListOpportunities(
+          opportunities: opportunitiesState.opportunities, 
+          onRefreshCallback: _refresh,
+          scrollController: scrollController,
+          )
         : const _NoExistData();
   }
 }
-
-
 
 class _SearchComponent extends ConsumerWidget {
   const _SearchComponent({super.key});
@@ -160,7 +156,7 @@ class _SearchComponent extends ConsumerWidget {
         alignment: Alignment.centerRight,
         children: [
           TextFormField(
-            style: const TextStyle(fontSize: 12.0),
+            style: const TextStyle(fontSize: 14.0),
             controller: _searchController,
             onChanged: (String value) {
               if (_debounce?.isActive ?? false) _debounce?.cancel();
@@ -206,30 +202,34 @@ class _SearchComponent extends ConsumerWidget {
 }
 
 
-
-
-class _ListOpportunities extends StatelessWidget {
+class _ListOpportunities extends ConsumerStatefulWidget {
   final List<Opportunity> opportunities;
   final Future<void> Function() onRefreshCallback;
+  final ScrollController scrollController;
 
-  const _ListOpportunities({super.key, required this.opportunities, required this.onRefreshCallback});
+  const _ListOpportunities({super.key, required this.opportunities, required this.onRefreshCallback, required this.scrollController});
 
+  @override
+  _ListOpportunitiesState createState() => _ListOpportunitiesState();
+}
+
+class _ListOpportunitiesState extends ConsumerState<_ListOpportunities> {
   @override
   Widget build(BuildContext context) {
     final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
         GlobalKey<RefreshIndicatorState>();
 
-    return opportunities.isEmpty 
+    return widget.opportunities.isEmpty 
     ? Center(
         child: RefreshIndicator(
-          onRefresh: onRefreshCallback,
+          onRefresh: widget.onRefreshCallback,
           key: _refreshIndicatorKey,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             child: Column(
               children: [
                 ElevatedButton(
-                  onPressed: onRefreshCallback,
+                  onPressed: widget.onRefreshCallback,
                   child: const Text('Recargar'),
                 ),
                 const Center(
@@ -239,25 +239,32 @@ class _ListOpportunities extends StatelessWidget {
             ),
           )),
     ) 
-    : RefreshIndicator(
-            onRefresh: onRefreshCallback,
-            key: _refreshIndicatorKey,
-            child: ListView.separated(
-              itemCount: opportunities.length,
-              separatorBuilder: (BuildContext context, int index) => const Divider(),
-              itemBuilder: (context, index) {
-                final opportunity = opportunities[index];
-                return ItemOpportunity(
-                    opportunity: opportunity, callbackOnTap: () {
-                      context.push('/opportunity/${opportunity.id}');
-                    });
-              },
-            )
-      );
+    : NotificationListener(
+      onNotification: (ScrollNotification scrollInfo) {
+        if (scrollInfo.metrics.pixels + 400 == scrollInfo.metrics.maxScrollExtent) {
+          ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: false);
+        }
+        return false;
+      },
+      child: RefreshIndicator(
+              notificationPredicate: defaultScrollNotificationPredicate,
+              onRefresh: widget.onRefreshCallback,
+              key: _refreshIndicatorKey,
+              child: ListView.separated(
+                itemCount: widget.opportunities.length,
+                separatorBuilder: (BuildContext context, int index) => const Divider(),
+                itemBuilder: (context, index) {
+                  final opportunity = widget.opportunities[index];
+                  return ItemOpportunity(
+                      opportunity: opportunity, callbackOnTap: () {
+                        context.push('/opportunity/${opportunity.id}');
+                      });
+                },
+              )
+        ),
+    );
   }
 }
-
-
 
 class _NoExistData extends StatelessWidget {
   const _NoExistData({super.key});

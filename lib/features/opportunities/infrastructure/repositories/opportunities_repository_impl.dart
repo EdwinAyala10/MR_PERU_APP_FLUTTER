@@ -2,13 +2,13 @@ import 'package:crm_app/features/opportunities/domain/domain.dart';
 import 'package:crm_app/features/opportunities/domain/entities/status_opportunity.dart';
 
 class OpportunitiesRepositoryImpl extends OpportunitiesRepository {
-
   final OpportunitiesDatasource datasource;
 
   OpportunitiesRepositoryImpl(this.datasource);
 
   @override
-  Future<OpportunityResponse> createUpdateOpportunity(Map<dynamic, dynamic> opportunityLike) {
+  Future<OpportunityResponse> createUpdateOpportunity(
+      Map<dynamic, dynamic> opportunityLike) {
     return datasource.createUpdateOpportunity(opportunityLike);
   }
 
@@ -18,10 +18,10 @@ class OpportunitiesRepositoryImpl extends OpportunitiesRepository {
   }
 
   @override
-  Future<List<Opportunity>> getOpportunities(String ruc, String search) {
-    return datasource.getOpportunities(ruc, search);
+  Future<List<Opportunity>> getOpportunities({String ruc = '', String search = '',  int limit = 10, int offset = 0}) {
+    return datasource.getOpportunities(ruc: ruc, search: search, offset: offset, limit: limit);
   }
-  
+
   @override
   Future<List<Opportunity>> searchOpportunities(String ruc, String query) {
     return datasource.searchOpportunities(ruc, query);
@@ -31,5 +31,4 @@ class OpportunitiesRepositoryImpl extends OpportunitiesRepository {
   Future<List<StatusOpportunity>> getStatusOpportunityByPeriod() {
     return datasource.getStatusOpportunityByPeriod();
   }
-
 }

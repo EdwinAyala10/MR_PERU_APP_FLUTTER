@@ -14,7 +14,7 @@ class ContactsNotifier extends StateNotifier<ContactsState> {
 
   ContactsNotifier({required this.contactsRepository})
       : super(ContactsState()) {
-    loadNextPage('');
+    loadNextPage(isRefresh: true);
   }
 
   Future<CreateUpdateContactResponse> createOrUpdateContact(
@@ -27,7 +27,6 @@ class ContactsNotifier extends StateNotifier<ContactsState> {
 
       if (contactResponse.status) {
         final contact = contactResponse.contact as Contact;
-        print('LLEGO CONTACT ID: ${contact.id}');
         final isContactInList =
             state.contacts.any((element) => element.id == contact.id);
 
@@ -61,32 +60,59 @@ class ContactsNotifier extends StateNotifier<ContactsState> {
 
   void onChangeTextSearch(String text) {
     state = state.copyWith(textSearch: text);
-    loadNextPage(text);
+    loadNextPage(isRefresh: true);
   }
 
   void onChangeNotIsActiveSearch() {
     state = state.copyWith(isActiveSearch: false, textSearch: '');
     //if (state.textSearch != "") {
-      loadNextPage('');
+      loadNextPage(isRefresh: true);
     //}
   }
 
-  Future loadNextPage(String search) async {
+  Future loadNextPage({bool isRefresh = false}) async {
+    final search = state.textSearch;
+
     if (state.isLoading || state.isLastPage) return;
 
     state = state.copyWith(isLoading: true);
 
-    final contacts = await contactsRepository.getContacts('', search);
+     int sLimit = state.limit;
+    int sOffset = state.offset;
+
+    if (isRefresh) {
+      sLimit = 10;
+      sOffset = 0;
+    }
+
+    final contacts = await contactsRepository.getContacts(
+      search: search,
+      limit: sLimit,
+      offset: sOffset,
+      ruc: ''
+    );
 
     if (contacts.isEmpty) {
       state = state.copyWith(isLoading: false, isLastPage: true);
       return;
     }
 
+    int newOffset;
+    List<Contact> newContacts;
+
+    if (isRefresh) {
+      newOffset = 0;
+      newContacts = contacts;
+    } else {
+      newOffset = state.offset + 10;
+      newContacts = [...state.contacts, ...contacts];
+    }
+
     state = state.copyWith(
       isLastPage: false,
       isLoading: false,
-      contacts: contacts
+      contacts: newContacts,
+      offset: newOffset
     );
 
     /*state = state.copyWith(
@@ -101,7 +127,7 @@ class ContactsNotifier extends StateNotifier<ContactsState> {
 
     state = state.copyWith(isLoading: true);
 
-    final contacts = await contactsRepository.getContacts(ruc, '');
+    final contacts = await contactsRepository.getContacts(ruc: ruc, search: '');
 
     if (contacts.isEmpty) {
       state = state.copyWith(isLoading: false, isLastPage: true);

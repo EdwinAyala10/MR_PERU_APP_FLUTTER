@@ -23,7 +23,6 @@ class UsersDatasourceImpl extends UsersDatasource {
     final response =
         await dio.get('/user/listar-usuarios-by-tipo', data: data);
 
-        print(response);
     final List<UserMaster> users = [];
     for (final user in response.data['data'] ?? []) {
       users.add(UserMasterMapper.jsonToEntity(user));

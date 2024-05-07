@@ -351,6 +351,7 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
           CustomCompanyField(
             isTopField: true,
             label: 'Teléfono',
+            keyboardType: TextInputType.number,
             initialValue: companyForm.telefono.value,
             onChanged: ref
                 .read(companyFormProvider(widget.company).notifier)
@@ -360,6 +361,7 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
           CustomCompanyField(
             isTopField: true,
             label: 'Email',
+            keyboardType: TextInputType.emailAddress,
             initialValue: companyForm.email,
             onChanged: ref
                 .read(companyFormProvider(widget.company).notifier)

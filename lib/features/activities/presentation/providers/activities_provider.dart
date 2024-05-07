@@ -14,7 +14,7 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
 
   ActivitiesNotifier({required this.activitiesRepository})
       : super(ActivitiesState()) {
-    loadNextPage('');
+    loadNextPage(isRefresh: true);
   }
 
   Future<CreateUpdateActivityResponse> createOrUpdateActivity(
@@ -60,34 +60,60 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
 
   void onChangeTextSearch(String text) {
     state = state.copyWith(textSearch: text);
-    loadNextPage(text);
+    loadNextPage(isRefresh: true);
   }
 
   void onChangeNotIsActiveSearch() {
     state = state.copyWith(isActiveSearch: false, textSearch: '');
     //if (state.textSearch != "") {
-      loadNextPage('');
+      loadNextPage(isRefresh: true);
     //}
   }
 
-  Future loadNextPage(String search) async {
+  Future loadNextPage({bool isRefresh = false}) async {
+    final search = state.textSearch;
+
     if (state.isLoading || state.isLastPage) return;
 
     state = state.copyWith(isLoading: true);
 
-    final activities = await activitiesRepository.getActivities(search);
+     int sLimit = state.limit;
+    int sOffset = state.offset;
+
+    if (isRefresh) {
+      sLimit = 10;
+      sOffset = 0;
+    }
+
+    final activities = await activitiesRepository.getActivities(
+      search: search,
+      limit: sLimit,
+      offset: sOffset
+    );
 
     if (activities.isEmpty) {
       state = state.copyWith(isLoading: false, isLastPage: true);
       return;
     }
 
+    int newOffset;
+    List<Activity> newActivities;
+
+    if (isRefresh) {
+      newOffset = 0;
+      newActivities = activities;
+    } else {
+      newOffset = state.offset + 10;
+      newActivities = [...state.activities, ...activities];
+    }
+
+
     state = state.copyWith(
         isLastPage: false,
         isLoading: false,
-        offset: state.offset + 10,
+        offset: newOffset,
         //activities: [...state.activities, ...activities]
-        activities: [...activities]
+        activities: newActivities
     );
   }
 }

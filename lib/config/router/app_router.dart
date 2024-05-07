@@ -1,6 +1,7 @@
 import 'package:crm_app/features/activities/presentation/screens/activity_detail_screen.dart';
 import 'package:crm_app/features/activities/presentation/screens/activity_screen_post_call.dart';
 import 'package:crm_app/features/contacts/presentation/screens/contact_detail_screen.dart';
+import 'package:crm_app/features/indicators/indicators.dart';
 import 'package:crm_app/features/location/presentation/screens/map_screen.dart';
 import 'package:crm_app/features/location/presentation/screens/view_map_screen.dart';
 import 'package:crm_app/features/shared/presentation/screens/send_whatsapp_screen.dart';
@@ -201,6 +202,11 @@ final goRouterProvider = Provider((ref) {
         builder: (context, state) => OpportunityScreen(
           opportunityId: state.pathParameters['id'] ?? 'no-id',
         ),
+      ),
+
+      GoRoute(
+        path: '/indicators',
+        builder: (context, state) => const IndicatorsScreen(),
       ),
 
     ],

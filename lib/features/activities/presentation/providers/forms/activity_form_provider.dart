@@ -27,21 +27,21 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
     required Activity activity,
   }) : super(ActivityFormState(
           id: activity.id,
-          actiComentario: activity.actiComentario ?? '',
-          actiEstadoReg: activity.actiEstadoReg ?? '',
-          actiFechaActividad: activity.actiFechaActividad ?? DateTime.now(),
-          actiHoraActividad: activity.actiHoraActividad ?? '',
+          actiComentario: activity.actiComentario,
+          actiEstadoReg: activity.actiEstadoReg,
+          actiFechaActividad: activity.actiFechaActividad,
+          actiHoraActividad: activity.actiHoraActividad,
           actiIdActividadIn: activity.actiIdActividadIn ?? '',
           contactoDesc: activity.contactoDesc ?? '',
           //actiIdContacto: Contacto.dirty(activity.actiIdContacto),
           actiIdOportunidad: Oportunidad.dirty(activity.actiIdOportunidad),
           actiIdTipoGestion: TipoGestion.dirty(activity.actiIdTipoGestion),
           actiIdUsuarioActualizacion: activity.actiIdUsuarioActualizacion ?? '',
-          actiIdUsuarioRegistro: activity.actiIdUsuarioRegistro ?? '',
-          actiIdUsuarioResponsable: activity.actiIdUsuarioResponsable ?? '',
-          actiNombreArchivo: activity.actiNombreArchivo ?? '',
-          actiNombreOportunidad: activity.actiNombreOportunidad ?? '',
-          actiNombreTipoGestion: activity.actiNombreTipoGestion ?? '',
+          actiIdUsuarioRegistro: activity.actiIdUsuarioRegistro,
+          actiIdUsuarioResponsable: activity.actiIdUsuarioResponsable,
+          actiNombreArchivo: activity.actiNombreArchivo,
+          actiNombreOportunidad: activity.actiNombreOportunidad,
+          actiNombreTipoGestion: activity.actiNombreTipoGestion,
           actiRuc: Ruc.dirty(activity.actiRuc),
           actiRazon: activity.actiRazon ?? '',
           actiNombreResponsable: activity.actiNombreResponsable ?? '',
@@ -52,7 +52,6 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
         ));
 
   Future<CreateUpdateActivityResponse> onFormSubmit() async {
-    print('QUE PASO');
     _touchedEverything();
     if (!state.isFormValid) {
       return CreateUpdateActivityResponse(

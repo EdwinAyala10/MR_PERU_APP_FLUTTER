@@ -85,8 +85,6 @@ class CompaniesDatasourceImpl extends CompaniesDatasource {
           'OFFSET': offset,
           'TOP': limit,
         });
-    
-    print('RESP COMPANIES: ${response}');
 
     final List<Company> companies = [];
 

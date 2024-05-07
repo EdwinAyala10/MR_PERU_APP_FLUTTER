@@ -14,7 +14,7 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
 
   CompaniesNotifier({required this.companiesRepository})
       : super(CompaniesState()) {
-    loadNextPage('');
+    loadNextPage(isRefresh: true);
   }
 
   Future<CreateUpdateCompanyResponse> createOrUpdateCompany(
@@ -148,17 +148,73 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
 
   void onChangeTextSearch(String text) {
     state = state.copyWith(textSearch: text);
-    loadNextPage(text);
+    loadNextPage(isRefresh: true);
   }
 
   void onChangeNotIsActiveSearch() {
     state = state.copyWith(isActiveSearch: false, textSearch: '');
     //if (state.textSearch != "") {
-      loadNextPage('');
+    loadNextPage(isRefresh: true);
     //}
   }
 
-  Future loadNextPage(String search) async {
+  Future loadNextPage({bool isRefresh = false}) async {
+    final search = state.textSearch;
+
+    if (state.isLoading || state.isLastPage) return;
+
+    state = state.copyWith(isLoading: true);
+
+    int sLimit = state.limit;
+    int sOffset = state.offset;
+
+    if (isRefresh) {
+      sLimit = 10;
+      sOffset = 0;
+    }
+
+    final companies = await companiesRepository.getCompanies(
+        search: search, limit: sLimit, offset: sOffset);
+
+    if (companies.isEmpty) {
+      state = state.copyWith(isLoading: false, isLastPage: true);
+      return;
+    }
+
+    int newOffset;
+    List<Company> newCompanies;
+
+    if (isRefresh) {
+      newOffset = 0;
+      newCompanies = companies;
+    } else {
+      newOffset = state.offset + 10;
+      newCompanies = [...state.companies, ...companies];
+    }
+
+    state = state.copyWith(
+        isLastPage: false,
+        isLoading: false,
+        offset: newOffset,
+        companies: newCompanies);
+
+    /*state = state.copyWith(
+        isLastPage: false,
+        isLoading: false,
+        //offset: state.offset + 10,
+        companies: companies
+    );*/
+
+    /*state = state.copyWith(
+        isLastPage: false,
+        isLoading: false,
+        offset: state.offset + 10,
+        companies: [...state.companies, ...companies]
+        //companies: companies
+        );*/
+  }
+
+  /*Future loadNextPage(String search) async {
     if (state.isLoading || state.isLastPage) return;
 
     state = state.copyWith(isLoading: true);
@@ -177,11 +233,18 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
     state = state.copyWith(
         isLastPage: false,
         isLoading: false,
+        //offset: state.offset + 10,
+        companies: companies
+    );
+
+    /*state = state.copyWith(
+        isLastPage: false,
+        isLoading: false,
         offset: state.offset + 10,
         companies: [...state.companies, ...companies]
         //companies: companies
-    );
-  }
+    );*/
+  }*/
 }
 
 class CompaniesState {

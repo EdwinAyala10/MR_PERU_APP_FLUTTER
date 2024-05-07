@@ -30,9 +30,6 @@ class SearchedContactsNotifier extends StateNotifier<List<Contact>> {
 
 
   Future<List<Contact>> searchContactsByQuery( String query, String ruc ) async{
-    
-    print('SEARCH CONTAC');
-
     final List<Contact> contacts = await searchContacts(query, ruc);
     ref.read(searchQueryContactsProvider.notifier).update((state) => query);
 

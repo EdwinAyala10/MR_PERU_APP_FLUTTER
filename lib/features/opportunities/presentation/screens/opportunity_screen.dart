@@ -98,7 +98,6 @@ class _OpportunityInformation extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    List<String> tags = ['Responsable 1', 'Responsable 2', 'Responsable 3'];
 
     List<DropdownOption> optionsEstado = [
       DropdownOption('', '--Seleccione--'),
@@ -186,6 +185,7 @@ class _OpportunityInformation extends ConsumerWidget {
       
           CustomCompanyField(
             label: 'Importe Total',
+            keyboardType: TextInputType.number,
             initialValue: opportunityForm.optrValor.toString(),
             onChanged: ref
                 .read(opportunityFormProvider(opportunity).notifier)
@@ -229,7 +229,7 @@ class _OpportunityInformation extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Empresa principal:',
+                  'Empresa principal',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
@@ -280,7 +280,7 @@ class _OpportunityInformation extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Intermediario:',
+                  'Intermediario',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
@@ -325,7 +325,9 @@ class _OpportunityInformation extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 15),
-          const Text('Responsable *'),
+          const Text('Responsable *', style: TextStyle(
+            fontWeight: FontWeight.w500
+          ),),
           Row(
             children: [
               Expanded(

@@ -1,6 +1,5 @@
 import 'package:crm_app/features/opportunities/domain/domain.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class ItemOpportunity extends StatelessWidget {
   final Opportunity opportunity;
@@ -11,11 +10,11 @@ class ItemOpportunity extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(opportunity.oprtNombre),
+      title: Text(opportunity.oprtNombre, style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black87),),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Estado: ${opportunity.oprtNobbreEstadoOportunidad ?? ''}'),
+          Text(opportunity.oprtNobbreEstadoOportunidad ?? ''),
           Text('Ruc: ${opportunity.oprtRuc ?? ''}'),
         ],
       ),
@@ -24,7 +23,7 @@ class ItemOpportunity extends StatelessWidget {
         children: [
           Text('${opportunity.oprtProbabilidad ?? ''}%',
               textAlign: TextAlign.right,
-              style: const TextStyle(fontSize: 16, color: Colors.green)),
+              style: const TextStyle(fontSize: 16, color: Colors.green, fontWeight: FontWeight.w600)),
         ],
       ),
       leading: const Icon(Icons.work_rounded),

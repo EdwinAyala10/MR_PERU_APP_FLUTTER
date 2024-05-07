@@ -57,7 +57,8 @@ class SideMenuState extends ConsumerState<SideMenu> {
               context.go('/kpi/new');
               break;
             case 7:
-              context.go('/documents');
+              //context.go('/documents');
+              context.go('/indicators');
               break;
             default:
               context.go('/dashboard');
@@ -112,10 +113,6 @@ class SideMenuState extends ConsumerState<SideMenu> {
             icon: Icon(Icons.work),
             label: Text('Oportunidades'),
           ),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(28, 16, 28, 10),
-            child: Divider(),
-          ),
           const NavigationDrawerDestination(
             icon: Icon(Icons.local_activity_outlined),
             label: Text('Actividades'),
@@ -133,11 +130,15 @@ class SideMenuState extends ConsumerState<SideMenu> {
             child: Divider(),
           ),
           const NavigationDrawerDestination(
+            icon: Icon(Icons.auto_graph_outlined),
+            label: Text('Indicadores'),
+          ),
+          /*const NavigationDrawerDestination(
             icon: Icon(Icons.document_scanner_sharp),
             label: Text('Documentos'),
-          ),
+          ),*/
           const Padding(
-            padding: EdgeInsets.fromLTRB(10, 16, 10, 10),
+            padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
             child: Divider(),
           ),
           Padding(

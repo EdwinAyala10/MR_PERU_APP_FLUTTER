@@ -6,6 +6,7 @@ import 'package:crm_app/features/contacts/presentation/providers/providers.dart'
 import 'package:crm_app/features/contacts/presentation/widgets/item_contact.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
 import 'package:crm_app/features/shared/widgets/loading_modal.dart';
+import 'package:crm_app/features/shared/widgets/no_exist_listview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -18,10 +19,6 @@ class ContactsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scaffoldKey = GlobalKey<ScaffoldState>();
-    //final TextEditingController _searchController = TextEditingController();
-    //Timer? _debounce;
-
-    //final isActiveSearch = ref.watch(contactsProvider).isActiveSearch;
 
     return Scaffold(
       drawer: SideMenu(scaffoldKey: scaffoldKey),
@@ -30,45 +27,6 @@ class ContactsScreen extends ConsumerWidget {
         title: const Text('Contacto',
             style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
             textAlign: TextAlign.center),
-        /*actions: [
-          if (isActiveSearch) const SizedBox(width: 58),
-          if (isActiveSearch)
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: TextFormField(
-                  //controller: _searchController,
-                  onChanged: (String value) {
-                    if (_debounce?.isActive ?? false) _debounce?.cancel();
-                    _debounce = Timer(const Duration(milliseconds: 500), () {
-                      print('Searching for: $value');
-                      ref
-                          .read(contactsProvider.notifier)
-                          .onChangeTextSearch(value);
-                    });
-                  },
-                  decoration: const InputDecoration(
-                    hintText: 'Buscar contacto...',
-                    //border: InputBorder.none,
-                  ),
-                ),
-              ),
-            ),
-          if (isActiveSearch)
-            IconButton(
-              onPressed: () {
-                //_searchController.clear();
-                ref.read(contactsProvider.notifier).onChangeNotIsActiveSearch();
-              },
-              icon: const Icon(Icons.clear),
-            ),
-          if (!isActiveSearch)
-            IconButton(
-                onPressed: () {
-                  ref.read(contactsProvider.notifier).onChangeIsActiveSearch();
-                },
-                icon: const Icon(Icons.search_rounded))
-        ],*/
       ),
       body: const Column(
         children: [
@@ -107,7 +65,7 @@ class _ContactsViewState extends ConsumerState {
     });
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      ref.read(contactsProvider.notifier).loadNextPage('');
+      ref.read(contactsProvider.notifier).loadNextPage(isRefresh: true);
       ref.read(contactsProvider.notifier).onChangeNotIsActiveSearch();
     });
   }
@@ -119,11 +77,8 @@ class _ContactsViewState extends ConsumerState {
   }
 
   Future<void> _refresh() async {
-    // Simula la adición de nuevos datos o actualización de los existentes
-    //items = List.generate(20, (index) => "Item ${index + 100}");
     String text = ref.watch(contactsProvider).textSearch;
-    ref.read(contactsProvider.notifier).loadNextPage(text);
-    //});
+    ref.read(contactsProvider.notifier).loadNextPage(isRefresh: true);
   }
 
   @override
@@ -136,8 +91,11 @@ class _ContactsViewState extends ConsumerState {
 
     return contactsState.contacts.length > 0
         ? _ListContacts(
-            contacts: contactsState.contacts, onRefreshCallback: _refresh)
-        : const _NoExistData();
+            contacts: contactsState.contacts, 
+            onRefreshCallback: _refresh,
+            scrollController: scrollController,
+          )
+      : NoExistData(textCenter: 'No hay contactos registradas', icon: Icons.person);
   }
 }
 
@@ -201,29 +159,35 @@ class _SearchComponent extends ConsumerWidget {
   }
 }
 
-class _ListContacts extends StatelessWidget {
+class _ListContacts extends ConsumerStatefulWidget {
   final List<Contact> contacts;
   final Future<void> Function() onRefreshCallback;
+  final ScrollController scrollController;
 
   const _ListContacts(
-      {super.key, required this.contacts, required this.onRefreshCallback});
+      {super.key, required this.contacts, required this.onRefreshCallback, required this.scrollController});
 
+  @override
+  _ListContactsState createState() => _ListContactsState();
+}
+
+class _ListContactsState extends ConsumerState<_ListContacts> {
   @override
   Widget build(BuildContext context) {
     final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
         GlobalKey<RefreshIndicatorState>();
 
-    return contacts.isEmpty
+    return widget.contacts.isEmpty
         ? Center(
             child: RefreshIndicator(
-                onRefresh: onRefreshCallback,
+                onRefresh: widget.onRefreshCallback,
                 key: _refreshIndicatorKey,
                 child: SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   child: Column(
                     children: [
                       ElevatedButton(
-                        onPressed: onRefreshCallback,
+                        onPressed: widget.onRefreshCallback,
                         child: const Text('Recargar'),
                       ),
                       const Center(
@@ -233,54 +197,32 @@ class _ListContacts extends StatelessWidget {
                   ),
                 )),
           )
-        : RefreshIndicator(
-            onRefresh: onRefreshCallback,
-            key: _refreshIndicatorKey,
-            child: ListView.separated(
-              itemCount: contacts.length,
-              separatorBuilder: (BuildContext context, int index) =>
-                  const Divider(),
-              itemBuilder: (context, index) {
-                final contact = contacts[index];
-
-                return ItemContact(
-                    contact: contact,
-                    callbackOnTap: () {
-                      context.push('/contact_detail/${contact.id}');
-                      //context.push('/contact/${contact.id}');
-                    });
-              },
-            ));
-  }
-}
-
-class _NoExistData extends StatelessWidget {
-  const _NoExistData({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-        child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Icon(
-          Icons.business,
-          size: 100,
-          color: Colors.grey,
-        ),
-        const SizedBox(height: 20),
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: Colors.grey.withOpacity(0.1),
-          ),
-          child: const Text(
-            'No hay contactos registradas',
-            style: TextStyle(fontSize: 20, color: Colors.grey),
-          ),
-        ),
-      ],
-    ));
+        : NotificationListener(
+          onNotification: (ScrollNotification scrollInfo) {
+            if (scrollInfo.metrics.pixels + 400 == scrollInfo.metrics.maxScrollExtent) {
+              ref.read(contactsProvider.notifier).loadNextPage(isRefresh: false);
+            }
+            return false;
+          },
+          child: RefreshIndicator(
+              onRefresh: widget.onRefreshCallback,
+              notificationPredicate: defaultScrollNotificationPredicate,
+              key: _refreshIndicatorKey,
+              child: ListView.separated(
+                itemCount: widget.contacts.length,
+                separatorBuilder: (BuildContext context, int index) =>
+                    const Divider(),
+                itemBuilder: (context, index) {
+                  final contact = widget.contacts[index];
+          
+                  return ItemContact(
+                      contact: contact,
+                      callbackOnTap: () {
+                        context.push('/contact_detail/${contact.id}');
+                        //context.push('/contact/${contact.id}');
+                      });
+                },
+              )),
+        );
   }
 }
