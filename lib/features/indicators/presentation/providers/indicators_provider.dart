@@ -62,6 +62,29 @@ class IndicatorsNotifier extends StateNotifier<IndicatorsState> {
         arrayresponsables: []);
   }
 
+  Future<SendIndicatorsResponse> onFormSubmit() async {
+    state = state.copyWith(isLoading: true);
+
+    final params = {
+      "DATE_INI":
+          "${state.dateInitial?.year.toString().padLeft(4, '0')}-${state.dateInitial?.month.toString().padLeft(2, '0')}-${state.dateInitial?.day.toString().padLeft(2, '0')}",
+      "DATE_FIN":
+          "${state.dateEnd?.year.toString().padLeft(4, '0')}-${state.dateEnd?.month.toString().padLeft(2, '0')}-${state.dateEnd?.day.toString().padLeft(2, '0')}",
+      'USERS': state.arrayresponsables != null
+          ? List<dynamic>.from(state.arrayresponsables!.map((x) => x.toJson()))
+          : [],
+    };
+    
+
+    try {
+      state = state.copyWith(isLoading: false);
+      return await sendIndicators(params);
+    } catch (e) {
+      state = state.copyWith(isLoading: false);
+      return SendIndicatorsResponse(response: false, message: '');
+    }
+  }
+
   Future<SendIndicatorsResponse> sendIndicators(
       Map<dynamic, dynamic> params) async {
     try {
@@ -87,23 +110,27 @@ class IndicatorsState {
   final DateTime? dateEnd;
   final List<ArrayUser>? arrayresponsables;
   final bool isSend;
+  final bool isLoading;
 
   IndicatorsState(
       {this.dateInitial,
       this.dateEnd,
       this.arrayresponsables = const [],
-      this.isSend = false});
+      this.isSend = false,
+      this.isLoading = false});
 
   IndicatorsState copyWith({
     DateTime? dateInitial,
     DateTime? dateEnd,
     List<ArrayUser>? arrayresponsables,
     bool? isSend,
+    bool? isLoading,
   }) =>
       IndicatorsState(
         dateInitial: dateInitial ?? this.dateInitial,
         dateEnd: dateEnd ?? this.dateEnd,
         arrayresponsables: arrayresponsables ?? this.arrayresponsables,
         isSend: isSend ?? this.isSend,
+        isLoading: isLoading ?? this.isLoading,
       );
 }

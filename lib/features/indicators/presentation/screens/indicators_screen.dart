@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:crm_app/features/indicators/domain/entities/send_indicators_response.dart';
 import 'package:crm_app/features/indicators/presentation/providers/indicators_provider.dart';
 import 'package:crm_app/features/users/domain/domain.dart';
 import 'package:crm_app/features/users/presentation/delegates/search_user_delegate.dart';
@@ -41,7 +42,10 @@ class _ViewIndicatorsState extends ConsumerState {
   void initState() {
     super.initState();
 
-    ref.watch(indicatorsProvider.notifier).resetForm();
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      ref.watch(indicatorsProvider.notifier).resetForm();
+    });
+
   }
 
   @override
@@ -171,10 +175,22 @@ class _ViewIndicatorsState extends ConsumerState {
                 Center(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange, // Fondo de color naranja
+                      backgroundColor: indicatorsState.isLoading ? Colors.orange[100] : Colors.orange, // Fondo de color naranja
                     ),
-                    onPressed: () {
-                      // Acción a realizar cuando se presiona el botón
+                    onPressed: indicatorsState.isLoading ? null : () {
+                      ref.read(indicatorsProvider.notifier)
+                          .onFormSubmit()
+                          .then((SendIndicatorsResponse value) {
+                            print(value.message);
+                        //if ( !value.response ) return;
+                        if (value.message != '') {
+                          if (value.response) {
+                            showSnackbar(context, value.message);
+                            //Timer(const Duration(seconds: 3), () {
+                            //});
+                          }
+                        }
+                      });
                     },
                     child: const Text('Enviar informe',
                         style: TextStyle(color: Colors.white)),
@@ -227,4 +243,9 @@ class _ViewIndicatorsState extends ConsumerState {
       ref.read(indicatorsProvider.notifier).onUsersChanged(user);
     });
   }
+}
+
+void showSnackbar(BuildContext context, String message) {
+  ScaffoldMessenger.of(context).clearSnackBars();
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 }

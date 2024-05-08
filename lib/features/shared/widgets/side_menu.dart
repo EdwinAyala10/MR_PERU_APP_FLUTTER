@@ -19,7 +19,6 @@ class SideMenuState extends ConsumerState<SideMenu> {
   @override
   Widget build(BuildContext context) {
     final hasNotch = MediaQuery.of(context).viewPadding.top > 35;
-    final textStyles = Theme.of(context).textTheme;
 
     final user = ref.read(authProvider.notifier).state.user;
 
@@ -124,10 +123,6 @@ class SideMenuState extends ConsumerState<SideMenu> {
           const NavigationDrawerDestination(
             icon: Icon(Icons.task),
             label: Text('Objectivos'),
-          ),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(28, 16, 28, 10),
-            child: Divider(),
           ),
           const NavigationDrawerDestination(
             icon: Icon(Icons.auto_graph_outlined),

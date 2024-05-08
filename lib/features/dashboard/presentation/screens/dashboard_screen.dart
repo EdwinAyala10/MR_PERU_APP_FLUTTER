@@ -7,8 +7,10 @@ import 'package:crm_app/features/agenda/presentation/widgets/item_event_small.da
 import 'package:crm_app/features/kpis/domain/domain.dart';
 import 'package:crm_app/features/kpis/presentation/providers/kpis_provider.dart';
 import 'package:crm_app/features/location/presentation/providers/gps_provider.dart';
+import 'package:crm_app/features/opportunities/domain/domain.dart';
 import 'package:crm_app/features/opportunities/domain/entities/status_opportunity.dart';
 import 'package:crm_app/features/opportunities/presentation/providers/providers.dart';
+import 'package:crm_app/features/opportunities/presentation/widgets/item_opportunity_small.dart';
 import 'package:crm_app/features/shared/presentation/providers/notifications_provider.dart';
 import 'package:crm_app/features/shared/shared.dart';
 import 'package:floating_action_bubble_custom/floating_action_bubble_custom.dart';
@@ -146,7 +148,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
       ref.read(kpisProvider.notifier).loadNextPage(),
       ref.read(eventsProvider.notifier).loadNextPage(),
       ref.read(activitiesProvider.notifier).loadNextPage(isRefresh: true),
-      ref.read(opportunitiesProvider.notifier).loadStatusOpportunity(),
+      ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: true),
+
+      //ref.read(opportunitiesProvider.notifier).loadStatusOpportunity(),
     ]);
   }
   
@@ -167,9 +171,8 @@ class _DashboardViewState extends ConsumerState {
       ref.read(kpisProvider.notifier).loadNextPage();
       ref.read(eventsProvider.notifier).loadNextPage();
       ref.read(activitiesProvider.notifier).loadNextPage(isRefresh: true);
-
-      ref.read(opportunitiesProvider.notifier).loadStatusOpportunity();
-
+      ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: true);
+      //ref.read(opportunitiesProvider.notifier).loadStatusOpportunity();
       ref.read(notificationsProvider.notifier).requestPermission();
     });
 
@@ -314,8 +317,10 @@ class _DashboardViewState extends ConsumerState {
                 linkedEventsList: eventsState.linkedEventsList),
             _ContainerDashboardActivities(
                 activities: activitiesState.activities),
+            /*_ContainerDashboardOpportunities(
+                statusOpportunities: opportunitiesState.statusOpportunity),*/
             _ContainerDashboardOpportunities(
-                statusOpportunities: opportunitiesState.statusOpportunity),
+                opportunities: opportunitiesState.opportunities),
             const SizedBox(
               height: 68,
             )
@@ -336,10 +341,11 @@ class _DashboardViewState extends ConsumerState {
   }
 }
 
-class _ContainerDashboardOpportunities extends StatelessWidget {
+/*
+class _ContainerDashboardOpportunitiesStatus extends StatelessWidget {
   List<StatusOpportunity> statusOpportunities;
 
-  _ContainerDashboardOpportunities(
+  _ContainerDashboardOpportunitiesStatus(
       {super.key, required this.statusOpportunities});
 
   @override
@@ -419,6 +425,9 @@ class _ContainerDashboardOpportunities extends StatelessWidget {
     );
   }
 }
+*/
+
+
 
 class _ContainerDashboardActivities extends StatelessWidget {
   List<Activity> activities;
@@ -499,6 +508,89 @@ class _ContainerDashboardActivities extends StatelessWidget {
     }
   }
 }
+
+
+class _ContainerDashboardOpportunities extends StatelessWidget {
+  List<Opportunity> opportunities;
+
+  _ContainerDashboardOpportunities({super.key, required this.opportunities});
+
+  @override
+  Widget build(BuildContext context) {
+    double h1 = opportunities.length >= 2 ? 270 : 160;
+    double h2 = opportunities.length >= 2 ? 200 : 80;
+
+    /*if (opportunities.length == 0) {
+      return const SizedBox();
+    }*/
+
+    if (opportunities.length >= 0) {
+      return Container(
+        width: double.infinity,
+        margin: const EdgeInsets.all(20),
+        height: h1,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3),
+              spreadRadius: 5,
+              blurRadius: 7,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+                  child: Text(
+                    'Oportunidades',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      context.push('/opportunities');
+                      // Acción cuando se presiona el botón
+                    },
+                    child: const Text('Ver más'),
+                  ),
+                ),
+              ],
+            ),
+            Container(
+              width: double.infinity,
+              height: h2,
+              child: ListView.separated(
+                  separatorBuilder: (BuildContext context, int index) =>
+                      const Divider(height: 2),
+                  itemCount: opportunities.length > 5 ? 5 : opportunities.length,
+                  itemBuilder: (context, index) {
+                    final opportunity = opportunities[index];
+
+                    return ItemOpportunitySmall(
+                      opportunity: opportunity,
+                      callbackOnTap: () {},
+                    );
+                  }),
+            )
+          ],
+        ),
+      );
+    } else {
+      return SizedBox();
+    }
+  }
+}
+
 
 class _ContainerDashboardEvents extends StatelessWidget {
   List<Event> linkedEventsList;
