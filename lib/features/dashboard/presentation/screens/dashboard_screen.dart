@@ -85,7 +85,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
           BubbleMenu(
             title: 'Nueva Evento',
             iconColor: Colors.white,
-            bubbleColor: const Color.fromRGBO(33, 150, 243, 1),
+            bubbleColor: const Color.fromARGB(255, 247, 106, 19),
             icon: Icons.event,
             style: const TextStyle(fontSize: 16, color: Colors.white),
             onPressed: () {
@@ -96,7 +96,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
           BubbleMenu(
             title: 'Nueva Actividad',
             iconColor: Colors.white,
-            bubbleColor: const Color.fromRGBO(33, 150, 243, 1),
+            bubbleColor: const Color.fromARGB(255, 247, 106, 19),
             icon: Icons.local_activity_outlined,
             style: const TextStyle(fontSize: 16, color: Colors.white),
             onPressed: () {
@@ -107,7 +107,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
           BubbleMenu(
             title: 'Nueva Oportunidad',
             iconColor: Colors.white,
-            bubbleColor: const Color.fromRGBO(33, 150, 243, 1),
+            bubbleColor: const Color.fromARGB(255, 247, 106, 19),
             icon: Icons.work,
             style: const TextStyle(fontSize: 16, color: Colors.white),
             onPressed: () {
@@ -118,7 +118,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
           BubbleMenu(
             title: 'Nuevo Contacto',
             iconColor: Colors.white,
-            bubbleColor: Colors.blue,
+            bubbleColor: const Color.fromARGB(255, 247, 106, 19),
             icon: Icons.perm_contact_cal,
             style: const TextStyle(fontSize: 16, color: Colors.white),
             onPressed: () {
@@ -129,7 +129,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
           BubbleMenu(
             title: 'Nueva Empresa',
             iconColor: Colors.white,
-            bubbleColor: Colors.blue,
+            bubbleColor: const Color.fromARGB(255, 247, 106, 19),
             icon: Icons.account_balance_rounded,
             style: const TextStyle(fontSize: 16, color: Colors.white),
             onPressed: () {

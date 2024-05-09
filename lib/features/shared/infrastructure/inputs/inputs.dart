@@ -16,3 +16,8 @@ export 'contacto.dart';
 export 'comment.dart';
 export 'oportunidad.dart';
 export 'tipo_gestion.dart';
+
+export 'type.dart';
+export 'type_local.dart';
+export 'calification.dart';
+export 'state_company.dart';

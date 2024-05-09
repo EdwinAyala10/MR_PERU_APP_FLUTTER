@@ -51,7 +51,7 @@ class ResourceDetailsNotifier extends StateNotifier<ResourceDetailsState> {
   }
   */
 
-  Future<void> loadCatalogById(String groupId) async {
+  Future<List<DropdownOption>> loadCatalogById(String groupId) async {
     //state = state.copyWith(isLoading: true);
 
     List<ResourceDetail> resourceDetails =
@@ -59,9 +59,14 @@ class ResourceDetailsNotifier extends StateNotifier<ResourceDetailsState> {
 
     List<DropdownOption> options = [];
 
+    options.add(DropdownOption('', 'Seleccione...'));
+
     for (final resourceDetail in resourceDetails ?? []) {
-      options.add(
+
+      if (resourceDetail.recdCodigo != '00') {
+        options.add(
           DropdownOption(resourceDetail.recdCodigo, resourceDetail.recdNombre));
+      }
     }
 
     Map<String, List<DropdownOption>>? mapCatalogs = state.mapCatalogs;
@@ -69,9 +74,11 @@ class ResourceDetailsNotifier extends StateNotifier<ResourceDetailsState> {
     mapCatalogs ??= {};
     mapCatalogs[groupId] ??= options;
 
-    print('CARGO: ${mapCatalogs}');
+    print('08052024 carga MapCatalogs: ${mapCatalogs}');
 
     state = state.copyWith(mapCatalogs: mapCatalogs);
+
+    return options;
   }
 
   List<DropdownOption>? loadCatalogRead(String groupId) {

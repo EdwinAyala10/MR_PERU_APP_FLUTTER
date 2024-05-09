@@ -3,6 +3,8 @@ import 'package:crm_app/features/agenda/domain/domain.dart';
 import 'package:crm_app/features/contacts/domain/domain.dart';
 import 'package:crm_app/features/kpis/domain/entities/array_user.dart';
 import 'package:crm_app/features/opportunities/domain/domain.dart';
+import 'package:crm_app/features/shared/infrastructure/inputs/inputs.dart';
+import 'package:crm_app/features/shared/infrastructure/inputs/type_local.dart';
 import 'package:crm_app/features/users/domain/domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
@@ -42,13 +44,13 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           distrito: company.distrito ?? '',
           seguimientoComentario: company.seguimientoComentario ?? '',
           website: company.website ?? '',
-          calificacion: company.calificacion ?? '',
+          calificacion: Calification.dirty(company.calificacion ?? ''),
           usuarioRegistro: company.usuarioRegistro ?? '',
           visibleTodos: company.visibleTodos ?? '',
           email: company.email ?? '',
           codigoPostal: company.codigoPostal ?? '',
-          tipoCliente: company.tipocliente ?? '',
-          estado: company.estado ?? '',
+          tipoCliente: Type.dirty(company.tipocliente ?? ''),
+          estado: StateCompany.dirty(company.estado ?? ''),
           localNombre: '',
           localDireccion: Address.dirty(company.localDireccion ?? ''),
           localDepartamento: '',
@@ -57,7 +59,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           voltajeTension: '0',
           enviarNotificacion: 'SI',
           orden: '',
-          localTipo: '2',
+          localTipo: TypeLocal.dirty(company.localTipo ?? ''),
           localCodigoPostal: '',
           coordenadasGeo: '',
           coordenadasLongitud: '',
@@ -98,13 +100,13 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
       'CLIENTE_COORDENADAS_LATITUD': state.clienteCoordenadasLatitud,
       'SEGUIMIENTO_COMENTARIO': state.seguimientoComentario,
       'WEBSITE': state.website,
-      'CALIFICACION': state.calificacion,
+      'CALIFICACION': state.calificacion.value,
       'USUARIO_REGISTRO': state.usuarioRegistro,
       'VISIBLE_TODOS': state.visibleTodos,
       'EMAIL': state.email,
       'CODIGO_POSTAL': state.codigoPostal,
-      'TIPOCLIENTE': state.tipoCliente,
-      'ESTADO': state.estado,
+      'TIPOCLIENTE': state.tipoCliente.value,
+      'ESTADO': state.estado.value,
       'LOCAL_NOMBRE': state.localNombre,
       'LOCAL_DIRECCION': state.localDireccion.value,
       'LOCAL_DEPARTAMENTO': state.localDepartamento,
@@ -113,7 +115,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
       'VOLTAJE_TENSION': state.voltajeTension,
       'ENVIAR_NOTIFICACION': state.enviarNotificacion,
       'ORDEN': state.orden,
-      'LOCAL_TIPO': state.localTipo,
+      'LOCAL_TIPO': state.localTipo.value,
       'COORDENADAS_GEO': state.coordenadasGeo,
       'COORDENADAS_LONGITUD': state.coordenadasLongitud,
       'COORDENADAS_LATITUD': state.coordenadasLatitud,
@@ -149,6 +151,10 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
         Phone.dirty(state.telefono.value),
         //Address.dirty(state.direccion.value),
         Address.dirty(state.localDireccion.value),
+        Type.dirty(state.tipoCliente.value),
+        StateCompany.dirty(state.estado.value),
+        Calification.dirty(state.calificacion.value),
+        TypeLocal.dirty(state.localTipo.value),
       ]),
     );
   }
@@ -162,6 +168,10 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           Phone.dirty(state.telefono.value),
           //Address.dirty(state.direccion.value),
           Address.dirty(state.localDireccion.value),
+          Type.dirty(state.tipoCliente.value),
+          StateCompany.dirty(state.estado.value),
+          Calification.dirty(state.calificacion.value),
+          TypeLocal.dirty(state.localTipo.value),
         ]));
   }
 
@@ -174,11 +184,66 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           Phone.dirty(state.telefono.value),
           //Address.dirty(state.direccion.value),
           Address.dirty(state.localDireccion.value),
+          Type.dirty(state.tipoCliente.value),
+          StateCompany.dirty(state.estado.value),
+          Calification.dirty(state.calificacion.value),
+          TypeLocal.dirty(state.localTipo.value),
         ]));
   }
 
   void onTipoChanged(String tipoId, String name) {
-    state = state.copyWith(tipoCliente: tipoId, clienteNombreTipo: name);
+    //state = state.copyWith(tipoCliente: tipoId, clienteNombreTipo: name);
+
+    state = state.copyWith(
+      tipoCliente: Type.dirty(tipoId),
+      clienteNombreTipo: name,
+      isFormValid: Formz.validate([
+        Ruc.dirty(state.ruc.value),
+        Razon.dirty(state.razon.value),
+        Phone.dirty(state.telefono.value),
+        //Address.dirty(state.direccion.value),
+        Address.dirty(state.localDireccion.value),
+        Type.dirty(tipoId),
+        StateCompany.dirty(state.estado.value),
+        Calification.dirty(state.calificacion.value),
+        TypeLocal.dirty(state.localTipo.value),
+      ]));
+  }
+  
+  void onEstadoChanged(String estadoId, String name) {
+    //state = state.copyWith(estado: estadoId, clienteNombreEstado: name);
+    state = state.copyWith(
+      estado: StateCompany.dirty(estadoId),
+      clienteNombreEstado: name,
+      clienteNombreTipo: name,
+      isFormValid: Formz.validate([
+        Ruc.dirty(state.ruc.value),
+        Razon.dirty(state.razon.value),
+        Phone.dirty(state.telefono.value),
+        //Address.dirty(state.direccion.value),
+        Address.dirty(state.localDireccion.value),
+        Type.dirty(state.tipoCliente.value),
+        StateCompany.dirty(estadoId),
+        Calification.dirty(state.calificacion.value),
+        TypeLocal.dirty(state.localTipo.value),
+      ]));
+  }
+
+  void onCalificacionChanged(String calificacionId) {
+    //state = state.copyWith(calificacion: calificacionId);
+    state = state.copyWith(
+      calificacion: Calification.dirty(calificacionId),
+      isFormValid: Formz.validate([
+        Ruc.dirty(state.ruc.value),
+        Razon.dirty(state.razon.value),
+        Phone.dirty(state.telefono.value),
+        //Address.dirty(state.direccion.value),
+        Address.dirty(state.localDireccion.value),
+        Type.dirty(state.tipoCliente.value),
+        StateCompany.dirty(state.estado.value),
+        Calification.dirty(calificacionId),
+        TypeLocal.dirty(state.localTipo.value),
+      ]));
   }
 
   void onDepartamentoChanged(String id) {
@@ -198,15 +263,21 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
   }
 
   void onTipoLocalChanged(String id) {
-    state = state.copyWith(localTipo: id);
-  }
-
-  void onEstadoChanged(String estadoId, String name) {
-    state = state.copyWith(estado: estadoId, clienteNombreEstado: name);
-  }
-
-  void onCalificacionChanged(String calificacionId) {
-    state = state.copyWith(calificacion: calificacionId);
+    //state = state.copyWith(localTipo: id);
+    state = state.copyWith(
+      localTipo: TypeLocal.dirty(id),
+      isFormValid: Formz.validate([
+        Ruc.dirty(state.ruc.value),
+        Razon.dirty(state.razon.value),
+        Phone.dirty(state.telefono.value),
+        //Address.dirty(state.direccion.value),
+        Address.dirty(state.localDireccion.value),
+        Type.dirty(state.tipoCliente.value),
+        StateCompany.dirty(state.estado.value),
+        Calification.dirty(state.calificacion.value),
+        TypeLocal.dirty(state.localTipo.value),
+        TypeLocal.dirty(id)
+      ]));
   }
 
   void onVisibleTodosChanged(String visible) {
@@ -238,6 +309,8 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           Phone.dirty(value),
           //Address.dirty(state.direccion.value),
           Address.dirty(state.localDireccion.value),
+          Type.dirty(state.tipoCliente.value),
+          StateCompany.dirty(state.estado.value),
         ]));
   }
 
@@ -382,13 +455,13 @@ class CompanyFormState {
   final String clienteCoordenadasLongitud;
   final String seguimientoComentario;
   final String website;
-  final String calificacion;
+  final Calification calificacion;
   final String usuarioRegistro;
   final String visibleTodos;
   final String email;
   final String codigoPostal;
-  final String tipoCliente;
-  final String estado;
+  final Type tipoCliente;
+  final StateCompany estado;
   final String localNombre;
   final bool isEditLocalNombre;
   final Address localDireccion;
@@ -398,7 +471,7 @@ class CompanyFormState {
   final String voltajeTension;
   final String enviarNotificacion;
   final String orden;
-  final String localTipo;
+  final TypeLocal localTipo;
   final String coordenadasGeo;
   final String coordenadasLongitud;
   final String coordenadasLatitud;
@@ -437,13 +510,13 @@ class CompanyFormState {
       this.clienteCoordenadasLongitud = '',
       this.seguimientoComentario = '',
       this.website = '',
-      this.calificacion = '',
+      this.calificacion = const Calification.dirty(''),
       this.usuarioRegistro = '',
       this.visibleTodos = '',
       this.email = '',
       this.codigoPostal = '',
-      this.tipoCliente = '',
-      this.estado = '',
+      this.tipoCliente = const Type.dirty(''),
+      this.estado = const StateCompany.dirty(''),
       this.localNombre = '',
       this.isEditLocalNombre = true,
       this.localCodigoPostal = '',
@@ -455,7 +528,7 @@ class CompanyFormState {
       this.enviarNotificacion = '',
       this.orden = '',
       this.localCantidad = '',
-      this.localTipo = '',
+      this.localTipo = const TypeLocal.dirty(''),
       this.coordenadasGeo = '',
       this.coordenadasLongitud = '',
       this.coordenadasLatitud = '',
@@ -490,14 +563,14 @@ class CompanyFormState {
     String? clienteCoordenadasLongitud,
     String? seguimientoComentario,
     String? website,
-    String? calificacion,
+    Calification? calificacion,
     String? usuarioRegistro,
     String? visibleTodos,
     String? email,
     String? codigoPostal,
-    String? tipoCliente,
+    Type? tipoCliente,
     bool? isEditLocalNombre,
-    String? estado,
+    StateCompany? estado,
     String? localNombre,
     Address? localDireccion,
     String? localDepartamento,
@@ -506,7 +579,7 @@ class CompanyFormState {
     String? voltajeTension,
     String? enviarNotificacion,
     String? orden,
-    String? localTipo,
+    TypeLocal? localTipo,
     String? coordenadasGeo,
     String? coordenadasLongitud,
     String? coordenadasLatitud,

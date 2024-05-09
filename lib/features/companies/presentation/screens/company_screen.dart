@@ -3,6 +3,7 @@ import 'package:crm_app/features/companies/presentation/providers/providers.dart
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/location/presentation/providers/gps_provider.dart';
 import 'package:crm_app/features/location/presentation/providers/selected_map_provider.dart';
+import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
 import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
 import 'package:crm_app/features/shared/shared.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
@@ -103,6 +104,17 @@ class _CompanyInformationv2 extends ConsumerStatefulWidget {
 class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
   late TextEditingController _controllerLocalName;
   late Key _fieldKeyLocalName;
+  List<DropdownOption> optionsTipoCliente = [
+    DropdownOption('', 'Cargando...')
+  ];
+
+  List<DropdownOption> optionsEstado = [
+    DropdownOption('', 'Cargando...')
+  ];
+
+  List<DropdownOption> optionsCalificacion = [
+    DropdownOption('', 'Cargando...')
+  ];
 
   @override
   void initState() {
@@ -111,6 +123,27 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
     _controllerLocalName =
         TextEditingController(text: widget.company.localNombre);
     _fieldKeyLocalName = UniqueKey();
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('01').then((value) => {
+        setState(() {
+          optionsTipoCliente = value;
+        })
+      });
+
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('03').then((value) => {
+        setState(() {
+          optionsEstado = value;
+        })
+      });
+
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('04').then((value) => {
+        setState(() {
+          optionsCalificacion = value;
+        })
+      });
+
+    });
   }
 
   @override
@@ -122,37 +155,32 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
 
   @override
   Widget build(BuildContext context) {
-    List<DropdownOption> optionsTipoCliente = [
+
+    /*List<DropdownOption> optionsTipoCliente = [
       DropdownOption('01', 'Proveedor'),
       DropdownOption('02', 'Distribuidor'),
       DropdownOption('03', 'Prospecto'),
       DropdownOption('04', 'Cliente'),
-    ];
+    ];*/
 
-    List<DropdownOption> optionsEstado = [
+    /*List<DropdownOption> optionsEstado = [
       DropdownOption('A', 'ACTIVO'),
       DropdownOption('B', 'NO CLIENTE'),
-    ];
+    ];*/
 
-    List<DropdownOption> optionsCalificacion = [
+    /*List<DropdownOption> optionsCalificacion = [
       DropdownOption('A', 'A'),
       DropdownOption('B', 'B'),
       DropdownOption('C', 'C'),
       DropdownOption('D', 'D'),
-    ];
+    ];*/
 
     List<DropdownOption> optionsLocalTipo = [
       DropdownOption('', 'Seleccione tipo de local'),
       DropdownOption('2', 'PLANTA'),
     ];
 
-    print('COMPANY 2: ${widget.company}');
-    print('COMPANY 2 RUC: ${widget.company.rucId}');
-
     final companyForm = ref.watch(companyFormProvider(widget.company));
-
-    print('COMPANY FORM ID: ${companyForm.rucId}');
-    print('COMPANY FORM RAZON: ${companyForm.razon.value}');
     //final selectMapState = ref.watch(selectedMapProvider.notifier).state;
 
     //print('selectMapState stateProcess: ${selectMapState.stateProcess}');
@@ -232,7 +260,7 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
           ),
           SelectCustomForm(
             label: 'Tipo',
-            value: companyForm.tipoCliente,
+            value: companyForm.tipoCliente.value,
             callbackChange: (String? newValue) {
               DropdownOption searchDropdown = optionsTipoCliente
                   .where((option) => option.id == newValue!)
@@ -243,10 +271,11 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
                   .onTipoChanged(newValue!, searchDropdown.name);
             },
             items: optionsTipoCliente,
+            errorMessage: companyForm.tipoCliente.errorMessage,
           ),
           SelectCustomForm(
             label: 'Estado',
-            value: companyForm.estado,
+            value: companyForm.estado.value,
             callbackChange: (String? newValue) {
               DropdownOption searchDropdown =
                   optionsEstado.where((option) => option.id == newValue!).first;
@@ -256,16 +285,18 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
                   .onEstadoChanged(newValue!, searchDropdown.name);
             },
             items: optionsEstado,
+            errorMessage: companyForm.estado.errorMessage,
           ),
           SelectCustomForm(
             label: 'Calificación',
-            value: companyForm.calificacion,
+            value: companyForm.calificacion.value,
             callbackChange: (String? newValue) {
               ref
                   .read(companyFormProvider(widget.company).notifier)
                   .onCalificacionChanged(newValue!);
             },
             items: optionsCalificacion,
+            errorMessage: companyForm.calificacion.errorMessage,
           ),
           const SizedBox(height: 15),
           const Text('Responsable *'),
@@ -382,13 +413,14 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
           TitleSectionForm(title: 'DATOS DE PRIMER LOCAL'),
           SelectCustomForm(
             label: 'Tipo de local',
-            value: companyForm.localTipo,
+            value: companyForm.localTipo.value,
             callbackChange: (String? newValue) {
               ref
                   .read(companyFormProvider(widget.company).notifier)
                   .onTipoLocalChanged(newValue!);
             },
             items: optionsLocalTipo,
+            errorMessage: companyForm.localTipo.errorMessage,
           ),
           const SizedBox(
             height: 6,
