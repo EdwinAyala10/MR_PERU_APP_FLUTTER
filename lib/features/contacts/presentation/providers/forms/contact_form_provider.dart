@@ -32,7 +32,7 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
           contactoDesc: Name.dirty(contact.contactoDesc),
           contactoEmail: contact.contactoEmail ?? '',
           contactoFax: contact.contactoFax ?? '',
-          contactoIdCargo: contact.contactoIdCargo ?? '',
+          contactoIdCargo: Cargo.dirty(contact.contactoIdCargo ?? ''),
           contactoNombreCargo: contact.contactoNombreCargo ?? '',
           contactoNotas: contact.contactoNotas ?? '',
           contactoTelefonoc: Phone.dirty(contact.contactoTelefonoc),
@@ -67,7 +67,7 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
       'CONTACTO_FAX': state.contactoFax,
       'CONTACTO_NOTAS': state.contactoNotas,
       'OPT': (state.id == 'new') ? 'INSERT' : 'UPDATE',
-      'CONTACTO_ID_CARGO': state.contactoIdCargo,
+      'CONTACTO_ID_CARGO': state.contactoIdCargo.value,
       'CONTACTO_NOMBRE_CARGO': state.contactoNombreCargo,
       'CONTACTO_USUARIO_REGISTRO': state.contactoUsuarioRegistro,
     };
@@ -85,6 +85,7 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
         Ruc.dirty(state.ruc.value),
         Name.dirty(state.contactoDesc.value),
         Phone.dirty(state.contactoTelefonoc.value),
+        Cargo.dirty(state.contactoIdCargo.value),
       ]),
     );
   }
@@ -96,6 +97,7 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
           Ruc.dirty(value),
           Name.dirty(state.contactoDesc.value),
           Phone.dirty(state.contactoTelefonoc.value),
+          Cargo.dirty(state.contactoIdCargo.value),
         ]));
   }
 
@@ -110,11 +112,20 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
           Ruc.dirty(state.ruc.value),
           Name.dirty(value),
           Phone.dirty(state.contactoTelefonoc.value),
+          Cargo.dirty(state.contactoIdCargo.value),
         ]));
   }
 
   void onCargoChanged(String idCargo) {
-    state = state.copyWith(contactoIdCargo: idCargo);
+    //state = state.copyWith(contactoIdCargo: idCargo);
+    state = state.copyWith(
+        contactoIdCargo: Cargo.dirty(idCargo),
+        isFormValid: Formz.validate([
+          Ruc.dirty(state.ruc.value),
+          Name.dirty(state.contactoDesc.value),
+          Phone.dirty(state.contactoTelefonoc.value),
+          Cargo.dirty(idCargo),
+        ]));
   }
 
   void onNombreCargoChanged(String nameCargo) {
@@ -133,6 +144,7 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
           Ruc.dirty(state.ruc.value),
           Name.dirty(state.contactoDesc.value),
           Phone.dirty(telefono),
+          Cargo.dirty(state.contactoIdCargo.value),
         ]));
   }
 
@@ -160,7 +172,7 @@ class ContactFormState {
   final String contactoFax;
   final String opt;
   final String contactIdIn;
-  final String contactoIdCargo;
+  final Cargo contactoIdCargo;
   final String contactoNombreCargo;
   final String contactoNotas;
   final String? contactoUsuarioRegistro;
@@ -179,7 +191,7 @@ class ContactFormState {
       this.contactoFax = '',
       this.opt = '',
       this.contactIdIn = '',
-      this.contactoIdCargo = '',
+      this.contactoIdCargo = const Cargo.dirty(''),
       this.contactoNombreCargo = '',
       this.contactoUsuarioRegistro = '',
       this.contactoNotas = ''});
@@ -198,7 +210,7 @@ class ContactFormState {
     String? contactoFax,
     String? opt,
     String? contactIdIn,
-    String? contactoIdCargo,
+    Cargo? contactoIdCargo,
     String? contactoNombreCargo,
     String? contactoNotas,
     String? contactoUsuarioRegistro,

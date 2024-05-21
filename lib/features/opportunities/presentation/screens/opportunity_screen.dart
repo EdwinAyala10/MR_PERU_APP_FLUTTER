@@ -5,9 +5,11 @@ import 'package:crm_app/features/companies/presentation/delegates/search_company
 import 'package:crm_app/features/companies/presentation/search/search_companies_active_provider.dart';
 import 'package:crm_app/features/opportunities/domain/domain.dart';
 import 'package:crm_app/features/opportunities/presentation/providers/providers.dart';
+import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
 import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
 import 'package:crm_app/features/shared/shared.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
+import 'package:crm_app/features/shared/widgets/placeholder.dart';
 import 'package:crm_app/features/shared/widgets/select_custom_form.dart';
 import 'package:crm_app/features/shared/widgets/title_section_form.dart';
 import 'package:crm_app/features/users/domain/domain.dart';
@@ -85,33 +87,48 @@ class _OpportunityView extends ConsumerWidget {
     return ListView(
       children: [
         const SizedBox(height: 10),
-        _OpportunityInformation(opportunity: opportunity),
+        _OpportunityInformationv2(opportunity: opportunity),
       ],
     );
   }
 }
 
-class _OpportunityInformation extends ConsumerWidget {
+class _OpportunityInformationv2 extends ConsumerStatefulWidget {
   final Opportunity opportunity;
 
-  const _OpportunityInformation({required this.opportunity});
+  const _OpportunityInformationv2({super.key, required this.opportunity});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  _OpportunityInformationv2State createState() => _OpportunityInformationv2State();
+}
 
-    List<DropdownOption> optionsEstado = [
-      DropdownOption('', '--Seleccione--'),
-      DropdownOption('01', '1. Contactado'),
-      DropdownOption('02', '2. Primera visista'),
-      DropdownOption('03', '3. Oferta enviada'),
-      DropdownOption('04', '4. Esperando pedido'),
-    ];
+class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformationv2> {
+  List<DropdownOption> optionsEstado = [
+    DropdownOption('', 'Cargando...')
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('05').then((value) => {
+        setState(() {
+          optionsEstado = value;
+        })
+      });
+    });
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
 
     List<DropdownOption> optionsMoneda = [
       DropdownOption('01', 'USD'),
     ];
 
-    final opportunityForm = ref.watch(opportunityFormProvider(opportunity));
+    final opportunityForm = ref.watch(opportunityFormProvider(widget.opportunity));
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -123,21 +140,22 @@ class _OpportunityInformation extends ConsumerWidget {
             label: 'Nombre de la oportunidad *',
             initialValue: opportunityForm.oprtNombre.value,
             onChanged: ref
-                .read(opportunityFormProvider(opportunity).notifier)
+                .read(opportunityFormProvider(widget.opportunity).notifier)
                 .onNameChanged,
             errorMessage: opportunityForm.oprtNombre.errorMessage,
           ),
           TitleSectionForm(title: 'DATOS DE OPORTUNIDAD'),
-          SelectCustomForm(
+          optionsEstado.length > 1 ? SelectCustomForm(
             label: 'Estado',
-            value: opportunityForm.oprtIdEstadoOportunidad,
+            value: opportunityForm.oprtIdEstadoOportunidad.value,
             callbackChange: (String? newValue) {
               ref
-                  .read(opportunityFormProvider(opportunity).notifier)
+                  .read(opportunityFormProvider(widget.opportunity).notifier)
                   .onIdEstadoChanged(newValue!);
             },
             items: optionsEstado,
-          ),
+            errorMessage: opportunityForm.oprtIdEstadoOportunidad.errorMessage,
+          ): PlaceholderInput(text: 'Cargando Estado...'),
           Padding(
             padding: const EdgeInsets.all(2.0),
             child: Row(
@@ -158,7 +176,7 @@ class _OpportunityInformation extends ConsumerWidget {
                       '${double.parse(opportunityForm.oprtProbabilidad).round()}%',
                   onChanged: (double value) {
                     ref
-                        .read(opportunityFormProvider(opportunity).notifier)
+                        .read(opportunityFormProvider(widget.opportunity).notifier)
                         .onProbabilidadChanged(value.toString());
                   },
                 ),
@@ -173,10 +191,10 @@ class _OpportunityInformation extends ConsumerWidget {
                   optionsEstado.where((option) => option.id == newValue!).first;
 
               ref
-                  .read(opportunityFormProvider(opportunity).notifier)
+                  .read(opportunityFormProvider(widget.opportunity).notifier)
                   .onIdValorChanged(newValue!);
               ref
-                  .read(opportunityFormProvider(opportunity).notifier)
+                  .read(opportunityFormProvider(widget.opportunity).notifier)
                   .onValorChanged(searchEstado.name);
             },
             items: optionsMoneda,
@@ -188,7 +206,7 @@ class _OpportunityInformation extends ConsumerWidget {
             keyboardType: TextInputType.number,
             initialValue: opportunityForm.optrValor.toString(),
             onChanged: ref
-                .read(opportunityFormProvider(opportunity).notifier)
+                .read(opportunityFormProvider(widget.opportunity).notifier)
                 .onImporteChanged,
           ),
           const Text(
@@ -346,7 +364,7 @@ class _OpportunityInformation extends ConsumerWidget {
                                         onDeleted: () {
                                           ref
                                               .read(opportunityFormProvider(
-                                                      opportunity)
+                                                      widget.opportunity)
                                                   .notifier)
                                               .onDeleteUserChanged(item);
                                         },
@@ -375,7 +393,7 @@ class _OpportunityInformation extends ConsumerWidget {
             maxLines: 2,
             initialValue: opportunityForm.oprtComentario,
             onChanged: ref
-                .read(opportunityFormProvider(opportunity).notifier)
+                .read(opportunityFormProvider(widget.opportunity).notifier)
                 .onComentarioChanged,
           ),
 
@@ -412,7 +430,7 @@ class _OpportunityInformation extends ConsumerWidget {
     //if (picked != null && picked != selectedDate) {
     if (picked != null) {
       ref
-          .read(opportunityFormProvider(opportunity).notifier)
+          .read(opportunityFormProvider(widget.opportunity).notifier)
           .onFechaChanged(picked);
     }
   }
@@ -436,14 +454,14 @@ class _OpportunityInformation extends ConsumerWidget {
       if (type == 'ruc') {
         print('ES RUC');
         ref
-            .read(opportunityFormProvider(opportunity).notifier)
+            .read(opportunityFormProvider(widget.opportunity).notifier)
             .onRucChanged(company.ruc, company.razon);
       }
 
       if (type == 'intermediario1') {
         print('ES INTERMEDIARIO 1');
         ref
-            .read(opportunityFormProvider(opportunity).notifier)
+            .read(opportunityFormProvider(widget.opportunity).notifier)
             .onRucIntermediario01Changed(company.ruc, company.razon);
       }
     });
@@ -465,7 +483,7 @@ class _OpportunityInformation extends ConsumerWidget {
       if (user == null) return;
 
       ref
-          .read(opportunityFormProvider(opportunity).notifier)
+          .read(opportunityFormProvider(widget.opportunity).notifier)
           .onUsuarioChanged(user);
     });
   }

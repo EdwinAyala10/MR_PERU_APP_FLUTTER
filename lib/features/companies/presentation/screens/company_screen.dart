@@ -7,6 +7,7 @@ import 'package:crm_app/features/resource-detail/presentation/providers/resource
 import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
 import 'package:crm_app/features/shared/shared.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
+import 'package:crm_app/features/shared/widgets/placeholder.dart';
 import 'package:crm_app/features/shared/widgets/select_custom_form.dart';
 import 'package:crm_app/features/shared/widgets/text_address.dart';
 import 'package:crm_app/features/shared/widgets/title_section_form.dart';
@@ -156,25 +157,6 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
   @override
   Widget build(BuildContext context) {
 
-    /*List<DropdownOption> optionsTipoCliente = [
-      DropdownOption('01', 'Proveedor'),
-      DropdownOption('02', 'Distribuidor'),
-      DropdownOption('03', 'Prospecto'),
-      DropdownOption('04', 'Cliente'),
-    ];*/
-
-    /*List<DropdownOption> optionsEstado = [
-      DropdownOption('A', 'ACTIVO'),
-      DropdownOption('B', 'NO CLIENTE'),
-    ];*/
-
-    /*List<DropdownOption> optionsCalificacion = [
-      DropdownOption('A', 'A'),
-      DropdownOption('B', 'B'),
-      DropdownOption('C', 'C'),
-      DropdownOption('D', 'D'),
-    ];*/
-
     List<DropdownOption> optionsLocalTipo = [
       DropdownOption('', 'Seleccione tipo de local'),
       DropdownOption('2', 'PLANTA'),
@@ -258,7 +240,7 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
                 .onRucChanged,
             errorMessage: companyForm.ruc.errorMessage,
           ),
-          SelectCustomForm(
+          optionsTipoCliente.length > 1 ? SelectCustomForm(
             label: 'Tipo',
             value: companyForm.tipoCliente.value,
             callbackChange: (String? newValue) {
@@ -272,8 +254,8 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
             },
             items: optionsTipoCliente,
             errorMessage: companyForm.tipoCliente.errorMessage,
-          ),
-          SelectCustomForm(
+          ): PlaceholderInput(text: 'Cargando Tipo...'),
+          optionsEstado.length > 1 ? SelectCustomForm(
             label: 'Estado',
             value: companyForm.estado.value,
             callbackChange: (String? newValue) {
@@ -286,8 +268,8 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
             },
             items: optionsEstado,
             errorMessage: companyForm.estado.errorMessage,
-          ),
-          SelectCustomForm(
+          ): PlaceholderInput(text: 'Cargando Estado...'),
+          optionsCalificacion.length > 1 ? SelectCustomForm(
             label: 'Calificación',
             value: companyForm.calificacion.value,
             callbackChange: (String? newValue) {
@@ -297,7 +279,7 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
             },
             items: optionsCalificacion,
             errorMessage: companyForm.calificacion.errorMessage,
-          ),
+          ): PlaceholderInput(text: 'Cargando Calificación...'),
           const SizedBox(height: 15),
           const Text('Responsable *'),
           Row(

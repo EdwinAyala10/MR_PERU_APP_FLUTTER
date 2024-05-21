@@ -3,9 +3,11 @@ import 'package:crm_app/features/companies/presentation/delegates/search_company
 import 'package:crm_app/features/companies/presentation/search/search_companies_active_provider.dart';
 import 'package:crm_app/features/contacts/domain/domain.dart';
 import 'package:crm_app/features/contacts/presentation/providers/providers.dart';
+import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
 import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
 import 'package:crm_app/features/shared/shared.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
+import 'package:crm_app/features/shared/widgets/placeholder.dart';
 import 'package:crm_app/features/shared/widgets/select_custom_form.dart';
 import 'package:crm_app/features/shared/widgets/title_section_form.dart';
 import 'package:flutter/material.dart';
@@ -25,10 +27,7 @@ class ContactScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    print('CONTAC ID [CONTACT_SCREEN]: ${contactId}');
     final contactState = ref.watch(contactProvider(contactId));
-    print('CONTAC ID STATE [CONTACT_SCREEN]: ${contactState.id}');
-    print('CONTAC ID STATE CONTACT [CONTACT_SCREEN]: ${contactState.contact?.id}');
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -88,7 +87,7 @@ class _ContactView extends ConsumerWidget {
       children: [
         const SizedBox(height: 10),
         contact != null
-            ? _ContactInformation(contact: contact)
+            ? _ContactInformationv2(contact: contact)
             : const Center(
                 child: Text('No se encontre datos de la empresa'),
               ),
@@ -97,24 +96,38 @@ class _ContactView extends ConsumerWidget {
   }
 }
 
-class _ContactInformation extends ConsumerWidget {
+class _ContactInformationv2 extends ConsumerStatefulWidget {
   final Contact contact;
 
-  const _ContactInformation({required this.contact});
+  const _ContactInformationv2({super.key, required this.contact});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    List<DropdownOption> optionsCargo = [
-      DropdownOption('', '--SELECCIONE--'),
-      DropdownOption('01', 'ADMINISTRADOR'),
-      DropdownOption('02', 'COMPRADOR'),
-      DropdownOption('03', 'JEFE DE MANTENIMIENTO'),
-      DropdownOption('04', 'JEFE DE PLANTA/ PRODUCCIÓN'),
-      DropdownOption('05', 'OPERARIO/ TÉCNICO DE MANTENIMIENTO'),
-      DropdownOption('06', 'GERENTE GENERAL'),
-    ];
+  __ContactInformationv2State createState() => __ContactInformationv2State();
+}
 
-    final contactForm = ref.watch(contactFormProvider(contact));
+class __ContactInformationv2State extends ConsumerState<_ContactInformationv2> {
+  List<DropdownOption> optionsCargo = [
+    DropdownOption('', 'Cargando...')
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('07').then((value) => {
+        setState(() {
+          optionsCargo = value;
+        })
+      });
+    });
+
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    final contactForm = ref.watch(contactFormProvider(widget.contact));
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -191,25 +204,26 @@ class _ContactInformation extends ConsumerWidget {
             label: 'Nombre *',
             initialValue: contactForm.contactoDesc.value,
             onChanged:
-                ref.read(contactFormProvider(contact).notifier).onNameChanged,
+                ref.read(contactFormProvider(widget.contact).notifier).onNameChanged,
             errorMessage: contactForm.contactoDesc.errorMessage,
           ),
-          SelectCustomForm(
+          optionsCargo.length > 1 ? SelectCustomForm(
             label: 'Cargo',
-            value: contactForm.contactoIdCargo,
+            value: contactForm.contactoIdCargo.value,
             callbackChange: (String? newValue) {
               DropdownOption searchCargo =
                   optionsCargo.where((option) => option.id == newValue!).first;
 
               ref
-                  .read(contactFormProvider(contact).notifier)
+                  .read(contactFormProvider(widget.contact).notifier)
                   .onCargoChanged(newValue!);
               ref
-                  .read(contactFormProvider(contact).notifier)
+                  .read(contactFormProvider(widget.contact).notifier)
                   .onNombreCargoChanged(searchCargo.name);
             },
             items: optionsCargo,
-          ),
+            errorMessage: contactForm.contactoIdCargo.errorMessage,
+          ): PlaceholderInput(text: 'Cargando Cargo...'),
           TitleSectionForm(title: 'DATOS DE CONTACTO'),
           
           CustomCompanyField(
@@ -218,7 +232,7 @@ class _ContactInformation extends ConsumerWidget {
             initialValue: contactForm.contactoTelefonoc.value,
             onChanged: (String? newValue) {
               ref
-                  .read(contactFormProvider(contact).notifier)
+                  .read(contactFormProvider(widget.contact).notifier)
                   .onTelefonoNocChanged(newValue!);
             },
             errorMessage: contactForm.contactoTelefonoc.errorMessage,
@@ -228,7 +242,7 @@ class _ContactInformation extends ConsumerWidget {
             keyboardType: TextInputType.phone,
             initialValue: contactForm.contactoTelefonof,
             onChanged:
-                ref.read(contactFormProvider(contact).notifier).onPhoneChanged,
+                ref.read(contactFormProvider(widget.contact).notifier).onPhoneChanged,
           ),
           CustomCompanyField(
             label: 'Email *',
@@ -236,7 +250,7 @@ class _ContactInformation extends ConsumerWidget {
             initialValue: contactForm.contactoEmail,
             onChanged: (String? newValue) {
               ref
-                  .read(contactFormProvider(contact).notifier)
+                  .read(contactFormProvider(widget.contact).notifier)
                   .onEmailChanged(newValue!);
             },
           ),
@@ -245,7 +259,7 @@ class _ContactInformation extends ConsumerWidget {
             initialValue: contactForm.contactoNotas,
             onChanged: (String? newValue) {
               ref
-                  .read(contactFormProvider(contact).notifier)
+                  .read(contactFormProvider(widget.contact).notifier)
                   .onComentarioChanged(newValue!);
             },
             maxLines: 2,
@@ -272,9 +286,9 @@ class _ContactInformation extends ConsumerWidget {
         .then((company) {
       if (company == null) return;
 
-      ref.read(contactFormProvider(contact).notifier).onRucChanged(company.ruc);
+      ref.read(contactFormProvider(widget.contact).notifier).onRucChanged(company.ruc);
       ref
-          .read(contactFormProvider(contact).notifier)
+          .read(contactFormProvider(widget.contact).notifier)
           .onRazonChanged(company.razon);
     });
   }

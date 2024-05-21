@@ -5,6 +5,7 @@ import 'package:crm_app/features/activities/presentation/providers/providers.dar
 import 'package:crm_app/features/companies/domain/domain.dart';
 import 'package:crm_app/features/contacts/domain/domain.dart';
 import 'package:crm_app/features/opportunities/domain/domain.dart';
+import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
 import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
 import 'package:crm_app/features/shared/shared.dart';
 
@@ -17,6 +18,7 @@ import 'package:crm_app/features/companies/presentation/delegates/search_company
 import 'package:crm_app/features/opportunities/presentation/search/search_opportunities_active_provider.dart';
 import 'package:crm_app/features/opportunities/presentation/delegates/search_opportunity_active_delegate.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
+import 'package:crm_app/features/shared/widgets/placeholder.dart';
 import 'package:crm_app/features/shared/widgets/select_custom_form.dart';
 
 import 'package:flutter/material.dart';
@@ -84,32 +86,43 @@ class _ActivityView extends ConsumerWidget {
     return ListView(
       children: [
         const SizedBox(height: 10),
-        _ActivityInformation(activity: activity),
+        _ActivityInformationv2(activity: activity),
       ],
     );
   }
 }
 
-class _ActivityInformation extends ConsumerWidget {
+class _ActivityInformationv2 extends ConsumerStatefulWidget {
   final Activity activity;
 
-  const _ActivityInformation({required this.activity});
+  const _ActivityInformationv2({super.key, required this.activity});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var scores = ['A', 'B', 'C', 'D'];
+  _ActivityInformationv2State createState() => _ActivityInformationv2State();
+}
 
-    List<String> tags = ['Aldo Mori'];
+class _ActivityInformationv2State extends ConsumerState<_ActivityInformationv2> {
+  List<DropdownOption> optionsTipoGestion = [
+    DropdownOption('', 'Cargando...')
+  ];
 
-    List<DropdownOption> optionsTipoGestion = [
-      DropdownOption('', '--Seleccione--'),
-      DropdownOption('01', 'Comentario'),
-      DropdownOption('02', 'Llamada Telefónica'),
-      DropdownOption('03', 'Reunión'),
-      DropdownOption('04', 'Visita'),
-    ];
+  @override
+  void initState() {
+    super.initState();
 
-    final activityForm = ref.watch(activityFormProvider(activity));
+    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('10').then((value) => {
+        setState(() {
+          optionsTipoGestion = value;
+        })
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    final activityForm = ref.watch(activityFormProvider(widget.activity));
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -117,7 +130,7 @@ class _ActivityInformation extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 10),
-          SelectCustomForm(
+          optionsTipoGestion.length > 1 ? SelectCustomForm(
             label: 'Tipo de gestión *',
             value: activityForm.actiIdTipoGestion.value,
             callbackChange: (String? newValue) {
@@ -125,12 +138,12 @@ class _ActivityInformation extends ConsumerWidget {
                   .where((option) => option.id == newValue!)
                   .first;
               ref
-                  .read(activityFormProvider(activity).notifier)
+                  .read(activityFormProvider(widget.activity).notifier)
                   .onTipoGestionChanged(newValue ?? '', searchTipoGestion.name);
             },
             items: optionsTipoGestion,
             errorMessage: activityForm.actiIdTipoGestion.errorMessage,
-          ),
+          ): PlaceholderInput(text: ''),
           const SizedBox(height: 10),
           const Text(
             'Fecha',
@@ -345,7 +358,7 @@ class _ActivityInformation extends ConsumerWidget {
                                         onDeleted: () {
                                           ref
                                               .read(
-                                                  activityFormProvider(activity)
+                                                  activityFormProvider(widget.activity)
                                                       .notifier)
                                               .onDeleteContactoChanged(item);
                                         },
@@ -467,7 +480,7 @@ class _ActivityInformation extends ConsumerWidget {
             maxLines: 2,
             initialValue: activityForm.actiComentario,
             onChanged: ref
-                .read(activityFormProvider(activity).notifier)
+                .read(activityFormProvider(widget.activity).notifier)
                 .onComentarioChanged,
           ),
           const SizedBox(height: 10),
@@ -503,7 +516,7 @@ class _ActivityInformation extends ConsumerWidget {
 
     //if (picked != null && picked != selectedDate) {
     if (picked != null) {
-      ref.read(activityFormProvider(activity).notifier).onFechaChanged(picked);
+      ref.read(activityFormProvider(widget.activity).notifier).onFechaChanged(picked);
     }
   }
 
@@ -517,7 +530,7 @@ class _ActivityInformation extends ConsumerWidget {
     if (picked != null) {
       String formattedTime = picked.toString().substring(10, 15) + ':00';
       ref
-          .read(activityFormProvider(activity).notifier)
+          .read(activityFormProvider(widget.activity).notifier)
           .onHoraChanged(formattedTime);
     }
   }
@@ -540,7 +553,7 @@ class _ActivityInformation extends ConsumerWidget {
       if (company == null) return;
 
       ref
-          .read(activityFormProvider(activity).notifier)
+          .read(activityFormProvider(widget.activity).notifier)
           .onRucChanged(company.ruc, company.razon);
     });
   }
@@ -563,7 +576,7 @@ class _ActivityInformation extends ConsumerWidget {
       if (opportunity == null) return;
 
       ref
-          .read(activityFormProvider(activity).notifier)
+          .read(activityFormProvider(widget.activity).notifier)
           .onOportunidadChanged(opportunity.id, opportunity.oprtNombre);
     });
   }
@@ -586,10 +599,12 @@ class _ActivityInformation extends ConsumerWidget {
       if (contact == null) return;
 
       ref
-          .read(activityFormProvider(activity).notifier)
+          .read(activityFormProvider(widget.activity).notifier)
           .onContactoChanged(contact);
     });
   }
+
+  
 }
 
 void showSnackbar(BuildContext context, String message) {

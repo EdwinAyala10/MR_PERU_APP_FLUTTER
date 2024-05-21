@@ -1,4 +1,5 @@
 import 'package:crm_app/features/kpis/domain/entities/array_user.dart';
+import 'package:crm_app/features/shared/infrastructure/inputs/inputs.dart';
 import 'package:crm_app/features/users/domain/domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
@@ -35,7 +36,7 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
           oprtComentario: opportunity.oprtComentario ?? '',
           oprtFechaPrevistaVenta:
               opportunity.oprtFechaPrevistaVenta ?? DateTime.now(),
-          oprtIdEstadoOportunidad: opportunity.oprtIdEstadoOportunidad ?? '',
+          oprtIdEstadoOportunidad: StateOpportunity.dirty(opportunity.oprtIdEstadoOportunidad ?? ''),
           oprtIdUsuarioRegistro: opportunity.oprtIdUsuarioRegistro ?? '',
           oprtIdValor: opportunity.oprtIdValor ?? '',
           oprtNobbreEstadoOportunidad:
@@ -101,20 +102,28 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
     state = state.copyWith(
       isFormValid: Formz.validate([
         Name.dirty(state.oprtNombre.value),
+        StateOpportunity.dirty(state.oprtIdEstadoOportunidad.value),
       ]),
     );
   }
 
   void onNameChanged(String value) {
     state = state.copyWith(
-        oprtNombre: Name.dirty(value),
-        isFormValid: Formz.validate([
-          Name.dirty(value),
-        ]));
+      oprtNombre: Name.dirty(value),
+      isFormValid: Formz.validate([
+        Name.dirty(value),
+        StateOpportunity.dirty(state.oprtIdEstadoOportunidad.value)
+      ]));
   }
 
   void onIdEstadoChanged(String idEstado) {
-    state = state.copyWith(oprtIdEstadoOportunidad: idEstado);
+    //state = state.copyWith(oprtIdEstadoOportunidad: idEstado);
+    state = state.copyWith(
+      oprtIdEstadoOportunidad: StateOpportunity.dirty(idEstado),
+      isFormValid: Formz.validate([
+        Name.dirty(state.oprtNombre.value),
+        StateOpportunity.dirty(idEstado)
+      ]));
   }
 
   void onNameEstadoChanged(String nameEstado) {
@@ -216,7 +225,7 @@ class OpportunityFormState {
   final String? id;
   final Name oprtNombre;
   final String oprtEntorno;
-  final String oprtIdEstadoOportunidad;
+  final StateOpportunity oprtIdEstadoOportunidad;
   final String oprtProbabilidad;
   final String oprtIdValor;
   final DateTime? oprtFechaPrevistaVenta;
@@ -241,7 +250,7 @@ class OpportunityFormState {
       this.id,
       this.oprtNombre = const Name.dirty(''),
       this.oprtEntorno = 'MR PERU',
-      this.oprtIdEstadoOportunidad = '',
+      this.oprtIdEstadoOportunidad = const StateOpportunity.dirty(''),
       this.oprtProbabilidad = '1',
       this.oprtIdValor = '01',
       this.oprtFechaPrevistaVenta,
@@ -266,7 +275,7 @@ class OpportunityFormState {
     String? id,
     Name? oprtNombre,
     String? oprtEntorno,
-    String? oprtIdEstadoOportunidad,
+    StateOpportunity? oprtIdEstadoOportunidad,
     String? oprtProbabilidad,
     String? oprtIdValor,
     DateTime? oprtFechaPrevistaVenta,
