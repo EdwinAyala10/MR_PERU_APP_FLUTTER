@@ -1,6 +1,6 @@
-import 'package:crm_app/features/opportunities/domain/entities/status_opportunity.dart';
+import '../../domain/entities/status_opportunity.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:crm_app/features/opportunities/domain/domain.dart';
+import '../../domain/domain.dart';
 
 import 'opportunities_repository_provider.dart';
 

@@ -1,17 +1,16 @@
-import 'package:crm_app/features/activities/domain/domain.dart';
-import 'package:crm_app/features/agenda/domain/domain.dart';
-import 'package:crm_app/features/contacts/domain/domain.dart';
-import 'package:crm_app/features/kpis/domain/entities/array_user.dart';
-import 'package:crm_app/features/opportunities/domain/domain.dart';
-import 'package:crm_app/features/shared/infrastructure/inputs/inputs.dart';
-import 'package:crm_app/features/shared/infrastructure/inputs/type_local.dart';
-import 'package:crm_app/features/users/domain/domain.dart';
+import '../../../../activities/domain/domain.dart';
+import '../../../../agenda/domain/domain.dart';
+import '../../../../contacts/domain/domain.dart';
+import '../../../../kpis/domain/entities/array_user.dart';
+import '../../../../opportunities/domain/domain.dart';
+import '../../../../shared/infrastructure/inputs/inputs.dart';
+import '../../../../users/domain/domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
 
-import 'package:crm_app/features/companies/domain/domain.dart';
-import 'package:crm_app/features/companies/presentation/providers/providers.dart';
-import 'package:crm_app/features/shared/shared.dart';
+import '../../../domain/domain.dart';
+import '../providers.dart';
+import '../../../../shared/shared.dart';
 
 final companyFormProvider = StateNotifierProvider.autoDispose
     .family<CompanyFormNotifier, CompanyFormState, Company>((ref, company) {
@@ -89,7 +88,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
       'RUCID': (state.rucId == 'new') ? null : state.rucId,
       'RUC': state.ruc.value,
       'RAZON': state.razon.value,
-      'DIRECCION': state.direccion ?? ' ',
+      'DIRECCION': state.direccion,
       'TELEFONO': state.telefono.value,
       'OBSERVACIONES': state.observaciones,
       'DEPARTAMENTO': state.departamento,

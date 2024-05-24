@@ -1,14 +1,14 @@
 import 'dart:async';
 
-import 'package:crm_app/features/kpis/domain/domain.dart';
-import 'package:crm_app/features/kpis/domain/entities/periodicidad.dart';
-import 'package:crm_app/features/kpis/presentation/providers/providers.dart';
-import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
-import 'package:crm_app/features/shared/shared.dart';
-import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
-import 'package:crm_app/features/users/domain/domain.dart';
-import 'package:crm_app/features/users/presentation/delegates/search_user_delegate.dart';
-import 'package:crm_app/features/users/presentation/search/search_users_provider.dart';
+import '../../domain/domain.dart';
+import '../../domain/entities/periodicidad.dart';
+import '../providers/providers.dart';
+import '../../../shared/domain/entities/dropdown_option.dart';
+import '../../../shared/shared.dart';
+import '../../../shared/widgets/floating_action_button_custom.dart';
+import '../../../users/domain/domain.dart';
+import '../../../users/presentation/delegates/search_user_delegate.dart';
+import '../../../users/presentation/search/search_users_provider.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

@@ -1,4 +1,4 @@
-import 'package:crm_app/features/kpis/domain/domain.dart';
+import '../domain.dart';
 
 class KpiResponse {
     String type;

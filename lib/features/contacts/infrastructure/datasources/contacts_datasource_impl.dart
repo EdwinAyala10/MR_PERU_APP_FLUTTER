@@ -1,7 +1,7 @@
-import 'package:crm_app/features/contacts/infrastructure/mappers/contact_response_mapper.dart';
+import '../mappers/contact_response_mapper.dart';
 import 'package:dio/dio.dart';
-import 'package:crm_app/config/config.dart';
-import 'package:crm_app/features/contacts/domain/domain.dart';
+import '../../../../config/config.dart';
+import '../../domain/domain.dart';
 
 import '../errors/contact_errors.dart';
 import '../mappers/contact_mapper.dart';

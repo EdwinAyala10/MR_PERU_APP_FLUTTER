@@ -1,7 +1,7 @@
-import 'package:crm_app/features/activities/infrastructure/mappers/activity_response_mapper.dart';
+import '../mappers/activity_response_mapper.dart';
 import 'package:dio/dio.dart';
-import 'package:crm_app/config/config.dart';
-import 'package:crm_app/features/activities/domain/domain.dart';
+import '../../../../config/config.dart';
+import '../../domain/domain.dart';
 
 import '../errors/activity_errors.dart';
 import '../mappers/activity_mapper.dart';

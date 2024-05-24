@@ -1,4 +1,4 @@
-import 'package:crm_app/features/contacts/domain/domain.dart';
+import '../../domain/domain.dart';
 import 'package:flutter/material.dart';
 
 class ItemContact extends StatelessWidget {

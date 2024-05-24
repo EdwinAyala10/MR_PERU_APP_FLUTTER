@@ -1,4 +1,4 @@
-import 'package:crm_app/features/companies/domain/domain.dart';
+import '../../domain/domain.dart';
 
 
 class CompanyCheckInMapper {

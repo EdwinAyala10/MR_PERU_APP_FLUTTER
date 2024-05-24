@@ -1,4 +1,4 @@
-import 'package:crm_app/features/kpis/domain/entities/array_user.dart';
+import '../../../kpis/domain/entities/array_user.dart';
 
 class Company {
   String rucId;

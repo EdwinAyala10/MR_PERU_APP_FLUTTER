@@ -1,13 +1,13 @@
-import 'package:crm_app/features/agenda/domain/domain.dart';
-import 'package:crm_app/features/agenda/presentation/providers/events_provider.dart';
-import 'package:crm_app/features/agenda/presentation/widgets/item_event.dart';
-import 'package:crm_app/features/agenda/presentation/widgets/table_calendar.dart';
-import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
+import '../../domain/domain.dart';
+import '../providers/events_provider.dart';
+import '../widgets/item_event.dart';
+import '../widgets/table_calendar.dart';
+import '../../../shared/widgets/floating_action_button_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:crm_app/features/shared/shared.dart';
+import '../../../shared/shared.dart';
 import 'package:intl/intl.dart';
 
 import 'package:table_calendar/table_calendar.dart';

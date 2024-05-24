@@ -1,15 +1,15 @@
 import 'dart:async';
 
-import 'package:crm_app/features/opportunities/domain/domain.dart';
-import 'package:crm_app/features/opportunities/presentation/providers/providers.dart';
-import 'package:crm_app/features/opportunities/presentation/widgets/item_opportunity.dart';
-import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
-import 'package:crm_app/features/shared/widgets/loading_modal.dart';
+import '../../domain/domain.dart';
+import '../providers/providers.dart';
+import '../widgets/item_opportunity.dart';
+import '../../../shared/widgets/floating_action_button_custom.dart';
+import '../../../shared/widgets/loading_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:crm_app/features/shared/shared.dart';
+import '../../../shared/shared.dart';
 
 class OpportunitiesScreen extends ConsumerWidget {
   const OpportunitiesScreen({super.key});

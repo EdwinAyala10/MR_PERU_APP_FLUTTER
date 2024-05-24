@@ -1,9 +1,9 @@
 import 'dart:collection';
 
-import 'package:crm_app/features/agenda/infrastructure/mappers/event_response_mapper.dart';
+import '../mappers/event_response_mapper.dart';
 import 'package:dio/dio.dart';
-import 'package:crm_app/config/config.dart';
-import 'package:crm_app/features/agenda/domain/domain.dart';
+import '../../../../config/config.dart';
+import '../../domain/domain.dart';
 
 import '../errors/event_errors.dart';
 import '../mappers/event_mapper.dart';

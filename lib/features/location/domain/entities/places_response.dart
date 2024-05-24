@@ -1,5 +1,5 @@
 
-import 'package:crm_app/features/location/domain/domain.dart';
+import '../domain.dart';
 
 class PlacesResponse {
     List<Place> places;

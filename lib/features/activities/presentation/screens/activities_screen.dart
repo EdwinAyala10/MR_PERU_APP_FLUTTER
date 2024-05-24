@@ -1,16 +1,16 @@
 import 'dart:async';
 
-import 'package:crm_app/features/activities/domain/domain.dart';
-import 'package:crm_app/features/activities/presentation/providers/providers.dart';
-import 'package:crm_app/features/activities/presentation/widgets/item_activity.dart';
-import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
-import 'package:crm_app/features/shared/widgets/loading_modal.dart';
-import 'package:crm_app/features/shared/widgets/no_exist_listview.dart';
+import '../../domain/domain.dart';
+import '../providers/providers.dart';
+import '../widgets/item_activity.dart';
+import '../../../shared/widgets/floating_action_button_custom.dart';
+import '../../../shared/widgets/loading_modal.dart';
+import '../../../shared/widgets/no_exist_listview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:crm_app/features/shared/shared.dart';
+import '../../../shared/shared.dart';
 
 class ActivitiesScreen extends ConsumerWidget {
   const ActivitiesScreen({super.key});
@@ -174,7 +174,7 @@ class _ActivitiesViewState extends ConsumerState {
       return LoadingModal();
     }
 
-    return activitiesState.activities.length > 0
+    return activitiesState.activities.isNotEmpty
         ? _ListActivities(
             activities: activitiesState.activities, 
             onRefreshCallback: _refresh,
@@ -185,7 +185,7 @@ class _ActivitiesViewState extends ConsumerState {
 }
 
 class _SearchComponent extends ConsumerStatefulWidget {
-  const _SearchComponent({super.key});
+  const _SearchComponent();
 
   @override
   _SearchComponentState createState() => _SearchComponentState();
@@ -194,8 +194,8 @@ class _SearchComponent extends ConsumerStatefulWidget {
 class _SearchComponentState extends ConsumerState {
   @override
   Widget build(BuildContext context) {
-    Timer? _debounce;
-    TextEditingController _searchController =
+    Timer? debounce;
+    TextEditingController searchController =
         TextEditingController(text: ref.read(activitiesProvider).textSearch);
 
     return Container(
@@ -207,11 +207,10 @@ class _SearchComponentState extends ConsumerState {
           TextFormField(
             style: const TextStyle(fontSize: 14.0),
             //initialValue:  ?? '',
-            controller: _searchController,
+            controller: searchController,
             onChanged: (String value) {
-              if (_debounce?.isActive ?? false) _debounce?.cancel();
-              _debounce = Timer(const Duration(milliseconds: 500), () {
-                print('Searching for: $value');
+              if (debounce?.isActive ?? false) debounce?.cancel();
+              debounce = Timer(const Duration(milliseconds: 500), () {
                 ref.read(activitiesProvider.notifier).onChangeTextSearch(value);
               });
             },
@@ -242,7 +241,7 @@ class _SearchComponentState extends ConsumerState {
                 ref
                     .read(activitiesProvider.notifier)
                     .onChangeNotIsActiveSearch();
-                _searchController.text = '';
+                searchController.text = '';
                 /*setState(() {
                 });*/
               },
@@ -260,7 +259,7 @@ class _ListActivities extends ConsumerStatefulWidget {
   final ScrollController scrollController;
 
   const _ListActivities(
-      {super.key, required this.activities, required this.onRefreshCallback, required this.scrollController});
+      {required this.activities, required this.onRefreshCallback, required this.scrollController});
 
   @override
   _ListActivitiesState createState() => _ListActivitiesState();
@@ -269,14 +268,14 @@ class _ListActivities extends ConsumerStatefulWidget {
 class _ListActivitiesState extends ConsumerState<_ListActivities> {
   @override
   Widget build(BuildContext context) {
-    final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+    final GlobalKey<RefreshIndicatorState> refreshIndicatorKey =
         GlobalKey<RefreshIndicatorState>();
 
     return widget.activities.isEmpty
         ? Center(
             child: RefreshIndicator(
                 onRefresh: widget.onRefreshCallback,
-                key: _refreshIndicatorKey,
+                key: refreshIndicatorKey,
                 child: SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   child: Column(
@@ -302,7 +301,7 @@ class _ListActivitiesState extends ConsumerState<_ListActivities> {
           child: RefreshIndicator(
               notificationPredicate: defaultScrollNotificationPredicate,
               onRefresh: widget.onRefreshCallback,
-              key: _refreshIndicatorKey,
+              key: refreshIndicatorKey,
               child: ListView.separated(
                 itemCount: widget.activities.length,
                 separatorBuilder: (BuildContext context, int index) =>

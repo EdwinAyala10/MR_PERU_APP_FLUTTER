@@ -1,5 +1,5 @@
-import 'package:crm_app/features/companies/domain/domain.dart';
-import 'package:crm_app/features/companies/domain/entities/check_in_by_ruc_local_response.dart';
+import '../../domain/domain.dart';
+import '../../domain/entities/check_in_by_ruc_local_response.dart';
 
 class CompaniesRepositoryImpl extends CompaniesRepository {
   final CompaniesDatasource datasource;

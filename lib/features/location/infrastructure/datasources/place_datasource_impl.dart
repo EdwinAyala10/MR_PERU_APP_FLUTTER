@@ -1,16 +1,16 @@
-import 'package:crm_app/features/location/domain/domain.dart';
-import 'package:crm_app/features/location/domain/entities/geocode_response.dart';
-import 'package:crm_app/features/location/infrastructure/mappers/geocode_response_mapper.dart';
-import 'package:crm_app/features/location/infrastructure/mappers/place_mapper.dart';
+import '../../domain/domain.dart';
+import '../../domain/entities/geocode_response.dart';
+import '../mappers/geocode_response_mapper.dart';
+import '../mappers/place_mapper.dart';
 import 'package:dio/dio.dart';
-import 'package:crm_app/config/config.dart';
+import '../../../../config/config.dart';
 
 class PlacesDatasourceImpl extends PlacesDatasource {
   @override
   Future<Place> getDetailByPlaceId(String placeId) async {
     final dio = Dio();
 
-    final String url = 'https://places.googleapis.com/v1/places/${placeId}';
+    final String url = 'https://places.googleapis.com/v1/places/$placeId';
 
     final response = await dio.get(url,
         options: Options(headers: {

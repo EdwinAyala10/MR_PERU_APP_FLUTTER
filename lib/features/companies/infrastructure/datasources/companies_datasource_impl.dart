@@ -1,11 +1,11 @@
-import 'package:crm_app/features/companies/domain/entities/check_in_by_ruc_local_response.dart';
-import 'package:crm_app/features/companies/infrastructure/infrastructure.dart';
-import 'package:crm_app/features/companies/infrastructure/mappers/check_in_by_ruc_local_mapper.dart';
-import 'package:crm_app/features/companies/infrastructure/mappers/check_in_by_ruc_local_response.dart_mapper.dart';
-import 'package:crm_app/features/companies/infrastructure/mappers/company_response_mapper.dart';
+import '../../domain/entities/check_in_by_ruc_local_response.dart';
+import '../infrastructure.dart';
+import '../mappers/check_in_by_ruc_local_mapper.dart';
+import '../mappers/check_in_by_ruc_local_response.dart_mapper.dart';
+import '../mappers/company_response_mapper.dart';
 import 'package:dio/dio.dart';
-import 'package:crm_app/config/config.dart';
-import 'package:crm_app/features/companies/domain/domain.dart';
+import '../../../../config/config.dart';
+import '../../domain/domain.dart';
 
 
 class CompaniesDatasourceImpl extends CompaniesDatasource {
@@ -29,14 +29,8 @@ class CompaniesDatasourceImpl extends CompaniesDatasource {
 
       //companyLike.remove('rucId');
 
-      print('URL CREATE COMPANY: ${url}');
-      print('RUC ID: ${rucId}');
-      print('companyLike: ${companyLike}');
-
       final response = await dio.request(url,
           data: companyLike, options: Options(method: method));
-
-      print('RESP companies: ${response}');
 
       final CompanyResponse companyResponse =
           CompanyResponseMapper.jsonToEntity(response.data);
@@ -58,12 +52,8 @@ class CompaniesDatasourceImpl extends CompaniesDatasource {
   @override
   Future<Company> getCompanyById(String rucId, String userId) async {
     try {
-      print('INGRESO GET COMPANY ID');
-      print('RUC ID: ${rucId}');
       final response = await dio.get('/cliente/cliente-by-ruc/$rucId/$userId');
       final Company company= CompanyMapper.jsonToEntity(response.data['data']);
-
-      print('response: ${response}');
 
       if (rucId != 'new') {
         company.rucId = company.ruc;
@@ -120,9 +110,6 @@ class CompaniesDatasourceImpl extends CompaniesDatasource {
       final response = await dio.request(url,
           data: companyCheckInLike, options: Options(method: method));
 
-      print('RESP: ${response}');
-      print('COMPANY LIKE: ${companyCheckInLike}');
-
       final CompanyCheckInResponse companyCheckInResponse =
           CompanyCheckInResponseMapper.jsonToEntity(response.data);
 
@@ -154,13 +141,8 @@ class CompaniesDatasourceImpl extends CompaniesDatasource {
         companyLocalLike.remove('LOCAL_CODIGO');
       }
 
-      print('URL CREATE COMPANY LOCAL: ${url}');
-      print('companyLike LOCAL: ${companyLocalLike}');
-
       final response = await dio.request(url,
           data: companyLocalLike, options: Options(method: method));
-
-      print('RESP companies Local: ${response}');
 
       final CompanyLocalResponse companyLocalResponse =
           CompanyLocalResponseMapper.jsonToEntity(response.data);
@@ -183,8 +165,6 @@ class CompaniesDatasourceImpl extends CompaniesDatasource {
     final response =
         await dio.get('/cliente/cliente-locales-by-ruc/${ruc}');
     
-    print('RESP COMPANY LOCALES: ${response}');
-
     final List<CompanyLocal> companyLocales = [];
 
     for (final company in response.data['data'] ?? []) {
@@ -220,8 +200,6 @@ class CompaniesDatasourceImpl extends CompaniesDatasource {
 
       final response = await dio.post('/cliente-check/listar-check-by-ruc-local', data: data );
       final CheckInByRucLocalResponse checkInByRucLocalResponse = CheckInByRucLocalResponseMapper.jsonToEntity(response.data);
-
-      print('response getCheckInByRucLocal: ${response}');
 
       if (checkInByRucLocalResponse.status == true) {
         checkInByRucLocalResponse.checkInByRucLocal =

@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import 'package:crm_app/features/agenda/domain/domain.dart';
+import '../../domain/domain.dart';
 
 LinkedHashMap<DateTime, List<Event>> addEventIfNotExist(
     LinkedHashMap<DateTime, List<Event>> linkedEvents, Event evento) {

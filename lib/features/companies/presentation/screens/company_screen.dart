@@ -1,19 +1,19 @@
-import 'package:crm_app/features/companies/domain/domain.dart';
-import 'package:crm_app/features/companies/presentation/providers/providers.dart';
-import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
-import 'package:crm_app/features/location/presentation/providers/gps_provider.dart';
-import 'package:crm_app/features/location/presentation/providers/selected_map_provider.dart';
-import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
-import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
-import 'package:crm_app/features/shared/shared.dart';
-import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
-import 'package:crm_app/features/shared/widgets/placeholder.dart';
-import 'package:crm_app/features/shared/widgets/select_custom_form.dart';
-import 'package:crm_app/features/shared/widgets/text_address.dart';
-import 'package:crm_app/features/shared/widgets/title_section_form.dart';
-import 'package:crm_app/features/users/domain/domain.dart';
-import 'package:crm_app/features/users/presentation/delegates/search_user_delegate.dart';
-import 'package:crm_app/features/users/presentation/search/search_users_provider.dart';
+import '../../domain/domain.dart';
+import '../providers/providers.dart';
+import '../widgets/show_loading_message.dart';
+import '../../../location/presentation/providers/gps_provider.dart';
+import '../../../location/presentation/providers/selected_map_provider.dart';
+import '../../../resource-detail/presentation/providers/resource_details_provider.dart';
+import '../../../shared/domain/entities/dropdown_option.dart';
+import '../../../shared/shared.dart';
+import '../../../shared/widgets/floating_action_button_custom.dart';
+import '../../../shared/widgets/placeholder.dart';
+import '../../../shared/widgets/select_custom_form.dart';
+import '../../../shared/widgets/text_address.dart';
+import '../../../shared/widgets/title_section_form.dart';
+import '../../../users/domain/domain.dart';
+import '../../../users/presentation/delegates/search_user_delegate.dart';
+import '../../../users/presentation/search/search_users_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -480,11 +480,11 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
               label: 'Código postal local',
               placeholder: 'Código postal del local'),
           TextViewCustom(
-              text: companyForm.coordenadasLatitud ?? '',
+              text: companyForm.coordenadasLatitud,
               label: 'Latitud',
               placeholder: 'Latitud'),
           TextViewCustom(
-              text: companyForm.coordenadasLongitud ?? '',
+              text: companyForm.coordenadasLongitud,
               label: 'Longitud',
               placeholder: 'Longitud'),
           /*SelectCustomForm(

@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:crm_app/features/shared/infrastructure/services/key_value_storage_service.dart';
-import 'package:crm_app/features/shared/infrastructure/services/key_value_storage_service_impl.dart';
+import '../../../shared/infrastructure/services/key_value_storage_service.dart';
+import '../../../shared/infrastructure/services/key_value_storage_service_impl.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 

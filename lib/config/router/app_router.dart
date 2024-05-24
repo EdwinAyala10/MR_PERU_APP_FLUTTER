@@ -1,24 +1,24 @@
-import 'package:crm_app/features/activities/presentation/screens/activity_detail_screen.dart';
-import 'package:crm_app/features/activities/presentation/screens/activity_screen_post_call.dart';
-import 'package:crm_app/features/contacts/presentation/screens/contact_detail_screen.dart';
-import 'package:crm_app/features/indicators/indicators.dart';
-import 'package:crm_app/features/location/presentation/screens/map_screen.dart';
-import 'package:crm_app/features/location/presentation/screens/view_map_screen.dart';
-import 'package:crm_app/features/shared/presentation/screens/send_whatsapp_screen.dart';
-import 'package:crm_app/features/shared/presentation/screens/text_screen.dart';
+import '../../features/activities/presentation/screens/activity_detail_screen.dart';
+import '../../features/activities/presentation/screens/activity_screen_post_call.dart';
+import '../../features/contacts/presentation/screens/contact_detail_screen.dart';
+import '../../features/indicators/indicators.dart';
+import '../../features/location/presentation/screens/map_screen.dart';
+import '../../features/location/presentation/screens/view_map_screen.dart';
+import '../../features/shared/presentation/screens/send_whatsapp_screen.dart';
+import '../../features/shared/presentation/screens/text_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:crm_app/features/activities/presentation/screens/screens.dart';
-import 'package:crm_app/features/agenda/presentation/screens/screens.dart';
-import 'package:crm_app/features/companies/companies.dart';
-import 'package:crm_app/features/contacts/contacts.dart';
-import 'package:crm_app/features/dashboard/dashboard.dart';
-import 'package:crm_app/features/documents/documents.dart';
-import 'package:crm_app/features/kpis/kpis.dart';
-import 'package:crm_app/features/opportunities/presentation/screens/screens.dart';
-import 'package:crm_app/features/auth/auth.dart';
-import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
+import '../../features/activities/presentation/screens/screens.dart';
+import '../../features/agenda/presentation/screens/screens.dart';
+import '../../features/companies/companies.dart';
+import '../../features/contacts/contacts.dart';
+import '../../features/dashboard/dashboard.dart';
+import '../../features/documents/documents.dart';
+import '../../features/kpis/kpis.dart';
+import '../../features/opportunities/presentation/screens/screens.dart';
+import '../../features/auth/auth.dart';
+import '../../features/auth/presentation/providers/auth_provider.dart';
 
 import 'app_router_notifier.dart';
 

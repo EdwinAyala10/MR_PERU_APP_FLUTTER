@@ -1,8 +1,8 @@
-import 'package:crm_app/features/contacts/domain/domain.dart';
-import 'package:crm_app/features/contacts/presentation/providers/contact_provider.dart';
-import 'package:crm_app/features/contacts/presentation/providers/providers.dart';
-import 'package:crm_app/features/shared/presentation/providers/send_whatsapp_provider.dart';
-import 'package:crm_app/features/shared/shared.dart';
+import '../../domain/domain.dart';
+import '../providers/contact_provider.dart';
+import '../providers/providers.dart';
+import '../../../shared/presentation/providers/send_whatsapp_provider.dart';
+import '../../../shared/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';

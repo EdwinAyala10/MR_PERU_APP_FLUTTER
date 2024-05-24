@@ -1,17 +1,17 @@
 import 'dart:async';
 
-import 'package:crm_app/features/contacts/domain/domain.dart';
-import 'package:crm_app/features/contacts/presentation/providers/contacts_provider.dart';
-import 'package:crm_app/features/contacts/presentation/providers/providers.dart';
-import 'package:crm_app/features/contacts/presentation/widgets/item_contact.dart';
-import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
-import 'package:crm_app/features/shared/widgets/loading_modal.dart';
-import 'package:crm_app/features/shared/widgets/no_exist_listview.dart';
+import '../../domain/domain.dart';
+import '../providers/contacts_provider.dart';
+import '../providers/providers.dart';
+import '../widgets/item_contact.dart';
+import '../../../shared/widgets/floating_action_button_custom.dart';
+import '../../../shared/widgets/loading_modal.dart';
+import '../../../shared/widgets/no_exist_listview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:crm_app/features/shared/shared.dart';
+import '../../../shared/shared.dart';
 
 class ContactsScreen extends ConsumerWidget {
   const ContactsScreen({super.key});

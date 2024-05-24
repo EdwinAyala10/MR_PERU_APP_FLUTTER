@@ -1,8 +1,8 @@
-import 'package:crm_app/features/activities/domain/domain.dart';
-import 'package:crm_app/features/activities/presentation/providers/providers.dart';
-import 'package:crm_app/features/auth/domain/domain.dart';
-import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
-import 'package:crm_app/features/contacts/domain/domain.dart';
+import '../../../activities/domain/domain.dart';
+import '../../../activities/presentation/providers/providers.dart';
+import '../../../auth/domain/domain.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../contacts/domain/domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -66,20 +66,14 @@ class SendWhatsappNotifier extends StateNotifier<SendWhatsappState> {
             : [],
       };
 
-      print('ACTIVITY ANTES WHATSAPP LIKE: ${activityLike}');
-
       final activityResponse =
           await activitiesRepository.createUpdateActivity(activityLike);
 
-      print('ACTIVITY RESPONSE: ${activityResponse}');
-
       if (activityResponse.status) {
-        print('SE ENVIO ACTIVIDAD WHATSAPP');
         state = state.copyWith(isSend: true, isViewText: false, message: '', contact: null);
         return true;
       }
     } catch (e) {
-      print('NO SE ENVIO ACTIVIDAD WHATSAPP');
       return false;
     }
 

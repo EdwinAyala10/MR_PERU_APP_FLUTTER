@@ -1,10 +1,10 @@
-import 'package:crm_app/features/contacts/domain/domain.dart';
+import '../../../../contacts/domain/domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
 
-import 'package:crm_app/features/activities/domain/domain.dart';
-import 'package:crm_app/features/activities/presentation/providers/providers.dart';
-import 'package:crm_app/features/shared/shared.dart';
+import '../../../domain/domain.dart';
+import '../providers.dart';
+import '../../../../shared/shared.dart';
 
 final activityFormProvider = StateNotifierProvider.autoDispose
     .family<ActivityFormNotifier, ActivityFormState, Activity>((ref, activity) {

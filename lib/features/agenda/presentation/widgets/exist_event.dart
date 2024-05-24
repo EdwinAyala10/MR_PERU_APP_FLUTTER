@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import 'package:crm_app/features/agenda/domain/domain.dart';
+import '../../domain/domain.dart';
 
 bool eventItExist(LinkedHashMap<DateTime, List<Event>> linkedEvents, String eventId) {
   // Iterar sobre las claves (fechas) del mapa

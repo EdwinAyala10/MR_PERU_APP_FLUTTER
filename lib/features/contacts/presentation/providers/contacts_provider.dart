@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:crm_app/features/contacts/domain/domain.dart';
+import '../../domain/domain.dart';
 
 import 'contacts_repository_provider.dart';
 

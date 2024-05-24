@@ -1,4 +1,4 @@
-import 'package:crm_app/features/activities/domain/domain.dart';
+import '../domain.dart';
 
 class ActivityResponse {
     String type;

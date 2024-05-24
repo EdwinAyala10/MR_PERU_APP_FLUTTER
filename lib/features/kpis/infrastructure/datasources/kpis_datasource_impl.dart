@@ -1,9 +1,9 @@
-import 'package:crm_app/features/kpis/domain/entities/periodicidad.dart';
-import 'package:crm_app/features/kpis/infrastructure/mappers/kpi_response_mapper.dart';
-import 'package:crm_app/features/kpis/infrastructure/mappers/periodicidad_mapper.dart';
+import '../../domain/entities/periodicidad.dart';
+import '../mappers/kpi_response_mapper.dart';
+import '../mappers/periodicidad_mapper.dart';
 import 'package:dio/dio.dart';
-import 'package:crm_app/config/config.dart';
-import 'package:crm_app/features/kpis/domain/domain.dart';
+import '../../../../config/config.dart';
+import '../../domain/domain.dart';
 
 import '../errors/kpi_errors.dart';
 import '../mappers/kpi_mapper.dart';

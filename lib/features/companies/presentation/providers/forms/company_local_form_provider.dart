@@ -1,10 +1,10 @@
-import 'package:crm_app/features/companies/domain/entities/create_update_company_local_response.dart';
+import '../../../domain/entities/create_update_company_local_response.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
 
-import 'package:crm_app/features/companies/domain/domain.dart';
-import 'package:crm_app/features/companies/presentation/providers/providers.dart';
-import 'package:crm_app/features/shared/shared.dart';
+import '../../../domain/domain.dart';
+import '../providers.dart';
+import '../../../../shared/shared.dart';
 
 final companyLocalFormProvider = StateNotifierProvider.autoDispose
     .family<CompanyLocalFormNotifier, CompanyLocalFormState, CompanyLocal>(

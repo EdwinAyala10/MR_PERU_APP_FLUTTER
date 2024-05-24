@@ -1,15 +1,13 @@
-import 'package:crm_app/features/auth/domain/domain.dart';
-import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
-import 'package:crm_app/firebase_options.dart';
-import 'package:crm_app/local_notifications/local_notifications.dart';
+import '../../../auth/domain/domain.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../../firebase_options.dart';
+import '../../../../local_notifications/local_notifications.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-
-  print('Handling a background message: ${message.messageId}');
 }
 
 final notificationsProvider =
@@ -70,9 +68,6 @@ class NotificationsNotifier extends StateNotifier<NotificationsState> {
   }
 
   void _handleRemoteMessage(RemoteMessage message) {
-    print('Got a message whilst in the foreground!');
-    print('Message data: ${message.data}');
-
     if (message.notification == null) return;
 
     LocalNotifications.showLocalNotification(
@@ -81,8 +76,6 @@ class NotificationsNotifier extends StateNotifier<NotificationsState> {
       title: message.notification!.title ?? '',
       data: message.data.toString()
     );
-
-    print('Message also contained a notification: ${message.notification}');
   }
 
   void _onForegroundMessage() {
@@ -94,8 +87,6 @@ class NotificationsNotifier extends StateNotifier<NotificationsState> {
     if (settings.authorizationStatus != AuthorizationStatus.authorized) return;
 
     final token = await messaging.getToken();
-
-    print('token: ${token}');
 
     //Guardar Token Device
     await onUpdateDeviceCallback!(token!);

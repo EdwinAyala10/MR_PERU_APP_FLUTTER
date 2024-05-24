@@ -1,4 +1,4 @@
-import 'package:crm_app/features/companies/domain/entities/check_in_by_ruc_local.dart';
+import 'check_in_by_ruc_local.dart';
 
 class CheckInByRucLocalResponse {
     String type;

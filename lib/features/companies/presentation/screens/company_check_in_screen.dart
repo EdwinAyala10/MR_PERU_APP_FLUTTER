@@ -1,18 +1,18 @@
-import 'package:crm_app/features/companies/domain/domain.dart';
-import 'package:crm_app/features/companies/presentation/delegates/search_company_local_active_delegate.dart';
-import 'package:crm_app/features/companies/presentation/providers/providers.dart';
-import 'package:crm_app/features/companies/presentation/search/search_company_locales_active_provider.dart';
-import 'package:crm_app/features/contacts/domain/domain.dart';
-import 'package:crm_app/features/contacts/presentation/delegates/search_contact_active_delegate.dart';
-import 'package:crm_app/features/contacts/presentation/search/search_contacts_active_provider.dart';
-import 'package:crm_app/features/location/presentation/providers/location_provider.dart';
-import 'package:crm_app/features/opportunities/domain/domain.dart';
-import 'package:crm_app/features/opportunities/presentation/delegates/search_opportunity_active_delegate.dart';
-import 'package:crm_app/features/opportunities/presentation/search/search_opportunities_active_provider.dart';
-import 'package:crm_app/features/shared/shared.dart';
-import 'package:crm_app/features/shared/widgets/custom_alert_dialog.dart';
-import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
-import 'package:crm_app/features/shared/widgets/format_distance.dart';
+import '../../domain/domain.dart';
+import '../delegates/search_company_local_active_delegate.dart';
+import '../providers/providers.dart';
+import '../search/search_company_locales_active_provider.dart';
+import '../../../contacts/domain/domain.dart';
+import '../../../contacts/presentation/delegates/search_contact_active_delegate.dart';
+import '../../../contacts/presentation/search/search_contacts_active_provider.dart';
+import '../../../location/presentation/providers/location_provider.dart';
+import '../../../opportunities/domain/domain.dart';
+import '../../../opportunities/presentation/delegates/search_opportunity_active_delegate.dart';
+import '../../../opportunities/presentation/search/search_opportunities_active_provider.dart';
+import '../../../shared/shared.dart';
+import '../../../shared/widgets/custom_alert_dialog.dart';
+import '../../../shared/widgets/floating_action_button_custom.dart';
+import '../../../shared/widgets/format_distance.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -192,16 +192,11 @@ class _CompanyCheckInInformation extends ConsumerWidget {
         ref.watch(companyCheckInFormProvider(companyCheckIn));
 
     final locationState = ref.watch(locationProvider);
-    LatLng? lastKnownLocation = locationState.lastKnownLocation;
-    LatLng? locationAddressDiff = locationState.locationAddressDiff;
     bool? selectedLocationAddressDiff =
         locationState.selectedLocationAddressDiff;
     bool? allowSave = locationState.allowSave;
     double distanceLocationAddressDiff =
         locationState.distanceLocationAddressDiff;
-
-    print('lastKnownLocation: ${lastKnownLocation?.toString()}');
-    print('selectedLocationAddressDiff: ${lastKnownLocation?.toString()}');
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -607,9 +602,6 @@ class _CompanyCheckInInformation extends ConsumerWidget {
           .read(companyCheckInFormProvider(companyCheckIn).notifier)
           .onLocalChanged(companyLocal.id,
               '${companyLocal.localNombre} ${companyLocal.localDireccion}');
-
-      print('SELECT LOCAL LAT:${companyLocal.coordenadasLatitud}');
-      print('SELECT LOCAL LNG:${companyLocal.coordenadasLongitud}');
 
       ref
           .read(companyCheckInFormProvider(companyCheckIn).notifier)

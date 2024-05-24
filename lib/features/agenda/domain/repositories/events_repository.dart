@@ -1,7 +1,7 @@
 
 import 'dart:collection';
 
-import 'package:crm_app/features/agenda/domain/domain.dart';
+import '../domain.dart';
 
 abstract class EventsRepository {
 

@@ -1,8 +1,8 @@
-import 'package:crm_app/features/activities/domain/domain.dart';
-import 'package:crm_app/features/activities/presentation/providers/activities_repository_provider.dart';
-import 'package:crm_app/features/auth/domain/domain.dart';
-import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
-import 'package:crm_app/features/contacts/domain/domain.dart';
+import '../../domain/domain.dart';
+import 'activities_repository_provider.dart';
+import '../../../auth/domain/domain.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../contacts/domain/domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -155,12 +155,8 @@ class ActivityCallNotifier extends StateNotifier<ActivityCallState> {
             : [],
       };
 
-      print('ACTIVITY ANTES CALL LIKE: ${activityLike}');
-
       final activityResponse =
           await activitiesRepository.createUpdateActivity(activityLike);
-
-      print('ACTIVITY RESPONSE: ${activityResponse}');
 
       if (activityResponse.status) {
         print('SE ENVIO ACTIVIDAD CALL');

@@ -1,4 +1,4 @@
-import 'package:crm_app/features/location/domain/entities/geocode_response.dart';
+import '../../domain/entities/geocode_response.dart';
 
 class GeocodeResponseMapper {
 

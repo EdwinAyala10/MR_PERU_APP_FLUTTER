@@ -1,12 +1,12 @@
-import 'package:crm_app/features/kpis/domain/entities/array_user.dart';
-import 'package:crm_app/features/kpis/domain/entities/periodicidad.dart';
-import 'package:crm_app/features/users/domain/domain.dart';
+import '../../../domain/entities/array_user.dart';
+import '../../../domain/entities/periodicidad.dart';
+import '../../../../users/domain/domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
 
-import 'package:crm_app/features/kpis/domain/domain.dart';
-import 'package:crm_app/features/kpis/presentation/providers/providers.dart';
-import 'package:crm_app/features/shared/shared.dart';
+import '../../../domain/domain.dart';
+import '../providers.dart';
+import '../../../../shared/shared.dart';
 
 final kpiFormProvider = StateNotifierProvider.autoDispose
     .family<KpiFormNotifier, KpiFormState, Kpi>((ref, kpi) {

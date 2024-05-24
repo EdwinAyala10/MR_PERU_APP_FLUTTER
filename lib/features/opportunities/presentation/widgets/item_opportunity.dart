@@ -1,4 +1,4 @@
-import 'package:crm_app/features/opportunities/domain/domain.dart';
+import '../../domain/domain.dart';
 import 'package:flutter/material.dart';
 
 class ItemOpportunity extends StatelessWidget {
@@ -10,7 +10,7 @@ class ItemOpportunity extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(opportunity.oprtNombre, style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black87),),
+      title: Text(opportunity.oprtNombre, style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.black87),),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

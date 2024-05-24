@@ -1,25 +1,25 @@
 import 'dart:async';
 
-import 'package:crm_app/features/activities/domain/domain.dart';
-import 'package:crm_app/features/activities/presentation/providers/providers.dart';
-import 'package:crm_app/features/companies/domain/domain.dart';
-import 'package:crm_app/features/contacts/domain/domain.dart';
-import 'package:crm_app/features/opportunities/domain/domain.dart';
-import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
-import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
-import 'package:crm_app/features/shared/shared.dart';
+import '../../domain/domain.dart';
+import '../providers/providers.dart';
+import '../../../companies/domain/domain.dart';
+import '../../../contacts/domain/domain.dart';
+import '../../../opportunities/domain/domain.dart';
+import '../../../resource-detail/presentation/providers/resource_details_provider.dart';
+import '../../../shared/domain/entities/dropdown_option.dart';
+import '../../../shared/shared.dart';
 
-import 'package:crm_app/features/contacts/presentation/search/search_contacts_active_provider.dart';
-import 'package:crm_app/features/contacts/presentation/delegates/search_contact_active_delegate.dart';
+import '../../../contacts/presentation/search/search_contacts_active_provider.dart';
+import '../../../contacts/presentation/delegates/search_contact_active_delegate.dart';
 
-import 'package:crm_app/features/companies/presentation/search/search_companies_active_provider.dart';
-import 'package:crm_app/features/companies/presentation/delegates/search_company_active_delegate.dart';
+import '../../../companies/presentation/search/search_companies_active_provider.dart';
+import '../../../companies/presentation/delegates/search_company_active_delegate.dart';
 
-import 'package:crm_app/features/opportunities/presentation/search/search_opportunities_active_provider.dart';
-import 'package:crm_app/features/opportunities/presentation/delegates/search_opportunity_active_delegate.dart';
-import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
-import 'package:crm_app/features/shared/widgets/placeholder.dart';
-import 'package:crm_app/features/shared/widgets/select_custom_form.dart';
+import '../../../opportunities/presentation/search/search_opportunities_active_provider.dart';
+import '../../../opportunities/presentation/delegates/search_opportunity_active_delegate.dart';
+import '../../../shared/widgets/floating_action_button_custom.dart';
+import '../../../shared/widgets/placeholder.dart';
+import '../../../shared/widgets/select_custom_form.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

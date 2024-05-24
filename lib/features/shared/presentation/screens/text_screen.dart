@@ -1,5 +1,5 @@
-import 'package:crm_app/features/shared/presentation/providers/send_whatsapp_provider.dart';
-import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
+import '../providers/send_whatsapp_provider.dart';
+import '../../widgets/floating_action_button_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';

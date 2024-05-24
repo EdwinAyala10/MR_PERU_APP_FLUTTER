@@ -1,8 +1,8 @@
-import 'package:crm_app/features/indicators/domain/datasources/indicators_datasource.dart';
-import 'package:crm_app/features/indicators/domain/entities/indicator_response.dart';
-import 'package:crm_app/features/indicators/infrastructure/infrastructure.dart';
+import '../../domain/datasources/indicators_datasource.dart';
+import '../../domain/entities/indicator_response.dart';
+import '../infrastructure.dart';
 import 'package:dio/dio.dart';
-import 'package:crm_app/config/config.dart';
+import '../../../../config/config.dart';
 
 class IndicatorsDatasourceImpl extends IndicatorsDatasource {
   late final Dio dio;

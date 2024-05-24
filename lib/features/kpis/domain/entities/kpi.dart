@@ -1,6 +1,6 @@
-import 'package:crm_app/features/kpis/domain/domain.dart';
-import 'package:crm_app/features/kpis/domain/entities/array_user.dart';
-import 'package:crm_app/features/kpis/domain/entities/periodicidad.dart';
+import '../domain.dart';
+import 'array_user.dart';
+import 'periodicidad.dart';
 
 class Kpi {
     String id;

@@ -8,7 +8,7 @@ class CustomAlertDialogPro extends StatelessWidget {
   final String message;
   final String buttonText;
 
-  CustomAlertDialogPro({
+  const CustomAlertDialogPro({super.key, 
     required this.parentContext,
     required this.title,
     required this.message,
@@ -23,7 +23,6 @@ class CustomAlertDialogPro extends StatelessWidget {
   }
 
   Widget _buildMaterialDialog() {
-    print('ALERT ANDORID');
     return AlertDialog(
       title: Center(child: Text(title)),
       content: Text(message),
@@ -41,7 +40,6 @@ class CustomAlertDialogPro extends StatelessWidget {
   }
 
   Widget _buildCupertinoDialog() {
-    print('ALERT IOS');
     return CupertinoAlertDialog(
       title: Text(title),
       content: Text(message),

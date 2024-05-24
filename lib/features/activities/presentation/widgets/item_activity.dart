@@ -1,5 +1,5 @@
-import 'package:crm_app/features/activities/domain/domain.dart';
-import 'package:crm_app/features/shared/shared.dart';
+import '../../domain/domain.dart';
+import '../../../shared/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -80,11 +80,11 @@ class ItemActivity extends StatelessWidget {
           if (activity.contactoDesc != "") 
             Text(
               activity.contactoDesc ?? '',
-              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
             ),
           Text(
             activity.actiRazon ?? '',
-            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
+            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
           ),
         ],
       ),
@@ -156,15 +156,15 @@ class ItemActivity extends StatelessWidget {
         children: [
           Text(
             formattedDate,
-            style: const TextStyle(fontSize: 13, color: Colors.black45),
+            style: const TextStyle(fontSize: 11, color: Colors.black45),
           ),
           Text(activity.actiNombreResponsable ?? '',
               style: const TextStyle(
-                fontSize: 13,
+                fontSize: 10,
               )),
           Text(timeDifference,
               style: const TextStyle(
-                fontSize: 12,
+                fontSize: 10,
               )),
         ],
       ),

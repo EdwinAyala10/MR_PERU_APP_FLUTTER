@@ -1,5 +1,5 @@
-import 'package:crm_app/features/opportunities/domain/domain.dart';
-import 'package:crm_app/features/opportunities/presentation/providers/providers.dart';
+import '../../domain/domain.dart';
+import '../providers/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 

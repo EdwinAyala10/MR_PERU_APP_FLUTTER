@@ -1,4 +1,4 @@
-import 'package:crm_app/features/resource-detail/domain/domain.dart';
+import '../../domain/domain.dart';
 
 class ResourceDetailsRepositoryImpl extends ResourceDetailsRepository {
 

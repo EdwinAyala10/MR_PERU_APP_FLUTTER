@@ -1,6 +1,6 @@
-import 'package:crm_app/features/kpis/domain/domain.dart';
-import 'package:crm_app/features/kpis/domain/entities/array_user.dart';
-import 'package:crm_app/features/kpis/domain/entities/periodicidad.dart';
+import '../../domain/domain.dart';
+import '../../domain/entities/array_user.dart';
+import '../../domain/entities/periodicidad.dart';
 
 
 class KpiMapper {

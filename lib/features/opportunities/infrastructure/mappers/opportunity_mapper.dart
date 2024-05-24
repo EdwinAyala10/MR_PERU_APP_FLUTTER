@@ -1,5 +1,5 @@
-import 'package:crm_app/features/kpis/domain/entities/array_user.dart';
-import 'package:crm_app/features/opportunities/domain/domain.dart';
+import '../../../kpis/domain/entities/array_user.dart';
+import '../../domain/domain.dart';
 
 
 class OpportunityMapper {

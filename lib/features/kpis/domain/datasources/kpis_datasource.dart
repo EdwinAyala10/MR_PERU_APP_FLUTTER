@@ -1,5 +1,5 @@
-import 'package:crm_app/features/kpis/domain/domain.dart';
-import 'package:crm_app/features/kpis/domain/entities/periodicidad.dart';
+import '../domain.dart';
+import '../entities/periodicidad.dart';
 
 abstract class KpisDatasource {
 

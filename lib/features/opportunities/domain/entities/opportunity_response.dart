@@ -1,4 +1,4 @@
-import 'package:crm_app/features/opportunities/domain/domain.dart';
+import '../domain.dart';
 
 class OpportunityResponse {
     String type;

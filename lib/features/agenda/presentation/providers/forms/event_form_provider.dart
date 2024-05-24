@@ -1,11 +1,11 @@
-import 'package:crm_app/features/contacts/domain/domain.dart';
-import 'package:crm_app/features/users/domain/domain.dart';
+import '../../../../contacts/domain/domain.dart';
+import '../../../../users/domain/domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
 
-import 'package:crm_app/features/agenda/domain/domain.dart';
-import 'package:crm_app/features/agenda/presentation/providers/providers.dart';
-import 'package:crm_app/features/shared/shared.dart';
+import '../../../domain/domain.dart';
+import '../providers.dart';
+import '../../../../shared/shared.dart';
 
 final eventFormProvider = StateNotifierProvider.autoDispose
     .family<EventFormNotifier, EventFormState, Event>((ref, event) {
@@ -52,7 +52,7 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
           evntNombreTipoGestion: event.evntNombreTipoGestion ?? '',
           evntRazon: event.evntRazon ?? '',
           todoDia: event.todoDia ?? '0',
-          evntRuc: event.evntRuc ?? '',
+          evntRuc: Ruc.dirty(event.evntRuc ?? ''),
           evntUbigeo: event.evntUbigeo ?? '',
           opt: event.opt ?? '',
           arraycontacto: event.arraycontacto ?? [],
@@ -84,7 +84,7 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
       'EVNT_ID_USUARIO_RESPONSABLE': state.evntIdUsuarioResponsable,
       'EVNT_NOMBRE_USUARIO_RESPONSABLE': state.evntNombreUsuarioResponsable,
       'EVNT_ID_TIPO_GESTION': state.evntIdTipoGestion.value,
-      'EVNT_RUC': state.evntRuc,
+      'EVNT_RUC': state.evntRuc.value,
       'EVNT_ID_OPORTUNIDAD': state.evntIdOportunidad.value,
       'EVNT_COMENTARIO': state.evntComentario,
       'EVNT_UBIGEO': state.evntUbigeo,
@@ -128,6 +128,7 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
         Name.dirty(state.evntAsunto.value),
         Select.dirty(state.evntIdTipoGestion.value),
         Oportunidad.dirty(state.evntIdOportunidad.value),
+        Ruc.dirty(state.evntRuc.value),
       ]),
     );
   }
@@ -139,6 +140,7 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
           Name.dirty(value),
           Select.dirty(state.evntIdTipoGestion.value),
           Oportunidad.dirty(state.evntIdOportunidad.value),
+          Ruc.dirty(state.evntRuc.value),
         ]));
   }
 
@@ -150,11 +152,22 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
         Name.dirty(state.evntAsunto.value),
         Select.dirty(id),
         Oportunidad.dirty(state.evntIdOportunidad.value),
+        Ruc.dirty(state.evntRuc.value),
       ]));
   }
 
   void onEmpresaChanged(String id, String name) {
-    state = state.copyWith(evntRuc: id, evntRazon: name);
+    //state = state.copyWith(evntRuc: id, evntRazon: name);
+    state = state.copyWith(
+      evntRuc: Ruc.dirty(id),
+      evntRazon: name,
+      evntNombreOportunidad: name,
+      isFormValid: Formz.validate([
+        Name.dirty(state.evntAsunto.value),
+        Select.dirty(state.evntIdTipoGestion.value),
+        Oportunidad.dirty(state.evntIdOportunidad.value),
+        Ruc.dirty(id),
+      ]));
   }
 
   void onTodoDiaChanged(String id) {
@@ -187,6 +200,7 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
         Name.dirty(state.evntAsunto.value),
         Select.dirty(state.evntIdTipoGestion.value),
         Oportunidad.dirty(state.evntIdOportunidad.value),
+        Ruc.dirty(state.evntRuc.value),
       ]));
   }
 
@@ -250,7 +264,7 @@ class EventFormState {
   final String? evntIdUsuarioResponsable;
   final String? evntNombreUsuarioResponsable;
   final Select evntIdTipoGestion;
-  final String? evntRuc;
+  final Ruc evntRuc;
   final String? evntRazon;
   final String? todoDia;
   final Oportunidad evntIdOportunidad;
@@ -284,7 +298,7 @@ class EventFormState {
       this.evntIdUsuarioResponsable = '',
       this.evntNombreUsuarioResponsable = '',
       this.evntIdTipoGestion = const Select.dirty(''),
-      this.evntRuc = '',
+      this.evntRuc = const Ruc.dirty(''),
       this.evntRazon = '',
       this.evntIdOportunidad = const Oportunidad.dirty(''),
       this.evntComentario = '',
@@ -319,7 +333,7 @@ class EventFormState {
     String? evntIdUsuarioResponsable,
     String? evntNombreUsuarioResponsable,
     Select? evntIdTipoGestion,
-    String? evntRuc,
+    Ruc? evntRuc,
     String? evntRazon,
     Oportunidad? evntIdOportunidad,
     String? evntComentario,

@@ -1,5 +1,5 @@
-import 'package:crm_app/features/agenda/domain/domain.dart';
-import 'package:crm_app/features/shared/widgets/capitalize.dart';
+import '../../domain/domain.dart';
+import '../../../shared/widgets/capitalize.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 

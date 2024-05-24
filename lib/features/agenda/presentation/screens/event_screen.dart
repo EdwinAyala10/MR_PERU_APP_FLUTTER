@@ -1,25 +1,25 @@
 import 'dart:async';
 
-import 'package:crm_app/features/agenda/domain/domain.dart';
-import 'package:crm_app/features/agenda/presentation/providers/providers.dart';
-import 'package:crm_app/features/companies/domain/domain.dart';
-import 'package:crm_app/features/contacts/domain/domain.dart';
-import 'package:crm_app/features/contacts/presentation/delegates/search_contact_active_delegate.dart';
-import 'package:crm_app/features/contacts/presentation/search/search_contacts_active_provider.dart';
-import 'package:crm_app/features/opportunities/domain/domain.dart';
-import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
-import 'package:crm_app/features/shared/shared.dart';
+import '../../domain/domain.dart';
+import '../providers/providers.dart';
+import '../../../companies/domain/domain.dart';
+import '../../../contacts/domain/domain.dart';
+import '../../../contacts/presentation/delegates/search_contact_active_delegate.dart';
+import '../../../contacts/presentation/search/search_contacts_active_provider.dart';
+import '../../../opportunities/domain/domain.dart';
+import '../../../shared/domain/entities/dropdown_option.dart';
+import '../../../shared/shared.dart';
 
-import 'package:crm_app/features/companies/presentation/search/search_companies_active_provider.dart';
-import 'package:crm_app/features/companies/presentation/delegates/search_company_active_delegate.dart';
+import '../../../companies/presentation/search/search_companies_active_provider.dart';
+import '../../../companies/presentation/delegates/search_company_active_delegate.dart';
 
-import 'package:crm_app/features/opportunities/presentation/search/search_opportunities_active_provider.dart';
-import 'package:crm_app/features/opportunities/presentation/delegates/search_opportunity_active_delegate.dart';
-import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
-import 'package:crm_app/features/shared/widgets/select_custom_form.dart';
-import 'package:crm_app/features/users/domain/domain.dart';
-import 'package:crm_app/features/users/presentation/delegates/search_user_delegate.dart';
-import 'package:crm_app/features/users/presentation/search/search_users_provider.dart';
+import '../../../opportunities/presentation/search/search_opportunities_active_provider.dart';
+import '../../../opportunities/presentation/delegates/search_opportunity_active_delegate.dart';
+import '../../../shared/widgets/floating_action_button_custom.dart';
+import '../../../shared/widgets/select_custom_form.dart';
+import '../../../users/domain/domain.dart';
+import '../../../users/presentation/delegates/search_user_delegate.dart';
+import '../../../users/presentation/search/search_users_provider.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -172,7 +172,7 @@ class _EventInformation extends ConsumerWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     decoration: BoxDecoration(
                       border: Border.all(
-                        color: Colors.grey,
+                        color: eventForm.evntRuc.errorMessage != null ? Colors.red : Colors.grey
                       ),
                       borderRadius: BorderRadius.circular(5),
                     ),
@@ -180,11 +180,12 @@ class _EventInformation extends ConsumerWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            eventForm.evntRuc == ''
+                            eventForm.evntRuc.value == ''
                                 ? 'Seleccione empresa'
                                 : eventForm.evntRazon ?? '',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
+                              color: eventForm.evntRuc.errorMessage != null ? Colors.red : Colors.black
                             ),
                           ),
                         ),
@@ -202,6 +203,15 @@ class _EventInformation extends ConsumerWidget {
               ],
             ),
           ),
+          eventForm.evntRuc.errorMessage != null
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                  child: Text(
+                    eventForm.evntRuc.errorMessage ?? '',
+                    style: TextStyle(color: Colors.red[400], fontSize: 11),
+                  ),
+                )
+              : Container(),
           const SizedBox(height: 14),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -484,7 +494,7 @@ class _EventInformation extends ConsumerWidget {
                                       Text('Invitar contactos de la empresa')),
                               onTap: () {
                                 Navigator.pop(context);
-                                _openSearchContacts(context, ref, eventForm.evntRuc ?? '');
+                                _openSearchContacts(context, ref, eventForm.evntRuc.value ?? '');
                               },
                             ),
                             const Divider(),
@@ -523,21 +533,21 @@ class _EventInformation extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          /*const SizedBox(height: 20),
           CustomCompanyField(
             label: 'Email de usuarios externos',
             initialValue: eventForm.evntCorreosExternos ?? '',
             onChanged: ref
                 .read(eventFormProvider(event).notifier)
                 .onCorreosExternosChanged,
-          ),
-          const Text('  ingresar emails separado por comas (,)',
-              style: TextStyle(fontSize: 12, color: Colors.black45)),
-          const SizedBox(height: 30),
-          const Text(
+          ),*/
+          //const Text('  ingresar emails separado por comas (,)',
+          //    style: TextStyle(fontSize: 12, color: Colors.black45)),
+          //const SizedBox(height: 30),
+          /*const Text(
             'DIRECCIÓN',
             style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
-          ),
+          ),*/
           const SizedBox(height: 30),
           const Text(
             'REFERENCIAS',
@@ -559,18 +569,19 @@ class _EventInformation extends ConsumerWidget {
                 const SizedBox(height: 6),
                 GestureDetector(
                   onTap: () {
-                    if (eventForm.evntRuc == null || eventForm.evntRuc == "") {
+                    if (eventForm.evntRuc.value == null || eventForm.evntRuc.value == "") {
                       showSnackbar(context, 'Primero seleccione una empresa');
                       return;
                     }
                     _openSearchOportunities(
-                        context, ref, eventForm.evntRuc ?? '');
+                        context, ref, eventForm.evntRuc.value ?? '');
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     decoration: BoxDecoration(
                       border: Border.all(
-                        color: Colors.grey,
+                        color: eventForm.evntIdOportunidad.errorMessage != null ? Colors.red : Colors.grey,
+                        
                       ),
                       borderRadius: BorderRadius.circular(5),
                     ),
@@ -593,14 +604,14 @@ class _EventInformation extends ConsumerWidget {
                         IconButton(
                           icon: const Icon(Icons.search),
                           onPressed: () {
-                            if (eventForm.evntRuc == null ||
-                                eventForm.evntRuc == "") {
+                            if (eventForm.evntRuc.value == null ||
+                                eventForm.evntRuc.value == "") {
                               showSnackbar(
                                   context, 'Primero seleccione una empresa');
                               return;
                             }
                             _openSearchOportunities(
-                                context, ref, eventForm.evntRuc ?? '');
+                                context, ref, eventForm.evntRuc.value ?? '');
                           },
                         ),
                       ],

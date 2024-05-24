@@ -1,4 +1,4 @@
-import 'package:crm_app/features/opportunities/domain/domain.dart';
+import '../../domain/domain.dart';
 import 'package:flutter/material.dart';
 
 class ItemOpportunitySmall extends StatelessWidget {

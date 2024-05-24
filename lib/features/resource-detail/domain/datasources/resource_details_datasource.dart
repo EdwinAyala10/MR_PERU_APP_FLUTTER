@@ -1,6 +1,6 @@
 
 
-import 'package:crm_app/features/resource-detail/domain/domain.dart';
+import '../domain.dart';
 
 abstract class ResourceDetailsDatasource {
 

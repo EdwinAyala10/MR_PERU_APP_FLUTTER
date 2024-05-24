@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:crm_app/features/shared/presentation/providers/send_whatsapp_provider.dart';
-import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
+import '../providers/send_whatsapp_provider.dart';
+import '../../widgets/floating_action_button_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -128,7 +128,6 @@ whatsapp(String contact, String text) async {
       }
     }
   } catch (e) {
-    print('object');
     await launchUrl(Uri.parse(webUrl), mode: LaunchMode.externalApplication);
   }
 }
@@ -182,7 +181,7 @@ class ContainerCustom extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  child: Container(
+                  child: SizedBox(
                     width: double.infinity,
                     child: Text(
                       text,

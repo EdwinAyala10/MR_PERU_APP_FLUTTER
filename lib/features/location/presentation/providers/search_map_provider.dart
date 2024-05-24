@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:crm_app/features/location/domain/models/places_models.dart';
-import 'package:crm_app/features/location/presentation/providers/location_provider.dart';
+import '../../domain/models/places_models.dart';
+import 'location_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:crm_app/features/shared/infrastructure/services/key_value_storage_service.dart';
-import 'package:crm_app/features/shared/infrastructure/services/key_value_storage_service_impl.dart';
+import '../../../shared/infrastructure/services/key_value_storage_service.dart';
+import '../../../shared/infrastructure/services/key_value_storage_service_impl.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 

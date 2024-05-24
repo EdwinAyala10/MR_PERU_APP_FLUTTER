@@ -1,6 +1,6 @@
-import 'package:crm_app/config/config.dart';
-import 'package:crm_app/features/shared/presentation/providers/notifications_provider.dart';
-import 'package:crm_app/local_notifications/local_notifications.dart';
+import 'config/config.dart';
+import 'features/shared/presentation/providers/notifications_provider.dart';
+import 'local_notifications/local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

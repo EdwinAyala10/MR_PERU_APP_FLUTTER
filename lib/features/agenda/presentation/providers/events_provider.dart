@@ -1,10 +1,10 @@
 import 'dart:collection';
 
-import 'package:crm_app/features/agenda/presentation/widgets/add_event_not_exist.dart';
-import 'package:crm_app/features/agenda/presentation/widgets/exist_event.dart';
-import 'package:crm_app/features/agenda/presentation/widgets/replace_event_exist.dart';
+import '../widgets/add_event_not_exist.dart';
+import '../widgets/exist_event.dart';
+import '../widgets/replace_event_exist.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:crm_app/features/agenda/domain/domain.dart';
+import '../../domain/domain.dart';
 
 import 'events_repository_provider.dart';
 

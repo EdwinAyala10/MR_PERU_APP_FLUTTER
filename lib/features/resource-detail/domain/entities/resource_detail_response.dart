@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:crm_app/features/resource-detail/domain/domain.dart';
+import '../domain.dart';
 
 LoginResponse loginResponseFromJson(String str) => LoginResponse.fromJson(json.decode(str));
 

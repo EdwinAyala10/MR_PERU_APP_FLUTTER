@@ -1,16 +1,16 @@
-import 'package:crm_app/features/activities/domain/domain.dart';
-import 'package:crm_app/features/activities/presentation/providers/activities_repository_provider.dart';
-import 'package:crm_app/features/agenda/domain/domain.dart';
-import 'package:crm_app/features/agenda/presentation/providers/events_repository_provider.dart';
-import 'package:crm_app/features/auth/domain/domain.dart';
-import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
-import 'package:crm_app/features/companies/domain/entities/create_update_company_local_response.dart';
-import 'package:crm_app/features/contacts/domain/domain.dart';
-import 'package:crm_app/features/contacts/presentation/providers/contacts_repository_provider.dart';
-import 'package:crm_app/features/opportunities/domain/domain.dart';
-import 'package:crm_app/features/opportunities/presentation/providers/opportunities_repository_provider.dart';
+import '../../../activities/domain/domain.dart';
+import '../../../activities/presentation/providers/activities_repository_provider.dart';
+import '../../../agenda/domain/domain.dart';
+import '../../../agenda/presentation/providers/events_repository_provider.dart';
+import '../../../auth/domain/domain.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../domain/entities/create_update_company_local_response.dart';
+import '../../../contacts/domain/domain.dart';
+import '../../../contacts/presentation/providers/contacts_repository_provider.dart';
+import '../../../opportunities/domain/domain.dart';
+import '../../../opportunities/presentation/providers/opportunities_repository_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:crm_app/features/companies/domain/domain.dart';
+import '../../domain/domain.dart';
 
 import 'companies_repository_provider.dart';
 

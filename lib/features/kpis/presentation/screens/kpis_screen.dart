@@ -1,5 +1,5 @@
-import 'package:crm_app/features/kpis/domain/domain.dart';
-import 'package:crm_app/features/kpis/presentation/providers/providers.dart';
+import '../../domain/domain.dart';
+import '../providers/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,19 +9,27 @@ class KpisScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scaffoldKey = GlobalKey<ScaffoldState>();
 
     return Scaffold(
       //drawer: SideMenu(scaffoldKey: scaffoldKey),
       appBar: AppBar(
-        title: const Text('Objectivos'),
+        title: const Text('Objectivos', style: TextStyle(fontWeight: FontWeight.w600),),
+        leading: IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () {
+              context.replace('/dashboard');
+            },
+        ),
+        centerTitle: true,
         /*actions: [
           IconButton(onPressed: () {
 
           }, icon: const Icon(Icons.search_rounded))
         ],*/
+        
       ),
       body: const _KpisView(),
+      
       /*floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () {
@@ -86,18 +94,18 @@ class _ListKpis extends StatelessWidget {
   final Future<void> Function() onRefreshCallback;
 
   const _ListKpis(
-      {super.key, required this.kpis, required this.onRefreshCallback});
+      {required this.kpis, required this.onRefreshCallback});
 
   @override
   Widget build(BuildContext context) {
-    final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+    final GlobalKey<RefreshIndicatorState> refreshIndicatorKey =
         GlobalKey<RefreshIndicatorState>();
 
     return kpis.isEmpty
         ? Center(
             child: RefreshIndicator(
                 onRefresh: onRefreshCallback,
-                key: _refreshIndicatorKey,
+                key: refreshIndicatorKey,
                 child: SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   child: Column(
@@ -116,7 +124,7 @@ class _ListKpis extends StatelessWidget {
           )
         : RefreshIndicator(
             onRefresh: onRefreshCallback,
-            key: _refreshIndicatorKey,
+            key: refreshIndicatorKey,
             child: ListView.separated(
               itemCount: kpis.length,
               separatorBuilder: (BuildContext context, int index) =>
@@ -140,7 +148,7 @@ class _ListKpis extends StatelessWidget {
                   ),
                   trailing: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(kpi.objrNombreAsignacion ?? '',
                           textAlign: TextAlign.right,
@@ -152,7 +160,7 @@ class _ListKpis extends StatelessWidget {
                         Text(
                           kpi.usuariosAsignados![i].userreportName ?? '', 
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle( fontSize: 11 ),
+                          style: TextStyle( fontSize: 10 ),
                         )
 
                     ],
@@ -172,7 +180,7 @@ class _ListKpis extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        "${kpi.porcentaje!.round() ?? 0}%", // El porcentaje se multiplica por 100 para mostrarlo correctamente
+                        "${kpi.porcentaje!.round()}%", // El porcentaje se multiplica por 100 para mostrarlo correctamente
                         style: const TextStyle(
                           fontSize: 13, // Tamaño del texto
                           color: Colors.black, // Color del texto
@@ -202,7 +210,7 @@ class _ListKpis extends StatelessWidget {
 }
 
 class _NoExistData extends StatelessWidget {
-  const _NoExistData({super.key});
+  const _NoExistData();
 
   @override
   Widget build(BuildContext context) {

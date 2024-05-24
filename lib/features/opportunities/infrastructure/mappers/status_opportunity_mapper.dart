@@ -1,4 +1,4 @@
-import 'package:crm_app/features/opportunities/domain/entities/status_opportunity.dart';
+import '../../domain/entities/status_opportunity.dart';
 
 class StatusOpportunityMapper {
 

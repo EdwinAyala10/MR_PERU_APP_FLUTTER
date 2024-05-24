@@ -1,4 +1,4 @@
-import 'package:crm_app/features/users/domain/domain.dart';
+import '../domain.dart';
 
 abstract class UsersDatasource {
 

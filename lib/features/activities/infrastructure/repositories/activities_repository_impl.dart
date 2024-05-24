@@ -1,4 +1,4 @@
-import 'package:crm_app/features/activities/domain/domain.dart';
+import '../../domain/domain.dart';
 
 class ActivitiesRepositoryImpl extends ActivitiesRepository {
   final ActivitiesDatasource datasource;

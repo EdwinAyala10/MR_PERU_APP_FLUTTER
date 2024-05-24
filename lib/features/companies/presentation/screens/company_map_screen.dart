@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
-import 'package:crm_app/features/location/domain/domain.dart';
-import 'package:crm_app/features/location/presentation/delegates/search_places_delegate.dart';
-import 'package:crm_app/features/location/presentation/providers/location_provider.dart';
-import 'package:crm_app/features/location/presentation/providers/map_provider.dart';
-import 'package:crm_app/features/location/presentation/search/search_places_provider.dart';
+import '../widgets/show_loading_message.dart';
+import '../../../location/domain/domain.dart';
+import '../../../location/presentation/delegates/search_places_delegate.dart';
+import '../../../location/presentation/providers/location_provider.dart';
+import '../../../location/presentation/providers/map_provider.dart';
+import '../../../location/presentation/search/search_places_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

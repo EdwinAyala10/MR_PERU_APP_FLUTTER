@@ -1,5 +1,5 @@
-import 'package:crm_app/features/activities/domain/domain.dart';
-import 'package:crm_app/features/contacts/domain/domain.dart';
+import '../../domain/domain.dart';
+import '../../../contacts/domain/domain.dart';
 
 
 class ActivityMapper {

@@ -1,8 +1,8 @@
-import 'package:crm_app/features/auth/domain/domain.dart';
-import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
-import 'package:crm_app/features/resource-detail/domain/domain.dart';
-import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_repository_provider.dart';
-import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
+import '../../../auth/domain/domain.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../domain/domain.dart';
+import 'resource_details_repository_provider.dart';
+import '../../../shared/domain/entities/dropdown_option.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final resourceDetailsProvider =

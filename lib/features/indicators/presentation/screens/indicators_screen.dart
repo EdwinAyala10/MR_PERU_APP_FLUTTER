@@ -1,14 +1,14 @@
 import 'dart:async';
 
-import 'package:crm_app/features/indicators/domain/entities/send_indicators_response.dart';
-import 'package:crm_app/features/indicators/presentation/providers/indicators_provider.dart';
-import 'package:crm_app/features/users/domain/domain.dart';
-import 'package:crm_app/features/users/presentation/delegates/search_user_delegate.dart';
-import 'package:crm_app/features/users/presentation/search/search_users_provider.dart';
+import '../../domain/entities/send_indicators_response.dart';
+import '../providers/indicators_provider.dart';
+import '../../../users/domain/domain.dart';
+import '../../../users/presentation/delegates/search_user_delegate.dart';
+import '../../../users/presentation/search/search_users_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:crm_app/features/shared/shared.dart';
+import '../../../shared/shared.dart';
 import 'package:intl/intl.dart';
 
 class IndicatorsScreen extends ConsumerWidget {

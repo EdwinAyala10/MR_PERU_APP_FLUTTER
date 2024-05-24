@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
+import '../../features/auth/presentation/providers/auth_provider.dart';
 
 
 final goRouterNotifierProvider = Provider((ref) {

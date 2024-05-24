@@ -1,4 +1,4 @@
-import 'package:crm_app/features/contacts/domain/domain.dart';
+import '../domain.dart';
 
 abstract class ContactsRepository {
   Future<List<Contact>> getContacts({String ruc, String search, int limit = 10, int offset = 0});

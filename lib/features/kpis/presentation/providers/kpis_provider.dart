@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:crm_app/features/kpis/domain/domain.dart';
+import '../../domain/domain.dart';
 
 import 'kpis_repository_provider.dart';
 

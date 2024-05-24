@@ -1,4 +1,4 @@
-import 'package:crm_app/features/contacts/domain/domain.dart';
+import '../domain.dart';
 
 class ContactResponse {
     String type;

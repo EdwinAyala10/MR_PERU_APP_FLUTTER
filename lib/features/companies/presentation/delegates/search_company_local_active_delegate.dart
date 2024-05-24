@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:crm_app/features/companies/domain/domain.dart';
+import '../../domain/domain.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 

@@ -1,6 +1,6 @@
-import 'package:crm_app/config/config.dart';
-import 'package:crm_app/features/auth/domain/domain.dart';
-import 'package:crm_app/features/auth/infrastructure/infrastructure.dart';
+import '../../../../config/config.dart';
+import '../../domain/domain.dart';
+import '../infrastructure.dart';
 import 'package:dio/dio.dart';
 
 class AuthDataSourceImpl extends AuthDataSource {

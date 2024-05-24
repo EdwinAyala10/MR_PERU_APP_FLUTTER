@@ -1,18 +1,18 @@
 import 'dart:async';
 
-import 'package:crm_app/features/activities/activities.dart';
-import 'package:crm_app/features/companies/domain/domain.dart';
-import 'package:crm_app/features/companies/domain/entities/create_update_company_local_response.dart';
-import 'package:crm_app/features/companies/presentation/providers/forms/company_local_form_provider.dart';
-import 'package:crm_app/features/companies/presentation/providers/providers.dart';
-import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
-import 'package:crm_app/features/location/presentation/providers/gps_provider.dart';
-import 'package:crm_app/features/location/presentation/providers/selected_map_provider.dart';
-import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
-import 'package:crm_app/features/shared/shared.dart';
-import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
-import 'package:crm_app/features/shared/widgets/select_custom_form.dart';
-import 'package:crm_app/features/shared/widgets/text_address.dart';
+import '../../../activities/activities.dart';
+import '../../domain/domain.dart';
+import '../../domain/entities/create_update_company_local_response.dart';
+import '../providers/forms/company_local_form_provider.dart';
+import '../providers/providers.dart';
+import '../widgets/show_loading_message.dart';
+import '../../../location/presentation/providers/gps_provider.dart';
+import '../../../location/presentation/providers/selected_map_provider.dart';
+import '../../../shared/domain/entities/dropdown_option.dart';
+import '../../../shared/shared.dart';
+import '../../../shared/widgets/floating_action_button_custom.dart';
+import '../../../shared/widgets/select_custom_form.dart';
+import '../../../shared/widgets/text_address.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -26,15 +26,13 @@ class CompanyLocalScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final companyLocalState = ref.watch(companyLocalProvider(id));
 
-    List<String> ids = id.split("*");
-    String idCheck = ids[0];
-    String ruc = ids[1];
+    id.split("*");
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Crear Local'),
+          title: const Text('Crear Local'),
           /*leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
@@ -105,7 +103,6 @@ class _CompanyLocalInformation extends ConsumerStatefulWidget {
 class _CompanyLocalInformationState
     extends ConsumerState<_CompanyLocalInformation> {
   late TextEditingController _controllerLocalName;
-  late Key _fieldKeyLocalName;
 
   @override
   void initState() {
@@ -113,7 +110,6 @@ class _CompanyLocalInformationState
     // Inicializar el controlador y la clave
     _controllerLocalName =
         TextEditingController(text: widget.companyLocal.localNombre);
-    _fieldKeyLocalName = UniqueKey();
   }
 
   @override
@@ -206,7 +202,6 @@ class _CompanyLocalInformationState
               : GestureDetector(
                   onTap: () {
                     setState(() {
-                      _fieldKeyLocalName = UniqueKey();
                       _controllerLocalName.text =
                           companyLocalForm.localNombre.value;
                     });

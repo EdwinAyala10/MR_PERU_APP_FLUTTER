@@ -1,20 +1,20 @@
 import 'dart:async';
 
-import 'package:crm_app/features/companies/domain/domain.dart';
-import 'package:crm_app/features/companies/presentation/delegates/search_company_active_delegate.dart';
-import 'package:crm_app/features/companies/presentation/search/search_companies_active_provider.dart';
-import 'package:crm_app/features/opportunities/domain/domain.dart';
-import 'package:crm_app/features/opportunities/presentation/providers/providers.dart';
-import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
-import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
-import 'package:crm_app/features/shared/shared.dart';
-import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
-import 'package:crm_app/features/shared/widgets/placeholder.dart';
-import 'package:crm_app/features/shared/widgets/select_custom_form.dart';
-import 'package:crm_app/features/shared/widgets/title_section_form.dart';
-import 'package:crm_app/features/users/domain/domain.dart';
-import 'package:crm_app/features/users/presentation/delegates/search_user_delegate.dart';
-import 'package:crm_app/features/users/presentation/search/search_users_provider.dart';
+import '../../../companies/domain/domain.dart';
+import '../../../companies/presentation/delegates/search_company_active_delegate.dart';
+import '../../../companies/presentation/search/search_companies_active_provider.dart';
+import '../../domain/domain.dart';
+import '../providers/providers.dart';
+import '../../../resource-detail/presentation/providers/resource_details_provider.dart';
+import '../../../shared/domain/entities/dropdown_option.dart';
+import '../../../shared/shared.dart';
+import '../../../shared/widgets/floating_action_button_custom.dart';
+import '../../../shared/widgets/placeholder.dart';
+import '../../../shared/widgets/select_custom_form.dart';
+import '../../../shared/widgets/title_section_form.dart';
+import '../../../users/domain/domain.dart';
+import '../../../users/presentation/delegates/search_user_delegate.dart';
+import '../../../users/presentation/search/search_users_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -262,7 +262,7 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     decoration: BoxDecoration(
                       border: Border.all(
-                        color: Colors.grey,
+                        color: opportunityForm.oprtRuc.errorMessage != null ? Colors.red : Colors.grey,
                       ),
                       borderRadius: BorderRadius.circular(5),
                     ),
@@ -270,11 +270,12 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
                       children: [
                         Expanded(
                           child: Text(
-                            opportunityForm.oprtRuc == ''
+                            opportunityForm.oprtRuc.value == ''
                                 ? 'Seleccione empresa'
                                 : opportunityForm.oprtRazon,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
+                              color: opportunityForm.oprtRuc.errorMessage != null ? Colors.red : Colors.black
                             ),
                           ),
                         ),
@@ -291,6 +292,15 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
               ],
             ),
           ),
+          opportunityForm.oprtRuc.errorMessage != null
+          ? Padding(
+              padding: const EdgeInsets.only(left: 4),
+              child: Text(
+                opportunityForm.oprtRuc.errorMessage ?? '',
+                style: const TextStyle(color: Colors.red),
+              ),
+            )
+          : const SizedBox(),
           const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.all(4.0),
@@ -313,7 +323,7 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     decoration: BoxDecoration(
                       border: Border.all(
-                        color: Colors.grey,
+                        color: opportunityForm.oprtRucIntermediario01.errorMessage != null ? Colors.red : Colors.grey
                       ),
                       borderRadius: BorderRadius.circular(5),
                     ),
@@ -321,11 +331,12 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
                       children: [
                         Expanded(
                           child: Text(
-                            opportunityForm.oprtRucIntermediario01 == ''
+                            opportunityForm.oprtRucIntermediario01.value == ''
                                 ? 'Seleccione intermediario'
                                 : opportunityForm.oprtRazonIntermediario01,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
+                              color: opportunityForm.oprtRucIntermediario01.errorMessage != null ? Colors.red : Colors.black
                             ),
                           ),
                         ),
@@ -342,6 +353,15 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
               ],
             ),
           ),
+          opportunityForm.oprtRucIntermediario01.errorMessage != null
+          ? Padding(
+              padding: const EdgeInsets.only(left: 4),
+              child: Text(
+                opportunityForm.oprtRucIntermediario01.errorMessage ?? '',
+                style: const TextStyle(color: Colors.red),
+              ),
+            )
+          : const SizedBox(),
           const SizedBox(height: 15),
           const Text('Responsable *', style: TextStyle(
             fontWeight: FontWeight.w500

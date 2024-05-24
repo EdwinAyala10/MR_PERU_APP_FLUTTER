@@ -1,6 +1,5 @@
-import 'package:crm_app/features/activities/presentation/providers/providers.dart';
-import 'package:crm_app/features/shared/presentation/providers/send_whatsapp_provider.dart';
-import 'package:crm_app/features/shared/shared.dart';
+import '../providers/providers.dart';
+import '../../../shared/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,7 +8,7 @@ import 'package:intl/intl.dart';
 class ActivityDetailScreen extends ConsumerWidget {
   final String activityId;
 
-  ActivityDetailScreen({
+  const ActivityDetailScreen({super.key, 
     required this.activityId,
   });
 
@@ -94,7 +93,7 @@ class ActivityDetailScreen extends ConsumerWidget {
               ),
               ContainerCustom(
                 label: 'Oportunidad',
-                text: activity.actiNombreOportunidad ?? '',
+                text: activity.actiNombreOportunidad,
               ),
               ContainerCustom(
                 label: 'Contacto',

@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
-import 'package:crm_app/features/contacts/domain/domain.dart';
-import 'package:crm_app/features/contacts/infrastructure/datasources/contacts_datasource_impl.dart';
-import 'package:crm_app/features/contacts/infrastructure/repositories/contacts_repository_impl.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../domain/domain.dart';
+import '../../infrastructure/datasources/contacts_datasource_impl.dart';
+import '../../infrastructure/repositories/contacts_repository_impl.dart';
 
 
 final contactsRepositoryProvider = Provider<ContactsRepository>((ref) {

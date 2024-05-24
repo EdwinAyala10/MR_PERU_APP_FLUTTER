@@ -1,14 +1,14 @@
 import 'dart:async';
 
-import 'package:crm_app/features/companies/presentation/providers/forms/company_form_provider.dart';
-import 'package:crm_app/features/companies/presentation/providers/forms/company_local_form_provider.dart';
-import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
-import 'package:crm_app/features/location/domain/domain.dart';
-import 'package:crm_app/features/location/presentation/delegates/search_places_delegate.dart';
-import 'package:crm_app/features/location/presentation/providers/location_provider.dart';
-import 'package:crm_app/features/location/presentation/providers/map_provider.dart';
-import 'package:crm_app/features/location/presentation/providers/selected_map_provider.dart';
-import 'package:crm_app/features/location/presentation/search/search_places_provider.dart';
+import '../../../companies/presentation/providers/forms/company_form_provider.dart';
+import '../../../companies/presentation/providers/forms/company_local_form_provider.dart';
+import '../../../companies/presentation/widgets/show_loading_message.dart';
+import '../../domain/domain.dart';
+import '../delegates/search_places_delegate.dart';
+import '../providers/location_provider.dart';
+import '../providers/map_provider.dart';
+import '../providers/selected_map_provider.dart';
+import '../search/search_places_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -241,9 +241,9 @@ class _CompanyMapViewState extends ConsumerState {
                   if (stateSelectedMap.module == 'company' && stateSelectedMap.input == 'direction') {
                     ref.watch(companyFormProvider(stateSelectedMap.entity).notifier).onLoadAddressCompanyLocalChanged(
                       stateSelectedMap.address ?? '',
-                      '${lat}, ${lng}',
-                      '${lat}',
-                      '${lng}',
+                      '$lat, $lng',
+                      '$lat',
+                      '$lng',
                       stateSelectedMap.ubigeo ?? '',
                       stateSelectedMap.departament ?? '',
                       stateSelectedMap.province ?? '',
@@ -255,9 +255,9 @@ class _CompanyMapViewState extends ConsumerState {
                   if (stateSelectedMap.module == 'company' && stateSelectedMap.input == 'direction-local') {
                     ref.watch(companyFormProvider(stateSelectedMap.entity).notifier).onLoadAddressCompanyLocalChanged(
                       stateSelectedMap.address ?? '',
-                      '${lat}, ${lng}',
-                      '${lat}',
-                      '${lng}',
+                      '$lat, $lng',
+                      '$lat',
+                      '$lng',
                       stateSelectedMap.ubigeo ?? '',
                       stateSelectedMap.departament ?? '',
                       stateSelectedMap.province ?? '',
@@ -268,9 +268,9 @@ class _CompanyMapViewState extends ConsumerState {
                   if (stateSelectedMap.module == 'company-local' && stateSelectedMap.input == 'direction-local') {
                     ref.watch(companyLocalFormProvider(stateSelectedMap.entity).notifier).onLoadAddressChanged(
                       stateSelectedMap.address ?? '',
-                      '${lat}, ${lng}',
-                      '${lat}',
-                      '${lng}',
+                      '$lat, $lng',
+                      '$lat',
+                      '$lng',
                       stateSelectedMap.ubigeo ?? '',
                       stateSelectedMap.departament ?? '',
                       stateSelectedMap.province ?? '',

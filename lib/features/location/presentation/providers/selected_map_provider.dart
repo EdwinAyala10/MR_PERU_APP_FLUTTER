@@ -1,9 +1,9 @@
-import 'package:crm_app/features/location/domain/domain.dart';
-import 'package:crm_app/features/location/domain/entities/selected_address.dart';
-import 'package:crm_app/features/location/presentation/providers/providers.dart';
+import '../../domain/domain.dart';
+import '../../domain/entities/selected_address.dart';
+import 'providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:crm_app/features/shared/infrastructure/services/key_value_storage_service.dart';
-import 'package:crm_app/features/shared/infrastructure/services/key_value_storage_service_impl.dart';
+import '../../../shared/infrastructure/services/key_value_storage_service.dart';
+import '../../../shared/infrastructure/services/key_value_storage_service_impl.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 final selectedMapProvider =
@@ -41,7 +41,7 @@ class SelectedMapNotifier extends StateNotifier<SelectedMapState> {
     required this.keyValueStorageService,
     required this.searchPlaceIdCoors,
     required this.searchPlace,
-  }) : super(SelectedMapState()) {}
+  }) : super(SelectedMapState());
 
   void onSelectPlace(Place place) {
     final address = place.shortFormattedAddress;
@@ -58,14 +58,10 @@ class SelectedMapNotifier extends StateNotifier<SelectedMapState> {
   }
 
   Future searchPlaceByLocation(String locationStr) async {
-    print('LLEGO AQUI SEARC PLACE');
     final placeId = await searchPlaceIdCoors(locationStr);
-
-    print('placeId: ${placeId}');
 
     if (placeId != "") {
       final place = await searchPlace(placeId);
-      print('PLACE: ${place.formattedAddress}');
 
       final addressComponent = onAddressComponents(place.addressComponents);
 
@@ -129,7 +125,6 @@ class SelectedMapNotifier extends StateNotifier<SelectedMapState> {
       location = await locationProviderNot.currentPosition();
 
       String locationString = '${location.latitude}, ${location.longitude}';
-      print('LOCATIONSTR: ${locationString}');
       await searchPlaceByLocation(locationString);
     } else {
       location = const LatLng(-12.04318, -77.02824);

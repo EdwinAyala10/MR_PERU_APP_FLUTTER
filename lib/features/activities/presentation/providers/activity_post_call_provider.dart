@@ -1,10 +1,10 @@
-import 'package:crm_app/features/activities/presentation/providers/parameters/activity_post_call_params.dart';
-import 'package:crm_app/features/auth/domain/domain.dart';
-import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
-import 'package:crm_app/features/contacts/domain/domain.dart';
-import 'package:crm_app/features/contacts/presentation/providers/contacts_repository_provider.dart';
+import 'parameters/activity_post_call_params.dart';
+import '../../../auth/domain/domain.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../contacts/domain/domain.dart';
+import '../../../contacts/presentation/providers/contacts_repository_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:crm_app/features/activities/domain/domain.dart';
+import '../../domain/domain.dart';
 import 'package:intl/intl.dart';
 
 final activityPostCallProvider = StateNotifierProvider.autoDispose.family<
@@ -34,7 +34,7 @@ class ActivityPostCallNotifier extends StateNotifier<ActivityPostCallState> {
     required this.phone,
     required this.contactId,
   }) : super(ActivityPostCallState(id: 'new')) {
-    loadActivityPostCall(this.contactId, this.phone);
+    loadActivityPostCall(contactId, phone);
   }
 
   Activity newEmptyActivity(

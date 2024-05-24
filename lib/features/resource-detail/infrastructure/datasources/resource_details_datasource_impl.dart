@@ -1,6 +1,6 @@
-import 'package:crm_app/features/resource-detail/domain/domain.dart';
+import '../../domain/domain.dart';
 import 'package:dio/dio.dart';
-import 'package:crm_app/config/config.dart';
+import '../../../../config/config.dart';
 
 import '../mappers/resource_detail_mapper.dart';
 
@@ -20,8 +20,6 @@ class ResourceDetailsDatasourceImpl extends ResourceDetailsDatasource {
         data: {'RECD_GRUPO': idGroup});
 
     final List<ResourceDetail> resourceDetails = [];
-
-    print('response getResourceDetailsByGroup :${response}');
 
     for (final resourceDetail in response.data['data'] ?? []) {
       resourceDetails.add(ResourceDetailMapper.jsonToEntity(resourceDetail));

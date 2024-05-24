@@ -1,4 +1,4 @@
-import 'package:crm_app/features/agenda/domain/domain.dart';
+import '../../domain/domain.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';

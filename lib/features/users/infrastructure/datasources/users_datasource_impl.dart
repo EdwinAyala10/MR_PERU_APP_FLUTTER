@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:crm_app/config/config.dart';
-import 'package:crm_app/features/users/domain/domain.dart';
+import '../../../../config/config.dart';
+import '../../domain/domain.dart';
 
 import '../mappers/user_master_mapper.dart';
 

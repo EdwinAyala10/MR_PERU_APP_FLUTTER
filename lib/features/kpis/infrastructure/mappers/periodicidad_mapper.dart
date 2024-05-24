@@ -1,4 +1,4 @@
-import 'package:crm_app/features/kpis/domain/entities/periodicidad.dart';
+import '../../domain/entities/periodicidad.dart';
 
 class PeriodicidadMapper {
 

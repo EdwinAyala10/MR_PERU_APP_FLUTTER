@@ -1,4 +1,4 @@
-import 'package:crm_app/features/auth/domain/domain.dart';
+import '../../domain/domain.dart';
 import '../infrastructure.dart';
 
 class AuthRepositoryImpl extends AuthRepository {

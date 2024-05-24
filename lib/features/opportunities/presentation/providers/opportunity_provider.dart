@@ -1,7 +1,7 @@
-import 'package:crm_app/features/auth/domain/domain.dart';
-import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
+import '../../../auth/domain/domain.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:crm_app/features/opportunities/domain/domain.dart';
+import '../../domain/domain.dart';
 
 import 'opportunities_repository_provider.dart';
 

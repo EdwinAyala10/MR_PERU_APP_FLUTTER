@@ -1,4 +1,4 @@
-import 'package:crm_app/features/auth/domain/domain.dart';
+import '../../domain/domain.dart';
 
 class UserMapper {
   static User userJsonToEntity(Map<dynamic, dynamic> json) => User(

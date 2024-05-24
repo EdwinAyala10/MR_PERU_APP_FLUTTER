@@ -1,19 +1,19 @@
-import 'package:crm_app/features/activities/domain/domain.dart';
-import 'package:crm_app/features/activities/presentation/widgets/item_activity.dart';
-import 'package:crm_app/features/agenda/domain/domain.dart';
-import 'package:crm_app/features/agenda/presentation/widgets/item_event.dart';
-import 'package:crm_app/features/companies/presentation/widgets/item_company_local.dart';
-import 'package:crm_app/features/contacts/domain/domain.dart';
-import 'package:crm_app/features/contacts/presentation/widgets/item_contact.dart';
-import 'package:crm_app/features/opportunities/domain/domain.dart';
-import 'package:crm_app/features/opportunities/presentation/widgets/item_opportunity.dart';
-import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
-import 'package:crm_app/features/shared/widgets/floating_action_button_icon_custom.dart';
+import '../../../activities/domain/domain.dart';
+import '../../../activities/presentation/widgets/item_activity.dart';
+import '../../../agenda/domain/domain.dart';
+import '../../../agenda/presentation/widgets/item_event.dart';
+import '../widgets/item_company_local.dart';
+import '../../../contacts/domain/domain.dart';
+import '../../../contacts/presentation/widgets/item_contact.dart';
+import '../../../opportunities/domain/domain.dart';
+import '../../../opportunities/presentation/widgets/item_opportunity.dart';
+import '../../../shared/widgets/floating_action_button_custom.dart';
+import '../../../shared/widgets/floating_action_button_icon_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:crm_app/features/companies/domain/domain.dart';
-import 'package:crm_app/features/companies/presentation/providers/company_provider.dart';
-import 'package:crm_app/features/shared/shared.dart';
+import '../../domain/domain.dart';
+import '../providers/company_provider.dart';
+import '../../../shared/shared.dart';
 import 'package:go_router/go_router.dart';
 
 class CompanyDetailScreen extends ConsumerWidget {
@@ -107,8 +107,6 @@ class _CompanyDetailViewState extends State<_CompanyDetailView>
 
   @override
   Widget build(BuildContext context) {
-
-    print('CHECK STATUS COMPANY: ${widget.company.cchkIdEstadoCheck ?? ''}');
 
     TextStyle styleTitle =
         const TextStyle(fontWeight: FontWeight.w600, fontSize: 16);
@@ -327,16 +325,16 @@ class _CompanyDetailViewState extends State<_CompanyDetailView>
                   ? '01'
                   : (widget.company.cchkIdEstadoCheck == null ? '01' : '06');
               String ruc = widget.company.ruc;
-              String ids = '${idCheck}*${ruc}';
-              context.push('/company_check_in/${ids}');
+              String ids = '$idCheck*$ruc';
+              context.push('/company_check_in/$ids');
             },
             iconData: Icons.check_circle_outline_outlined);
       case 1:
         return FloatingActionButtonCustom(
             callOnPressed: () {
               String ruc = widget.company.ruc;
-              String ids = 'new*${ruc}';
-              context.push('/company_local/${ids}');
+              String ids = 'new*$ruc';
+              context.push('/company_local/$ids');
             },
             iconData: Icons.add);
 
@@ -348,7 +346,7 @@ class _CompanyDetailViewState extends State<_CompanyDetailView>
 
 class _ListContacts extends StatelessWidget {
   final List<Contact> contacts;
-  const _ListContacts({super.key, required this.contacts});
+  const _ListContacts({required this.contacts});
 
   @override
   Widget build(BuildContext context) {
@@ -399,7 +397,7 @@ class _ListCompanyLocales extends StatelessWidget {
 class _ListOpportunities extends StatelessWidget {
   final List<Opportunity> opportunities;
 
-  const _ListOpportunities({super.key, required this.opportunities});
+  const _ListOpportunities({required this.opportunities});
 
   @override
   Widget build(BuildContext context) {
@@ -424,7 +422,7 @@ class _ListOpportunities extends StatelessWidget {
 class _ListActivities extends StatelessWidget {
   final List<Activity> activities;
 
-  const _ListActivities({super.key, required this.activities});
+  const _ListActivities({required this.activities});
 
   @override
   Widget build(BuildContext context) {
@@ -449,7 +447,7 @@ class _ListActivities extends StatelessWidget {
 class _ListEvents extends StatelessWidget {
   final List<Event> events;
 
-  const _ListEvents({super.key, required this.events});
+  const _ListEvents({required this.events});
 
   @override
   Widget build(BuildContext context) {
@@ -474,7 +472,7 @@ class _ListEvents extends StatelessWidget {
 class _NoExistData extends StatelessWidget {
   String description;
 
-  _NoExistData({super.key, required this.description});
+  _NoExistData({required this.description});
 
   @override
   Widget build(BuildContext context) {
@@ -496,7 +494,7 @@ class _NoExistData extends StatelessWidget {
           ),
           child: Text(
             description,
-            style: TextStyle(fontSize: 20, color: Colors.grey),
+            style: const TextStyle(fontSize: 20, color: Colors.grey),
           ),
         ),
       ],

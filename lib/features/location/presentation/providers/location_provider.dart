@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:crm_app/features/shared/infrastructure/services/key_value_storage_service.dart';
-import 'package:crm_app/features/shared/infrastructure/services/key_value_storage_service_impl.dart';
+import '../../../shared/infrastructure/services/key_value_storage_service.dart';
+import '../../../shared/infrastructure/services/key_value_storage_service_impl.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' show LatLng;
 
@@ -106,16 +106,7 @@ class LocationNotifier extends StateNotifier<LocationState> {
       double lat1, double lon1, double lat2, double lon2, double radio) {
     double distancia = distanciaCoordenadas(lat1, lon1, lat2, lon2);
 
-    print('LAT1: ${lat1} | LNG1: ${lon1}');
-    print('LAT2: ${lat2} | LNG2: ${lon2}');
-
-    print('DISNTACIN: ${distancia}');
-
     state = state.copyWith(distanceLocationAddressDiff: distancia);
-
-    print('RADIO: ${radio}');
-
-    print('RESP: ${distancia <= radio}');
 
     return distancia <= radio;
   }
@@ -123,7 +114,6 @@ class LocationNotifier extends StateNotifier<LocationState> {
   void stopFollowingUser() {
     positionStream?.cancel();
     state = state.copyWith(followingUser: false);
-    print('stopFollowingUser');
   }
 
   Future<LatLng> currentPosition() async {
@@ -131,8 +121,6 @@ class LocationNotifier extends StateNotifier<LocationState> {
       Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high,
           timeLimit: const Duration(seconds: 4));
-
-      print('currentPosition: ${position}');
 
       state = state.copyWith(
           lastKnownLocation: LatLng(position.latitude, position.longitude));

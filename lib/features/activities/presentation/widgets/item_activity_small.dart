@@ -1,5 +1,5 @@
-import 'package:crm_app/features/activities/domain/domain.dart';
-import 'package:crm_app/features/shared/shared.dart';
+import '../../domain/domain.dart';
+import '../../../shared/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -98,7 +98,7 @@ class ItemActivitySmall extends StatelessWidget {
                 const Icon(Icons.mode_comment, size: 14),
                 const SizedBox(width: 4),
                 SizedBox(
-                  width: 120,
+                  width: 90,
                   child: Text(activity.actiComentario,
                     style: const TextStyle(
                       fontSize: 12,
@@ -153,19 +153,29 @@ class ItemActivitySmall extends StatelessWidget {
       ),
       trailing: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Text(
             formattedDate,
-            style: const TextStyle(fontSize: 14, color: Colors.black45),
+            style: const TextStyle(fontSize: 11, color: Colors.black45, overflow: TextOverflow.ellipsis),
           ),
-          Text(activity.actiNombreResponsable ?? '',
-              style: const TextStyle(
-                fontSize: 13,
-              )),
-          Text(timeDifference,
-              style: const TextStyle(
-                fontSize: 12,
-              )),
+          SizedBox(
+            height: 12,
+            child: Text(activity.actiNombreResponsable ?? '',
+                style: const TextStyle(
+                  fontSize: 10,
+                  overflow: TextOverflow.ellipsis
+                )),
+          ),
+          SizedBox(
+            height: 12,
+            child: Text(timeDifference,
+                maxLines: 1,
+                style: const TextStyle(
+                  fontSize: 10,
+                  overflow: TextOverflow.ellipsis,
+                )),
+          ),
         ],
       ),
       leading: SizedBox(

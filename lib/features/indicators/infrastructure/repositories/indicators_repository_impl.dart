@@ -1,4 +1,4 @@
-import 'package:crm_app/features/indicators/domain/domain.dart';
+import '../../domain/domain.dart';
 
 class IndicatorsRepositoryImpl extends IndicatorsRepository {
 

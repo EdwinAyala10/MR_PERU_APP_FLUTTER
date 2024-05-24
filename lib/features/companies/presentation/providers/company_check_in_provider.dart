@@ -1,10 +1,10 @@
-import 'package:crm_app/features/auth/domain/domain.dart';
-import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
-import 'package:crm_app/features/companies/domain/entities/check_in_by_ruc_local.dart';
-import 'package:crm_app/features/companies/domain/entities/check_in_by_ruc_local_response.dart';
-import 'package:crm_app/features/companies/presentation/providers/providers.dart';
+import '../../../auth/domain/domain.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../domain/entities/check_in_by_ruc_local.dart';
+import '../../domain/entities/check_in_by_ruc_local_response.dart';
+import 'providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:crm_app/features/companies/domain/domain.dart';
+import '../../domain/domain.dart';
 
 final companyCheckInProvider = StateNotifierProvider.autoDispose
     .family<CompanyCheckInNotifier, CompanyCheckInState, String>((ref, id) {

@@ -1,4 +1,4 @@
-import 'package:crm_app/features/contacts/domain/domain.dart';
+import '../../../contacts/domain/domain.dart';
 
 class Activity {
   String id;

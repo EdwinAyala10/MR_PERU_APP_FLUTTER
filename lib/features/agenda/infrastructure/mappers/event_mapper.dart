@@ -1,6 +1,6 @@
-import 'package:crm_app/features/agenda/domain/domain.dart';
-import 'package:crm_app/features/contacts/domain/domain.dart';
-import 'package:crm_app/features/contacts/domain/entities/contact_array.dart';
+import '../../domain/domain.dart';
+import '../../../contacts/domain/domain.dart';
+import '../../../contacts/domain/entities/contact_array.dart';
 
 
 class EventMapper {

@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:crm_app/features/auth/domain/domain.dart';
-import 'package:crm_app/features/auth/infrastructure/infrastructure.dart';
-import 'package:crm_app/features/shared/infrastructure/services/key_value_storage_service.dart';
-import 'package:crm_app/features/shared/infrastructure/services/key_value_storage_service_impl.dart';
+import '../../domain/domain.dart';
+import '../../infrastructure/infrastructure.dart';
+import '../../../shared/infrastructure/services/key_value_storage_service.dart';
+import '../../../shared/infrastructure/services/key_value_storage_service_impl.dart';
 
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final authRepository = AuthRepositoryImpl();

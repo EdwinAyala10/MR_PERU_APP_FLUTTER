@@ -1,8 +1,8 @@
-import 'package:crm_app/features/indicators/domain/entities/send_indicators_response.dart';
-import 'package:crm_app/features/indicators/domain/repositories/indicators_repository.dart';
-import 'package:crm_app/features/indicators/presentation/providers/indicators_repository_provider.dart';
-import 'package:crm_app/features/kpis/domain/entities/array_user.dart';
-import 'package:crm_app/features/users/domain/domain.dart';
+import '../../domain/entities/send_indicators_response.dart';
+import '../../domain/repositories/indicators_repository.dart';
+import 'indicators_repository_provider.dart';
+import '../../../kpis/domain/entities/array_user.dart';
+import '../../../users/domain/domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final indicatorsProvider =

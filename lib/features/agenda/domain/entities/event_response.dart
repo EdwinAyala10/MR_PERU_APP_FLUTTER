@@ -1,4 +1,4 @@
-import 'package:crm_app/features/agenda/domain/entities/event.dart';
+import 'event.dart';
 
 class EventResponse {
     String type;

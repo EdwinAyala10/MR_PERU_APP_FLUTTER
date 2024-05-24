@@ -1,4 +1,4 @@
-import 'package:crm_app/features/users/domain/domain.dart';
+import '../../domain/domain.dart';
 
 class UsersRepositoryImpl extends UsersRepository {
 

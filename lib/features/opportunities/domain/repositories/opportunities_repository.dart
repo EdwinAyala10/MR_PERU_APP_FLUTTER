@@ -1,5 +1,5 @@
-import 'package:crm_app/features/opportunities/domain/domain.dart';
-import 'package:crm_app/features/opportunities/domain/entities/status_opportunity.dart';
+import '../domain.dart';
+import '../entities/status_opportunity.dart';
 
 abstract class OpportunitiesRepository {
   Future<List<Opportunity>> getOpportunities({String ruc, String search, int limit = 10, int offset = 0});

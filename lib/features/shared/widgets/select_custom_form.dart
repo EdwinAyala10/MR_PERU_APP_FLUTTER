@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
+import '../domain/entities/dropdown_option.dart';
 
 class SelectCustomForm extends StatelessWidget {
   final String label;

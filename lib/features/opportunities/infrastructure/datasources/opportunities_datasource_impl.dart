@@ -1,9 +1,9 @@
-import 'package:crm_app/features/opportunities/domain/entities/status_opportunity.dart';
-import 'package:crm_app/features/opportunities/infrastructure/mappers/opportunity_response_mapper.dart';
-import 'package:crm_app/features/opportunities/infrastructure/mappers/status_opportunity_mapper.dart';
+import '../../domain/entities/status_opportunity.dart';
+import '../mappers/opportunity_response_mapper.dart';
+import '../mappers/status_opportunity_mapper.dart';
 import 'package:dio/dio.dart';
-import 'package:crm_app/config/config.dart';
-import 'package:crm_app/features/opportunities/domain/domain.dart';
+import '../../../../config/config.dart';
+import '../../domain/domain.dart';
 
 import '../errors/opportunity_errors.dart';
 import '../mappers/opportunity_mapper.dart';
@@ -22,7 +22,7 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
       Map<dynamic, dynamic> opportunityLike) async {
     try {
       final String? id = opportunityLike['OPRT_ID_OPORTUNIDAD'];
-      final String method = 'POST';
+      const String method = 'POST';
       final String url = (id == null)
           ? '/oportunidad/create-oportunidad'
           : '/oportunidad/edit-oportunidad';

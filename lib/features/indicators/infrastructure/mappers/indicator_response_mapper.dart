@@ -1,4 +1,4 @@
-import 'package:crm_app/features/indicators/domain/entities/indicator_response.dart';
+import '../../domain/entities/indicator_response.dart';
 
 class IndicatorResponseMapper {
 

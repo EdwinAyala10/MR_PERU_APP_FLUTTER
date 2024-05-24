@@ -1,6 +1,6 @@
 
 
-import 'package:crm_app/features/shared/shared.dart';
+import '../../../shared/shared.dart';
 import 'package:flutter/material.dart';
 
 class DocumentScreen extends StatelessWidget {
