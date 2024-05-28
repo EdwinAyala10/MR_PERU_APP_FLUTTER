@@ -1,3 +1,5 @@
+import 'package:crm_app/features/opportunities/presentation/screens/opportunity_detail_screen.dart';
+
 import '../../features/activities/presentation/screens/activity_detail_screen.dart';
 import '../../features/activities/presentation/screens/activity_screen_post_call.dart';
 import '../../features/contacts/presentation/screens/contact_detail_screen.dart';
@@ -200,6 +202,12 @@ final goRouterProvider = Provider((ref) {
       GoRoute(
         path: '/opportunity/:id', // /contact/new
         builder: (context, state) => OpportunityScreen(
+          opportunityId: state.pathParameters['id'] ?? 'no-id',
+        ),
+      ),
+      GoRoute(
+        path: '/opportunity_detail/:id', // /opportunity/new
+        builder: (context, state) => OpportunityDetailScreen(
           opportunityId: state.pathParameters['id'] ?? 'no-id',
         ),
       ),

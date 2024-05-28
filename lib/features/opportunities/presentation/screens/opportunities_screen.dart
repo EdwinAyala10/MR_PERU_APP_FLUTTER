@@ -257,7 +257,7 @@ class _ListOpportunitiesState extends ConsumerState<_ListOpportunities> {
                   final opportunity = widget.opportunities[index];
                   return ItemOpportunity(
                       opportunity: opportunity, callbackOnTap: () {
-                        context.push('/opportunity/${opportunity.id}');
+                        context.push('/opportunity_detail/${opportunity.id}');
                       });
                 },
               )

@@ -162,7 +162,7 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Text(
-                  'Probalidad: ${double.parse(opportunityForm.oprtProbabilidad ?? '0').round()}%',
+                  'Probabilidad: ${double.parse(opportunityForm.oprtProbabilidad ?? '0').round()}%',
                   style: const TextStyle(
                       fontSize: 16.0, fontWeight: FontWeight.w600),
                 ),

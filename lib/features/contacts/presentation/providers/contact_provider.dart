@@ -23,7 +23,6 @@ class ContactNotifier extends StateNotifier<ContactState> {
     required this.user,
     required String idContact,
   }) : super(ContactState()) {
-    print('EJECUTa contacNotificer antes de loadContact');
     loadContact(idContact);
   }
 
