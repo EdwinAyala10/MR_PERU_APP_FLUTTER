@@ -1,3 +1,5 @@
+import 'package:crm_app/config/config.dart';
+
 import '../../../activities/domain/domain.dart';
 import '../../../activities/presentation/providers/activities_provider.dart';
 import '../../../activities/presentation/widgets/item_activity_small.dart';
@@ -69,7 +71,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
         iconColor: Colors.white,
         iconData: Icons.add,
         shape: const CircleBorder(),
-        backgroundColor: const Color.fromARGB(255, 247, 106, 19),
+        backgroundColor: secondaryColor,
         items: <Widget>[
           /*BubbleMenu(
             title: 'Nueva tarea',
@@ -85,7 +87,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
           BubbleMenu(
             title: 'Nueva Evento',
             iconColor: Colors.white,
-            bubbleColor: const Color.fromARGB(255, 247, 106, 19),
+            bubbleColor: secondaryColor,
             icon: Icons.event,
             style: const TextStyle(fontSize: 16, color: Colors.white),
             onPressed: () {
@@ -96,7 +98,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
           BubbleMenu(
             title: 'Nueva Actividad',
             iconColor: Colors.white,
-            bubbleColor: const Color.fromARGB(255, 247, 106, 19),
+            bubbleColor: secondaryColor,
             icon: Icons.local_activity_outlined,
             style: const TextStyle(fontSize: 16, color: Colors.white),
             onPressed: () {
@@ -107,7 +109,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
           BubbleMenu(
             title: 'Nueva Oportunidad',
             iconColor: Colors.white,
-            bubbleColor: const Color.fromARGB(255, 247, 106, 19),
+            bubbleColor: secondaryColor,
             icon: Icons.work,
             style: const TextStyle(fontSize: 16, color: Colors.white),
             onPressed: () {
@@ -118,7 +120,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
           BubbleMenu(
             title: 'Nuevo Contacto',
             iconColor: Colors.white,
-            bubbleColor: const Color.fromARGB(255, 247, 106, 19),
+            bubbleColor: secondaryColor,
             icon: Icons.perm_contact_cal,
             style: const TextStyle(fontSize: 16, color: Colors.white),
             onPressed: () {
@@ -129,7 +131,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
           BubbleMenu(
             title: 'Nueva Empresa',
             iconColor: Colors.white,
-            bubbleColor: const Color.fromARGB(255, 247, 106, 19),
+            bubbleColor: secondaryColor,
             icon: Icons.account_balance_rounded,
             style: const TextStyle(fontSize: 16, color: Colors.white),
             onPressed: () {
@@ -292,15 +294,14 @@ class _DashboardViewState extends ConsumerState {
                                       decoration: const BoxDecoration(
                                         shape: BoxShape.circle,
                                         color:
-                                            Colors.amber, // Color del círculo
+                                            primaryColor, // Color del círculo
                                       ),
                                       padding: const EdgeInsets.all(
                                           8), // Espacio interior alrededor del número
                                       child: Text(
                                         (kpisState.kpis.length).toString(),
                                         style: const TextStyle(
-                                          color: Color.fromARGB(255, 12, 12,
-                                              12), // Color del número
+                                          color: Colors.white, // Color del número
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
