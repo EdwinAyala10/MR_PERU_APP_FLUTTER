@@ -39,7 +39,7 @@ class ActivityScreen extends ConsumerWidget {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Crear Actividad'),
+          title: const Text('Crear Actividad', style: TextStyle(fontWeight: FontWeight.w700),),
           /*leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {

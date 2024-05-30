@@ -1,3 +1,5 @@
+import 'package:crm_app/config/config.dart';
+
 import '../../../activities/domain/domain.dart';
 import '../../../activities/presentation/widgets/item_activity.dart';
 import '../../../agenda/domain/domain.dart';
@@ -125,12 +127,12 @@ class _CompanyDetailViewState extends State<_CompanyDetailView>
             bottom: TabBar(
               controller: _tabController,
               tabs: const [
-                Tab(icon: Icon(Icons.info), text: 'Información'),
-                Tab(icon: Icon(Icons.home_work), text: 'Locales'),
-                Tab(icon: Icon(Icons.contacts), text: 'Contactos'),
-                Tab(icon: Icon(Icons.business), text: 'Oportunidades'),
-                Tab(icon: Icon(Icons.event), text: 'Actividades'),
-                Tab(icon: Icon(Icons.event_note), text: 'Eventos'),
+                Tab(icon: Icon(Icons.info, size: 30,), text: 'Información'),
+                Tab(icon: Icon(Icons.home_work, size: 30,), text: 'Locales'),
+                Tab(icon: Icon(Icons.contacts, size: 30,), text: 'Contactos'),
+                Tab(icon: Icon(Icons.business, size: 30,), text: 'Oportunidades'),
+                Tab(icon: Icon(Icons.event, size: 30,), text: 'Actividades'),
+                Tab(icon: Icon(Icons.event_note, size: 30,), text: 'Eventos'),
               ],
             ),
             actions: [
@@ -198,7 +200,7 @@ class _CompanyDetailViewState extends State<_CompanyDetailView>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: Colors.blue[300],
+                          color: secondaryColor,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(

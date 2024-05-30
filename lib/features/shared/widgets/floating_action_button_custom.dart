@@ -1,3 +1,4 @@
+import 'package:crm_app/config/config.dart';
 import 'package:flutter/material.dart';
 
 class FloatingActionButtonCustom extends StatelessWidget {
@@ -14,13 +15,13 @@ class FloatingActionButtonCustom extends StatelessWidget {
   Widget build(BuildContext context) {
     bool styleDisabled = isDisabled ?? false;
     return SizedBox(
-      width: 44+ 6.0 * 2,
-      height: 44 + 6.0 * 2,
+      width: 46+ 9.0 * 2,
+      height: 46 + 9.0 * 2,
       child: FloatingActionButton(
         onPressed: callOnPressed,
         backgroundColor: styleDisabled
-            ? const Color.fromARGB(255, 240, 169, 124)
-            : const Color.fromARGB(255, 247, 106, 19),
+            ? Color.fromARGB(255, 155, 155, 155)
+            :  primaryColor,
         shape: const CircleBorder(),
         child: Icon(
           iconData,

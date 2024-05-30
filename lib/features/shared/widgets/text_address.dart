@@ -1,3 +1,4 @@
+import 'package:crm_app/config/config.dart';
 import 'package:flutter/material.dart';
 
 class TextAddress extends StatelessWidget {
@@ -53,7 +54,7 @@ class TextAddress extends StatelessWidget {
               ),
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.blueAccent.shade200,
+                  color: secondaryColor,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: IconButton(

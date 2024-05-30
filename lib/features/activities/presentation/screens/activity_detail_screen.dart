@@ -44,7 +44,7 @@ class ActivityDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Detalles de actividad'),
+        title: const Text('Detalles de actividad', style: TextStyle(fontWeight: FontWeight.w700),),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),

@@ -1,4 +1,5 @@
 import 'dart:math' show pi;
+import 'package:crm_app/config/config.dart';
 import 'package:flutter/material.dart';
 
 
@@ -34,7 +35,7 @@ class GeometricalBackground extends StatelessWidget {
           Container(
             height: size.height * 0.7,
             decoration: const BoxDecoration(
-              color: Colors.black,
+              color: secondaryColor,
             ),
             child: Column(
               children: [

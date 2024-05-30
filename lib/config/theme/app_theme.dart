@@ -3,14 +3,17 @@ import 'package:flutter/material.dart';
 const colorSeed = Color.fromARGB(255, 7, 73, 79);
 const scaffoldBackgroundColor = Color.fromARGB(255, 255, 255, 255);
 
+const Color primaryColor = Color(0xFF00A8DD);
+const Color secondaryColor = Color(0xFF00607D);
+
 class AppTheme {
 
   ThemeData getTheme() => ThemeData(
 
     ///* General
     useMaterial3: true,
-    colorSchemeSeed: colorSeed,
-    hintColor: colorSeed,
+    colorSchemeSeed: primaryColor,
+    hintColor: primaryColor,
 
     ///* Texts
     /*textTheme: TextTheme(

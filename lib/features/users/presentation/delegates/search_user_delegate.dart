@@ -21,6 +21,7 @@ class SearchUserDelegate extends SearchDelegate<UserMaster?>{
     required this.initialUsers,
   }):super(
     searchFieldLabel: 'Buscar personas',
+    searchFieldStyle: const TextStyle(color: Colors.black45, fontSize: 16),
     // textInputAction: TextInputAction.done
   );
 
@@ -56,6 +57,15 @@ class SearchUserDelegate extends SearchDelegate<UserMaster?>{
       builder: (context, snapshot) {
         
         final users = snapshot.data ?? [];
+
+        if (users.isEmpty) {
+          return Center(
+            child: Text(
+              'No existen registros',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          );
+        }
 
         return ListView.separated(
           separatorBuilder: (BuildContext context, int index) => const Divider(),
@@ -165,9 +175,10 @@ class _UserItem extends StatelessWidget {
           
               // Image
               SizedBox(
-                width: size.width * 0.17,
+                width: size.width * 0.2,
                 child: const Icon(
-                  Icons.perm_contact_cal
+                  Icons.perm_contact_cal,
+                  size: 38,
                 ),
               ),
               
@@ -180,9 +191,10 @@ class _UserItem extends StatelessWidget {
                     Text( 
                       user.name, 
                       style: textStyles.titleMedium,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    Text( user.code ?? ''),
-                    Text( user.email ?? ''),
+                    Text( user.code ?? '', overflow: TextOverflow.ellipsis,),
+                    Text( user.email ?? '', overflow: TextOverflow.ellipsis,),
                   ],
                 ),
               ),

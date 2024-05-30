@@ -1,3 +1,6 @@
+import 'package:crm_app/config/config.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
 import '../../../shared/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,10 +27,11 @@ class LoginScreen extends StatelessWidget {
               children: [
                 const SizedBox( height: 80 ),
                 // Icon Banner
-                const Icon( 
-                  Icons.data_usage_sharp, 
+                Image.asset(
+                  'assets/icon/icon_2.png',
+                  width: 100,
+                  height: 100,
                   color: Colors.white,
-                  size: 100,
                 ),
                 const SizedBox( height: 80 ),
     
@@ -76,7 +80,10 @@ class _LoginForm extends ConsumerWidget {
       child: Column(
         children: [
           const SizedBox( height: 50 ),
-          Text('Acceso', style: textStyles.titleLarge ),
+          Text('Acceso', style: textStyles.titleLarge?.copyWith(
+            fontWeight:FontWeight.w700
+
+          ) ),
           const SizedBox( height: 90 ),
 
           CustomTextFormField(
@@ -106,7 +113,7 @@ class _LoginForm extends ConsumerWidget {
             height: 60,
             child: CustomFilledButton(
               text: 'Ingresar',
-              buttonColor: Colors.black,
+              buttonColor: secondaryColor,
               onPressed: loginForm.isPosting
                 ? null 
                 : ref.read(loginFormProvider.notifier).onFormSubmit

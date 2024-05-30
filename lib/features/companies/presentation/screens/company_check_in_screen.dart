@@ -157,7 +157,7 @@ class _CompanyCheckInViewState extends ConsumerState<_CompanyCheckInView> {
     });
   }
 
-  @override
+  /*@override
   void dispose() {
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       //ref.read(locationProvider.notifier).setOffLocationAddressDiff();
@@ -166,7 +166,7 @@ class _CompanyCheckInViewState extends ConsumerState<_CompanyCheckInView> {
     });
 
     super.dispose();
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {

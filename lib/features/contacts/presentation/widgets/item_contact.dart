@@ -1,5 +1,6 @@
 import '../../domain/domain.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class ItemContact extends StatelessWidget {
   final Contact contact;
@@ -60,13 +61,10 @@ class ItemContact extends StatelessWidget {
         ],
       ),
       //trailing: Text(contact.contactoCargo),
-      leading: CircleAvatar(
-        backgroundColor: Colors.grey[300],
-        radius: 24,
-        child: Text(
-          contact.contactoDesc.isNotEmpty ? contact.contactoDesc[0].toUpperCase() : '',
-          style: const TextStyle(fontSize: 16),
-        ),
+      leading: SvgPicture.asset(
+        'assets/images/avatar.svg',
+        height: 52.0,
+        width: 60.0,
       ),
       onTap: callbackOnTap
       /*onTap: () {

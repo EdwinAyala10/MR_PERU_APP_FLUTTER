@@ -1,3 +1,5 @@
+import 'package:crm_app/config/config.dart';
+
 import '../../domain/domain.dart';
 import '../providers/providers.dart';
 import '../widgets/show_loading_message.dart';
@@ -27,16 +29,13 @@ class CompanyScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final companyState = ref.watch(companyProvider(rucId));
 
-    print('company state: ${companyState.company?.rucId}');
-    print('company state name: ${companyState.company?.razon}');
-    print(
-        'company state segComentario: ${companyState.company?.seguimientoComentario}');
-
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: Text('${rucId == 'new' ? 'Crear' : 'Editar'} Empresa'),
+          title: Text('${rucId == 'new' ? 'Crear' : 'Editar'} Empresa', style: const TextStyle(
+            fontWeight: FontWeight.w700
+          ),),
           /*leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
@@ -126,7 +125,7 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
     _fieldKeyLocalName = UniqueKey();
 
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('01').then((value) => {
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('02').then((value) => {
         setState(() {
           optionsTipoCliente = value;
         })
@@ -333,6 +332,7 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
               const SizedBox(height: 10.0),
               Switch(
                 value: companyForm.visibleTodos == '1' ? true : false,
+                activeColor: secondaryColor,
                 onChanged: (bool? newValue) {
                   ref
                       .read(companyFormProvider(widget.company).notifier)

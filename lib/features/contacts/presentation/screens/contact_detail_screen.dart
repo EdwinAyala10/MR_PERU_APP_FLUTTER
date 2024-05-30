@@ -1,3 +1,5 @@
+import 'package:flutter_svg/flutter_svg.dart';
+
 import '../../domain/domain.dart';
 import '../providers/contact_provider.dart';
 import '../providers/providers.dart';
@@ -114,18 +116,10 @@ class _ViewContactDetailScreen extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    CircleAvatar(
-                      radius: 30,
-                      child: Text(
-                        contact.contactoDesc != "" ? contact.contactoDesc
-                            .trim()
-                            .substring(0, 1) : "-"
-                            .toUpperCase(),
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ), // Ajusta el tamaño del CircleAvatar según tus necesidades
+                    SvgPicture.asset(
+                      'assets/images/avatar.svg',
+                      height: 68.0,
+                      width: 64.0,
                     ),
                     const SizedBox(height: 7),
                     Text(

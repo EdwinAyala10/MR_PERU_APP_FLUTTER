@@ -21,7 +21,7 @@ class ItemCompanyLocal extends StatelessWidget {
           Text('${companyLocal.departamento} - ${companyLocal.provincia} - ${companyLocal.distrito}'),
         ],
       ),
-      leading: const Icon(Icons.home_work_outlined),
+      leading: const Icon(Icons.home_work_outlined, size: 34,),
       trailing: GestureDetector(
         onTap: callbackOnTap,
         child: const Icon(Icons.place, size: 38, color: Colors.deepOrangeAccent),

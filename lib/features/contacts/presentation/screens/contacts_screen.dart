@@ -24,7 +24,7 @@ class ContactsScreen extends ConsumerWidget {
       drawer: SideMenu(scaffoldKey: scaffoldKey),
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Contacto',
+        title: const Text('Contactos',
             style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
             textAlign: TextAlign.center),
       ),

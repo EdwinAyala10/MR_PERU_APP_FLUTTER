@@ -25,6 +25,7 @@ class SearchContactDelegate extends SearchDelegate<Contact?> {
     required this.initialContacts,
   }) : super(
           searchFieldLabel: 'Buscar contactos',
+          searchFieldStyle: const TextStyle(color: Colors.black45, fontSize: 16),
           // textInputAction: TextInputAction.done
         );
 
@@ -67,6 +68,15 @@ class SearchContactDelegate extends SearchDelegate<Contact?> {
             },
           ),
         );*/
+
+        if (contacts.isEmpty) {
+          return Center(
+            child: Text(
+              'No existen registros',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          );
+        }
 
         return ListView.separated(
           itemCount: contacts.length,
@@ -160,10 +170,10 @@ class _ContactItem extends StatelessWidget {
               // Image
               SizedBox(
                 width: size.width * 0.2,
-                child: const Icon(Icons.perm_contact_cal),
+                child: const Icon(Icons.perm_contact_cal, size: 42),
               ),
 
-              const SizedBox(width: 10),
+              const SizedBox(width: 2),
 
               // Description
               SizedBox(
@@ -174,10 +184,14 @@ class _ContactItem extends StatelessWidget {
                     Text(
                       contact.contactoDesc,
                       style: textStyles.titleMedium,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    Text(contact.contactoTelefonof ?? ''),
-                    Text(contact.contactoCargo ?? ''),
-                    Text(contact.contactoNombreCargo ?? ''),
+                    contact.contactoTelefonof == "" ? const SizedBox() : Text(contact.contactoTelefonof ?? '',
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    contact.contactoNombreCargo == "" ? const SizedBox() : Text(contact.contactoNombreCargo ?? '',
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ],
                 ),
               ),

@@ -36,23 +36,12 @@ class ItemCompany extends StatelessWidget {
             height: 60,
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.black12,
+              color: Colors.black38,
             ),
             child: const Icon(
               Icons.business,
               size: 24,
               color: Colors.white,
-            ),
-          ),
-          Positioned(
-            bottom: 0,
-            right: 0,
-            child: Icon(
-              Icons.thumb_up,
-              size: 24,
-              color: company.clienteNombreEstado == 'ACTIVO'
-                  ? Colors.green
-                  : Colors.red,
             ),
           ),
         ],

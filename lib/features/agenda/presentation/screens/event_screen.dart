@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:crm_app/config/config.dart';
+
 import '../../domain/domain.dart';
 import '../providers/providers.dart';
 import '../../../companies/domain/domain.dart';
@@ -40,7 +42,10 @@ class EventScreen extends ConsumerWidget {
       child: Scaffold(
           appBar: AppBar(
             title:
-                Text('${eventState.id == 'new' ? 'Crear' : 'Editar'} Evento'),
+                Text('${eventState.id == 'new' ? 'Crear' : 'Editar'} Evento',
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600
+                ),),
             /*leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
@@ -52,7 +57,7 @@ class EventScreen extends ConsumerWidget {
               ? const FullScreenLoader()
               : (eventState.event != null
                   ? _EventView(event: eventState.event!)
-                  : Center(
+                  : const Center(
                       child: Text('No se encontro información del evento.'),
                     )),
           //_EventView(event: eventState.event!),
@@ -219,6 +224,7 @@ class _EventInformation extends ConsumerWidget {
               const Text('¿Todo el día?',
                   style: TextStyle(fontWeight: FontWeight.w500)),
               Switch(
+                activeColor: secondaryColor,
                 value: eventForm.todoDia == "0" ? false : true,
                 onChanged: (bool bol) {
                   ref
@@ -392,13 +398,13 @@ class _EventInformation extends ConsumerWidget {
               Spacer(),
               Text('Contactos',
                   style: TextStyle(
-                      color: Colors.amberAccent, fontWeight: FontWeight.w600)),
+                      color: primaryColor, fontWeight: FontWeight.w600)),
               SizedBox(
                 width: 14.0,
               ),
               Text('Personal',
                   style: TextStyle(
-                      color: Colors.cyanAccent, fontWeight: FontWeight.w600)),
+                      color: secondaryColor, fontWeight: FontWeight.w600)),
               SizedBox(
                 width: 6.0,
               ),
@@ -415,16 +421,19 @@ class _EventInformation extends ConsumerWidget {
               Expanded(
                   child: Column(
                 children: [
-                  eventForm.arraycontacto != null
+                  eventForm.arraycontacto!.isNotEmpty
                       ? Wrap(
                           spacing: 6.0,
                           children: eventForm.arraycontacto != null
                               ? List<Widget>.from(
                                   eventForm.arraycontacto!.map((item) => Chip(
                                         backgroundColor:
-                                            Colors.amberAccent.shade200,
+                                            primaryColor,
+                                        deleteIconColor: Colors.white,
                                         label: Text(item.nombre ?? '',
                                             style: const TextStyle(
+                                              
+                                              color: Colors.white,
                                                 fontSize:
                                                     12)), // Aquí deberías colocar el texto que deseas mostrar en el chip para cada elemento de la lista
                                         onDeleted: () {
@@ -435,15 +444,17 @@ class _EventInformation extends ConsumerWidget {
                         )
                       : const Text('Seleccione contactos',
                           style: TextStyle(color: Colors.black45)),
-                  eventForm.arrayresponsable != null
+                  eventForm.arrayresponsable!.isNotEmpty
                       ? Wrap(
                           spacing: 6.0,
                           children: eventForm.arrayresponsable != null
                               ? List<Widget>.from(eventForm.arrayresponsable!
                                   .map((item) => Chip(
-                                        backgroundColor: Colors.cyanAccent,
+                                        backgroundColor: secondaryColor,
+                                        deleteIconColor: Colors.white,
                                         label: Text(item.nombre ?? '',
                                             style: const TextStyle(
+                                                color: Colors.white,
                                                 fontSize:
                                                     12)), // Aquí deberías colocar el texto que deseas mostrar en el chip para cada elemento de la lista
                                         onDeleted: () {

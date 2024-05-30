@@ -1,3 +1,4 @@
+import 'package:crm_app/config/config.dart';
 import 'package:flutter/material.dart';
 
 class FloatingActionButtonIconCustom extends StatelessWidget {
@@ -15,7 +16,7 @@ class FloatingActionButtonIconCustom extends StatelessWidget {
   Widget build(BuildContext context) {
     return FloatingActionButton.extended(
       onPressed: callOnPressed,
-      backgroundColor: const Color.fromARGB(255, 247, 106, 19),
+      backgroundColor: primaryColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(28.0), // Ajusta el radio para cambiar el tamaño del borde redondeado
       ),
