@@ -25,7 +25,7 @@ class LocationNotifier extends StateNotifier<LocationState> {
   LocationNotifier({
     //required this.authRepository,
     required this.keyValueStorageService,
-  }) : super(LocationState()) {}
+  }) : super(const LocationState());
 
   Future getCurrentPosition() async {
     final position = await Geolocator.getCurrentPosition();

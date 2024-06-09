@@ -1,3 +1,5 @@
+import 'package:crm_app/config/config.dart';
+
 import '../../domain/domain.dart';
 import 'package:flutter/material.dart';
 
@@ -26,7 +28,7 @@ class ItemOpportunity extends StatelessWidget {
               style: const TextStyle(fontSize: 16, color: Colors.green, fontWeight: FontWeight.w600)),
         ],
       ),
-      leading: const Icon(Icons.work_rounded),
+      leading: const Icon(Icons.work_rounded, color: secondaryColor, size: 40,),
       onTap: callbackOnTap,
     );
   }

@@ -160,7 +160,7 @@ class _ListKpis extends StatelessWidget {
                         Text(
                           kpi.usuariosAsignados![i].userreportName ?? '', 
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle( fontSize: 10 ),
+                          style: const TextStyle( fontSize: 10 ),
                         )
 
                     ],

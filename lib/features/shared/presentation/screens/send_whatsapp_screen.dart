@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 class SendWhatsappScreen extends ConsumerWidget {
   const SendWhatsappScreen();
@@ -16,8 +15,6 @@ class SendWhatsappScreen extends ConsumerWidget {
     final params = ref.watch(sendWhatsappProvider);
 
     final isViewText = ref.watch(sendWhatsappProvider).isViewText;
-
-    print('isViewText: ${isViewText}');
 
     /*if (isViewText) {
       context.push('/text');
@@ -47,8 +44,6 @@ class SendWhatsappScreen extends ConsumerWidget {
             String message = params.message ?? '';
 
             await whatsapp(phone, message);
-
-
 
             /*if (await canLaunchUrl(Uri.parse(whatsappUrl))) {
               await launchUrl(Uri.parse(whatsappUrl));

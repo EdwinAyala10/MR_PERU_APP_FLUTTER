@@ -505,7 +505,7 @@ class _EventInformation extends ConsumerWidget {
                                       Text('Invitar contactos de la empresa')),
                               onTap: () {
                                 Navigator.pop(context);
-                                _openSearchContacts(context, ref, eventForm.evntRuc.value ?? '');
+                                _openSearchContacts(context, ref, eventForm.evntRuc.value);
                               },
                             ),
                             const Divider(),
@@ -580,12 +580,12 @@ class _EventInformation extends ConsumerWidget {
                 const SizedBox(height: 6),
                 GestureDetector(
                   onTap: () {
-                    if (eventForm.evntRuc.value == null || eventForm.evntRuc.value == "") {
+                    if (eventForm.evntRuc.value == "") {
                       showSnackbar(context, 'Primero seleccione una empresa');
                       return;
                     }
                     _openSearchOportunities(
-                        context, ref, eventForm.evntRuc.value ?? '');
+                        context, ref, eventForm.evntRuc.value);
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -615,8 +615,7 @@ class _EventInformation extends ConsumerWidget {
                         IconButton(
                           icon: const Icon(Icons.search),
                           onPressed: () {
-                            if (eventForm.evntRuc.value == null ||
-                                eventForm.evntRuc.value == "") {
+                            if (eventForm.evntRuc.value == "") {
                               showSnackbar(
                                   context, 'Primero seleccione una empresa');
                               return;

@@ -20,7 +20,7 @@ class FloatingActionButtonCustom extends StatelessWidget {
       child: FloatingActionButton(
         onPressed: callOnPressed,
         backgroundColor: styleDisabled
-            ? Color.fromARGB(255, 155, 155, 155)
+            ? const Color.fromARGB(255, 155, 155, 155)
             :  primaryColor,
         shape: const CircleBorder(),
         child: Icon(

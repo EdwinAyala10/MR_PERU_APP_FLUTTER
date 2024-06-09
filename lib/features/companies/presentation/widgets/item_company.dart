@@ -1,3 +1,5 @@
+import 'package:crm_app/config/config.dart';
+
 import '../../domain/domain.dart';
 import 'package:flutter/material.dart';
 
@@ -36,7 +38,7 @@ class ItemCompany extends StatelessWidget {
             height: 60,
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.black38,
+              color: secondaryColor,
             ),
             child: const Icon(
               Icons.business,

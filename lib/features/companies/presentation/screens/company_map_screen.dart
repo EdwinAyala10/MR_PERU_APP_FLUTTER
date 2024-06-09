@@ -1,6 +1,3 @@
-import 'dart:async';
-import 'dart:io';
-
 import '../widgets/show_loading_message.dart';
 import '../../../location/domain/domain.dart';
 import '../../../location/presentation/delegates/search_places_delegate.dart';
@@ -29,7 +26,7 @@ class CompanyMapScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     //final companyCheckInState = ref.watch(companyCheckInProvider(rucId));
 
-    return Scaffold(
+    return const Scaffold(
       body: _CompanyMapView(),
     );
   }
@@ -43,7 +40,6 @@ class _CompanyMapView extends ConsumerStatefulWidget {
 }
 
 class _CompanyMapViewState extends ConsumerState {
-  late StreamSubscription<LocationState> _locationSubscription;
 
   @override
   void initState() {
@@ -52,8 +48,6 @@ class _CompanyMapViewState extends ConsumerState {
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       final locationNotifier = ref.read(locationProvider.notifier);
       locationNotifier.startFollowingUser();
-
-      print('INICIO START FLLOWING');
     });
   }
 
@@ -72,8 +66,6 @@ class _CompanyMapViewState extends ConsumerState {
     final locationState = ref.watch(locationProvider);
     final mapState = ref.watch(mapProvider.notifier);
     LatLng lastKnownLocation = locationState.lastKnownLocation!;
-
-    print('lastKnownLocation: ${lastKnownLocation.toString()}');
 
     CameraPosition initialCameraPosition =
         CameraPosition(target: lastKnownLocation, zoom: 15);
@@ -148,9 +140,6 @@ class _CompanyMapViewState extends ConsumerState {
                                         .searchPlacesByQuery))
                             .then((place) {
                           if (place == null) return;
-
-                          print('PLACE SELECTED');
-                          print(place.formattedAddress);
 
                           LatLng latLng = LatLng(place.location.latitude,
                               place.location.longitude);

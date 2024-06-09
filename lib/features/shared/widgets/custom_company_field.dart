@@ -108,7 +108,7 @@ class _CustomCompanyFieldState extends State<CustomCompanyField> {
               ),
               isDense: true,
               contentPadding:
-                  EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               labelText: widget.label,
               hintText: widget.hint,
               errorText: widget.errorMessage,
@@ -119,7 +119,7 @@ class _CustomCompanyFieldState extends State<CustomCompanyField> {
             ),
           ),
         ),
-        SizedBox(
+        const SizedBox(
           height: 6.0,
         )
       ],

@@ -69,10 +69,6 @@ class _AgendaViewState extends ConsumerState {
     super.dispose();
   }
 
-  List<EventMock> _getEventsForDay(DateTime day) {
-    return kEvents[day] ?? [];
-  }
-
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
     //if (!isSameDay(eventState, selectedDay)) {
     /*setState(() {
@@ -244,26 +240,26 @@ class _CalendarHeader extends StatelessWidget {
             width: 120.0,
             child: Text(
               headerText,
-              style: TextStyle(fontSize: 26.0),
+              style: const TextStyle(fontSize: 26.0),
             ),
           ),
           IconButton(
-            icon: Icon(Icons.calendar_today, size: 20.0),
+            icon: const Icon(Icons.calendar_today, size: 20.0),
             visualDensity: VisualDensity.compact,
             onPressed: onTodayButtonTap,
           ),
           IconButton(
-            icon: Icon(Icons.refresh, size: 20.0),
+            icon: const Icon(Icons.refresh, size: 20.0),
             visualDensity: VisualDensity.compact,
             onPressed: onRefresh,
           ),
           const Spacer(),
           IconButton(
-            icon: Icon(Icons.chevron_left),
+            icon: const Icon(Icons.chevron_left),
             onPressed: onLeftArrowTap,
           ),
           IconButton(
-            icon: Icon(Icons.chevron_right),
+            icon: const Icon(Icons.chevron_right),
             onPressed: onRightArrowTap,
           ),
         ],

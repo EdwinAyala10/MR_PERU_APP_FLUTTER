@@ -113,7 +113,6 @@ class _KpiInformation extends ConsumerWidget {
     ];
 
     final kpiForm = ref.watch(kpiFormProvider(kpi));
-    final kpiState = ref.watch(kpiProvider(kpi.id));
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),

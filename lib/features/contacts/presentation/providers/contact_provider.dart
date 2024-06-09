@@ -68,7 +68,6 @@ class ContactNotifier extends StateNotifier<ContactState> {
     } catch (e) {
       state = state.copyWith(isLoading: false, contact: null);
       // 404 product not found
-      print(e);
     }
   }
 }

@@ -104,7 +104,7 @@ class _ListCompanies extends ConsumerStatefulWidget {
   final ScrollController scrollController;
 
   const _ListCompanies(
-      {super.key, required this.companies, required this.onRefreshCallback, required this.scrollController});
+      {required this.companies, required this.onRefreshCallback, required this.scrollController});
 
   @override
   _ListCompaniesState createState() => _ListCompaniesState();
@@ -113,14 +113,14 @@ class _ListCompanies extends ConsumerStatefulWidget {
 class _ListCompaniesState extends ConsumerState<_ListCompanies> {
   @override
   Widget build(BuildContext context) {
-    final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+    final GlobalKey<RefreshIndicatorState> refreshIndicatorKey =
         GlobalKey<RefreshIndicatorState>();
 
     return widget.companies.isEmpty
         ? Center(
             child: RefreshIndicator(
                 onRefresh: widget.onRefreshCallback,
-                key: _refreshIndicatorKey,
+                key: refreshIndicatorKey,
                 child: SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   child: Column(
@@ -167,12 +167,12 @@ class _ListCompaniesState extends ConsumerState<_ListCompanies> {
 }
 
 class _SearchComponent extends ConsumerWidget {
-  const _SearchComponent({super.key});
+  const _SearchComponent();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Timer? _debounce;
-    TextEditingController _searchController =
+    Timer? debounce;
+    TextEditingController searchController =
         TextEditingController(text: ref.read(companiesProvider).textSearch);
 
     return Container(
@@ -183,10 +183,10 @@ class _SearchComponent extends ConsumerWidget {
         children: [
           TextFormField(
             style: const TextStyle(fontSize: 14.0),
-            controller: _searchController,
+            controller: searchController,
             onChanged: (String value) {
-              if (_debounce?.isActive ?? false) _debounce?.cancel();
-              _debounce = Timer(const Duration(milliseconds: 500), () {
+              if (debounce?.isActive ?? false) debounce?.cancel();
+              debounce = Timer(const Duration(milliseconds: 500), () {
                 //ref.read(companiesProvider.notifier).loadNextPage(value);
                 ref.read(companiesProvider.notifier).onChangeTextSearch(value);
               });
@@ -218,7 +218,7 @@ class _SearchComponent extends ConsumerWidget {
                 ref
                     .read(companiesProvider.notifier)
                     .onChangeNotIsActiveSearch();
-                _searchController.text = '';
+                searchController.text = '';
               },
               icon: const Icon(Icons.clear, size: 18.0),
             ),

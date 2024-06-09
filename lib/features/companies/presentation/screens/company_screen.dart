@@ -82,6 +82,7 @@ class _CompanyView extends ConsumerWidget {
     return ListView(
       children: [
         const SizedBox(height: 10),
+        // ignore: unnecessary_null_comparison
         company != null
             ? _CompanyInformationv2(company: company)
             : const Center(

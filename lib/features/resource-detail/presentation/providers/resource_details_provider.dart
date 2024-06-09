@@ -74,15 +74,12 @@ class ResourceDetailsNotifier extends StateNotifier<ResourceDetailsState> {
     mapCatalogs ??= {};
     mapCatalogs[groupId] ??= options;
 
-    print('08052024 carga MapCatalogs: ${mapCatalogs}');
-
     state = state.copyWith(mapCatalogs: mapCatalogs);
 
     return options;
   }
 
   List<DropdownOption>? loadCatalogRead(String groupId) {
-    print('CARGLO LOAD CATALOG READ');
     Map<String, List<DropdownOption>>? mapCatalogs = state.mapCatalogs;
 
     if (mapCatalogs != null && mapCatalogs.containsKey(groupId)) {

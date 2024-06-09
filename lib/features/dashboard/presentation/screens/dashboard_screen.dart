@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_is_empty
+
 import 'package:crm_app/config/config.dart';
 
 import '../../../activities/domain/domain.dart';
@@ -10,7 +12,6 @@ import '../../../kpis/domain/domain.dart';
 import '../../../kpis/presentation/providers/kpis_provider.dart';
 import '../../../location/presentation/providers/gps_provider.dart';
 import '../../../opportunities/domain/domain.dart';
-import '../../../opportunities/domain/entities/status_opportunity.dart';
 import '../../../opportunities/presentation/providers/providers.dart';
 import '../../../opportunities/presentation/widgets/item_opportunity_small.dart';
 import '../../../shared/presentation/providers/notifications_provider.dart';
@@ -61,7 +62,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
       body: RefreshIndicator(
         key: _refreshIndicatorKey,
         onRefresh: _refreshData,
-        child: _DashboardView()
+        child: const _DashboardView()
       ),
       floatingActionButton: FloatingActionBubble(
         animation: _animation,
@@ -433,15 +434,15 @@ class _ContainerDashboardOpportunitiesStatus extends StatelessWidget {
 class _ContainerDashboardActivities extends StatelessWidget {
   List<Activity> activities;
 
-  _ContainerDashboardActivities({super.key, required this.activities});
+  _ContainerDashboardActivities({required this.activities});
 
   @override
   Widget build(BuildContext context) {
     double h1 = activities.length >= 2 ? 300 : 180;
     double h2 = activities.length >= 2 ? 220 : 100;
 
-    if (activities.length == 0) {
-      return SizedBox();
+    if (activities.isEmpty) {
+      return const SizedBox();
     }
 
     if (activities.length >= 0) {
@@ -486,7 +487,7 @@ class _ContainerDashboardActivities extends StatelessWidget {
                 ),
               ],
             ),
-            Container(
+            SizedBox(
               width: double.infinity,
               height: h2,
               child: ListView.separated(
@@ -505,7 +506,7 @@ class _ContainerDashboardActivities extends StatelessWidget {
         ),
       );
     } else {
-      return SizedBox();
+      return const SizedBox();
     }
   }
 }
@@ -514,7 +515,7 @@ class _ContainerDashboardActivities extends StatelessWidget {
 class _ContainerDashboardOpportunities extends StatelessWidget {
   List<Opportunity> opportunities;
 
-  _ContainerDashboardOpportunities({super.key, required this.opportunities});
+  _ContainerDashboardOpportunities({required this.opportunities});
 
   @override
   Widget build(BuildContext context) {
@@ -567,7 +568,7 @@ class _ContainerDashboardOpportunities extends StatelessWidget {
                 ),
               ],
             ),
-            Container(
+            SizedBox(
               width: double.infinity,
               height: h2,
               child: ListView.separated(
@@ -587,7 +588,7 @@ class _ContainerDashboardOpportunities extends StatelessWidget {
         ),
       );
     } else {
-      return SizedBox();
+      return const SizedBox();
     }
   }
 }
@@ -596,7 +597,7 @@ class _ContainerDashboardOpportunities extends StatelessWidget {
 class _ContainerDashboardEvents extends StatelessWidget {
   List<Event> linkedEventsList;
 
-  _ContainerDashboardEvents({super.key, required this.linkedEventsList});
+  _ContainerDashboardEvents({required this.linkedEventsList});
 
   @override
   Widget build(BuildContext context) {
@@ -649,7 +650,7 @@ class _ContainerDashboardEvents extends StatelessWidget {
                 ),
               ],
             ),
-            Container(
+            SizedBox(
               width: double.infinity,
               height: h2,
               child: ListView.separated(
@@ -669,7 +670,7 @@ class _ContainerDashboardEvents extends StatelessWidget {
         ),
       );
     } else {
-      return SizedBox();
+      return const SizedBox();
     }
   }
 }
@@ -680,8 +681,7 @@ class _ItemOpportunity extends StatelessWidget {
   String porcentaje;
 
   _ItemOpportunity(
-      {super.key,
-      required this.title,
+      {required this.title,
       required this.colorCustom,
       required this.porcentaje});
 
@@ -852,7 +852,7 @@ class progressKpi extends StatelessWidget {
                 height: 80,
                 child: CircularProgressIndicator(
                   strokeWidth: 5,
-                  value: ((percentage ?? 0) / 100).toDouble(),
+                  value: ((percentage) / 100).toDouble(),
                   valueColor: const AlwaysStoppedAnimation<Color>(
                       Colors.blue), // Color cuando está marcado
                   backgroundColor: Colors.grey,

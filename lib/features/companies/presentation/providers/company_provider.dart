@@ -50,12 +50,10 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
     required this.user,
     required String rucId,
   }) : super(CompanyState(rucId: rucId)) {
-    print('LLEGO COMPAN NOT');
     loadCompany();
   }
 
   Company newEmptyCompany() {
-    print('VACIO COMPANY');
     return Company(
       rucId: 'new',
       razon: '',

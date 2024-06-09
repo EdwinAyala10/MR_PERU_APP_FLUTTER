@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:crm_app/config/config.dart';
+
 import '../../domain/entities/send_indicators_response.dart';
 import '../providers/indicators_provider.dart';
 import '../../../users/domain/domain.dart';
@@ -175,7 +177,7 @@ class _ViewIndicatorsState extends ConsumerState {
                 Center(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: indicatorsState.isLoading ? Colors.orange[100] : Colors.orange, // Fondo de color naranja
+                      backgroundColor: indicatorsState.isLoading ? secondaryColor : primaryColor, // Fondo de color naranja
                     ),
                     onPressed: indicatorsState.isLoading ? null : () {
                       ref.read(indicatorsProvider.notifier)

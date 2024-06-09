@@ -56,12 +56,14 @@ class CompanyLocalFormNotifier extends StateNotifier<CompanyLocalFormState> {
 
   Future<CreateUpdateCompanyLocalResponse> onFormSubmit() async {
     _touchedEverything();
-    if (!state.isFormValid)
+    if (!state.isFormValid) {
       return CreateUpdateCompanyLocalResponse(
           response: false, message: 'Campos requeridos.');
+    }
 
-    if (onSubmitCallback == null)
+    if (onSubmitCallback == null) {
       return CreateUpdateCompanyLocalResponse(response: false, message: '');
+    }
 
     final companyLocalLike = {
       'LOCAL_CODIGO': (state.id == 'new') ? null : state.id,
@@ -165,7 +167,7 @@ class CompanyLocalFormNotifier extends StateNotifier<CompanyLocalFormState> {
         localCodigoPostal: codigoPostal,
         isFormValid: Formz.validate([
           Ruc.dirty(state.ruc.value),
-          Name.dirty('PLANTA ${dist}'),
+          Name.dirty('PLANTA $dist'),
           Address.dirty(direccion),
         ]));
   }

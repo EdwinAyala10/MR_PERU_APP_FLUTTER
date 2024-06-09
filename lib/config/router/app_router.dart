@@ -1,3 +1,4 @@
+import 'package:crm_app/features/documents/presentation/screens/enlace_screen.dart';
 import 'package:crm_app/features/opportunities/presentation/screens/opportunity_detail_screen.dart';
 
 import '../../features/activities/presentation/screens/activity_detail_screen.dart';
@@ -80,6 +81,11 @@ final goRouterProvider = Provider((ref) {
       GoRoute(
         path: '/send_whatsapp', // /activity/new
         builder: (context,GoRouterState state) => const SendWhatsappScreen(),
+      ),
+
+      GoRoute(
+        path: '/text_enlace', // /activity/new
+        builder: (context,GoRouterState state) => const EnlaceScreen(),
       ),
 
       GoRoute(

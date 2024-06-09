@@ -121,24 +121,16 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
   }
 
   void setStream() {
-    print(' SE ESTA EJECUTANDO SET STREAM');
     PhoneState.stream.listen((event) {
       String? number = event.number;
       PhoneStateStatus statusCall = event.status;
 
-      print('STATUS REAL PHONE STATE NUMBER: ${event.number}');
-      print('STATUS REAL PHONE STATE: ${event.status}');
-
       bool sendActivityCall = ref.read(activityCallProvider).sendActivityCall!;
 
-      print('STATUS REAL: sendActivityCall: ${sendActivityCall}');
-
       if (!sendActivityCall) {
-        print('STATUS REAL NUMBER: ${number} | PHONE: ${widget.phone}');
 
         if (number == widget.phone &&
             statusCall == PhoneStateStatus.CALL_STARTED) {
-              print('STATUS REAL: INITIAL CALL SCREEN');
           ref.read(activityCallProvider.notifier).onInitialCallChanged();
           //widget.activityPostCallState.onInitialCallChanged();
           /*ref
@@ -149,7 +141,6 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
 
         if (number == widget.phone &&
             statusCall == PhoneStateStatus.CALL_ENDED) {
-              print('STATUS REAL: FIN CALL SCREEN');
 
           ref.read(activityCallProvider.notifier).onFinishCallChanged();
           //widget.activityPostCallState.onFinishCallChanged();
@@ -164,9 +155,6 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
 
   @override
   Widget build(BuildContext context) {
-    var scores = ['A', 'B', 'C', 'D'];
-
-    List<String> tags = ['Aldo Mori'];
 
     List<DropdownOption> optionsTipoGestion = [
       DropdownOption('', '--Seleccione--'),
@@ -179,8 +167,6 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
     Activity activity = widget.activity;
 
     final activityForm = ref.watch(activityFormProvider(activity));
-
-    print('STATUS CALL: ${status.status}');
 
     return ListView(
       children: [

@@ -1,4 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:open_file/open_file.dart';
 
 class LocalNotifications {
   static Future<void> requestPermissionLocalNotifications() async {
@@ -19,7 +20,16 @@ class LocalNotifications {
     const initializationSettings =
         InitializationSettings(android: initializationSettingsAndroid);
 
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+    await flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) async {
+        final String? payload = response.payload;
+        if (payload != null) {
+          final result = await OpenFile.open(payload);
+          print('OpenFile result: $result');
+        }
+      },
+    );
   }
 
   static void showLocalNotification({
@@ -31,6 +41,7 @@ class LocalNotifications {
     const androidDetails = AndroidNotificationDetails(
         'channelId', 'channelName',
         playSound: true,
+        ticker: 'ticker',
         sound: RawResourceAndroidNotificationSound('notification'),
         importance: Importance.max,
         priority: Priority.high);
@@ -43,4 +54,5 @@ class LocalNotifications {
 
     flutterLocalNotificationsPlugin.show(id, title, body, notificationDetails, payload: data);
   }
+
 }

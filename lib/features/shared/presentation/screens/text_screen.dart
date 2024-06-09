@@ -56,6 +56,9 @@ class TextScreen extends ConsumerWidget {
                   decoration: const InputDecoration(
                     hintText: 'Ingrese su texto aquí',
                     border: InputBorder.none,
+                    hintStyle: TextStyle(
+                      color: Colors.grey, // Cambia este color al que desees
+                    ),
                   ),
                   onChanged: (String value) {
                      ref.watch(sendWhatsappProvider.notifier).onChangeMessage(value);

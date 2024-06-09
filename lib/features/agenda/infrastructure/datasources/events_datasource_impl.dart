@@ -59,9 +59,7 @@ class EventsDatasourceImpl extends EventsDatasource {
   @override
   Future<Event> getEventById(String id) async {
     try {
-      print('ID: ${id}');
       final response = await dio.get('/evento/listar-evento-by-id/$id');
-      print('RES GETEVENTBYID: ${response}');
       final Event event = EventMapper.jsonToEntity(response.data['data']);
 
       return event;
@@ -80,11 +78,8 @@ class EventsDatasourceImpl extends EventsDatasource {
     //final List<Event> events = [];
     LinkedHashMap<DateTime, List<Event>> linkedEvents = LinkedHashMap();
 
-    print('RESP LIST:${response}');
-
     for (final event in response.data['data'] ?? []) {
       final eventModal = EventMapper.jsonToEntity(event) as Event;
-      print('EVENT: ${eventModal.evntFechaInicioEvento}');
       DateTime fechaInicio = eventModal.evntFechaInicioEvento ?? DateTime.now();
 
       if (linkedEvents.containsKey(fechaInicio)) {
@@ -97,8 +92,6 @@ class EventsDatasourceImpl extends EventsDatasource {
     }
 
     return linkedEvents;
-    } on DioException catch (e) {
-      throw Exception();
     } catch (e) {
       throw Exception();
     }

@@ -63,8 +63,8 @@ class ItemContact extends StatelessWidget {
       //trailing: Text(contact.contactoCargo),
       leading: SvgPicture.asset(
         'assets/images/avatar.svg',
-        height: 52.0,
-        width: 60.0,
+        height: 40.0,
+        width: 40.0,
       ),
       onTap: callbackOnTap
       /*onTap: () {
