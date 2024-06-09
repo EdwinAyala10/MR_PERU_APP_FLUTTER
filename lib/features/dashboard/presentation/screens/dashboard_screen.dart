@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_is_empty
 
 import 'package:crm_app/config/config.dart';
+import 'package:crm_app/features/shared/widgets/placeholder.dart';
 
 import '../../../activities/domain/domain.dart';
 import '../../../activities/presentation/providers/activities_provider.dart';
@@ -218,110 +219,14 @@ class _DashboardViewState extends ConsumerState {
             const SizedBox(
               height: 4,
             ),
-            kpisState.kpis.isNotEmpty
-                ? Center(
-                    child: Container(
-                        margin: const EdgeInsets.all(20),
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(6),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.3),
-                              spreadRadius: 3,
-                              blurRadius: 5,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                //for (var kpi in kpisState.kpis)
-                                for (var i = 0;
-                                    i < 3 && i < kpisState.kpis.length;
-                                    i++)
-                                  progressKpi(
-                                      percentage:
-                                          (kpisState.kpis[i].porcentaje ?? 0)
-                                              .toDouble(),
-                                      title: kpisState
-                                              .kpis[i].objrNombreCategoria ??
-                                          '',
-                                      subTitle: kpisState
-                                              .kpis[i].objrNombrePeriodicidad ??
-                                          '',
-                                      subSubTitle: kpisState
-                                              .kpis[i].objrNombreAsignacion ??
-                                          '',
-                                      advance: kpisState.kpis[i].totalRegistro
-                                              .toString() ??
-                                          '0',
-                                      total: convertTypeCategory(
-                                              kpisState.kpis[i]) ??
-                                          '0'),
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color:
-                                    Colors.black12, // Color de fondo del botón
-                                borderRadius: BorderRadius.circular(
-                                    4), // Bordes redondeados del botón
-                              ),
-                              child: TextButton(
-                                onPressed: () {
-                                  context.go('/kpis');
-                                  // Aquí puedes implementar la lógica para "Mostrar Todo"
-                                },
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Text(
-                                      'Mostrar Todo',
-                                      style: TextStyle(
-                                        color: Colors
-                                            .blue, // Color del texto del botón
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Container(
-                                      decoration: const BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color:
-                                            primaryColor, // Color del círculo
-                                      ),
-                                      padding: const EdgeInsets.all(
-                                          8), // Espacio interior alrededor del número
-                                      child: Text(
-                                        (kpisState.kpis.length).toString(),
-                                        style: const TextStyle(
-                                          color: Colors.white, // Color del número
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        )),
-                  )
-                : Container(),
-            _ContainerDashboardEvents(
+            kpisState.isLoading ? const PlaceholderSection() : _ContainerDashboardKpis(kpis: kpisState.kpis),
+            eventsState.isLoading ? const PlaceholderSection() : _ContainerDashboardEvents(
                 linkedEventsList: eventsState.linkedEventsList),
-            _ContainerDashboardActivities(
+            activitiesState.isLoading ? const PlaceholderSection() : _ContainerDashboardActivities(
                 activities: activitiesState.activities),
             /*_ContainerDashboardOpportunities(
                 statusOpportunities: opportunitiesState.statusOpportunity),*/
-            _ContainerDashboardOpportunities(
+            opportunitiesState.isLoading ? const PlaceholderSection() : _ContainerDashboardOpportunities(
                 opportunities: opportunitiesState.opportunities),
             const SizedBox(
               height: 68,
@@ -332,15 +237,6 @@ class _DashboardViewState extends ConsumerState {
     );
   }
 
-  convertTypeCategory(Kpi kpi) {
-    String res = kpi.objrCantidad ?? '';
-    if (kpi.objrIdCategoria == '05') {
-      res = ' ${res}K';
-    } else {
-      res = (double.parse(res).toInt()).toString();
-    }
-    return res;
-  }
 }
 
 /*
@@ -428,6 +324,122 @@ class _ContainerDashboardOpportunitiesStatus extends StatelessWidget {
   }
 }
 */
+
+
+class _ContainerDashboardKpis extends StatelessWidget {
+  List<Kpi> kpis;
+
+  _ContainerDashboardKpis({super.key, required this.kpis});
+
+  @override
+  Widget build(BuildContext context) {
+    return kpis.isNotEmpty
+      ? Center(
+          child: Container(
+              margin: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(6),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.3),
+                    spreadRadius: 3,
+                    blurRadius: 5,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      //for (var kpi in kpisState.kpis)
+                      for (var i = 0;
+                          i < 3 && i < kpis.length;
+                          i++)
+                        progressKpi(
+                            percentage:
+                                (kpis[i].porcentaje ?? 0)
+                                    .toDouble(),
+                            title: kpis[i].objrNombreCategoria ??
+                                '',
+                            subTitle: kpis[i].objrNombrePeriodicidad ??
+                                '',
+                            subSubTitle: kpis[i].objrNombreAsignacion ??
+                                '',
+                            advance: kpis[i].totalRegistro
+                                    .toString() ??
+                                '0',
+                            total: convertTypeCategory(
+                                    kpis[i]) ??
+                                '0'),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color:
+                          Colors.black12, // Color de fondo del botón
+                      borderRadius: BorderRadius.circular(
+                          4), // Bordes redondeados del botón
+                    ),
+                    child: TextButton(
+                      onPressed: () {
+                        context.go('/kpis');
+                        // Aquí puedes implementar la lógica para "Mostrar Todo"
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'Mostrar Todo',
+                            style: TextStyle(
+                              color: Colors
+                                  .blue, // Color del texto del botón
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color:
+                                  primaryColor, // Color del círculo
+                            ),
+                            padding: const EdgeInsets.all(
+                                8), // Espacio interior alrededor del número
+                            child: Text(
+                              (kpis.length).toString(),
+                              style: const TextStyle(
+                                color: Colors.white, // Color del número
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              )),
+        )
+      : Container();
+  }
+
+  convertTypeCategory(Kpi kpi) {
+    String res = kpi.objrCantidad ?? '';
+    if (kpi.objrIdCategoria == '05') {
+      res = ' ${res}K';
+    } else {
+      res = (double.parse(res).toInt()).toString();
+    }
+    return res;
+  }
+}
+
 
 
 
