@@ -112,6 +112,25 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
     state = state.copyWith(company: companyNew);
   }
 
+  Future<void> loadSecundaryDetails() async {
+
+    final contacts = await contactsRepository.getContacts(ruc: state.company!.ruc, search: '', limit: 100, offset: 0);
+    final opportunities =
+        await opportunitiesRepository.getOpportunities(ruc:state.company!.ruc, search: '', limit: 100, offset: 0);
+    final activities = await activitiesRepository.getActivitiesByRuc(state.company!.ruc);
+    final events = await eventsRepository.getEventsListByRuc(state.company!.ruc);
+    final companyLocales =
+        await companiesRepository.getCompanyLocales(state.company!.ruc);
+
+    state = state.copyWith(
+      contacts: contacts,
+      opportunities: opportunities,
+      activities: activities,
+      events: events,
+      companyLocales: companyLocales,
+    );
+  }
+
   Future<void> loadCompany() async {
     try {
       if (state.rucId == 'new') {
@@ -125,22 +144,22 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
       final company = await companiesRepository.getCompanyById(state.rucId, user.code);
       company.rucId = company.ruc;
 
-      final contacts = await contactsRepository.getContacts(ruc: company.ruc, search: '', limit: 100, offset: 0);
+      /*final contacts = await contactsRepository.getContacts(ruc: company.ruc, search: '', limit: 100, offset: 0);
       final opportunities =
           await opportunitiesRepository.getOpportunities(ruc:company.ruc, search: '', limit: 100, offset: 0);
       final activities = await activitiesRepository.getActivitiesByRuc(company.ruc);
       final events = await eventsRepository.getEventsListByRuc(company.ruc);
       final companyLocales =
-          await companiesRepository.getCompanyLocales(company.ruc);
+          await companiesRepository.getCompanyLocales(company.ruc);*/
 
       state = state.copyWith(
         isLoading: false,
         company: company,
-        contacts: contacts,
+        /*contacts: contacts,
         opportunities: opportunities,
         activities: activities,
         events: events,
-        companyLocales: companyLocales,
+        companyLocales: companyLocales,*/
       );
     } catch (e) {
       // 404 product not found

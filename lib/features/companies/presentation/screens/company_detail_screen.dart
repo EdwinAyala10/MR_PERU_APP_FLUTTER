@@ -1,4 +1,5 @@
 import 'package:crm_app/config/config.dart';
+import 'package:crm_app/features/companies/presentation/providers/companies_provider.dart';
 
 import '../../../activities/domain/domain.dart';
 import '../../../activities/presentation/widgets/item_activity.dart';
@@ -28,18 +29,17 @@ class CompanyDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final companyState = ref.watch(companyProvider(companyId));
 
-
     return Scaffold(
       body: companyState.isLoading
           ? const FullScreenLoader()
           : (companyState.company != null
               ? _CompanyDetailView(
                   company: companyState.company!,
-                  contacts: companyState.contacts,
+                  /*contacts: companySecundaryState.contacts,
                   opportunities: companyState.opportunities,
                   activities: companyState.activities,
                   events: companyState.events,
-                  companyLocales: companyState.companyLocales,
+                  companyLocales: companyState.companyLocales,*/
                 )
               : Center(
                   child: Column(
@@ -63,27 +63,28 @@ class CompanyDetailScreen extends ConsumerWidget {
   }
 }
 
-class _CompanyDetailView extends StatefulWidget {
+class _CompanyDetailView extends ConsumerStatefulWidget {
   final Company company;
-  final List<Contact> contacts;
+  /*final List<Contact> contacts;
   final List<Opportunity> opportunities;
   final List<Activity> activities;
   final List<Event> events;
-  final List<CompanyLocal> companyLocales;
+  final List<CompanyLocal> companyLocales;*/
 
   const _CompanyDetailView(
       {required this.company,
-      required this.contacts,
+      /*required this.contacts,
       required this.opportunities,
       required this.activities,
       required this.events,
-      required this.companyLocales});
+      required this.companyLocales*/
+      });
 
   @override
-  State<_CompanyDetailView> createState() => _CompanyDetailViewState();
+  _CompanyDetailViewState createState() => _CompanyDetailViewState();
 }
 
-class _CompanyDetailViewState extends State<_CompanyDetailView>
+class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   int _currentIndex = 0;
@@ -93,6 +94,12 @@ class _CompanyDetailViewState extends State<_CompanyDetailView>
     super.initState();
     _tabController = TabController(length: 6, vsync: this);
     _tabController.addListener(_handleTabChange);
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      ref.watch(companyProvider(widget.company.ruc).notifier).loadSecundaryDetails();
+
+    });
+
   }
 
   @override
@@ -109,6 +116,9 @@ class _CompanyDetailViewState extends State<_CompanyDetailView>
 
   @override
   Widget build(BuildContext context) {
+    
+    final companyState = ref.watch(companyProvider(widget.company.ruc));
+    
 
     TextStyle styleTitle =
         const TextStyle(fontWeight: FontWeight.w600, fontSize: 16);
@@ -150,15 +160,15 @@ class _CompanyDetailViewState extends State<_CompanyDetailView>
               _buildInformationTab(
                   styleTitle, styleLabel, styleContent, spacingHeight),
               _buildLocalesTab(
-                  styleTitle, styleLabel, styleContent, spacingHeight),
+                  styleTitle, styleLabel, styleContent, spacingHeight, companyState.companyLocales),
               _buildContactsTab(
-                  styleTitle, styleLabel, styleContent, spacingHeight),
+                  styleTitle, styleLabel, styleContent, spacingHeight, companyState.contacts),
               _buildOpportunitiesTab(styleTitle, styleLabel, styleContent,
-                  spacingHeight), // Nueva pestaña de oportunidades
+                  spacingHeight, companyState.opportunities), // Nueva pestaña de oportunidades
               _buildActivitiesTab(
-                  styleTitle, styleLabel, styleContent, spacingHeight),
+                  styleTitle, styleLabel, styleContent, spacingHeight, companyState.activities),
               _buildEventsTab(
-                  styleTitle, styleLabel, styleContent, spacingHeight),
+                  styleTitle, styleLabel, styleContent, spacingHeight, companyState.events),
             ],
           ),
           floatingActionButton: _itFloatingButton(_currentIndex)),
@@ -253,37 +263,37 @@ class _CompanyDetailViewState extends State<_CompanyDetailView>
   }
 
   Widget _buildLocalesTab(TextStyle styleTitle, TextStyle styleLabel,
-      TextStyle styleContent, SizedBox spacingHeight) {
-    return widget.companyLocales.isNotEmpty
-        ? _ListCompanyLocales(companyLocales: widget.companyLocales)
+      TextStyle styleContent, SizedBox spacingHeight, List<CompanyLocal> companyLocales) {
+    return companyLocales.isNotEmpty
+        ? _ListCompanyLocales(companyLocales: companyLocales)
         : _NoExistData(description: 'No existe locales registrados');
   }
 
   Widget _buildContactsTab(TextStyle styleTitle, TextStyle styleLabel,
-      TextStyle styleContent, SizedBox spacingHeight) {
-    return widget.contacts.isNotEmpty
-        ? _ListContacts(contacts: widget.contacts)
+      TextStyle styleContent, SizedBox spacingHeight, List<Contact> contacts) {
+    return contacts.isNotEmpty
+        ? _ListContacts(contacts: contacts)
         : _NoExistData(description: 'No existe contactos registradas');
   }
 
   Widget _buildOpportunitiesTab(TextStyle styleTitle, TextStyle styleLabel,
-      TextStyle styleContent, SizedBox spacingHeight) {
-    return widget.opportunities.isNotEmpty
-        ? _ListOpportunities(opportunities: widget.opportunities)
+      TextStyle styleContent, SizedBox spacingHeight, List<Opportunity> opportunities) {
+    return opportunities.isNotEmpty
+        ? _ListOpportunities(opportunities: opportunities)
         : _NoExistData(description: 'No existe oportunidades registradas');
   }
 
   Widget _buildActivitiesTab(TextStyle styleTitle, TextStyle styleLabel,
-      TextStyle styleContent, SizedBox spacingHeight) {
-    return widget.activities.isNotEmpty
-        ? _ListActivities(activities: widget.activities)
+      TextStyle styleContent, SizedBox spacingHeight, List<Activity> activities) {
+    return activities.isNotEmpty
+        ? _ListActivities(activities: activities)
         : _NoExistData(description: 'No existe actividades registradas');
   }
 
   Widget _buildEventsTab(TextStyle styleTitle, TextStyle styleLabel,
-      TextStyle styleContent, SizedBox spacingHeight) {
-    return widget.events.isNotEmpty
-        ? _ListEvents(events: widget.events)
+      TextStyle styleContent, SizedBox spacingHeight,  List<Event> events) {
+    return events.isNotEmpty
+        ? _ListEvents(events: events)
         : _NoExistData(description: 'No existe eventos registradas');
   }
 

@@ -85,10 +85,10 @@ class _CompaniesViewState extends ConsumerState {
     final companiesState = ref.watch(companiesProvider);
 
     if (companiesState.isLoading) {
-      return LoadingModal();
+      return const LoadingModal();
     }
 
-    return companiesState.companies.length > 0
+    return companiesState.companies.isNotEmpty
       ? _ListCompanies(
           companies: companiesState.companies, 
           onRefreshCallback: _refresh,
