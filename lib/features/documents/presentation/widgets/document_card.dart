@@ -34,9 +34,7 @@ class DocumentCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           const SizedBox(width: 10),
-          document.adjtIdTipoRegistro == '01' 
-           ? SizedBox(width: 60, height: 60, child: _ImageViewer(image: '${Environment.urlPublic}${document.adjtRutalRelativa}' ))
-           : _IconViewer( document: document ),
+          _IconViewer( document: document ),
           const SizedBox(
             width: 14,
           ),
@@ -80,6 +78,7 @@ class _IconViewer extends StatelessWidget {
 
     IconData icono;
     Color? color;
+    bool swImage = false;
 
     switch (document.adjtTipoArchivo) {
       case 'pdf':
@@ -139,9 +138,11 @@ class _IconViewer extends StatelessWidget {
       case 'bmp':
       case 'tiff':
       case 'svg':
+      case 'webp':
       case 'gif':
         icono = FontAwesomeIcons.fileImage;
         color = Colors.black54;
+        swImage = true;
         break;
       default:
         icono = FontAwesomeIcons.file;
@@ -149,14 +150,31 @@ class _IconViewer extends StatelessWidget {
         break;
     }
 
-    return Padding(
-      padding: const EdgeInsets.only(left: 6, right: 6),
-      child: FaIcon(
-        icono, 
-        color: color, 
-        size: 60,
-      ),
-    );
+    
+
+    return document.adjtIdTipoRegistro == '01' ?
+      ( swImage ? SizedBox(
+        width: 60, 
+        height: 60, 
+        child: _ImageViewer(
+          image: '${Environment.urlPublic}${document.adjtRutalRelativa}' 
+        )
+      ) :  Padding(
+        padding: const EdgeInsets.only(left: 14, right: 14),
+        child: FaIcon(
+          icono, 
+          color: color, 
+          size: 40,
+        ),
+      ) )
+      : const Padding(
+        padding: EdgeInsets.only(left: 14, right: 14),
+        child: FaIcon(
+          FontAwesomeIcons.globe, 
+          color: Colors.black54, 
+          size: 30,
+        ),
+      );
   }
 }
 
@@ -171,7 +189,7 @@ class _ImageViewer extends StatelessWidget {
     
     if ( image.isEmpty ) {
       return ClipRRect(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(10),
         child: Image.asset('assets/images/no-image.jpg', 
           fit: BoxFit.cover,
           width: 100,
@@ -180,7 +198,7 @@ class _ImageViewer extends StatelessWidget {
     }
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(10),
       child: FadeInImage(
         fit: BoxFit.cover,
         width: 100,

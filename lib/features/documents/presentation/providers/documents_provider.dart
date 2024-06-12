@@ -94,7 +94,10 @@ class DocumentsNotifier extends StateNotifier<DocumentsState> {
       isLastPage: false,
       isLoading: false,
       offset: state.offset + 10,
-      documents: [...state.documents, ...documents ]
+      //documents: [...state.documents, ...documents ]
+      documents: documents,
+      listDocuments: documents.where((doc) => doc.adjtIdTipoRegistro == '01').toList(),
+      listLinks: documents.where((doc) => doc.adjtIdTipoRegistro == '02').toList()
     );
 
 
@@ -113,13 +116,17 @@ class DocumentsState {
   final int offset;
   final bool isLoading;
   final List<Document> documents;
+  final List<Document> listDocuments;
+  final List<Document> listLinks;
 
   DocumentsState({
     this.isLastPage = false, 
     this.limit = 10, 
     this.offset = 0, 
     this.isLoading = false, 
-    this.documents = const[]
+    this.documents = const[],
+    this.listDocuments = const[],
+    this.listLinks = const[],
   });
 
   DocumentsState copyWith({
@@ -128,12 +135,16 @@ class DocumentsState {
     int? offset,
     bool? isLoading,
     List<Document>? documents,
+    List<Document>? listDocuments,
+    List<Document>? listLinks,
   }) => DocumentsState(
     isLastPage: isLastPage ?? this.isLastPage,
     limit: limit ?? this.limit,
     offset: offset ?? this.offset,
     isLoading: isLoading ?? this.isLoading,
     documents: documents ?? this.documents,
+    listDocuments: listDocuments ?? this.listDocuments,
+    listLinks: listLinks ?? this.listLinks,
   );
 
 }
