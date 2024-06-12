@@ -394,7 +394,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
 
   void onUsuarioChanged(UserMaster usuario) {
     bool objExist = state.arrayresponsables!.any(
-        (objeto) => objeto.id == usuario.id && objeto.name == usuario.name);
+        (objeto) => objeto.cresIdUsuarioResponsable == usuario.code);
 
     if (!objExist) {
       ArrayUser array = ArrayUser();

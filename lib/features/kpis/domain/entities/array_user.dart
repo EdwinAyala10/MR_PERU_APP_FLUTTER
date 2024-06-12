@@ -39,6 +39,7 @@ class ArrayUser {
         oresIdOportunidadResp: json["ORES_ID_OPORTUNIDAD_RESP"],
       );
 
+
   Map<String, dynamic> toJson() => {
         "OBUA_ID_USUARIO_ASIGNACION": id,
         "ID_USUARIO_RESPONSABLE": idResponsable,

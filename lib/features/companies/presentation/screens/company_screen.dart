@@ -281,7 +281,9 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
             errorMessage: companyForm.calificacion.errorMessage,
           ): PlaceholderInput(text: 'Cargando Calificación...'),
           const SizedBox(height: 15),
-          const Text('Responsable *'),
+          const Text('Responsable *', style: TextStyle(
+            fontWeight: FontWeight.w600
+          ),),
           Row(
             children: [
               Expanded(
