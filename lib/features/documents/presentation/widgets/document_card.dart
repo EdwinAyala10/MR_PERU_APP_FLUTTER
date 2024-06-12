@@ -1,20 +1,28 @@
 import 'package:crm_app/config/config.dart';
+import 'package:crm_app/features/activities/presentation/screens/activity_screen_post_call.dart';
+import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/documents/domain/domain.dart';
+import 'package:crm_app/features/documents/infrastructure/infrastructure.dart';
+import 'package:crm_app/features/documents/presentation/providers/documents_provider.dart';
+import 'package:crm_app/features/shared/shared.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 
-class DocumentCard extends StatelessWidget {
+class DocumentCard extends ConsumerWidget {
 
   final Document document;
+  final Function callback;
 
   const DocumentCard({
     super.key, 
-    required this.document
+    required this.document,
+    required this.callback,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       padding: const EdgeInsets.all(10),
@@ -31,37 +39,55 @@ class DocumentCard extends StatelessWidget {
         ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const SizedBox(width: 10),
-          _IconViewer( document: document ),
-          const SizedBox(
-            width: 14,
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
+          Row(
             children: [
-              Text(
-                document.adjtIdTipoRegistro == '01' ? 'Documento' : 'Enlace', 
-                style: const TextStyle(
-                  fontWeight: FontWeight.w700
-              )),
-              SizedBox(
-                width: 200,
-                child: Text(
-                  document.adjtIdTipoRegistro == '01' ? document.adjtNombreOriginal : document.adjtEnlace ?? '', 
-                  textAlign: TextAlign.start, 
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w400,
+              _IconViewer( document: document ),
+            const SizedBox(
+              width: 14,
+            ),
+            Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    document.adjtIdTipoRegistro == '01' ? 'Documento' : 'Enlace', 
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700
+                  )),
+                  SizedBox(
+                    width: 200,
+                    child: Text(
+                      document.adjtIdTipoRegistro == '01' ? document.adjtNombreOriginal : document.adjtEnlace ?? '', 
+                      textAlign: TextAlign.start, 
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ],
           ),
-          const SizedBox(height: 10)
+          IconButton( // Nuevo IconButton para eliminar
+            onPressed: () {
+              // Lógica para eliminar el documento
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return ConfirmDeleteDialog(
+                    message: "¿Estás seguro de que quieres eliminar este ${document.adjtIdTipoRegistro == '01' ? 'documento' : 'enlace'}?",
+                    onConfirm: callback,
+                  );
+                },
+              );
+            },
+            icon: const Icon(Icons.delete), // Puedes cambiar el icono a tu gusto
+            color: const Color.fromARGB(255, 67, 67, 67), // Puedes cambiar el color del icono
+          ),
         ],
       ),
     );

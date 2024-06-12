@@ -11,7 +11,10 @@ void showLoadingMessage( BuildContext context ) {
       context: context, 
       barrierDismissible: false,
       builder: ( context ) => AlertDialog(
-        title: const Text('Espere por favor'),
+        title: const Text('Espere por favor', style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600
+        ),),
         content: Container(
           width: 100,
           height: 100,
@@ -19,7 +22,7 @@ void showLoadingMessage( BuildContext context ) {
           child: const Column(
             children: [
               Text('Procesando...'),
-              SizedBox( height: 15 ),
+              SizedBox( height: 14 ),
               CircularProgressIndicator( strokeWidth: 3, color: Colors.black )
             ],
           ),

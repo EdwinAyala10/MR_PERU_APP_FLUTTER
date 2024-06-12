@@ -1,7 +1,7 @@
 import 'package:crm_app/features/auth/domain/domain.dart';
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crm_app/features/documents/domain/domain.dart';
-import 'package:crm_app/features/documents/infrastructure/mapers/create_document_response.dart';
+import 'package:crm_app/features/documents/infrastructure/infrastructure.dart';
 import 'package:crm_app/features/documents/presentation/providers/documents_repository_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -48,22 +48,14 @@ class DocumentsNotifier extends StateNotifier<DocumentsState> {
 
       if (documentResponse.status) {
         final document = documentResponse.document as Document;
-        final isDocumentInList =
-            state.documents.any((element) => element.adjtIdAdjunto == document.adjtIdAdjunto);
-
-        if (!isDocumentInList) {
-          state = state.copyWith(documents: [document, ...state.documents]);
-          return CreateDocumentResponse(response: true, message: message);
-        }
-
+       
         state = state.copyWith(
-            documents: state.documents
-                .map(
-                  (element) => (element.adjtIdAdjunto == document.adjtIdAdjunto) ? document : element,
-                )
-                .toList());
-
+          documents: [document, ...state.documents],
+          listDocuments: document.adjtIdTipoRegistro == '01' ? [ document, ...state.listDocuments ] : state.listDocuments,
+          listLinks: document.adjtIdTipoRegistro == '02' ? [ document, ...state.listLinks ] : state.listLinks,
+        );
         return CreateDocumentResponse(response: true, message: message);
+
       }
 
       return CreateDocumentResponse(response: false, message: message);
@@ -93,13 +85,40 @@ class DocumentsNotifier extends StateNotifier<DocumentsState> {
     state = state.copyWith(
       isLastPage: false,
       isLoading: false,
-      offset: state.offset + 10,
+      //offset: state.offset + 10,
       //documents: [...state.documents, ...documents ]
       documents: documents,
       listDocuments: documents.where((doc) => doc.adjtIdTipoRegistro == '01').toList(),
       listLinks: documents.where((doc) => doc.adjtIdTipoRegistro == '02').toList()
     );
 
+  }
+
+  Future<DeleteDocumentResponse> deleteDocument( String idAdjunto ) async {
+    try {
+
+      final documentResponse = await documentsRepository.deleteDocumentLink(idAdjunto);
+      
+      final message = documentResponse.message;
+
+      if (documentResponse.status) {
+
+        final documents = state.documents.where((doc) => doc.adjtIdAdjunto != idAdjunto).toList();
+      
+        state = state.copyWith(
+          documents: documents,
+          listDocuments: documents.where((doc) => doc.adjtIdTipoRegistro == '01').toList(),
+          listLinks: documents.where((doc) => doc.adjtIdTipoRegistro == '02').toList()
+        );
+
+        return DeleteDocumentResponse(response: true, message: message);
+      }
+
+      return DeleteDocumentResponse(response: false, message: message);
+
+    } catch (e) {
+      return DeleteDocumentResponse(response: false, message: 'Error, revisar con su administrador.');
+    }
 
   }
 

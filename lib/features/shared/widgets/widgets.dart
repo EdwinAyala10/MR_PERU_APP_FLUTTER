@@ -8,3 +8,4 @@ export 'side_menu.dart';
 export 'text_view_custom.dart';
 export 'placeholder.dart';
 export 'placeholder_section.dart';
+export 'confirm_delete_dialog.dart';

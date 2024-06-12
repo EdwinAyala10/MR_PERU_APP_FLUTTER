@@ -1,3 +1,4 @@
+import 'package:crm_app/features/documents/infrastructure/infrastructure.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -139,7 +140,17 @@ class _DocumentsViewState extends ConsumerState<_DocumentsView> {
 
                 await _requestStoragePermission(context, fileUrl, fileName);
               },
-              child: DocumentCard(document: document)
+              child: DocumentCard(document: document, callback: () {
+                showLoadingMessage(context);
+                ref.read(documentsProvider.notifier).deleteDocument(document.adjtIdAdjunto).then((DeleteDocumentResponse value) {
+                  if (value.message != '') {
+                    showSnackbar(context, value.message);
+                    if (value.response) {
+                    }
+                  }
+                });
+                Navigator.pop(context);
+              })
             );
           },
         ),
@@ -195,7 +206,17 @@ class _LinksViewState extends ConsumerState<_LinksView> {
 
                 _copyToClipboard(context, enlace);
               },
-              child: DocumentCard(document: document)
+              child: DocumentCard(document: document, callback: () {
+                showLoadingMessage(context);
+                ref.read(documentsProvider.notifier).deleteDocument(document.adjtIdAdjunto).then((DeleteDocumentResponse value) {
+                  if (value.message != '') {
+                    showSnackbar(context, value.message);
+                    if (value.response) {
+                    }
+                  }
+                });
+                Navigator.pop(context);
+              })
             );
           },
         ),

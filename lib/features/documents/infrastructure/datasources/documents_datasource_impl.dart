@@ -79,6 +79,31 @@ class DocumentsDatasourceImpl extends DocumentsDatasource {
   }
 
   @override
+  Future<DocumentResponse> deleteDocumentLink(
+      String idAdjunto) async {
+    try {
+      const String url = '/archivos/eliminar-adjunto';
+
+      final data = {
+        'ADJT_ID_ADJUNTO': idAdjunto,
+      };
+
+      final response = await dio.post(url,
+          data: data);
+
+      final DocumentResponse documentResponse =
+          DocumentResponseMapper.jsonToEntity(response.data);
+
+      return documentResponse;
+    } on DioException catch (e) {
+      if (e.response!.statusCode == 404) throw DocumentNotFound();
+      throw Exception();
+    } catch (e) {
+      throw Exception();
+    }
+  }
+
+  @override
   Future<Document> getDocumentById(String id) async {
     try {
       final response = await dio.get('/archivos/listar-adjunto-by-id/$id');

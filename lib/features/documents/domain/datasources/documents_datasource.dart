@@ -6,5 +6,6 @@ abstract class DocumentsDatasource {
   Future<Document> getDocumentById(String id);
   Future<DocumentResponse> createDocument( Map<dynamic,dynamic> documentLike );
   Future<DocumentResponse> createEnlace( Map<dynamic,dynamic> enlaceLike );
+  Future<DocumentResponse> deleteDocumentLink( String idAdjunto );
 }
 

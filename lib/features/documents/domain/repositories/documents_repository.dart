@@ -9,4 +9,6 @@ abstract class DocumentsRepository {
 
   Future<DocumentResponse> createEnlace(
       Map<dynamic, dynamic> enlaceLike);
+  
+  Future<DocumentResponse> deleteDocumentLink(String idAdjunto);
 }

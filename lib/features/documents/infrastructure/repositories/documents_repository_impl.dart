@@ -26,5 +26,10 @@ class DocumentsRepositoryImpl extends DocumentsRepository {
   Future<List<Document>> getDocuments({String idUsuario = ''}) {
     return datasource.getDocuments(idUsuario: idUsuario);
   }
+
+  @override
+  Future<DocumentResponse> deleteDocumentLink(String idAdjunto) {
+    return datasource.deleteDocumentLink(idAdjunto);
+  }
   
 }
