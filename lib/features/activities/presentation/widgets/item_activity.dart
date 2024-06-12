@@ -15,6 +15,8 @@ class ItemActivity extends StatelessWidget {
     final DateTime fechaActividad = activity.actiFechaActividad;
     String horaActividad = activity.actiHoraActividad;
 
+    print('ACTIVITY: ${ activity }');
+
     if (horaActividad.length == 8) {
       horaActividad = '$horaActividad.0000000';
     }
@@ -171,12 +173,13 @@ class ItemActivity extends StatelessWidget {
       leading: SizedBox(
         child: Column(
           children: [
+            const SizedBox(height: 10),
             activity.actiIdTipoGestion == '05' 
-            ? const FaIcon(FontAwesomeIcons.whatsapp, color: Colors.green, size: 40,) 
+            ? const FaIcon(FontAwesomeIcons.whatsapp, color: Colors.green, size: 36) 
             : Icon(
               //Icons.airline_stops_sharp
               icono, 
-              size: 40,
+              size: 36,
               color: color,
             ),
           ],

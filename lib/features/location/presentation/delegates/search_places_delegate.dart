@@ -21,6 +21,7 @@ class SearchPlaceDelegate extends SearchDelegate<Place?> {
     required this.initialPlaces,
   }) : super(
           searchFieldLabel: 'Buscar dirección',
+          searchFieldStyle: const TextStyle(color: Colors.black45, fontSize: 16),
           // textInputAction: TextInputAction.done
         );
 

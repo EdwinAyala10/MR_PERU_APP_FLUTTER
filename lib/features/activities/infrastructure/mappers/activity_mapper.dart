@@ -27,6 +27,7 @@ class ActivityMapper {
     actiNombreResponsable: json['ACTI_NOMBRE_RESPONSABLE'] ?? '',
     actiIdUsuarioActualizacion: json['ACTI_ID_USUARIO_ACTUALIZACION'] ?? '',
     actiIdActividadIn: json['ACTI_ID_ACTIVIDAD_IN'] ?? '',
+    actiIdTipoRegistro: json['ACTI_ID_TIPO_REGISTRO'] ?? '',
     actividadesContacto: json["ACTIVIDADES_CONTACTO"] != null ? List<ContactArray>.from(json["ACTIVIDADES_CONTACTO"].map((x) => ContactArray.fromJson(x))) : [],
     actividadesContactoEliminar: json["ACTIVIDADES_CONTACTO_ELIMINAR"] != null ? List<ContactArray>.from(json["ACTIVIDADES_CONTACTO_ELIMINAR"].map((x) => ContactArray.fromJson(x))) : [],
     opt: json['OPT'] ?? '',

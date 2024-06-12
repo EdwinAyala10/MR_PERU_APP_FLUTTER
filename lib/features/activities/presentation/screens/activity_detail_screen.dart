@@ -19,7 +19,7 @@ class ActivityDetailScreen extends ConsumerWidget {
     final activity = activityState.activity;
 
     if (activityState.isLoading) {
-      return const FullScreenLoader();
+      return const Scaffold(body: FullScreenLoader());
     }
 
     if (activity == null) {
@@ -48,9 +48,9 @@ class ActivityDetailScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
-            onPressed: () {
+            onPressed: activity.actiIdTipoRegistro != '01' ? () {
               context.push('/activity/${activity.id}');
-            },
+            }: null,
           ),
         ],
       ),

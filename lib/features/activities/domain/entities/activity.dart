@@ -24,6 +24,7 @@ class Activity {
   String? actiTiempoGestion;
   String? actiNombreResponsable;
   String? contactoDesc;
+  String? actiIdTipoRegistro;
   List<ContactArray>? actividadesContacto;
   List<ContactArray>? actividadesContactoEliminar;
 
@@ -52,5 +53,6 @@ class Activity {
       this.cchkComentarioCheckOut,
       this.actiTiempoGestion,
       this.contactoDesc,
+      this.actiIdTipoRegistro,
       this.actiNombreResponsable});
 }

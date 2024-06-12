@@ -24,6 +24,7 @@ class SearchOpportunityDelegate extends SearchDelegate<Opportunity?> {
     required this.initialOpportunities,
   }) : super(
           searchFieldLabel: 'Buscar Oportunidades',
+          searchFieldStyle: const TextStyle(color: Colors.black45, fontSize: 16),
           // textInputAction: TextInputAction.done
         );
 

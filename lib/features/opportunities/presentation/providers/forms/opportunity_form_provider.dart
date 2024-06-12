@@ -196,10 +196,9 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
     state = state.copyWith(optrValor: int.parse(valor ?? '0'));
   }
 
-
   void onUsuarioChanged(UserMaster usuario) {
     bool objExist = state.arrayresponsables!.any(
-        (objeto) => objeto.id == usuario.id && objeto.name == usuario.name);
+        (objeto) => objeto.cresIdUsuarioResponsable == usuario.code);
 
     if (!objExist) {
       ArrayUser array = ArrayUser();

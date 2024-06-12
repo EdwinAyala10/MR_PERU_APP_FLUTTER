@@ -24,6 +24,7 @@ class SearchCompanyLocalDelegate extends SearchDelegate<CompanyLocal?> {
     required this.ruc,
   }) : super(
           searchFieldLabel: 'Buscar locales',
+          searchFieldStyle: const TextStyle(color: Colors.black45, fontSize: 16),
           // textInputAction: TextInputAction.done
         );
 

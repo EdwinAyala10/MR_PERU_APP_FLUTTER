@@ -71,6 +71,7 @@ class ActivityNotifier extends StateNotifier<ActivityState> {
 
       state = state.copyWith(isLoading: false, activity: activity);
     } catch (e) {
+      state = state.copyWith(isLoading: false, activity: null);
       // 404 product not found
       print(e);
     }

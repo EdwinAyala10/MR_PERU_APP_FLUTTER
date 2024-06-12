@@ -130,7 +130,7 @@ class _DocumentsViewState extends ConsumerState<_DocumentsView> {
           physics: const BouncingScrollPhysics(),
           crossAxisCount: 1, 
           itemCount: documentsState.listDocuments.length,
-          itemBuilder: (context, index) {
+          itemBuilder: (_ , index) {
             final document = documentsState.listDocuments[index];
             
             return GestureDetector(
