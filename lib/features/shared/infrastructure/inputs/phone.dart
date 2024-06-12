@@ -1,7 +1,7 @@
 import 'package:formz/formz.dart';
 
 // Define input validation errors
-enum PhoneError { empty }
+enum PhoneError { empty, invalidLength }
 
 // Extend FormzInput and provide the input type and error type.
 class Phone extends FormzInput<String, PhoneError> {
@@ -19,6 +19,7 @@ class Phone extends FormzInput<String, PhoneError> {
     if ( isValid || isPure ) return null;
 
     if ( displayError == PhoneError.empty ) return 'El campo es requerido';
+    if (displayError == PhoneError.invalidLength) return 'El campo debe tener 9 dígitos';
 
     return null;
   }
@@ -28,6 +29,7 @@ class Phone extends FormzInput<String, PhoneError> {
   PhoneError? validator(String value) {
     
     if ( value.isEmpty || value.trim().isEmpty ) return PhoneError.empty;
+    if (value.length != 9) return PhoneError.invalidLength;
 
     return null;
   }

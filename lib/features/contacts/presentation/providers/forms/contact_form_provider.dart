@@ -66,7 +66,7 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
       'CONTACTO_TELEFONOC': state.contactoTelefonoc.value,
       'CONTACTO_FAX': state.contactoFax,
       'CONTACTO_NOTAS': state.contactoNotas,
-      'OPT': (state.id == 'new') ? 'INSERT' : 'UPDATE',
+      //'OPT': (state.id == 'new') ? 'INSERT' : 'UPDATE',
       'CONTACTO_ID_CARGO': state.contactoIdCargo.value,
       'CONTACTO_NOMBRE_CARGO': state.contactoNombreCargo,
       'CONTACTO_USUARIO_REGISTRO': state.contactoUsuarioRegistro,
