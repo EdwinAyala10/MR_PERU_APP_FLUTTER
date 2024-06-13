@@ -29,7 +29,7 @@ class IndicatorsNotifier extends StateNotifier<IndicatorsState> {
 
   void onUsersChanged(UserMaster usuario) {
     bool objExist = state.arrayresponsables!.any(
-        (objeto) => objeto.id == usuario.id && objeto.name == usuario.name);
+        (objeto) => objeto.idUsuarioResponsable == usuario.code);
 
     if (!objExist) {
       ArrayUser array = ArrayUser();
@@ -38,6 +38,7 @@ class IndicatorsNotifier extends StateNotifier<IndicatorsState> {
       array.userreportName = usuario.name;
       array.nombreResponsable = usuario.name;
       array.oresIdUsuarioResponsable = usuario.code;
+      array.idUsuarioResponsable = usuario.code;
 
       List<ArrayUser> arrayUsuarios = [...state.arrayresponsables ?? [], array];
 
@@ -50,7 +51,7 @@ class IndicatorsNotifier extends StateNotifier<IndicatorsState> {
   void onDeleteUserChanged(ArrayUser item) {
     List<ArrayUser> arrayUsuarios = state.arrayresponsables!
         .where(
-            (user) => user.oresIdOportunidadResp != item.oresIdOportunidadResp)
+            (user) => user.idUsuarioResponsable != item.idUsuarioResponsable)
         .toList();
     state = state.copyWith(arrayresponsables: arrayUsuarios);
   }
@@ -70,7 +71,7 @@ class IndicatorsNotifier extends StateNotifier<IndicatorsState> {
           "${state.dateInitial?.year.toString().padLeft(4, '0')}-${state.dateInitial?.month.toString().padLeft(2, '0')}-${state.dateInitial?.day.toString().padLeft(2, '0')}",
       "DATE_FIN":
           "${state.dateEnd?.year.toString().padLeft(4, '0')}-${state.dateEnd?.month.toString().padLeft(2, '0')}-${state.dateEnd?.day.toString().padLeft(2, '0')}",
-      'USERS': state.arrayresponsables != null
+      'USUARIOS_RESPONSABLE': state.arrayresponsables != null
           ? List<dynamic>.from(state.arrayresponsables!.map((x) => x.toJson()))
           : [],
     };

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:crm_app/config/config.dart';
+import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 
 import '../../domain/entities/send_indicators_response.dart';
@@ -181,6 +182,9 @@ class _ViewIndicatorsState extends ConsumerState {
                       backgroundColor: indicatorsState.isLoading ? secondaryColor : primaryColor, // Fondo de color naranja
                     ),
                     onPressed: indicatorsState.isLoading ? null : () {
+
+                      showLoadingMessage(context);
+
                       ref.read(indicatorsProvider.notifier)
                           .onFormSubmit()
                           .then((SendIndicatorsResponse value) {
@@ -193,6 +197,9 @@ class _ViewIndicatorsState extends ConsumerState {
                             //});
                           }
                         }
+
+                        Navigator.pop(context);
+
                       });
                     },
                     child: const Text('Enviar informe',

@@ -14,6 +14,7 @@ class ArrayUser {
   String? userreportName;
   String? oresIdUsuarioResponsable;
   String? oresIdOportunidadResp;
+  String? idUsuarioResponsable;
 
   ArrayUser({
     this.id,
@@ -24,7 +25,8 @@ class ArrayUser {
     this.nombreResponsable,
     this.userreportName,
     this.oresIdUsuarioResponsable,
-    this.oresIdOportunidadResp
+    this.oresIdOportunidadResp,
+    this.idUsuarioResponsable
   });
 
   factory ArrayUser.fromJson(Map<String, dynamic> json) => ArrayUser(
@@ -37,6 +39,7 @@ class ArrayUser {
         userreportName: json["USERREPORT_NAME"],
         oresIdUsuarioResponsable: json["ORES_ID_USUARIO_RESPONSABLE"],
         oresIdOportunidadResp: json["ORES_ID_OPORTUNIDAD_RESP"],
+        idUsuarioResponsable: json["ID_USUARIO_RESPONSABLE"],
       );
 
 
