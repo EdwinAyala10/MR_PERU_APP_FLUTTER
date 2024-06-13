@@ -1,3 +1,7 @@
+import 'package:crm_app/features/activities/presentation/screens/activity_screen_post_call.dart';
+import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
+import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
+
 import '../../../companies/domain/domain.dart';
 import '../../../companies/presentation/delegates/search_company_active_delegate.dart';
 import '../../../companies/presentation/search/search_companies_active_provider.dart';
@@ -7,7 +11,6 @@ import '../../../resource-detail/presentation/providers/resource_details_provide
 import '../../../shared/domain/entities/dropdown_option.dart';
 import '../../../shared/shared.dart';
 import '../../../shared/widgets/floating_action_button_custom.dart';
-import '../../../shared/widgets/placeholder.dart';
 import '../../../shared/widgets/select_custom_form.dart';
 import '../../../shared/widgets/title_section_form.dart';
 import 'package:flutter/material.dart';
@@ -18,12 +21,6 @@ class ContactScreen extends ConsumerWidget {
   final String contactId;
 
   const ContactScreen({super.key, required this.contactId});
-
-  void showSnackbar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -50,8 +47,12 @@ class ContactScreen extends ConsumerWidget {
               ) ),
         floatingActionButton:  contactState.contact != null 
         ? FloatingActionButtonCustom(
+            isDisabled: contactState.isSaving,
             callOnPressed: () {
               if (contactState.contact == null) return;
+
+              showLoadingMessage(context);
+              ref.read(contactProvider(contactId).notifier).isSaving();
 
               ref
                   .read(contactFormProvider(contactState.contact!).notifier)
@@ -67,7 +68,13 @@ class ContactScreen extends ConsumerWidget {
                     //});
                   }
                 }
+
+                Navigator.pop(context);
+
               });
+
+              ref.read(contactProvider(contactId).notifier).isNotSaving();
+
             },
             iconData: Icons.save)
         : null

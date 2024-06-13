@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:flutter/material.dart';
@@ -473,7 +474,3 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
   }
 }
 
-void showSnackbar(BuildContext context, String message) {
-  ScaffoldMessenger.of(context).clearSnackBars();
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-}

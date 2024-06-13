@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
+import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
+
 import '../../domain/domain.dart';
 import '../providers/providers.dart';
 import '../../../companies/domain/domain.dart';
@@ -55,6 +58,8 @@ class ActivityScreen extends ConsumerWidget {
             callOnPressed: () {
               if (activityState.activity == null) return;
 
+              showLoadingMessage(context);
+
               ref
                   .read(activityFormProvider(activityState.activity!).notifier)
                   .onFormSubmit()
@@ -69,6 +74,9 @@ class ActivityScreen extends ConsumerWidget {
                     //});
                   }
                 }
+
+                Navigator.pop(context);
+
               });
             }),
       ),
@@ -605,9 +613,4 @@ class _ActivityInformationv2State extends ConsumerState<_ActivityInformationv2> 
   }
 
   
-}
-
-void showSnackbar(BuildContext context, String message) {
-  ScaffoldMessenger.of(context).clearSnackBars();
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 }

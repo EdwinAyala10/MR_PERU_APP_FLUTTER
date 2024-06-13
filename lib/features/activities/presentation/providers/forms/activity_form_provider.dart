@@ -214,10 +214,21 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
       }
     }
 
-    List<ContactArray> arrayContactos = state.actividadesContacto!
+    List<ContactArray> arrayContactos = [];
+
+    if (state.id == "new") {
+      arrayContactos = state.actividadesContacto!
+        .where((contact) =>
+            contact.acntIdContacto != item.acntIdContacto)
+        .toList();
+    }else {
+      arrayContactos = state.actividadesContacto!
         .where((contact) =>
             contact.acntIdActividadContacto != item.acntIdActividadContacto)
         .toList();
+    }
+
+    
     state = state.copyWith(
         actividadesContacto: arrayContactos,
         actividadesContactoEliminar: arrayContactosEliminar);

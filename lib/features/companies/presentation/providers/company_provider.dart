@@ -131,6 +131,18 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
     );
   }
 
+  Future<void> isLoading() async {
+    state = state.copyWith(
+      isSaving: true
+    );
+  }
+
+  Future<void> isNotLoading() async {
+    state = state.copyWith(
+      isSaving: false
+    );
+  }
+
   Future<void> loadCompany() async {
     try {
       if (state.rucId == 'new') {

@@ -231,6 +231,41 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
     }
   }
 
+  void onDeleteContactoChanged(ContactArray contacto) {
+    List<ContactArray> arraycontactoElimimar = [];
+
+    if (state.id != "new") {
+      bool objExist = state.arraycontactoElimimar!
+          .any((objeto) => objeto.ecntIdContacto == contacto.ecntIdContacto);
+
+      if (!objExist) {
+        ContactArray array = ContactArray();
+        array.ecntIdContacto = contacto.ecntIdContacto;
+
+        arraycontactoElimimar = [
+          ...state.arraycontactoElimimar ?? [],
+          array
+        ];
+      }
+    }
+
+    List<ContactArray> arrayUsuarios = [];
+
+    if (state.id == "new") {
+      arrayUsuarios = state.arraycontacto!
+        .where((user) => user.ecntIdContacto != contacto.ecntIdContacto)
+        .toList();
+    } else {
+      arrayUsuarios = state.arraycontacto!
+        .where((user) => user.ecntIdContacto != contacto.ecntIdContacto)
+        .toList();
+    }
+
+    state = state.copyWith(
+        arraycontacto: arrayUsuarios,
+        arraycontactoElimimar: arraycontactoElimimar);
+  }
+
   void onResponsableChanged(UserMaster responsable) {
 
     bool objExist = state.arrayresponsable!.any((objeto) =>
@@ -248,6 +283,41 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
     } else {
       state = state;
     }
+  }
+
+  void onDeleteResponsableChanged(ResponsableArray responsable) {
+    List<ResponsableArray> arrayresponsableElimimar = [];
+
+    if (state.id != "new") {
+      bool objExist = state.arraycontactoElimimar!
+          .any((objeto) => objeto.ecntIdContacto == responsable.ecntIdResponsable);
+
+      if (!objExist) {
+        ResponsableArray array = ResponsableArray();
+        array.ecntIdResponsable = responsable.ecntIdResponsable;
+
+        arrayresponsableElimimar = [
+          ...state.arrayresponsableElimimar ?? [],
+          array
+        ];
+      }
+    }
+
+    List<ResponsableArray> arrayUsuarios = [];
+
+    if (state.id == "new") {
+      arrayUsuarios = state.arrayresponsable!
+        .where((user) => user.ecntIdResponsable != responsable.ecntIdResponsable)
+        .toList();
+    } else {
+      arrayUsuarios = state.arrayresponsable!
+        .where((user) => user.ecntIdResponsable != responsable.ecntIdResponsable)
+        .toList();
+    }
+
+    state = state.copyWith(
+        arrayresponsable: arrayUsuarios,
+        arrayresponsableElimimar: arrayresponsableElimimar);
   }
 }
 

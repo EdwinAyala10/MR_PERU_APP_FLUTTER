@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
+import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
+
 import '../../../companies/domain/domain.dart';
 import '../../../companies/presentation/delegates/search_company_active_delegate.dart';
 import '../../../companies/presentation/search/search_companies_active_provider.dart';
@@ -9,7 +12,6 @@ import '../../../resource-detail/presentation/providers/resource_details_provide
 import '../../../shared/domain/entities/dropdown_option.dart';
 import '../../../shared/shared.dart';
 import '../../../shared/widgets/floating_action_button_custom.dart';
-import '../../../shared/widgets/placeholder.dart';
 import '../../../shared/widgets/select_custom_form.dart';
 import '../../../shared/widgets/title_section_form.dart';
 import '../../../users/domain/domain.dart';
@@ -24,12 +26,6 @@ class OpportunityScreen extends ConsumerWidget {
   final String opportunityId;
 
   const OpportunityScreen({super.key, required this.opportunityId});
-
-  void showSnackbar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -55,6 +51,8 @@ class OpportunityScreen extends ConsumerWidget {
             callOnPressed: () {
               if (opportunityState.opportunity == null) return;
 
+              showLoadingMessage(context);
+
               ref
                   .read(opportunityFormProvider(opportunityState.opportunity!)
                       .notifier)
@@ -70,6 +68,8 @@ class OpportunityScreen extends ConsumerWidget {
                     //});
                   }
                 }
+                Navigator.pop(context);
+
               });
             }),
       ),

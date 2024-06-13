@@ -159,6 +159,7 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
 
 class ContactFormState {
   final bool isFormValid;
+  final bool isLoading;
   final String? id;
   final Ruc ruc;
   final String razon;
@@ -179,6 +180,7 @@ class ContactFormState {
 
   ContactFormState(
       {this.isFormValid = false,
+      this.isLoading = false,
       this.id,
       this.ruc = const Ruc.dirty(''),
       this.razon = '',
@@ -198,6 +200,7 @@ class ContactFormState {
 
   ContactFormState copyWith({
     bool? isFormValid,
+    bool? isLoading,
     Ruc? ruc,
     String? razon,
     String? id,
@@ -217,6 +220,7 @@ class ContactFormState {
   }) =>
       ContactFormState(
         isFormValid: isFormValid ?? this.isFormValid,
+        isLoading: isLoading ?? this.isLoading,
         ruc: ruc ?? this.ruc,
         id: id ?? this.id,
         razon: razon ?? this.razon,

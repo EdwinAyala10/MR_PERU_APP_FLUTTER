@@ -77,12 +77,14 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
 
   Future<CreateUpdateCompanyResponse> onFormSubmit() async {
     _touchedEverything();
-    if (!state.isFormValid)
+    if (!state.isFormValid) {
       return CreateUpdateCompanyResponse(
           response: false, message: 'Campos requeridos.');
+    }
 
-    if (onSubmitCallback == null)
+    if (onSubmitCallback == null) {
       return CreateUpdateCompanyResponse(response: false, message: '');
+    }
 
     final companyLike = {
       'RUCID': (state.rucId == 'new') ? null : state.rucId,
@@ -429,9 +431,18 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
       }
     }
 
-    List<ArrayUser> arrayUsuarios = state.arrayresponsables!
+    List<ArrayUser> arrayUsuarios = [];
+
+    if (state.rucId == "new") {
+      arrayUsuarios = state.arrayresponsables!
+        .where((user) => user.cresIdUsuarioResponsable != item.cresIdUsuarioResponsable)
+        .toList();
+    } else {
+      arrayUsuarios = state.arrayresponsables!
         .where((user) => user.cresIdClienteResp != item.cresIdClienteResp)
         .toList();
+    }
+
     state = state.copyWith(
         arrayresponsables: arrayUsuarios,
         arrayresponsablesEliminar: arrayUsuariosEliminar);

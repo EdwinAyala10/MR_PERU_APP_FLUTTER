@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:crm_app/config/config.dart';
+import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 
 import '../../domain/entities/send_indicators_response.dart';
 import '../providers/indicators_provider.dart';
@@ -245,9 +246,4 @@ class _ViewIndicatorsState extends ConsumerState {
       ref.read(indicatorsProvider.notifier).onUsersChanged(user);
     });
   }
-}
-
-void showSnackbar(BuildContext context, String message) {
-  ScaffoldMessenger.of(context).clearSnackBars();
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 }

@@ -17,12 +17,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 class MapScreen extends ConsumerWidget {
   const MapScreen({super.key});
 
-  void showSnackbar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     //final companyCheckInState = ref.watch(companyCheckInProvider(rucId));

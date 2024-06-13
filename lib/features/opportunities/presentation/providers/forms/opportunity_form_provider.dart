@@ -234,9 +234,18 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
       }
     }
 
-    List<ArrayUser> arrayUsuarios = state.arrayresponsables!
+    List<ArrayUser> arrayUsuarios = [];
+
+    if (state.id == "new") {
+      arrayUsuarios = state.arrayresponsables!
+        .where((user) => user.cresIdUsuarioResponsable != item.cresIdUsuarioResponsable)
+        .toList();
+    } else {
+      arrayUsuarios = state.arrayresponsables!
         .where((user) => user.oresIdOportunidadResp != item.oresIdOportunidadResp)
         .toList();
+    }
+
     state = state.copyWith(
         arrayresponsables: arrayUsuarios,
         arrayresponsablesEliminar: arrayUsuariosEliminar);

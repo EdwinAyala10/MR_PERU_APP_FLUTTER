@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:crm_app/config/config.dart';
+import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
+import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 
 import '../../domain/domain.dart';
 import '../providers/providers.dart';
@@ -67,6 +69,8 @@ class EventScreen extends ConsumerWidget {
                   callOnPressed: () {
                     if (eventState.event == null) return;
 
+                    showLoadingMessage(context);
+
                     ref
                         .read(eventFormProvider(eventState.event!).notifier)
                         .onFormSubmit()
@@ -81,7 +85,11 @@ class EventScreen extends ConsumerWidget {
                           //});
                         }
                       }
+
+                      Navigator.pop(context);
+
                     });
+
                   },
                 )
               : null),
@@ -393,7 +401,7 @@ class _EventInformation extends ConsumerWidget {
           const SizedBox(height: 10),
           const Row(
             children: [
-              Text('Gestion de invitados',
+              Text('Gestión de invitados',
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
               Spacer(),
               Text('Contactos',
@@ -435,9 +443,13 @@ class _EventInformation extends ConsumerWidget {
                                               
                                               color: Colors.white,
                                                 fontSize:
-                                                    12)), // Aquí deberías colocar el texto que deseas mostrar en el chip para cada elemento de la lista
+                                                    12)),
                                         onDeleted: () {
-                                          // Aquí puedes manejar la eliminación del chip si es necesario
+                                          ref
+                                            .read(
+                                                eventFormProvider(event)
+                                                    .notifier)
+                                            .onDeleteContactoChanged(item);
                                         },
                                       )))
                               : [],
@@ -458,6 +470,11 @@ class _EventInformation extends ConsumerWidget {
                                                 fontSize:
                                                     12)), // Aquí deberías colocar el texto que deseas mostrar en el chip para cada elemento de la lista
                                         onDeleted: () {
+                                          ref
+                                            .read(
+                                                eventFormProvider(event)
+                                                    .notifier)
+                                            .onDeleteResponsableChanged(item);
                                           // Aquí puedes manejar la eliminación del chip si es necesario
                                         },
                                       )))
@@ -802,9 +819,4 @@ class _EventInformation extends ConsumerWidget {
       ref.read(eventFormProvider(event).notifier).onResponsableChanged(user);
     });
   }
-}
-
-void showSnackbar(BuildContext context, String message) {
-  ScaffoldMessenger.of(context).clearSnackBars();
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 }

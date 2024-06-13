@@ -1,4 +1,5 @@
 import 'package:crm_app/config/config.dart';
+import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 
 import '../../domain/domain.dart';
 import '../providers/providers.dart';
@@ -9,7 +10,6 @@ import '../../../resource-detail/presentation/providers/resource_details_provide
 import '../../../shared/domain/entities/dropdown_option.dart';
 import '../../../shared/shared.dart';
 import '../../../shared/widgets/floating_action_button_custom.dart';
-import '../../../shared/widgets/placeholder.dart';
 import '../../../shared/widgets/select_custom_form.dart';
 import '../../../shared/widgets/text_address.dart';
 import '../../../shared/widgets/title_section_form.dart';
@@ -50,6 +50,10 @@ class CompanyScreen extends ConsumerWidget {
             callOnPressed: () {
               if (companyState.company == null) return;
 
+              showLoadingMessage(context);
+
+              ref.read(companyProvider(rucId).notifier).isLoading();
+
               ref
                   .read(companyFormProvider(companyState.company!).notifier)
                   .onFormSubmit()
@@ -65,6 +69,11 @@ class CompanyScreen extends ConsumerWidget {
                   }
                 }
               });
+
+              ref.read(companyProvider(rucId).notifier).isNotLoading();
+
+              Navigator.pop(context);
+
             },
             iconData: Icons.save),
       ),
@@ -683,9 +692,4 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
           .onUsuarioChanged(user);
     });
   }
-}
-
-void showSnackbar(BuildContext context, String message) {
-  ScaffoldMessenger.of(context).clearSnackBars();
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 }

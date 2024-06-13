@@ -4,6 +4,7 @@ import 'package:crm_app/features/documents/infrastructure/mapers/create_document
 import 'package:crm_app/features/documents/presentation/providers/documents_provider.dart';
 import 'package:crm_app/features/documents/presentation/providers/send_enlace_provider.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
+import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';

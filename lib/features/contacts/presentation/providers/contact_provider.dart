@@ -47,6 +47,18 @@ class ContactNotifier extends StateNotifier<ContactState> {
     );
   }
 
+  Future<void> isSaving() async {
+    state = state.copyWith(
+      isSaving: true
+    );
+  }
+
+  Future<void> isNotSaving() async {
+    state = state.copyWith(
+      isSaving: false
+    );
+  }
+
   Future<void> loadContact(String idContact) async {
     try {
       if (idContact == 'new') {

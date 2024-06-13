@@ -18,7 +18,7 @@ class FloatingActionButtonCustom extends StatelessWidget {
       width: 46+ 9.0 * 2,
       height: 46 + 9.0 * 2,
       child: FloatingActionButton(
-        onPressed: callOnPressed,
+        onPressed: isDisabled == true ? null : callOnPressed,
         backgroundColor: styleDisabled
             ? const Color.fromARGB(255, 155, 155, 155)
             :  primaryColor,

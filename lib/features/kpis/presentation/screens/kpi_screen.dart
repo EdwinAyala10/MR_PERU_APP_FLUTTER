@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
+import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
+
 import '../../domain/domain.dart';
 import '../../domain/entities/periodicidad.dart';
 import '../providers/providers.dart';
@@ -44,6 +47,7 @@ class KpiScreen extends ConsumerWidget {
             callOnPressed: () {
               if (kpiState.kpi == null) return;
 
+              showLoadingMessage(context);
               ref
                   .read(kpiFormProvider(kpiState.kpi!).notifier)
                   .onFormSubmit()
@@ -58,6 +62,9 @@ class KpiScreen extends ConsumerWidget {
                     });
                   }
                 }
+
+                Navigator.pop(context);
+
               });
             }),
       ),
@@ -518,11 +525,6 @@ class _KpiInformation extends ConsumerWidget {
       ref.read(kpiFormProvider(kpi).notifier).onUsuarioChanged(user);
     });
   }
-}
-
-void showSnackbar(BuildContext context, String message) {
-  ScaffoldMessenger.of(context).clearSnackBars();
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 }
 
 class ItemMes extends StatelessWidget {
