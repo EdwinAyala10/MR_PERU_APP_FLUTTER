@@ -1,9 +1,8 @@
 import 'dart:async';
 
-import 'package:crm_app/config/config.dart';
+import 'package:crm_app/features/route-planner/presentation/widgets/route_card.dart';
 
 import '../../../shared/domain/entities/dropdown_option.dart';
-import '../../../shared/shared.dart';
 
 import '../../../shared/widgets/floating_action_button_custom.dart';
 import '../../../shared/widgets/select_custom_form.dart';
@@ -37,7 +36,11 @@ class RegisterRoutePlannerScreen extends ConsumerWidget {
           ),*/
           ),
           body: _EventView(),
-          floatingActionButton: FloatingActionButtonCustom(callOnPressed:() {}, iconData: Icons.check),
+          floatingActionButton: FloatingActionButtonCustom(
+            callOnPressed:() {
+
+            }, 
+            iconData: Icons.check),
       )
     );
   }
@@ -280,6 +283,7 @@ class _EventInformation extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 30),
+          RouteCard(),
         ],
       ),
     );
