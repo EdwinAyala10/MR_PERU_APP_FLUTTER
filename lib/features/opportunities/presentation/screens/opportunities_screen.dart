@@ -18,10 +18,6 @@ class OpportunitiesScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final scaffoldKey = GlobalKey<ScaffoldState>();
 
-    Timer? _debounce;
-
-    final isActiveSearch = ref.watch(opportunitiesProvider).isActiveSearch;
-
     return Scaffold(
       drawer: SideMenu(scaffoldKey: scaffoldKey),
       appBar: AppBar(
@@ -127,10 +123,10 @@ class _OpportunitiesViewState extends ConsumerState {
     final opportunitiesState = ref.watch(opportunitiesProvider);
 
     if (opportunitiesState.isLoading) {
-      return LoadingModal();
+      return const LoadingModal();
     }
 
-    return opportunitiesState.opportunities.length > 0
+    return opportunitiesState.opportunities.isNotEmpty
         ? _ListOpportunities(
           opportunities: opportunitiesState.opportunities, 
           onRefreshCallback: _refresh,
@@ -141,13 +137,13 @@ class _OpportunitiesViewState extends ConsumerState {
 }
 
 class _SearchComponent extends ConsumerWidget {
-  const _SearchComponent({super.key});
+  const _SearchComponent();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
 
-    Timer? _debounce;
-    TextEditingController _searchController = TextEditingController(text: ref.read(opportunitiesProvider).textSearch);
+    Timer? debounce;
+    TextEditingController searchController = TextEditingController(text: ref.read(opportunitiesProvider).textSearch);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 6.0),
@@ -157,11 +153,10 @@ class _SearchComponent extends ConsumerWidget {
         children: [
           TextFormField(
             style: const TextStyle(fontSize: 14.0),
-            controller: _searchController,
+            controller: searchController,
             onChanged: (String value) {
-              if (_debounce?.isActive ?? false) _debounce?.cancel();
-              _debounce = Timer(const Duration(milliseconds: 500), () {
-                print('Searching for: $value');
+              if (debounce?.isActive ?? false) debounce?.cancel();
+              debounce = Timer(const Duration(milliseconds: 500), () {
                 ref
                     .read(opportunitiesProvider.notifier)
                     .onChangeTextSearch(value);
@@ -191,7 +186,7 @@ class _SearchComponent extends ConsumerWidget {
             IconButton(
               onPressed: () {
                 ref.read(opportunitiesProvider.notifier).onChangeNotIsActiveSearch();
-                _searchController.text = '';
+                searchController.text = '';
               },
               icon: const Icon(Icons.clear, size: 18.0), 
             ),
@@ -207,7 +202,7 @@ class _ListOpportunities extends ConsumerStatefulWidget {
   final Future<void> Function() onRefreshCallback;
   final ScrollController scrollController;
 
-  const _ListOpportunities({super.key, required this.opportunities, required this.onRefreshCallback, required this.scrollController});
+  const _ListOpportunities({required this.opportunities, required this.onRefreshCallback, required this.scrollController});
 
   @override
   _ListOpportunitiesState createState() => _ListOpportunitiesState();
@@ -216,14 +211,14 @@ class _ListOpportunities extends ConsumerStatefulWidget {
 class _ListOpportunitiesState extends ConsumerState<_ListOpportunities> {
   @override
   Widget build(BuildContext context) {
-    final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+    final GlobalKey<RefreshIndicatorState> refreshIndicatorKey =
         GlobalKey<RefreshIndicatorState>();
 
     return widget.opportunities.isEmpty 
     ? Center(
         child: RefreshIndicator(
           onRefresh: widget.onRefreshCallback,
-          key: _refreshIndicatorKey,
+          key: refreshIndicatorKey,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             child: Column(
@@ -249,7 +244,7 @@ class _ListOpportunitiesState extends ConsumerState<_ListOpportunities> {
       child: RefreshIndicator(
               notificationPredicate: defaultScrollNotificationPredicate,
               onRefresh: widget.onRefreshCallback,
-              key: _refreshIndicatorKey,
+              key: refreshIndicatorKey,
               child: ListView.separated(
                 itemCount: widget.opportunities.length,
                 separatorBuilder: (BuildContext context, int index) => const Divider(),
@@ -267,7 +262,7 @@ class _ListOpportunitiesState extends ConsumerState<_ListOpportunities> {
 }
 
 class _NoExistData extends StatelessWidget {
-  const _NoExistData({super.key});
+  const _NoExistData();
 
   @override
   Widget build(BuildContext context) {

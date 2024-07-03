@@ -31,8 +31,6 @@ class EventsNotifier extends StateNotifier<EventsState> {
       if (eventResponse.status) {
         final event = eventResponse.event as Event;
 
-        print('ASUNTO: ${event.evntAsunto}');
-
         final isEventInList = eventItExist(state.linkedEvents, event.id);
 
         if (!isEventInList) {

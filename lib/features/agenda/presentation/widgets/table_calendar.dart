@@ -20,15 +20,13 @@ final kEvents = LinkedHashMap<DateTime, List<EventMock>>(
   hashCode: getHashCode,
 )..addAll(_kEventSource);
 
-final _kEventSource = Map.fromIterable(List.generate(50, (index) => index),
-    key: (item) => DateTime.utc(kFirstDay.year, kFirstDay.month, item * 5),
-    value: (item) => List.generate(
-        item % 4 + 1, (index) => EventMock('Event $item | ${index + 1}')))
+final _kEventSource = { for (var item in List.generate(50, (index) => index)) DateTime.utc(kFirstDay.year, kFirstDay.month, item * 5) : List.generate(
+        item % 4 + 1, (index) => EventMock('Event $item | ${index + 1}')) }
   ..addAll({
     kToday: [
-      EventMock('Today\'s Event 1'),
-      EventMock('Today\'s Event 2'),
-      EventMock('Today\'s Event 3'),
+      const EventMock('Today\'s Event 1'),
+      const EventMock('Today\'s Event 2'),
+      const EventMock('Today\'s Event 3'),
     ],
   });
 

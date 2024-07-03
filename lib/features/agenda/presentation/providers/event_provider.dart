@@ -36,10 +36,6 @@ class EventNotifier extends StateNotifier<EventState> {
   }
 
   Event newEmptyEvent() {
-    print('NEW EMPTY EVENT');
-    print(user.code);
-    print(user.name);
-
     return Event(
       id: 'new',
       evntAsunto: '',

@@ -13,7 +13,7 @@ import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class AgendaScreen extends StatelessWidget {
-  const AgendaScreen({Key? key});
+  const AgendaScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -162,7 +162,7 @@ class _AgendaViewState extends ConsumerState {
               //valueListenable: _selectedEvents,
               valueListenable: ValueNotifier(eventsState.selectedEvents),
               builder: (context, value, _) {
-                return value.length > 0
+                return value.isNotEmpty
                     ? ListView.builder(
                         itemCount: value.length,
                         itemBuilder: (context, index) {

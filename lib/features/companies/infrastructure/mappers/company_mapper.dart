@@ -13,6 +13,8 @@ class CompanyMapper {
     email: json['EMAIL'] ?? '',
     tipocliente: json['TIPOCLIENTE'] ?? '',
     observaciones: json['OBSERVACIONES'] ?? '',
+    nombreRubro: json['NOMBRE_RUBRO'] ?? '',
+    idRubro: json['ID_RUBRO'] ?? '',
     fechaActualizacion: json['FECHA_ACTUALIZACION'] == Null ? DateTime.parse(json['FECHA_ACTUALIZACION']) : null,
     usuarioActualizacion: json['USUARIO_ACTUALIZACION'] ?? '',
     estado: json['ESTADO'] ?? '',

@@ -40,11 +40,11 @@ class CompanyCheckInFormNotifier
           cchkIdEstadoCheck: companyCheckIn.cchkIdEstadoCheck ?? '01',
           cchkIdUsuarioRegistro: companyCheckIn.cchkIdUsuarioRegistro ?? '',
           cchkIdUsuarioResponsable:
-              companyCheckIn.cchkIdUsuarioResponsable ?? '',
+              companyCheckIn.cchkIdUsuarioResponsable,
           cchkNombreUsuarioResponsable:
               companyCheckIn.cchkNombreUsuarioResponsable ?? '',
-          cchkNombreContacto: companyCheckIn.cchkNombreContacto ?? '',
-          cchkNombreOportunidad: companyCheckIn.cchkNombreOportunidad ?? '',
+          cchkNombreContacto: companyCheckIn.cchkNombreContacto,
+          cchkNombreOportunidad: companyCheckIn.cchkNombreOportunidad,
           cchkUbigeo: companyCheckIn.cchkUbigeo ?? '',
           cchkLocalCodigo: Select.dirty(companyCheckIn.cchkLocalCodigo),
           cchkLocalNombre: companyCheckIn.cchkLocalNombre ?? '',
@@ -52,12 +52,14 @@ class CompanyCheckInFormNotifier
 
   Future<CreateUpdateCompanyCheckInResponse> onFormSubmit() async {
     _touchedEverything();
-    if (!state.isFormValid)
+    if (!state.isFormValid) {
       return CreateUpdateCompanyCheckInResponse(
           response: false, message: 'Campos requeridos.');
+    }
 
-    if (onSubmitCallback == null)
+    if (onSubmitCallback == null) {
       return CreateUpdateCompanyCheckInResponse(response: false, message: '');
+    }
 
     final companyCheckInLike = {
       'CCHK_ID_CLIENTES_CHECK': (state.cchkIdClientesCheck == 'new')

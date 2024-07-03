@@ -171,7 +171,7 @@ class _ActivitiesViewState extends ConsumerState {
     final activitiesState = ref.watch(activitiesProvider);
 
     if (activitiesState.isLoading) {
-      return LoadingModal();
+      return const LoadingModal();
     }
 
     return activitiesState.activities.isNotEmpty

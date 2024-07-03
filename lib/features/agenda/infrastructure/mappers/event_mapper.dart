@@ -1,6 +1,5 @@
 import '../../domain/domain.dart';
 import '../../../contacts/domain/domain.dart';
-import '../../../contacts/domain/entities/contact_array.dart';
 
 
 class EventMapper {

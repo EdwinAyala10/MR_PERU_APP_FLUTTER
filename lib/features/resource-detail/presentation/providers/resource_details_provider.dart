@@ -61,7 +61,7 @@ class ResourceDetailsNotifier extends StateNotifier<ResourceDetailsState> {
 
     options.add(DropdownOption('', 'Seleccione...'));
 
-    for (final resourceDetail in resourceDetails ?? []) {
+    for (final resourceDetail in resourceDetails) {
 
       if (resourceDetail.recdCodigo != '00') {
         options.add(

@@ -67,8 +67,6 @@ class CompanyCheckInNotifier extends StateNotifier<CompanyCheckInState> {
     try {
       CompanyCheckIn companyCheckInNew = newEmptyCompanyCheckIn(idCheck);
 
-      print('IDCHEKKKKK: ${idCheck}');
-
       if (idCheck == '06') {
         // CHECKIN
         CheckInByRucLocalResponse checkInByRucLocalResponse =

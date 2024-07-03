@@ -46,7 +46,7 @@ class _ViewMapScreenState extends State<ViewMapScreen> {
     final size = MediaQuery.of(context).size;
 
 
-    GoogleMapController? _mapController;
+    GoogleMapController? mapController;
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -62,7 +62,7 @@ class _ViewMapScreenState extends State<ViewMapScreen> {
                   Marker(markerId: const MarkerId('Point center'), position: latLng, icon: markerIcon)
                 },
                 onMapCreated: (GoogleMapController controller) {
-                  _mapController = controller;
+                  mapController = controller;
                 },
               ),
             ),
@@ -101,7 +101,7 @@ class _ViewMapScreenState extends State<ViewMapScreen> {
               child: FloatingActionButton(
                 onPressed: () {
                   final cameraUpdate = CameraUpdate.newLatLng(latLng);
-                  _mapController?.animateCamera(cameraUpdate);
+                  mapController?.animateCamera(cameraUpdate);
                   
                 },
                 child: const Icon(Icons.location_on),

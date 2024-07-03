@@ -73,7 +73,7 @@ class OpportunityDetailScreen extends ConsumerWidget {
               ),
               ContainerCustom(
                 label: 'Probabilidad',
-                text: '${opportunity.oprtProbabilidad}%' ?? '0%',
+                text: '${opportunity.oprtProbabilidad}%',
               ),
               ContainerCustom(
                 label: 'Moneda',
@@ -99,7 +99,7 @@ class OpportunityDetailScreen extends ConsumerWidget {
               if (opportunity.arrayresponsables != null &&
                 opportunity.arrayresponsables!.isNotEmpty)
               Container(
-                padding: EdgeInsets.symmetric( horizontal: 10 ),
+                padding: const EdgeInsets.symmetric( horizontal: 10 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

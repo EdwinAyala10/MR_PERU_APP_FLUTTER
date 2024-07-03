@@ -78,7 +78,7 @@ class CompanyCheckInScreen extends ConsumerWidget {
                       parentContext: context,
                       title: 'Advertencia',
                       message:
-                          'Vaya, estás muy lejos de ${companyCheckInState.companyCheckIn?.cchkRazon ?? ''} ${distanceCalc}',
+                          'Vaya, estás muy lejos de ${companyCheckInState.companyCheckIn?.cchkRazon ?? ''} $distanceCalc',
                       buttonText: 'Aceptar');
                 },
               );
@@ -103,7 +103,6 @@ class CompanyCheckInScreen extends ConsumerWidget {
               if (value.message != '') {
                 showSnackbar(context, value.message);
                 if (value.response) {
-                  print('CHECK STATUS SCREEN: ${idCheck}');
 
                   ref
                       .watch(companyProvider(ruc).notifier)
@@ -152,7 +151,6 @@ class _CompanyCheckInViewState extends ConsumerState<_CompanyCheckInView> {
 
       ref.read(locationProvider.notifier).setOffLocationAddressDiff();
 
-      print('INICIO START FLLOWING');
     });
   }
 

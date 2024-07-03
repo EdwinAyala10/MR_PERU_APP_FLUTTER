@@ -48,7 +48,6 @@ class KpiFormNotifier extends StateNotifier<KpiFormState> {
         ));
 
   Future<CreateUpdateKpiResponse> onFormSubmit() async {
-    print('LLEGO ONFORMSUBMIT');
     _touchedEverything();
     if (!state.isFormValid) {
       return CreateUpdateKpiResponse(

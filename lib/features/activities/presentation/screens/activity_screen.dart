@@ -21,7 +21,6 @@ import '../../../companies/presentation/delegates/search_company_active_delegate
 import '../../../opportunities/presentation/search/search_opportunities_active_provider.dart';
 import '../../../opportunities/presentation/delegates/search_opportunity_active_delegate.dart';
 import '../../../shared/widgets/floating_action_button_custom.dart';
-import '../../../shared/widgets/placeholder.dart';
 import '../../../shared/widgets/select_custom_form.dart';
 
 import 'package:flutter/material.dart';
@@ -103,7 +102,7 @@ class _ActivityView extends ConsumerWidget {
 class _ActivityInformationv2 extends ConsumerStatefulWidget {
   final Activity activity;
 
-  const _ActivityInformationv2({super.key, required this.activity});
+  const _ActivityInformationv2({required this.activity});
 
   @override
   _ActivityInformationv2State createState() => _ActivityInformationv2State();
@@ -536,7 +535,7 @@ class _ActivityInformationv2State extends ConsumerState<_ActivityInformationv2> 
 
     //if (picked != null && picked != selectedDate) {
     if (picked != null) {
-      String formattedTime = picked.toString().substring(10, 15) + ':00';
+      String formattedTime = '${picked.toString().substring(10, 15)}:00';
       ref
           .read(activityFormProvider(widget.activity).notifier)
           .onHoraChanged(formattedTime);

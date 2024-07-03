@@ -77,7 +77,6 @@ class _ContactsViewState extends ConsumerState {
   }
 
   Future<void> _refresh() async {
-    String text = ref.watch(contactsProvider).textSearch;
     ref.read(contactsProvider.notifier).loadNextPage(isRefresh: true);
   }
 
@@ -86,10 +85,10 @@ class _ContactsViewState extends ConsumerState {
     final contactsState = ref.watch(contactsProvider);
 
     if (contactsState.isLoading) {
-      return LoadingModal();
+      return const LoadingModal();
     }
 
-    return contactsState.contacts.length > 0
+    return contactsState.contacts.isNotEmpty
         ? _ListContacts(
             contacts: contactsState.contacts, 
             onRefreshCallback: _refresh,
@@ -100,12 +99,12 @@ class _ContactsViewState extends ConsumerState {
 }
 
 class _SearchComponent extends ConsumerWidget {
-  const _SearchComponent({super.key});
+  const _SearchComponent();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Timer? _debounce;
-    TextEditingController _searchController =
+    Timer? debounce;
+    TextEditingController searchController =
         TextEditingController(text: ref.read(contactsProvider).textSearch);
 
     return Container(
@@ -116,11 +115,10 @@ class _SearchComponent extends ConsumerWidget {
         children: [
           TextFormField(
             style: const TextStyle(fontSize: 14.0),
-            controller: _searchController,
+            controller: searchController,
             onChanged: (String value) {
-              if (_debounce?.isActive ?? false) _debounce?.cancel();
-              _debounce = Timer(const Duration(milliseconds: 500), () {
-                print('Searching for: $value');
+              if (debounce?.isActive ?? false) debounce?.cancel();
+              debounce = Timer(const Duration(milliseconds: 500), () {
                 ref.read(contactsProvider.notifier).onChangeTextSearch(value);
               });
             },
@@ -149,7 +147,7 @@ class _SearchComponent extends ConsumerWidget {
             IconButton(
               onPressed: () {
                 ref.read(contactsProvider.notifier).onChangeNotIsActiveSearch();
-                _searchController.text = '';
+                searchController.text = '';
               },
               icon: const Icon(Icons.clear, size: 18.0),
             ),
@@ -165,7 +163,7 @@ class _ListContacts extends ConsumerStatefulWidget {
   final ScrollController scrollController;
 
   const _ListContacts(
-      {super.key, required this.contacts, required this.onRefreshCallback, required this.scrollController});
+      {required this.contacts, required this.onRefreshCallback, required this.scrollController});
 
   @override
   _ListContactsState createState() => _ListContactsState();
@@ -174,14 +172,14 @@ class _ListContacts extends ConsumerStatefulWidget {
 class _ListContactsState extends ConsumerState<_ListContacts> {
   @override
   Widget build(BuildContext context) {
-    final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+    final GlobalKey<RefreshIndicatorState> refreshIndicatorKey =
         GlobalKey<RefreshIndicatorState>();
 
     return widget.contacts.isEmpty
         ? Center(
             child: RefreshIndicator(
                 onRefresh: widget.onRefreshCallback,
-                key: _refreshIndicatorKey,
+                key: refreshIndicatorKey,
                 child: SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   child: Column(
@@ -207,7 +205,7 @@ class _ListContactsState extends ConsumerState<_ListContacts> {
           child: RefreshIndicator(
               onRefresh: widget.onRefreshCallback,
               notificationPredicate: defaultScrollNotificationPredicate,
-              key: _refreshIndicatorKey,
+              key: refreshIndicatorKey,
               child: ListView.separated(
                 itemCount: widget.contacts.length,
                 separatorBuilder: (BuildContext context, int index) =>

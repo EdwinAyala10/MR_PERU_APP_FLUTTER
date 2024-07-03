@@ -1,9 +1,5 @@
 import 'package:crm_app/config/config.dart';
-import 'package:crm_app/features/activities/presentation/screens/activity_screen_post_call.dart';
-import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/documents/domain/domain.dart';
-import 'package:crm_app/features/documents/infrastructure/infrastructure.dart';
-import 'package:crm_app/features/documents/presentation/providers/documents_provider.dart';
 import 'package:crm_app/features/shared/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

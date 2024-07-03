@@ -22,7 +22,7 @@ class EventsDatasourceImpl extends EventsDatasource {
       Map<dynamic, dynamic> eventLike) async {
     try {
       final String? id = eventLike['EVNT_ID_EVENTO'];
-      final String method = 'POST';
+      const String method = 'POST';
       //final String url = '/evento/create-evento';
       final String url = (id == null)
           ? '/evento/create-evento'
@@ -31,17 +31,12 @@ class EventsDatasourceImpl extends EventsDatasource {
       if (id == null) {
         eventLike.remove('EVNT_ID_EVENTO');
       }
-      print('eventLike:${eventLike}');
 
       final response = await dio.request(url,
           data: eventLike, options: Options(method: method));
 
-      print('RESP:${response}');
-
       final EventResponse eventResponse =
           EventResponseMapper.jsonToEntity(response.data);
-
-      print('eventResponse: ${eventResponse.message}');
 
       if (eventResponse.status == true) {
         eventResponse.event = EventMapper.jsonToEntity(response.data['data']);
@@ -107,8 +102,6 @@ class EventsDatasourceImpl extends EventsDatasource {
       }
 
       return events;
-    } on DioException catch (e) {
-      throw Exception();
     } catch (e) {
       throw Exception();
     }

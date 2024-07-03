@@ -47,8 +47,6 @@ class GpsNotifier extends StateNotifier<GpsState> {
   Future<bool> _checkGpsStatus() async {
     final isEnable = await Geolocator.isLocationServiceEnabled();
 
-    print('LLEGO AQUI: ${isEnable}');
-
     gpsServiceSubscription =
         Geolocator.getServiceStatusStream().listen((event) {
       final isEnabled = (event.index == 1) ? true : false;
@@ -79,7 +77,6 @@ class GpsNotifier extends StateNotifier<GpsState> {
             isGpsEnabled: state.isGpsEnabled, isGpsPermissionGranted: false);
         openAppSettings();
       case PermissionStatus.provisional:
-      // TODO: Handle this case.
     }
   }
 
@@ -103,7 +100,6 @@ class GpsState {
           isGpsPermissionGranted:
               isGpsPermissionGranted ?? this.isGpsPermissionGranted);
 
-  @override
   List<Object> get props => [isGpsEnabled, isGpsPermissionGranted];
 
   @override

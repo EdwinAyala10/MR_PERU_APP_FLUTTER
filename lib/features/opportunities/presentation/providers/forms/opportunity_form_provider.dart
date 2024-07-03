@@ -193,7 +193,7 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
   }
 
   void onImporteChanged(String valor) {
-    state = state.copyWith(optrValor: int.parse(valor ?? '0'));
+    state = state.copyWith(optrValor: int.parse(valor));
   }
 
   void onUsuarioChanged(UserMaster usuario) {

@@ -638,7 +638,7 @@ class _EventInformation extends ConsumerWidget {
                               return;
                             }
                             _openSearchOportunities(
-                                context, ref, eventForm.evntRuc.value ?? '');
+                                context, ref, eventForm.evntRuc.value);
                           },
                         ),
                       ],

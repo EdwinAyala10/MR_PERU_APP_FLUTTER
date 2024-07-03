@@ -1,7 +1,6 @@
 // ignore_for_file: prefer_is_empty
 
 import 'package:crm_app/config/config.dart';
-import 'package:crm_app/features/shared/widgets/placeholder.dart';
 
 import '../../../activities/domain/domain.dart';
 import '../../../activities/presentation/providers/activities_provider.dart';
@@ -329,7 +328,7 @@ class _ContainerDashboardOpportunitiesStatus extends StatelessWidget {
 class _ContainerDashboardKpis extends StatelessWidget {
   List<Kpi> kpis;
 
-  _ContainerDashboardKpis({super.key, required this.kpis});
+  _ContainerDashboardKpis({required this.kpis});
 
   @override
   Widget build(BuildContext context) {
@@ -370,8 +369,7 @@ class _ContainerDashboardKpis extends StatelessWidget {
                             subSubTitle: kpis[i].objrNombreAsignacion ??
                                 '',
                             advance: kpis[i].totalRegistro
-                                    .toString() ??
-                                '0',
+                                    .toString(),
                             total: convertTypeCategory(
                                     kpis[i]) ??
                                 '0'),
@@ -730,7 +728,7 @@ class _ItemOpportunity extends StatelessWidget {
                     height: 60,
                     child: CircularProgressIndicator(
                       strokeWidth: 5,
-                      value: ((int.parse(porcentaje) ?? 0) / 100).toDouble(),
+                      value: ((int.parse(porcentaje)) / 100).toDouble(),
                       valueColor: AlwaysStoppedAnimation<Color>(colorCustom),
                       backgroundColor: Colors.grey,
                     ),

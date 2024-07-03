@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class ActivityPostCallParams extends Equatable  {
-  ActivityPostCallParams({
+  const ActivityPostCallParams({
     required this.contactId,
     required this.phone,
   });

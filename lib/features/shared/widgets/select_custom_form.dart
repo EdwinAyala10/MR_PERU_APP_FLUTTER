@@ -19,6 +19,13 @@ class SelectCustomForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    String selectedValue = value;
+    if (!items.any((item) => item.id == value)) {
+      // Si no existe, usar el primer elemento de la lista como valor predeterminado
+      selectedValue = items.isNotEmpty ? items.first.id : '';
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Column(
@@ -44,7 +51,7 @@ class SelectCustomForm extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: DropdownButtonFormField<String>(
-              value: value,
+              value: selectedValue,
               onChanged: callbackChange,
               isExpanded: true,
               icon: const Icon(Icons.arrow_drop_down),

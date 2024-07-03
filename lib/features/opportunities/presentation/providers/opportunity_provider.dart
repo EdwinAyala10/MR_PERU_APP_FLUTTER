@@ -67,8 +67,6 @@ class OpportunityNotifier extends StateNotifier<OpportunityState> {
       state = state.copyWith(isLoading: false, opportunity: opportunity);
     } catch (e) {
       state = state.copyWith(isLoading: false, opportunity: null);
-      // 404 product not found
-      print(e);
     }
   }
 }

@@ -96,7 +96,7 @@ class _OpportunityView extends ConsumerWidget {
 class _OpportunityInformationv2 extends ConsumerStatefulWidget {
   final Opportunity opportunity;
 
-  const _OpportunityInformationv2({super.key, required this.opportunity});
+  const _OpportunityInformationv2({required this.opportunity});
 
   @override
   _OpportunityInformationv2State createState() => _OpportunityInformationv2State();
@@ -472,14 +472,12 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
       if (company == null) return;
 
       if (type == 'ruc') {
-        print('ES RUC');
         ref
             .read(opportunityFormProvider(widget.opportunity).notifier)
             .onRucChanged(company.ruc, company.razon);
       }
 
       if (type == 'intermediario1') {
-        print('ES INTERMEDIARIO 1');
         ref
             .read(opportunityFormProvider(widget.opportunity).notifier)
             .onRucIntermediario01Changed(company.ruc, company.razon);

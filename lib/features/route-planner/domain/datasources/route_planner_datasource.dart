@@ -1,0 +1,10 @@
+
+
+import '../domain.dart';
+
+abstract class RoutePlannerDatasource {
+
+  Future<List<CompanyLocalRoutePlanner>> getCompanyLocals({ int limit = 10, int offset = 0, String search });
+  
+}
+

@@ -1,5 +1,7 @@
 import 'package:crm_app/config/config.dart';
-import 'package:crm_app/features/companies/presentation/providers/companies_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../activities/domain/domain.dart';
 import '../../../activities/presentation/widgets/item_activity.dart';
@@ -12,12 +14,9 @@ import '../../../opportunities/domain/domain.dart';
 import '../../../opportunities/presentation/widgets/item_opportunity.dart';
 import '../../../shared/widgets/floating_action_button_custom.dart';
 import '../../../shared/widgets/floating_action_button_icon_custom.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/domain.dart';
 import '../providers/company_provider.dart';
 import '../../../shared/shared.dart';
-import 'package:go_router/go_router.dart';
 
 class CompanyDetailScreen extends ConsumerWidget {
   final String companyId;
@@ -189,6 +188,8 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
                 styleLabel, styleContent),
             _buildInfoField(
                 'RUC', widget.company.ruc, styleLabel, styleContent),
+            _buildInfoField(
+                'Rubro', widget.company.nombreRubro ?? '', styleLabel, styleContent),
             _buildInfoField('Tipo', widget.company.clienteNombreTipo ?? '',
                 styleLabel, styleContent),
             _buildInfoField('Estado', widget.company.clienteNombreEstado ?? '',
@@ -383,7 +384,7 @@ class _ListContacts extends StatelessWidget {
 
 class _ListCompanyLocales extends StatelessWidget {
   final List<CompanyLocal> companyLocales;
-  const _ListCompanyLocales({super.key, required this.companyLocales});
+  const _ListCompanyLocales({required this.companyLocales});
 
   @override
   Widget build(BuildContext context) {

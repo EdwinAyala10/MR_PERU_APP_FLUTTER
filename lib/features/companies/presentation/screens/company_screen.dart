@@ -68,11 +68,13 @@ class CompanyScreen extends ConsumerWidget {
                     //});
                   }
                 }
+
+                Navigator.pop(context);
+
               });
 
               ref.read(companyProvider(rucId).notifier).isNotLoading();
 
-              Navigator.pop(context);
 
             },
             iconData: Icons.save),
@@ -126,6 +128,10 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
     DropdownOption('', 'Cargando...')
   ];
 
+  List<DropdownOption> optionsRubro = [
+    DropdownOption('', 'Cargando...')
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -150,6 +156,12 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
       await ref.read(resourceDetailsProvider.notifier).loadCatalogById('04').then((value) => {
         setState(() {
           optionsCalificacion = value;
+        })
+      });
+
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('16').then((value) => {
+        setState(() {
+          optionsRubro = value;
         })
       });
 
@@ -249,6 +261,17 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
                 .onRucChanged,
             errorMessage: companyForm.ruc.errorMessage,
           ),
+          optionsRubro.length > 1 ? SelectCustomForm(
+            label: 'Rubro',
+            value: companyForm.idRubro.value,
+            callbackChange: (String? newValue) {
+              ref
+                  .read(companyFormProvider(widget.company).notifier)
+                  .onRubroChanged(newValue!);
+            },
+            items: optionsRubro,
+            errorMessage: companyForm.idRubro.errorMessage,
+          ): PlaceholderInput(text: 'Cargando Rubro...'),
           optionsTipoCliente.length > 1 ? SelectCustomForm(
             label: 'Tipo',
             value: companyForm.tipoCliente.value,
@@ -617,9 +640,9 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
                         .read(companyFormProvider(company).notifier)
                         .onLoadAddressCompanyLocalChanged(
                           stateSelectedMap.address ?? '',
-                          '${lat}, ${lng}',
-                          '${lat}',
-                          '${lng}',
+                          '$lat, $lng',
+                          '$lat',
+                          '$lng',
                           stateSelectedMap.ubigeo ?? '',
                           stateSelectedMap.departament ?? '',
                           stateSelectedMap.province ?? '',

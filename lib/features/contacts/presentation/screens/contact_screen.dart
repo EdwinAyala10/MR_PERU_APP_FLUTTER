@@ -1,4 +1,3 @@
-import 'package:crm_app/features/activities/presentation/screens/activity_screen_post_call.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 
@@ -106,7 +105,7 @@ class _ContactView extends ConsumerWidget {
 class _ContactInformationv2 extends ConsumerStatefulWidget {
   final Contact contact;
 
-  const _ContactInformationv2({super.key, required this.contact});
+  const _ContactInformationv2({required this.contact});
 
   @override
   __ContactInformationv2State createState() => __ContactInformationv2State();

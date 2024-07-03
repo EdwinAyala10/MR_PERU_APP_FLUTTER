@@ -30,7 +30,7 @@ class AppTheme {
     
 
     ///* AppBar
-    appBarTheme: AppBarTheme(
+    appBarTheme: const AppBarTheme(
       color: scaffoldBackgroundColor,
       //titleTextStyle: GoogleFonts.montserratAlternates()
       //  .copyWith( fontSize: 25, fontWeight: FontWeight.bold, color: Colors.black ),

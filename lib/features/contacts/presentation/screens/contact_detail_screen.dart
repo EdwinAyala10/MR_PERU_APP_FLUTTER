@@ -43,9 +43,9 @@ class _ContactDetailScreenState extends ConsumerState<ContactDetailScreen> {
       ? _ViewContactDetailScreen(contact: contactState.contact!)
       : Scaffold(
         appBar: AppBar(
-          title: Text('Contacto'),
+          title: const Text('Contacto'),
         ),
-        body: Center(child: Text('No existe información del contacto.'),),
+        body: const Center(child: Text('No existe información del contacto.'),),
       );
   }
 }
@@ -53,7 +53,7 @@ class _ContactDetailScreenState extends ConsumerState<ContactDetailScreen> {
 class _ViewContactDetailScreen extends ConsumerWidget {
   final Contact contact;
 
-  _ViewContactDetailScreen({
+  const _ViewContactDetailScreen({
     required this.contact,
   });
 
@@ -158,11 +158,11 @@ class _ViewContactDetailScreen extends ConsumerWidget {
               ),
               ContainerCustom(
                 label: 'Cargo:',
-                text: contact.contactoCargo ?? '',
+                text: contact.contactoCargo,
               ),
               ContainerCustom(
                 label: 'Celular:',
-                text: contact.contactoTelefonoc ?? '',
+                text: contact.contactoTelefonoc,
                 icon: Icons.call_sharp,
                 callbackIcon: () {
                   context.push(

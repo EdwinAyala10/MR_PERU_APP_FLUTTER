@@ -1,5 +1,4 @@
 import 'package:crm_app/config/config.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../shared/shared.dart';
 import 'package:flutter/material.dart';

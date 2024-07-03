@@ -23,6 +23,10 @@ class IndicatorsNotifier extends StateNotifier<IndicatorsState> {
     state = state.copyWith(dateInitial: fecha);
   }
 
+  void onPeriodicidadChanged(String id) {
+    state = state.copyWith(idPeriodicidad: id);
+  }
+
   void onDateEndChanged(DateTime fecha) {
     state = state.copyWith(dateEnd: fecha);
   }
@@ -67,11 +71,13 @@ class IndicatorsNotifier extends StateNotifier<IndicatorsState> {
     state = state.copyWith(isLoading: true);
 
     final params = {
-      "DATE_INI":
+      /*"DATE_INI":
           "${state.dateInitial?.year.toString().padLeft(4, '0')}-${state.dateInitial?.month.toString().padLeft(2, '0')}-${state.dateInitial?.day.toString().padLeft(2, '0')}",
       "DATE_FIN":
-          "${state.dateEnd?.year.toString().padLeft(4, '0')}-${state.dateEnd?.month.toString().padLeft(2, '0')}-${state.dateEnd?.day.toString().padLeft(2, '0')}",
-      'USUARIOS_RESPONSABLE': state.arrayresponsables != null
+          "${state.dateEnd?.year.toString().padLeft(4, '0')}-${state.dateEnd?.month.toString().padLeft(2, '0')}-${state.dateEnd?.day.toString().padLeft(2, '0')}",*/
+      "ID_PERIODICIDAD": state.idPeriodicidad,
+      "TIPO_ENVIO": "MANUAL", 
+      "USUARIOS_RESPONSABLE": state.arrayresponsables != null
           ? List<dynamic>.from(state.arrayresponsables!.map((x) => x.toJson()))
           : [],
     };
@@ -109,6 +115,8 @@ class IndicatorsNotifier extends StateNotifier<IndicatorsState> {
 class IndicatorsState {
   final DateTime? dateInitial;
   final DateTime? dateEnd;
+  final String? tipoEnvio;
+  final String? idPeriodicidad;
   final List<ArrayUser>? arrayresponsables;
   final bool isSend;
   final bool isLoading;
@@ -116,6 +124,8 @@ class IndicatorsState {
   IndicatorsState(
       {this.dateInitial,
       this.dateEnd,
+      this.tipoEnvio,
+      this.idPeriodicidad,
       this.arrayresponsables = const [],
       this.isSend = false,
       this.isLoading = false});
@@ -124,12 +134,16 @@ class IndicatorsState {
     DateTime? dateInitial,
     DateTime? dateEnd,
     List<ArrayUser>? arrayresponsables,
+    String? tipoEnvio,
+    String? idPeriodicidad,
     bool? isSend,
     bool? isLoading,
   }) =>
       IndicatorsState(
         dateInitial: dateInitial ?? this.dateInitial,
         dateEnd: dateEnd ?? this.dateEnd,
+        tipoEnvio: tipoEnvio ?? this.tipoEnvio,
+        idPeriodicidad: idPeriodicidad ?? this.idPeriodicidad,
         arrayresponsables: arrayresponsables ?? this.arrayresponsables,
         isSend: isSend ?? this.isSend,
         isLoading: isLoading ?? this.isLoading,

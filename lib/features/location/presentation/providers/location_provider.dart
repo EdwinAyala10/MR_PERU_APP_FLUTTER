@@ -120,7 +120,7 @@ class LocationNotifier extends StateNotifier<LocationState> {
     try {
       Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high,
-          timeLimit: const Duration(seconds: 4));
+          timeLimit: const Duration(seconds: 10));
 
       state = state.copyWith(
           lastKnownLocation: LatLng(position.latitude, position.longitude));
@@ -181,7 +181,6 @@ class LocationState {
         allowSave: allowSave ?? this.allowSave,
       );
 
-  @override
   List<Object?> get props => [
         followingUser,
         lastKnownLocation,

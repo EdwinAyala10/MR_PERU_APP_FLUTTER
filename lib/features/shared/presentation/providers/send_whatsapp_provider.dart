@@ -26,7 +26,7 @@ class SendWhatsappNotifier extends StateNotifier<SendWhatsappState> {
     //required this.authRepository,
     required this.activitiesRepository,
     required this.user,
-  }) : super(SendWhatsappState()) {}
+  }) : super(SendWhatsappState());
 
   void initialSend(Contact contact, String phone) {
     state = state.copyWith(

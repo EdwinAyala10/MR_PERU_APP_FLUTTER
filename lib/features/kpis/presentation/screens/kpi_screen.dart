@@ -136,7 +136,7 @@ class _KpiInformation extends ConsumerWidget {
               Wrap(
                 spacing: 8.0,
                 children: [
-                  Chip(label: Text(kpiForm.objrNombreUsuarioResponsable ?? ''))
+                  Chip(label: Text(kpiForm.objrNombreUsuarioResponsable))
                 ],
               ),
             ],

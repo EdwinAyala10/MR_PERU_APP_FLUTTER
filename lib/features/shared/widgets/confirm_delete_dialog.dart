@@ -13,21 +13,21 @@ class ConfirmDeleteDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text("Confirmación"),
+      title: const Text("Confirmación"),
       content: Text(message),
       actions: [
         TextButton(
           onPressed: () {
             Navigator.of(context).pop(); // Cerrar el dialogo
           },
-          child: Text("Cancelar"),
+          child: const Text("Cancelar"),
         ),
         TextButton(
           onPressed: () {
             onConfirm();
             Navigator.of(context).pop(); // Cerrar el dialogo después de confirmar
           },
-          child: Text("Eliminar"),
+          child: const Text("Eliminar"),
         ),
       ],
     );

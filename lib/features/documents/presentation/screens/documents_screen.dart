@@ -5,10 +5,8 @@ import 'package:permission_handler/permission_handler.dart';
 
 import 'package:crm_app/config/constants/environment.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
-import 'package:crm_app/features/documents/infrastructure/mapers/create_document_response.dart';
 import 'package:crm_app/features/documents/presentation/providers/documents_provider.dart';
 import 'package:crm_app/features/documents/presentation/widgets/widgets.dart';
-import 'package:crm_app/features/indicators/indicators.dart';
 import 'package:crm_app/features/shared/shared.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
 import 'package:crm_app/local_notifications/local_notifications.dart';

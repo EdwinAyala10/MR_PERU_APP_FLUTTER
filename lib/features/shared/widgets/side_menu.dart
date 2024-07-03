@@ -40,24 +40,27 @@ class SideMenuState extends ConsumerState<SideMenu> {
               context.go('/companies');
               break;
             case 2:
-              context.go('/contacts');
+              context.go('/route_planner');
               break;
             case 3:
-              context.go('/opportunities');
+              context.go('/contacts');
               break;
             case 4:
-              context.go('/activities');
+              context.go('/opportunities');
               break;
             case 5:
-              context.go('/agenda');
+              context.go('/activities');
               break;
             case 6:
-              context.go('/kpi/new');
+              context.go('/agenda');
               break;
             case 7:
-              context.go('/indicators');
+              context.go('/kpi/new');
               break;
             case 8:
+              context.go('/indicators');
+              break;
+            case 9:
               context.go('/documents');
               break;
             default:
@@ -104,6 +107,10 @@ class SideMenuState extends ConsumerState<SideMenu> {
           const NavigationDrawerDestination(
             icon: Icon(Icons.account_balance_rounded),
             label: Text('Empresas'),
+          ),
+          const NavigationDrawerDestination(
+            icon: Icon(Icons.map_outlined),
+            label: Text('Planificador'),
           ),
           const NavigationDrawerDestination(
             icon: Icon(Icons.perm_contact_cal),

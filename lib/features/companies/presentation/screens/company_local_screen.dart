@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 
-import '../../../activities/activities.dart';
 import '../../domain/domain.dart';
 import '../../domain/entities/create_update_company_local_response.dart';
 import '../providers/forms/company_local_form_provider.dart';
@@ -85,7 +84,7 @@ class _CompanyLocalView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ListView(
       children: [
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         _CompanyLocalInformation(companyLocal: companyLocal),
       ],
     );
@@ -95,7 +94,7 @@ class _CompanyLocalView extends ConsumerWidget {
 class _CompanyLocalInformation extends ConsumerStatefulWidget {
   final CompanyLocal companyLocal;
 
-  const _CompanyLocalInformation({super.key, required this.companyLocal});
+  const _CompanyLocalInformation({required this.companyLocal});
 
   @override
   _CompanyLocalInformationState createState() =>
@@ -331,9 +330,9 @@ class _CompanyLocalInformationState
                       .read(companyLocalFormProvider(companyLocal).notifier)
                       .onLoadAddressChanged(
                         stateSelectedMap.address ?? '',
-                        '${lat}, ${lng}',
-                        '${lat}',
-                        '${lng}',
+                        '$lat, $lng',
+                        '$lat',
+                        '$lng',
                         stateSelectedMap.ubigeo ?? '',
                         stateSelectedMap.departament ?? '',
                         stateSelectedMap.province ?? '',

@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:crm_app/config/config.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
+import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
+import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
+import 'package:crm_app/features/shared/widgets/select_custom_form.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 
 import '../../domain/entities/send_indicators_response.dart';
@@ -13,7 +16,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../shared/shared.dart';
-import 'package:intl/intl.dart';
 
 class IndicatorsScreen extends ConsumerWidget {
   const IndicatorsScreen({super.key});
@@ -35,19 +37,32 @@ class IndicatorsScreen extends ConsumerWidget {
 }
 
 class _ViewIndicators extends ConsumerStatefulWidget {
-  const _ViewIndicators({super.key});
+  const _ViewIndicators();
+
+  
 
   @override
   _ViewIndicatorsState createState() => _ViewIndicatorsState();
 }
 
 class _ViewIndicatorsState extends ConsumerState {
+
+  List<DropdownOption> optionsPeriodicidad = [
+    DropdownOption('', 'Cargando...')
+  ];
+  
   @override
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance?.addPostFrameCallback((_) async {
       ref.watch(indicatorsProvider.notifier).resetForm();
+
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('13').then((value) => {
+        setState(() {
+          optionsPeriodicidad = value;
+        })
+      });
     });
 
   }
@@ -65,7 +80,16 @@ class _ViewIndicatorsState extends ConsumerState {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                optionsPeriodicidad.length > 1 ? SelectCustomForm(
+                  label: 'Rubro',
+                  value: '01',
+                  callbackChange: (String? newValue) {
+                    ref.read(indicatorsProvider.notifier).onPeriodicidadChanged(newValue!);
+                  },
+                  items: optionsPeriodicidad,
+                ): PlaceholderInput(text: 'Cargando Periodicidad...'),
+
+                /*const Text(
                   'Fecha Inicio',
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                 ),
@@ -92,8 +116,8 @@ class _ViewIndicatorsState extends ConsumerState {
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(
+                ),*/
+                /*const SizedBox(
                   height: 10,
                 ),
                 const Text(
@@ -123,13 +147,16 @@ class _ViewIndicatorsState extends ConsumerState {
                       ),
                     ),
                   ),
-                ),
+                ),*/
                 const SizedBox(
                   height: 10,
                 ),
-                const Text(
-                  'Usuarios',
-                  style: TextStyle(fontWeight: FontWeight.w500),
+                const Padding(
+                  padding: EdgeInsets.only(left: 10),
+                  child: Text(
+                    'Usuarios',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
                 ),
                 Row(
                   children: [
@@ -183,12 +210,17 @@ class _ViewIndicatorsState extends ConsumerState {
                     ),
                     onPressed: indicatorsState.isLoading ? null : () {
 
+                      if (indicatorsState.idPeriodicidad == "") {
+                            showSnackbar(context, 'Debe seleccionar una periodicidad.');
+                            return;
+
+                      }
+
                       showLoadingMessage(context);
 
                       ref.read(indicatorsProvider.notifier)
                           .onFormSubmit()
                           .then((SendIndicatorsResponse value) {
-                            print(value.message);
                         //if ( !value.response ) return;
                         if (value.message != '') {
                           if (value.response) {
@@ -222,7 +254,6 @@ class _ViewIndicatorsState extends ConsumerState {
       firstDate: DateTime(1900),
       lastDate: DateTime(2101),
     );
-    print(picked);
 
     //if (picked != null && picked != selectedDate) {
     if (picked != null) {

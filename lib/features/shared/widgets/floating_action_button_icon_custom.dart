@@ -6,7 +6,7 @@ class FloatingActionButtonIconCustom extends StatelessWidget {
   final IconData iconData;
   final Function()? callOnPressed;
 
-  const FloatingActionButtonIconCustom({
+  const FloatingActionButtonIconCustom({super.key, 
     required this.label,
     required this.callOnPressed,
     required this.iconData,

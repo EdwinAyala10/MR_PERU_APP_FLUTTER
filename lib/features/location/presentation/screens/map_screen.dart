@@ -1,4 +1,3 @@
-import 'dart:async';
 
 import '../../../companies/presentation/providers/forms/company_form_provider.dart';
 import '../../../companies/presentation/providers/forms/company_local_form_provider.dart';
@@ -35,7 +34,6 @@ class _MapView extends ConsumerStatefulWidget {
 }
 
 class _CompanyMapViewState extends ConsumerState {
-  late StreamSubscription<LocationState> _locationSubscription;
 
   @override
   void initState() {
@@ -46,7 +44,7 @@ class _CompanyMapViewState extends ConsumerState {
       //locationNotifier.startFollowingUser();
 
       //print('INICIO START FLLOWING');
-      final locationNotifier = await ref.read(locationProvider.notifier);
+      final locationNotifier = ref.read(locationProvider.notifier);
       final locationCurrent = await locationNotifier.currentPosition();
 
       final mapState = ref.watch(mapProvider.notifier);
@@ -69,7 +67,6 @@ class _CompanyMapViewState extends ConsumerState {
     final locationState = ref.watch(locationProvider);
     final mapState = ref.watch(mapProvider.notifier);
     LatLng lastKnownLocation = locationState.lastKnownLocation ?? const LatLng(-12.04318, -77.02824);
-    print('lastKnownLocation: ${lastKnownLocation.toString()}');
 
     CameraPosition initialCameraPosition =
         CameraPosition(target: lastKnownLocation, zoom: 15);
@@ -220,10 +217,7 @@ class _CompanyMapViewState extends ConsumerState {
                       .read(selectedMapProvider.notifier)
                       .selectedAddressMap(placeSearch, location!);
 
-                  var stateSelectedMap = await ref.read(selectedMapProvider.notifier).state;
-
-                  print('DIRECCION: ${stateSelectedMap.entity}');
-                  //print('LOCATION XXX: ${location}');
+                  var stateSelectedMap = ref.read(selectedMapProvider.notifier).state;
 
                   //ref.read(selectedMapProvider.notifier).onSelectPlace('');
                   ref.read(selectedMapProvider.notifier).onFreeIsUpdateAddress();

@@ -8,13 +8,11 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SendWhatsappScreen extends ConsumerWidget {
-  const SendWhatsappScreen();
+  const SendWhatsappScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final params = ref.watch(sendWhatsappProvider);
-
-    final isViewText = ref.watch(sendWhatsappProvider).isViewText;
 
     /*if (isViewText) {
       context.push('/text');

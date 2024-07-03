@@ -29,6 +29,8 @@ class CompaniesDatasourceImpl extends CompaniesDatasource {
 
       //companyLike.remove('rucId');
 
+      companyLike['ID_USUARIO_ACTUALIZACION'] = companyLike['ID_USUARIO_REGISTRO'];
+
       final response = await dio.request(url,
           data: companyLike, options: Options(method: method));
 
@@ -105,7 +107,7 @@ class CompaniesDatasourceImpl extends CompaniesDatasource {
       Map<dynamic, dynamic> companyCheckInLike) async {
     try {
       const String method = 'POST';
-      final String url = '/cliente-check/create-cliente-check';
+      const String url = '/cliente-check/create-cliente-check';
 
       final response = await dio.request(url,
           data: companyCheckInLike, options: Options(method: method));
@@ -163,7 +165,7 @@ class CompaniesDatasourceImpl extends CompaniesDatasource {
    @override
   Future<List<CompanyLocal>> getCompanyLocales(String ruc) async {
     final response =
-        await dio.get('/cliente/cliente-locales-by-ruc/${ruc}');
+        await dio.get('/cliente/cliente-locales-by-ruc/$ruc');
     
     final List<CompanyLocal> companyLocales = [];
 

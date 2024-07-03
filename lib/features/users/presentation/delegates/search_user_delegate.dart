@@ -193,7 +193,7 @@ class _UserItem extends StatelessWidget {
                       style: textStyles.titleMedium,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    Text( user.code ?? '', overflow: TextOverflow.ellipsis,),
+                    Text( user.code, overflow: TextOverflow.ellipsis,),
                     Text( user.email ?? '', overflow: TextOverflow.ellipsis,),
                   ],
                 ),

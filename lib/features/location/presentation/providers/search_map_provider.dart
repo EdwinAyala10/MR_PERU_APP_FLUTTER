@@ -21,7 +21,6 @@ class SearchMapNotifier extends StateNotifier<SearchMapState> {
   //final AuthRepository authRepository;
   final KeyValueStorageService keyValueStorageService;
   StreamSubscription<Position>? positionStream;
-  GoogleMapController? _mapController;
   LatLng? mapCenter;
   StreamSubscription<LocationState>? locationStateSubscription;
   //TrafficService trafficService;
@@ -29,9 +28,7 @@ class SearchMapNotifier extends StateNotifier<SearchMapState> {
   SearchMapNotifier({
     //required this.authRepository,
     required this.keyValueStorageService,
-  }) : super(const SearchMapState()) {
-
-  }
+  }) : super(const SearchMapState());
 
   
 }

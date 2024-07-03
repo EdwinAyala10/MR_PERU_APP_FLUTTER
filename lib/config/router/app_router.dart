@@ -1,5 +1,8 @@
 import 'package:crm_app/features/documents/presentation/screens/enlace_screen.dart';
 import 'package:crm_app/features/opportunities/presentation/screens/opportunity_detail_screen.dart';
+import 'package:crm_app/features/route-planner/presentation/screens/register_route_planner_screen.dart';
+import 'package:crm_app/features/route-planner/presentation/screens/route_day_screen.dart';
+import 'package:crm_app/features/route-planner/presentation/screens/route_planner_screen.dart';
 
 import '../../features/activities/presentation/screens/activity_detail_screen.dart';
 import '../../features/activities/presentation/screens/activity_screen_post_call.dart';
@@ -125,6 +128,18 @@ final goRouterProvider = Provider((ref) {
       GoRoute(
         path: '/companies',
         builder: (context, state) => const CompaniesScreen(),
+      ),
+      GoRoute(
+        path: '/route_planner',
+        builder: (context, state) => const RoutePlannerScreen(),
+      ),
+      GoRoute(
+        path: '/register_route_planner',
+        builder: (context, state) => const RegisterRoutePlannerScreen(),
+      ),
+      GoRoute(
+        path: '/route_day_planner',
+        builder: (context, state) => RouteDayScreen(),
       ),
       GoRoute(
         path: '/company_detail/:id', // /company/new

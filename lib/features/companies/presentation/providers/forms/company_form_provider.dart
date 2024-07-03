@@ -1,3 +1,6 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:formz/formz.dart';
+
 import '../../../../activities/domain/domain.dart';
 import '../../../../agenda/domain/domain.dart';
 import '../../../../contacts/domain/domain.dart';
@@ -5,8 +8,6 @@ import '../../../../kpis/domain/entities/array_user.dart';
 import '../../../../opportunities/domain/domain.dart';
 import '../../../../shared/infrastructure/inputs/inputs.dart';
 import '../../../../users/domain/domain.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:formz/formz.dart';
 
 import '../../../domain/domain.dart';
 import '../providers.dart';
@@ -45,6 +46,8 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           website: company.website ?? '',
           calificacion: Calification.dirty(company.calificacion ?? ''),
           usuarioRegistro: company.usuarioRegistro ?? '',
+          idUsuarioRegistro: company.idUsuarioRegistro ?? '',
+          idUsuarioActualizacion: company.idUsuarioActualizacion ?? '',
           visibleTodos: company.visibleTodos ?? '',
           email: company.email ?? '',
           codigoPostal: company.codigoPostal ?? '',
@@ -57,6 +60,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           localDistrito: '',
           voltajeTension: '0',
           enviarNotificacion: 'SI',
+          idRubro: Rubro.dirty(company.idRubro),
           orden: '',
           localTipo: TypeLocal.dirty(company.localTipo ?? ''),
           localCodigoPostal: '',
@@ -86,7 +90,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
       return CreateUpdateCompanyResponse(response: false, message: '');
     }
 
-    final companyLike = {
+    final companyLike = { 
       'RUCID': (state.rucId == 'new') ? null : state.rucId,
       'RUC': state.ruc.value,
       'RAZON': state.razon.value,
@@ -96,12 +100,15 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
       'DEPARTAMENTO': state.departamento,
       'PROVINCIA': state.provincia,
       'DISTRITO': state.distrito,
+      'ID_RUBRO': state.idRubro.value,
       'CLIENTE_COORDENADAS_GEO': state.clienteCoordenadasGeo,
       'CLIENTE_COORDENADAS_LONGITUD': state.clienteCoordenadasLongitud,
       'CLIENTE_COORDENADAS_LATITUD': state.clienteCoordenadasLatitud,
       'SEGUIMIENTO_COMENTARIO': state.seguimientoComentario,
       'WEBSITE': state.website,
       'CALIFICACION': state.calificacion.value,
+      'ID_USUARIO_REGISTRO': state.idUsuarioRegistro,
+      'ID_USUARIO_ACTUALIZACION': state.idUsuarioActualizacion,
       'USUARIO_REGISTRO': state.usuarioRegistro,
       'VISIBLE_TODOS': state.visibleTodos,
       'EMAIL': state.email,
@@ -156,6 +163,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
         StateCompany.dirty(state.estado.value),
         Calification.dirty(state.calificacion.value),
         TypeLocal.dirty(state.localTipo.value),
+        Rubro.dirty(state.idRubro.value),
       ]),
     );
   }
@@ -173,6 +181,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           StateCompany.dirty(state.estado.value),
           Calification.dirty(state.calificacion.value),
           TypeLocal.dirty(state.localTipo.value),
+          Rubro.dirty(state.idRubro.value),
         ]));
   }
 
@@ -189,6 +198,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           StateCompany.dirty(state.estado.value),
           Calification.dirty(state.calificacion.value),
           TypeLocal.dirty(state.localTipo.value),
+          Rubro.dirty(state.idRubro.value),
         ]));
   }
 
@@ -208,6 +218,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
         StateCompany.dirty(state.estado.value),
         Calification.dirty(state.calificacion.value),
         TypeLocal.dirty(state.localTipo.value),
+        Rubro.dirty(state.idRubro.value),
       ]));
   }
   
@@ -227,6 +238,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
         StateCompany.dirty(estadoId),
         Calification.dirty(state.calificacion.value),
         TypeLocal.dirty(state.localTipo.value),
+        Rubro.dirty(state.idRubro.value),
       ]));
   }
 
@@ -244,6 +256,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
         StateCompany.dirty(state.estado.value),
         Calification.dirty(calificacionId),
         TypeLocal.dirty(state.localTipo.value),
+        Rubro.dirty(state.idRubro.value),
       ]));
   }
 
@@ -277,7 +290,8 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
         StateCompany.dirty(state.estado.value),
         Calification.dirty(state.calificacion.value),
         TypeLocal.dirty(state.localTipo.value),
-        TypeLocal.dirty(id)
+        TypeLocal.dirty(id),
+        Rubro.dirty(state.idRubro.value),
       ]));
   }
 
@@ -312,6 +326,22 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           Address.dirty(state.localDireccion.value),
           Type.dirty(state.tipoCliente.value),
           StateCompany.dirty(state.estado.value),
+          Rubro.dirty(state.idRubro.value),
+        ]));
+  }
+
+  void onRubroChanged(String value) {
+    state = state.copyWith(
+        idRubro: Rubro.dirty(value),
+        isFormValid: Formz.validate([
+          Ruc.dirty(state.ruc.value),
+          Razon.dirty(state.razon.value),
+          Phone.dirty(state.telefono.value),
+          //Address.dirty(state.direccion.value),
+          Address.dirty(state.localDireccion.value),
+          Type.dirty(state.tipoCliente.value),
+          StateCompany.dirty(state.estado.value),
+          Rubro.dirty(value),
         ]));
   }
 
@@ -465,8 +495,11 @@ class CompanyFormState {
   final String clienteCoordenadasLongitud;
   final String seguimientoComentario;
   final String website;
+  final Rubro idRubro;
   final Calification calificacion;
   final String usuarioRegistro;
+  final String idUsuarioRegistro;
+  final String idUsuarioActualizacion;
   final String visibleTodos;
   final String email;
   final String codigoPostal;
@@ -509,6 +542,7 @@ class CompanyFormState {
       this.razon = const Razon.dirty(''),
       this.direccion = '',
       this.telefono = const Phone.dirty(''),
+      this.idRubro = const Rubro.dirty(''),
       this.observaciones = '',
       this.departamento = '',
       this.provincia = '',
@@ -521,6 +555,8 @@ class CompanyFormState {
       this.seguimientoComentario = '',
       this.website = '',
       this.calificacion = const Calification.dirty(''),
+      this.idUsuarioRegistro = '',
+      this.idUsuarioActualizacion = '',
       this.usuarioRegistro = '',
       this.visibleTodos = '',
       this.email = '',
@@ -565,6 +601,7 @@ class CompanyFormState {
     String? observaciones,
     String? departamento,
     String? provincia,
+    Rubro? idRubro,
     String? clienteNombreTipo,
     String? distrito,
     String? clienteNombreEstado,
@@ -575,6 +612,8 @@ class CompanyFormState {
     String? website,
     Calification? calificacion,
     String? usuarioRegistro,
+    String? idUsuarioRegistro,
+    String? idUsuarioActualizacion,
     String? visibleTodos,
     String? email,
     String? codigoPostal,
@@ -615,6 +654,7 @@ class CompanyFormState {
         razon: razon ?? this.razon,
         direccion: direccion ?? this.direccion,
         telefono: telefono ?? this.telefono,
+        idRubro: idRubro ?? this.idRubro,
         observaciones: observaciones ?? this.observaciones,
         departamento: departamento ?? this.departamento,
         clienteNombreTipo: clienteNombreTipo ?? this.clienteNombreTipo,
@@ -632,6 +672,8 @@ class CompanyFormState {
         website: website ?? this.website,
         calificacion: calificacion ?? this.calificacion,
         usuarioRegistro: usuarioRegistro ?? this.usuarioRegistro,
+        idUsuarioRegistro: idUsuarioRegistro ?? this.idUsuarioRegistro,
+        idUsuarioActualizacion: idUsuarioActualizacion ?? this.idUsuarioActualizacion,
         visibleTodos: visibleTodos ?? this.visibleTodos,
         email: email ?? this.email,
         codigoPostal: codigoPostal ?? this.codigoPostal,

@@ -12,6 +12,8 @@ class Company {
   String? usuarioActualizacion;
   String? estado;
   String? departamento;
+  String idRubro;
+  String? nombreRubro;
   String? provincia;
   String? distrito;
   String? clienteCoordenadasGeo;
@@ -24,6 +26,7 @@ class Company {
   String? codigoPostal;
   String? usuarioRegistro;
   String? idUsuarioRegistro;
+  String? idUsuarioActualizacion;
   DateTime? fechaActualizacion;
   String? localNombre;
   String? localDireccion;
@@ -60,8 +63,11 @@ class Company {
       this.telefono,
       this.email,
       this.tipocliente,
+      required this.idRubro,
+      this.nombreRubro,
       this.observaciones,
       this.usuarioActualizacion,
+      this.idUsuarioActualizacion,
       this.estado,
       this.departamento,
       this.provincia,
