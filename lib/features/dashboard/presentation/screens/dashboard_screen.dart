@@ -335,7 +335,7 @@ class _ContainerDashboardKpis extends StatelessWidget {
     return kpis.isNotEmpty
       ? Center(
           child: Container(
-              margin: const EdgeInsets.all(20),
+              margin: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 8),
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -439,8 +439,6 @@ class _ContainerDashboardKpis extends StatelessWidget {
 }
 
 
-
-
 class _ContainerDashboardActivities extends StatelessWidget {
   List<Activity> activities;
 
@@ -458,7 +456,8 @@ class _ContainerDashboardActivities extends StatelessWidget {
     if (activities.length >= 0) {
       return Container(
         width: double.infinity,
-        margin: const EdgeInsets.all(20),
+        //margin: const EdgeInsets.all(20),
+        margin: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 8),
         height: h1,
         decoration: BoxDecoration(
           color: Colors.white,
@@ -539,7 +538,7 @@ class _ContainerDashboardOpportunities extends StatelessWidget {
     if (opportunities.length >= 0) {
       return Container(
         width: double.infinity,
-        margin: const EdgeInsets.all(20),
+        margin: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 8),
         height: h1,
         decoration: BoxDecoration(
           color: Colors.white,
@@ -603,7 +602,6 @@ class _ContainerDashboardOpportunities extends StatelessWidget {
   }
 }
 
-
 class _ContainerDashboardEvents extends StatelessWidget {
   List<Event> linkedEventsList;
 
@@ -621,7 +619,7 @@ class _ContainerDashboardEvents extends StatelessWidget {
     if (linkedEventsList.length >= 0) {
       return Container(
         width: double.infinity,
-        margin: const EdgeInsets.all(20),
+        margin: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 8),
         height: h1,
         decoration: BoxDecoration(
           color: Colors.white,

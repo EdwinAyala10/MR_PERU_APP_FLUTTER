@@ -1,6 +1,10 @@
 class DropdownOption {
-  final String id;
-  final String name;
+  String id;
+  String name;
+  String? subTitle;
+  String? secundary;
 
-  DropdownOption(this.id, this.name);
+  DropdownOption({
+    required this.id, required this.name, this.subTitle, this. secundary
+  });
 }

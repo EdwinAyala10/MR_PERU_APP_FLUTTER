@@ -544,6 +544,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.5.6+2"
+  google_polyline_points:
+    dependency: "direct main"
+    description:
+      name: google_polyline_points
+      sha256: "3f3d4c3f0c668ecdb7247bd8c5377a5a89827503423256438792a0792a48ecc8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.3"
   html:
     dependency: transitive
     description:

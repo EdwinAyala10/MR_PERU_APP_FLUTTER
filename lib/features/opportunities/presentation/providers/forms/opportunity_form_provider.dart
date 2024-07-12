@@ -47,7 +47,7 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
           oprtRucIntermediario01: EmpresaIntermediario.dirty(opportunity.oprtRucIntermediario01 ?? ''),
           oprtRucIntermediario02: opportunity.oprtRucIntermediario02 ?? '',
           opt: opportunity.opt ?? '',
-          optrValor: opportunity.oprtValor ?? 0,
+          optrValor: opportunity.oprtValor ?? '0',
           arrayresponsables: opportunity.arrayresponsables ?? [],
           arrayresponsablesEliminar: opportunity.arrayresponsablesEliminar ?? [],
         ));
@@ -193,7 +193,7 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
   }
 
   void onImporteChanged(String valor) {
-    state = state.copyWith(optrValor: int.parse(valor));
+    state = state.copyWith(optrValor: valor);
   }
 
   void onUsuarioChanged(UserMaster usuario) {
@@ -275,7 +275,7 @@ class OpportunityFormState {
   final String optrIdOportunidadIn;
   final List<ArrayUser>? arrayresponsables;
   final List<ArrayUser>? arrayresponsablesEliminar;
-  final int optrValor;
+  final String optrValor;
 
   OpportunityFormState(
       {this.isFormValid = false,
@@ -287,7 +287,7 @@ class OpportunityFormState {
       this.oprtIdValor = '01',
       this.oprtFechaPrevistaVenta,
       this.oprtRuc = const EmpresaPrincipal.dirty(''),
-      this.optrValor = 0,
+      this.optrValor = '0',
       this.oprtRazon = '',
       this.oprtRazonIntermediario01 = '',
       this.oprtRucIntermediario01 = const EmpresaIntermediario.dirty(''),
@@ -325,7 +325,7 @@ class OpportunityFormState {
     String? optrIdOportunidadIn,
     List<ArrayUser>? arrayresponsables,
     List<ArrayUser>? arrayresponsablesEliminar,
-    int? optrValor,
+    String? optrValor,
   }) =>
       OpportunityFormState(
         isFormValid: isFormValid ?? this.isFormValid,

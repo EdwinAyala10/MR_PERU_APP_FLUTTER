@@ -158,11 +158,11 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
   Widget build(BuildContext context) {
 
     List<DropdownOption> optionsTipoGestion = [
-      DropdownOption('', '--Seleccione--'),
-      DropdownOption('01', 'Comentario'),
-      DropdownOption('02', 'Llamada Telefónica'),
-      DropdownOption('03', 'Reunión'),
-      DropdownOption('04', 'Visita'),
+      DropdownOption(id: '', name: 'Selecciona'),
+      DropdownOption(id: '01', name: 'Comentario'),
+      DropdownOption(id: '02', name: 'Llamada Telefónica'),
+      DropdownOption(id: '03', name: 'Reunión'),
+      DropdownOption(id: '04', name: 'Visita'),
     ];
 
     Activity activity = widget.activity;

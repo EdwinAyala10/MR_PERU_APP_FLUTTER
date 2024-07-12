@@ -30,7 +30,9 @@ class KpiScreen extends ConsumerWidget {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Crear objectivo'),
+          title: const Text('Crear objetivo', style: TextStyle(
+            fontWeight: FontWeight.w600
+          ),),
           leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
@@ -96,27 +98,27 @@ class _KpiInformation extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     List<DropdownOption> optionsAsignacion = [
-      DropdownOption('01', 'INDIVIDUAL'),
-      DropdownOption('02', 'EQUIPO'),
+      DropdownOption(id: '01', name: 'INDIVIDUAL'),
+      DropdownOption(id: '02', name: 'EQUIPO'),
     ];
 
     List<DropdownOption> optionsCategoria = [
-      DropdownOption('01', 'CHECK-INS'),
-      DropdownOption('02', 'VISITAS'),
-      DropdownOption('03', 'NUEVAS EMPRESAS'),
-      DropdownOption('04', 'NUEVAS OPORTUNIDADES'),
-      DropdownOption('05', 'OPORTUNIDADES GANADAS'),
+      DropdownOption(id: '01', name: 'CHECK-INS'),
+      DropdownOption(id: '02', name: 'VISITAS'),
+      DropdownOption(id: '03', name: 'NUEVAS EMPRESAS'),
+      DropdownOption(id: '04', name: 'NUEVAS OPORTUNIDADES'),
+      DropdownOption(id: '05', name: 'OPORTUNIDADES GANADAS'),
     ];
 
     List<DropdownOption> optionsPeriodicidad = [
-      DropdownOption('01', 'SEMANAL'),
-      DropdownOption('02', 'MENSUAL'),
-      DropdownOption('03', 'TRIMESTRAL'),
-      DropdownOption('04', 'ANUAL'),
+      DropdownOption(id: '01', name: 'SEMANAL'),
+      DropdownOption(id: '02', name: 'MENSUAL'),
+      DropdownOption(id: '03', name: 'TRIMESTRAL'),
+      DropdownOption(id: '04', name: 'ANUAL'),
     ];
 
     List<DropdownOption> optionsTipo = [
-      DropdownOption('01', 'VISITA'),
+      DropdownOption(id: '01', name: 'VISITA'),
     ];
 
     final kpiForm = ref.watch(kpiFormProvider(kpi));

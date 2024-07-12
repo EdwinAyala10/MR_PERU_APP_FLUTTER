@@ -98,7 +98,7 @@ class ItemActivitySmall extends StatelessWidget {
                 const Icon(Icons.mode_comment, size: 14),
                 const SizedBox(width: 4),
                 SizedBox(
-                  width: 90,
+                  width: 140,
                   child: Text(activity.actiComentario,
                     style: const TextStyle(
                       fontSize: 12,
@@ -113,11 +113,14 @@ class ItemActivitySmall extends StatelessWidget {
                 const Icon(Icons.mode_comment, size: 14),
                 const Icon(Icons.keyboard_arrow_right_rounded, size: 14),
                 const SizedBox(width: 4),
-                Text(activity.cchkComentarioCheckIn ?? '',
-                    style: const TextStyle(
-                      fontSize: 12,
-                    ),
-                    overflow: TextOverflow.ellipsis),
+                SizedBox(
+                  width: 140,
+                  child: Text(activity.cchkComentarioCheckIn ?? '',
+                      style: const TextStyle(
+                        fontSize: 12,
+                      ),
+                      overflow: TextOverflow.ellipsis),
+                ),
               ],
             ),
           
@@ -126,13 +129,16 @@ class ItemActivitySmall extends StatelessWidget {
               children: [
                 const Icon(Icons.mode_comment, size: 14),
                 const Icon(Icons.keyboard_arrow_left_rounded, size: 14),
-
+            
                 const SizedBox(width: 4),
-                Text(activity.cchkComentarioCheckOut ?? '',
-                  style: const TextStyle(
-                      fontSize: 12,
-                    ),
-                  overflow: TextOverflow.ellipsis),
+                SizedBox(
+                  width: 140,
+                  child: Text(activity.cchkComentarioCheckOut ?? '',
+                    style: const TextStyle(
+                        fontSize: 12,
+                      ),
+                    overflow: TextOverflow.ellipsis),
+                ),
               ],
             ),
 

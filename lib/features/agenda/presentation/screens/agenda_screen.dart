@@ -22,7 +22,7 @@ class AgendaScreen extends StatelessWidget {
     return Scaffold(
       drawer: SideMenu(scaffoldKey: scaffoldKey),
       appBar: AppBar(
-        title: const Text('Calendario'),
+        title: const Text('Eventos'),
         /*actions: [
           IconButton(onPressed: () {
             

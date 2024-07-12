@@ -126,11 +126,11 @@ class SideMenuState extends ConsumerState<SideMenu> {
           ),
           const NavigationDrawerDestination(
             icon: Icon(Icons.calendar_month),
-            label: Text('Calendario'),
+            label: Text('Eventos'),
           ),
           const NavigationDrawerDestination(
             icon: Icon(Icons.task),
-            label: Text('Objectivos'),
+            label: Text('Objetivos'),
           ),
           const NavigationDrawerDestination(
             icon: Icon(Icons.auto_graph_outlined),

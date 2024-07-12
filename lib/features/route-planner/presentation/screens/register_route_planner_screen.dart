@@ -35,7 +35,7 @@ class RegisterRoutePlannerScreen extends ConsumerWidget {
             },
           ),*/
           ),
-          body: _EventView(),
+          body: const _EventView(),
           floatingActionButton: FloatingActionButtonCustom(
             callOnPressed:() {
 
@@ -53,8 +53,8 @@ class _EventView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ListView(
-      children: [
-        const SizedBox(height: 10),
+      children: const [
+        SizedBox(height: 10),
         _EventInformation(),
       ],
     );
@@ -66,20 +66,20 @@ class _EventInformation extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     List<DropdownOption> optionsTipoGestion = [
-      DropdownOption('', '--Seleccione--'),
-      DropdownOption('01', 'Comentario'),
-      DropdownOption('02', 'Llamada Telefónica'),
-      DropdownOption('03', 'Reunión'),
-      DropdownOption('04', 'Visita'),
+      DropdownOption(id: '', name: 'Selecciona'),
+      DropdownOption(id: '01', name: 'Comentario'),
+      DropdownOption(id: '02', name: 'Llamada Telefónica'),
+      DropdownOption(id: '03', name: 'Reunión'),
+      DropdownOption(id: '04', name: 'Visita'),
     ];
 
     List<DropdownOption> optionsRecordatorio = [
-      DropdownOption('', 'Seleccione...'),
-      DropdownOption('1', '5 MINUTOS ANTES'),
-      DropdownOption('2', '15 MINUTOS ANTES'),
-      DropdownOption('3', '30 MINUTOS ANTES'),
-      DropdownOption('4', '1 DIA ANTES'),
-      DropdownOption('5', '1 SEMANA ANTES'),
+      DropdownOption(id: '', name: 'Selecciona'),
+      DropdownOption(id: '1', name: '5 MINUTOS ANTES'),
+      DropdownOption(id: '2', name: '15 MINUTOS ANTES'),
+      DropdownOption(id: '3', name: '30 MINUTOS ANTES'),
+      DropdownOption(id: '4', name: '1 DIA ANTES'),
+      DropdownOption(id: '5', name: '1 SEMANA ANTES'),
     ];
 
     return Padding(

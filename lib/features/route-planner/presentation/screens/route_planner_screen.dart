@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:crm_app/config/config.dart';
 import 'package:crm_app/features/route-planner/domain/domain.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
 import 'package:crm_app/features/route-planner/presentation/widgets/filter_route_planner_bottom_sheet.dart';
@@ -23,6 +24,8 @@ class RoutePlannerScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final scaffoldKey = GlobalKey<ScaffoldState>();
 
+    final List<FilterOption> listFiltersSuccess = ref.watch(routePlannerProvider).filtersSuccess;
+
     return Scaffold(
       drawer: SideMenu(scaffoldKey: scaffoldKey),
       appBar: AppBar(
@@ -37,15 +40,15 @@ class RoutePlannerScreen extends ConsumerWidget {
               isScrollControlled: true,
               builder: (context) => FilterBottomRouterPlannerSheet(),
             );
-          }, icon: const Icon(Icons.filter_alt))
+          }, icon: Icon(Icons.filter_alt, color: listFiltersSuccess.isNotEmpty ? primaryColor : Colors.black  ))
         ],
       ),
       
       body: Column(
         children: [
-          _SearchComponent(),
-          TagRowRoutePlanner(),
-          Expanded(child: _RoutePlannerView()),
+          const _SearchComponent(),
+          listFiltersSuccess.isNotEmpty ? TagRowRoutePlanner(): const SizedBox(),
+          const Expanded(child: _RoutePlannerView()),
         ],
       ),
       floatingActionButton: FloatingActionButtonCustom(
@@ -180,15 +183,23 @@ class _ListLocalesState extends ConsumerState<_ListLocales> {
   }
 }
 
-class _SearchComponent extends ConsumerWidget {
+class _SearchComponent extends ConsumerStatefulWidget {
   const _SearchComponent();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    Timer? debounce;
-    TextEditingController searchController =
-        TextEditingController(text: ref.read(routePlannerProvider).textSearch);
+  _SearchComponentState createState() => _SearchComponentState();
+}
 
+class _SearchComponentState extends ConsumerState<_SearchComponent> {
+
+  TextEditingController searchController = TextEditingController(
+      //text: ref.read(routePlannerProvider).textSearch
+    );
+
+  @override
+  Widget build(BuildContext context) {
+    Timer? debounce;
+  
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
       width: double.infinity,

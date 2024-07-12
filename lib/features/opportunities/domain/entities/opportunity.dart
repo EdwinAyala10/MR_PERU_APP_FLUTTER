@@ -8,7 +8,7 @@ class Opportunity {
     String? oprtIdEstadoOportunidad;
     String? oprtProbabilidad;
     String? oprtIdValor;
-    int? oprtValor;
+    String? oprtValor;
     DateTime? oprtFechaPrevistaVenta;
     String? oprtRuc;
     String? oprtRucIntermediario01;

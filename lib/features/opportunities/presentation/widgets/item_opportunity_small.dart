@@ -10,7 +10,7 @@ class ItemOpportunitySmall extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(opportunity.oprtNombre, style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.black87),),
+      title: Text(opportunity.oprtNombre, style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.black87, fontSize: 14)),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -23,7 +23,7 @@ class ItemOpportunitySmall extends StatelessWidget {
         children: [
           Text('${opportunity.oprtProbabilidad ?? ''}%',
               textAlign: TextAlign.right,
-              style: const TextStyle(fontSize: 16, color: Colors.green, fontWeight: FontWeight.w600)),
+              style: const TextStyle(fontSize: 14, color: Colors.green, fontWeight: FontWeight.w600)),
         ],
       ),
       leading: const Icon(Icons.work_rounded),

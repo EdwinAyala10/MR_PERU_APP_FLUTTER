@@ -35,7 +35,7 @@ class OpportunityScreen extends ConsumerWidget {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Crear Oportunidad'),
+          title: const Text('Crear Oportunidad', style: TextStyle(fontWeight: FontWeight.w500)),
           leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
@@ -104,7 +104,7 @@ class _OpportunityInformationv2 extends ConsumerStatefulWidget {
 
 class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformationv2> {
   List<DropdownOption> optionsEstado = [
-    DropdownOption('', 'Cargando...')
+    DropdownOption(id: '', name: 'Cargando...')
   ];
 
   @override
@@ -120,12 +120,11 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
 
     List<DropdownOption> optionsMoneda = [
-      DropdownOption('01', 'USD'),
+      DropdownOption(id: '01', name: 'USB'),
     ];
 
     final opportunityForm = ref.watch(opportunityFormProvider(widget.opportunity));

@@ -110,7 +110,7 @@ class _ActivityInformationv2 extends ConsumerStatefulWidget {
 
 class _ActivityInformationv2State extends ConsumerState<_ActivityInformationv2> {
   List<DropdownOption> optionsTipoGestion = [
-    DropdownOption('', 'Cargando...')
+    DropdownOption(id: '', name: 'Cargando...'),
   ];
 
   @override

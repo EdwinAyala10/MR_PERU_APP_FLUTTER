@@ -48,7 +48,7 @@ class _ViewIndicators extends ConsumerStatefulWidget {
 class _ViewIndicatorsState extends ConsumerState {
 
   List<DropdownOption> optionsPeriodicidad = [
-    DropdownOption('', 'Cargando...')
+    DropdownOption(id: '', name: 'Cargando...')
   ];
   
   @override

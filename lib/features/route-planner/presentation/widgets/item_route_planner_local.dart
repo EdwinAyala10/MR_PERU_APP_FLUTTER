@@ -1,18 +1,26 @@
 import 'package:crm_app/config/config.dart';
 import 'package:crm_app/features/route-planner/domain/domain.dart';
+import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ItemRoutePlannerLocal extends StatelessWidget {
+class ItemRoutePlannerLocal extends ConsumerWidget {
   CompanyLocalRoutePlanner local;
   final Function()? callbackOnTap;
 
   ItemRoutePlannerLocal({super.key, required this.local, required this.callbackOnTap});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context,WidgetRef ref) {
     int? numCantidadLocal = int.tryParse(local.localCantidad ?? '0');
     numCantidadLocal = numCantidadLocal ?? 0;
+
+    final List<CompanyLocalRoutePlanner> listItems = ref.watch(routePlannerProvider).selectedItems;
+    
+    bool checked = listItems.length > 0 
+    ? listItems.firstWhere((filter) => filter.id == local.id) != null ? false : true
+    : false;
 
     return ListTile(
       title: Text(local.localNombre,
@@ -32,7 +40,21 @@ class ItemRoutePlannerLocal extends StatelessWidget {
           Text ((numCantidadLocal>1 ? local.localDistrito : local.localDireccion) ?? '' , style: const TextStyle(color: Colors.black45))
         ],
       ),
-      leading: Stack(
+      leading: 
+      /*Transform.scale(
+        scale: 1.5,
+        child: Checkbox(
+          value: true, 
+          onChanged: (bool? check) {
+            print('check: ${check}');
+          },
+        ),
+      )*/
+      const Icon(
+        //Icons.check_box_outline_blank_outlined, size: 40,
+        Icons.check_box, size: 40, color: primaryColor,
+      )
+      /*Stack(
         alignment: Alignment.center,
         children: [
           Container(
@@ -49,7 +71,7 @@ class ItemRoutePlannerLocal extends StatelessWidget {
             ),
           ),
         ],
-      ),
+      )*/,
       trailing: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [

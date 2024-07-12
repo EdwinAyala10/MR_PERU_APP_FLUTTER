@@ -1,11 +1,15 @@
+import 'package:crm_app/config/config.dart';
+import 'package:crm_app/features/route-planner/domain/domain.dart';
+import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class TagRowRoutePlanner extends StatefulWidget {
+class TagRowRoutePlanner extends ConsumerStatefulWidget {
   @override
   _TagRowState createState() => _TagRowState();
 }
 
-class _TagRowState extends State<TagRowRoutePlanner> {
+class _TagRowState extends ConsumerState<TagRowRoutePlanner> {
   bool showAllTags = false;
   List<String> tags = [
     'Muestra sólo en seguimiento: Todos',
@@ -17,25 +21,34 @@ class _TagRowState extends State<TagRowRoutePlanner> {
 
   @override
   Widget build(BuildContext context) {
+
+    final List<FilterOption> listFiltersSuccess = ref.watch(routePlannerProvider).filtersSuccess;
+
     return Container(
-      padding: EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(16.0),
       child: Row(
         children: [
           Expanded(
             child: Stack(
               children: [
-                Container(
+                SizedBox(
                   height: 40,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: tags.length,
+                    itemCount: listFiltersSuccess.length,
                     itemBuilder: (context, index) {
+                      
+                      var filter = listFiltersSuccess[index];
+
+                      var label = '${filter.title} : ${filter.name}';
+
                       return TagItem(
-                        label: tags[index],
+                        label: label,
                         onDelete: () {
-                          setState(() {
+                          /*setState(() {
                             tags.removeAt(index);
-                          });
+                          });*/
+                          ref.read(routePlannerProvider.notifier).onDeleteFilter(index);
                         },
                       );
                     },
@@ -45,23 +58,20 @@ class _TagRowState extends State<TagRowRoutePlanner> {
                   right: 0,
                   top: 0,
                   bottom: 0,
-                  child: IgnorePointer(
-                    ignoring: !showAllTags,
-                    child: AnimatedOpacity(
-                      opacity: showAllTags ? 0.0 : 1.0,
-                      duration: Duration(milliseconds: 300),
-                      child: Container(
-                        width: 50.0,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.white.withOpacity(0.0),
-                              Colors.white,
-                            ],
-                            stops: [0.0, 1.0],
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                          ),
+                  child: AnimatedOpacity(
+                    opacity: 1.0,
+                    duration: const Duration(milliseconds: 300),
+                    child: Container(
+                      width: 50.0,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.white.withOpacity(0.0),
+                            Colors.white,
+                          ],
+                          stops: [0.0, 1.0],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
                         ),
                       ),
                     ),
@@ -70,21 +80,38 @@ class _TagRowState extends State<TagRowRoutePlanner> {
               ],
             ),
           ),
-          SizedBox(width: 10),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                showAllTags = !showAllTags;
-              });
+          const SizedBox(width: 10),
+          const Text(
+            'Total: ',
+            style: TextStyle(color: Color.fromARGB(255, 62, 62, 62),
+            fontWeight: FontWeight.w600),
+          ),
+          Text(
+            '${listFiltersSuccess.length}',
+            style: const TextStyle(color: Color.fromARGB(255, 62, 62, 62)),
+          ),
+          const SizedBox(
+            width: 10,
+          ),
+          InkWell(
+            onTap: () {
+              ref.read(routePlannerProvider.notifier).onDeleteAllFilter();
             },
-            child: Row(
-              children: [
-                Text('Total: 6', style: TextStyle(color: const Color.fromARGB(255, 62, 62, 62)),),
-                SizedBox(
-                  width: 10,
+            borderRadius: BorderRadius.circular(50.0),
+            child: Container(
+              width: 24.0,
+              height: 24.0,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: primaryColor,
+              ),
+              child: const Center(
+                child: Icon(
+                  Icons.close,
+                  size: 16,
+                  color: Colors.white,
                 ),
-                Container(child: Icon(Icons.close, size: 20,))
-              ],
+              ),
             ),
           ),
         ],
@@ -102,28 +129,42 @@ class TagItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-      margin: EdgeInsets.only(right: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+      margin: const EdgeInsets.only(right: 8.0),
       decoration: BoxDecoration(
-        color: Colors.blueAccent,
+        border: Border.all(
+          color: primaryColor,
+          width: 2.0,
+        ),
         borderRadius: BorderRadius.circular(8.0),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+           GestureDetector(
+            onTap: onDelete,
+            child: Container(
+              width: 18.0,
+              height: 18.0,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: primaryColor,
+              ),
+              child: const Icon(
+                Icons.close,
+                color: Colors.white,
+                size: 13.0,
+              ),
+            )
+          ),
+          const SizedBox(
+            width: 6,
+          ),
           Text(
             label,
-            style: TextStyle(color: Colors.white),
+            style: const TextStyle(color: primaryColor),
           ),
-          SizedBox(width: 4.0),
-          GestureDetector(
-            onTap: onDelete,
-            child: Icon(
-              Icons.close,
-              color: Colors.white,
-              size: 16.0,
-            ),
-          ),
+          const SizedBox(width: 4.0),
         ],
       ),
     );

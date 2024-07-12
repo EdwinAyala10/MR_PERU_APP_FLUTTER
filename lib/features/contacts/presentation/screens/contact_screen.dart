@@ -113,7 +113,7 @@ class _ContactInformationv2 extends ConsumerStatefulWidget {
 
 class __ContactInformationv2State extends ConsumerState<_ContactInformationv2> {
   List<DropdownOption> optionsCargo = [
-    DropdownOption('', 'Cargando...')
+    DropdownOption(id: '', name: 'Cargando...')
   ];
 
   @override

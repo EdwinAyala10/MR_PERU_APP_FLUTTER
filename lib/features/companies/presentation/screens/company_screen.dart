@@ -117,19 +117,19 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
   late TextEditingController _controllerLocalName;
   late Key _fieldKeyLocalName;
   List<DropdownOption> optionsTipoCliente = [
-    DropdownOption('', 'Cargando...')
+    DropdownOption(id: '', name: 'Cargando...'),
   ];
 
   List<DropdownOption> optionsEstado = [
-    DropdownOption('', 'Cargando...')
+    DropdownOption(id: '', name: 'Cargando...'),
   ];
 
   List<DropdownOption> optionsCalificacion = [
-    DropdownOption('', 'Cargando...')
+    DropdownOption(id: '', name: 'Cargando...'),
   ];
 
   List<DropdownOption> optionsRubro = [
-    DropdownOption('', 'Cargando...')
+    DropdownOption(id: '', name: 'Cargando...'),
   ];
 
   @override
@@ -179,8 +179,8 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
   Widget build(BuildContext context) {
 
     List<DropdownOption> optionsLocalTipo = [
-      DropdownOption('', 'Seleccione tipo de local'),
-      DropdownOption('2', 'PLANTA'),
+      DropdownOption(id: '', name: 'Seleccione tipo de local'),
+      DropdownOption(id: '2',name: 'PLANTA'),
     ];
 
     final companyForm = ref.watch(companyFormProvider(widget.company));

@@ -1,7 +1,16 @@
+import 'package:crm_app/features/route-planner/domain/domain.dart';
+import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
 import 'package:crm_app/features/route-planner/presentation/widgets/filter_detail_route_planner.dart';
+import 'package:crm_app/features/shared/widgets/find_filter_option_by_type.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class FilterBottomRouterPlannerSheet extends StatelessWidget {
+class FilterBottomRouterPlannerSheet extends ConsumerStatefulWidget {
+  @override
+  _FilterBottomRouterPlannerSheetState createState() => _FilterBottomRouterPlannerSheetState();
+}
+
+class _FilterBottomRouterPlannerSheetState extends ConsumerState<FilterBottomRouterPlannerSheet> {
   @override
   Widget build(BuildContext context) {
     final double screenHeight = MediaQuery.of(context).size.height;
@@ -45,6 +54,7 @@ class FilterBottomRouterPlannerSheet extends StatelessWidget {
                   onPressed: () {
                     // Acción para aplicar filtros
                     Navigator.pop(context);
+                    ref.read(routePlannerProvider.notifier).sendLoadFilter();
                   },
                   child: const Text('Hecho'),
                 ),
@@ -56,23 +66,24 @@ class FilterBottomRouterPlannerSheet extends StatelessWidget {
             child: ListView.separated(
               itemBuilder: ( context, index) {
                 final options = [
-                  FilterOption(title: 'Muestra sólo en seguimiento', trailing: 'Todos'),
-                  FilterOption(title: 'Actividad', trailing: 'Más de 30 días'),
-                  FilterOption(title: 'Tipo', trailing: 'Posible Cliente'),
-                  FilterOption(title: 'Estado', trailing: 'Prospecto'),
-                  FilterOption(title: 'Calificación', trailing: '6 valores'),
-                  FilterOption(title: 'Responsable', trailing: 'Richard Ramirez'),
-                  FilterOption(title: 'Código postal', trailing: 'Selecciona'),
+                  FilterOptionContainerFil(title: 'Muestra sólo en seguimiento', trailing: 'Selecciona', type: 'ESTADO'),
+                  FilterOptionContainerFil(title: 'Actividad', trailing: 'Selecciona', type: 'ULTIMAS_VISITAS'),
+                  FilterOptionContainerFil(title: 'Tipo', trailing: 'Selecciona', type: 'TIPOCLIENTE'),
+                  FilterOptionContainerFil(title: 'Estado', trailing: 'Selecciona', type: 'ESTADO_CRM'),
+                  FilterOptionContainerFil(title: 'Calificación', trailing: 'Selecciona', type: 'CALIFICACION'),
+                  FilterOptionContainerFil(title: 'Responsable', trailing: 'Selecciona', type: 'ID_USUARIO_RESPONSABLE'),
+                  FilterOptionContainerFil(title: 'Código postal', trailing: 'Selecciona', type: 'CODIGO_POSTAL'),
+                  FilterOptionContainerFil(title: 'Distrito', trailing: 'Selecciona', type: 'DISTRITO'),
                   
-                  FilterOption(title: 'RUC', trailing: 'Selecciona'),
-                  FilterOption(title: 'RUBRO', trailing: 'Selecciona'),
-                  FilterOption(title: 'Razón comercial', trailing: 'Selecciona'),
+                  FilterOptionContainerFil(title: 'RUC', trailing: 'Selecciona', type: 'RUC',),
+                  FilterOptionContainerFil(title: 'RUBRO', trailing: 'Selecciona', type: 'ID_RUBRO'),
+                  FilterOptionContainerFil(title: 'Razón comercial', trailing: 'Selecciona', type: 'RAZON_COMERCIAL'),
                 ];
 
                 return options[index];
               },
               separatorBuilder: (context, index) => const Divider(),
-              itemCount: 10,
+              itemCount: 11,
             ),
           ),
         ],
@@ -81,40 +92,61 @@ class FilterBottomRouterPlannerSheet extends StatelessWidget {
   }
 }
 
-class FilterOption extends StatelessWidget {
+class FilterOptionContainerFil extends ConsumerWidget {
   final String title;
   final String trailing;
+  final String type;
 
-  FilterOption({required this.title, required this.trailing});
+  FilterOptionContainerFil({required this.title, required this.trailing, required this.type});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+
+    final List<FilterOption> listFilters = ref.watch(routePlannerProvider).filters;
+
+    //final String? nameFilter = findFilterOptionIdByType(listFilters, type);
+    final String? nameFilter = findFilterOptionByType(listFilters, type, 'name', 'Selecciona');
+
+    //options[index].trailing = '';
+    
     return InkWell(
       onTap: () {
         showModalBottomSheet(
           context: context,
           isScrollControlled: true,
-          builder: (context) => FilterDetailRoutePlanner(),
+          builder: (context) => FilterDetailRoutePlanner(title: title, type: type),
         );
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10),
+        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 14),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(title, style: const TextStyle(fontSize: 16.0)),
+            Text(title, 
+            style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500)),
             Row(
               children: [
-                Text(trailing, style: const TextStyle(color: Colors.grey)),
+                Text(
+                  nameFilter ?? '', 
+                  style: TextStyle(color: nameFilter == 'Selecciona' ?  const Color.fromARGB(255, 170, 170, 170) : Colors.black )),
                 const SizedBox(
                   width: 10,
                 ),
-                const Icon(Icons.arrow_forward_ios_rounded, color: Color.fromARGB(255, 131, 131, 131),)
+                const Icon(Icons.arrow_forward_ios_rounded, color: Color.fromARGB(255, 175, 174, 174),)
               ],
             )
           ],
         ),
       ),
     );
+  }
+}
+
+
+String? findFilterOptionIdByType(List<FilterOption> filters, String type) {
+  try {
+    return filters.firstWhere((filter) => filter.type == type).name;
+  } catch (e) {
+    return 'Selecciona';
   }
 }

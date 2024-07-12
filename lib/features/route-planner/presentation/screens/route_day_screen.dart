@@ -1,93 +1,139 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+//import 'package:location/location.dart';
+import 'package:geolocator/geolocator.dart';
+
 
 class RouteDayScreen extends StatefulWidget {
   @override
-  _RoutePlannerState createState() => _RoutePlannerState();
+  _MapScreenState createState() => _MapScreenState();
 }
 
-class _RoutePlannerState extends State<RouteDayScreen> {
+class _MapScreenState extends State<RouteDayScreen> {
   GoogleMapController? mapController;
-  final LatLng _initialPosition = LatLng(-12.046373, -77.042754); // Lima, Perú
-  final List<LatLng> _markerPositions = [
-    LatLng(-12.046373, -77.042754), // Lima
-    LatLng(-12.056373, -77.052754), // Another point in Lima
-    LatLng(-12.066373, -77.062754), // Another point in Lima
-    LatLng(-12.076373, -77.072754), // Another point in Lima
+  //LocationData? currentLocation;
+  Set<Marker> _markers = {};
+  Set<Polyline> _polylines = {};
+  List<LatLng> routeCoordinates = [];
+  double totalDistance = 0.0;
+  double totalTime = 0.0;
+
+  final List<LatLng> storeLocations = [
+    LatLng(-12.0453, -77.0311),
+    LatLng(-12.0353, -77.0231),
+    LatLng(-12.0253, -77.0131),
   ];
-  final Set<Marker> _markers = {};
-  final Set<Polyline> _polylines = {};
-  double _totalDistance = 0.0;
-  int _totalTime = 0;
 
   @override
   void initState() {
     super.initState();
-    _addMarkers();
-    _drawRoute();
+    _getCurrentLocation();
+    _addStoreMarkers();
   }
 
-  void _addMarkers() {
-    _markerPositions.asMap().forEach((index, position) {
+  void _getCurrentLocation() async {
+    //Location location = Location();
+
+    /*currentLocation = await location.getLocation();
+    setState(() {
       _markers.add(
         Marker(
-          markerId: MarkerId(index.toString()),
-          position: position,
+          markerId: MarkerId('currentLocation'),
+          position: LatLng(currentLocation!.latitude!, currentLocation!.longitude!),
         ),
       );
     });
+
+    location.onLocationChanged.listen((LocationData newLoc) {
+      setState(() {
+        currentLocation = newLoc;
+        _markers.removeWhere((marker) => marker.markerId.value == 'currentLocation');
+        _markers.add(
+          Marker(
+            markerId: MarkerId('currentLocation'),
+            position: LatLng(currentLocation!.latitude!, currentLocation!.longitude!),
+          ),
+        );
+      });
+    });*/
+
+      setState(() {
+        _markers.add(
+          Marker(
+            markerId: MarkerId('currentLocation'),
+            position: LatLng(-12.0464, -77.0428),
+          ),
+        );
+        Position position = Position(longitude: -12.0464, latitude: -77.0428, timestamp: DateTime.now(), accuracy: 0, altitude: 0, altitudeAccuracy: 0, heading: 0, headingAccuracy: 0, speed: 0, speedAccuracy: 0);
+        _calculateRoutes(position);
+      });
+
+
   }
 
-  void _drawRoute() async {
-    PolylinePoints polylinePoints = PolylinePoints();
-    List<LatLng> polylineCoordinates = [];
-
-    for (int i = 0; i < _markerPositions.length - 1; i++) {
-      PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-        googleApiKey: 'AIzaSyAjpuHF1NQQigzXXmP7cGV6bUzTO9tQ0nI',
-        request: PolylineRequest(
-          origin: PointLatLng(_markerPositions[i].latitude, _markerPositions[i].longitude),
-          destination: PointLatLng(_markerPositions[i + 1].latitude, _markerPositions[i + 1].longitude), 
-          mode:  TravelMode.driving),
+  void _addStoreMarkers() {
+    for (int i = 0; i < storeLocations.length; i++) {
+      _markers.add(
+        Marker(
+          markerId: MarkerId('store$i'),
+          position: storeLocations[i],
+        ),
       );
+    }
+  }
 
+  void _calculateRoutes(Position origin) async {
+    LatLng currentLocation = LatLng(origin.latitude, origin.longitude);
+
+    for (LatLng storeLocation in storeLocations) {
+      PolylinePoints polylinePoints = PolylinePoints();
+
+      PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+      googleApiKey: 'AIzaSyAjpuHF1NQQigzXXmP7cGV6bUzTO9tQ0nI',
+      request: PolylineRequest(
+        origin: PointLatLng(currentLocation.latitude, currentLocation.longitude),
+        destination: PointLatLng(storeLocation.latitude, storeLocation.longitude), 
+        mode: TravelMode.driving
+      ),
+    );
+      print('RESULTADO POLy');
+      print(result.points);
       if (result.points.isNotEmpty) {
+        List<LatLng> route = [];
         result.points.forEach((PointLatLng point) {
-          polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+          route.add(LatLng(point.latitude, point.longitude));
         });
-
         setState(() {
           _polylines.add(
             Polyline(
-              polylineId: PolylineId('route$i'),
-              points: polylineCoordinates,
-              width: 5,
+              polylineId: PolylineId(storeLocation.toString()),
+              points: route,
               color: Colors.blue,
+              width: 5,
             ),
           );
-
-          _totalDistance += _calculateDistance(
-            _markerPositions[i].latitude,
-            _markerPositions[i].longitude,
-            _markerPositions[i + 1].latitude,
-            _markerPositions[i + 1].longitude,
-          );
-
-          _totalTime += result.totalDurationValue ?? 0;
+          totalDistance += _calculateDistance(route);
+          totalTime = totalDistance / 50; // Assuming average speed of 50 km/h
         });
+
+        // Update current location for next leg of the journey
+        currentLocation = storeLocation;
       }
     }
   }
 
-  double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-    double p = 0.017453292519943295;
-    double a = 0.5 -
-        cos((lat2 - lat1) * p) / 2 +
-        cos(lat1 * p) * cos(lat2 * p) * (1 - cos((lon2 - lon1) * p)) / 2;
-    return 12742 * asin(sqrt(a));
+  double _calculateDistance(List<LatLng> points) {
+    double distance = 0.0;
+    for (int i = 0; i < points.length - 1; i++) {
+      distance += Geolocator.distanceBetween(
+        points[i].latitude,
+        points[i].longitude,
+        points[i + 1].latitude,
+        points[i + 1].longitude,
+      );
+    }
+    return distance / 1000; // Convert to km
   }
 
   @override
@@ -96,38 +142,55 @@ class _RoutePlannerState extends State<RouteDayScreen> {
       body: Stack(
         children: [
           GoogleMap(
+            onMapCreated: (controller) => mapController = controller,
             initialCameraPosition: CameraPosition(
-              target: _initialPosition,
+              target: LatLng(-12.0464, -77.0428),
               zoom: 12,
             ),
             markers: _markers,
             polylines: _polylines,
-            onMapCreated: (GoogleMapController controller) {
-              mapController = controller;
-            },
+          ),
+          Positioned(
+            top: 40,
+            left: 20,
+            child: FloatingActionButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Icon(Icons.arrow_back),
+            ),
+          ),
+          Positioned(
+            top: 40,
+            right: 20,
+            child: FloatingActionButton(
+              onPressed: () {
+                // Aquí puedes agregar la lógica para ordenar
+              },
+              child: Icon(Icons.sort),
+            ),
           ),
           Positioned(
             bottom: 20,
             left: 20,
             right: 20,
             child: Container(
-              padding: EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(8.0),
+                borderRadius: BorderRadius.circular(8),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black26,
-                    blurRadius: 10.0,
+                    blurRadius: 8,
                   ),
                 ],
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Total Distance: ${_totalDistance.toStringAsFixed(2)} km'),
-                  Text('Total Time: ${(_totalTime / 60).toStringAsFixed(2)} mins'),
+                  Text('Distancia Total: ${totalDistance.toStringAsFixed(2)} km'),
+                  Text('Tiempo Estimado: ${totalTime.toStringAsFixed(2)} horas'),
                 ],
               ),
             ),

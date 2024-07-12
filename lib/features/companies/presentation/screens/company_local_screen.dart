@@ -127,8 +127,8 @@ class _CompanyLocalInformationState
     final companyLocalForm = ref.watch(companyLocalFormProvider(companyLocal));
 
     List<DropdownOption> optionsLocalTipo = [
-      DropdownOption('', 'Seleccione tipo de local'),
-      DropdownOption('2', 'PLANTA'),
+      DropdownOption(id: '', name: 'Seleccione tipo de local'),
+      DropdownOption(id: '2', name: 'PLANTA'),
     ];
 
     /*ref.listen(companyLocalFormProvider(widget.companyLocal), (previous, next) {

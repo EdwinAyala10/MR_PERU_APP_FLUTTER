@@ -13,7 +13,7 @@ class KpisScreen extends StatelessWidget {
     return Scaffold(
       //drawer: SideMenu(scaffoldKey: scaffoldKey),
       appBar: AppBar(
-        title: const Text('Objectivos', style: TextStyle(fontWeight: FontWeight.w600),),
+        title: const Text('Objetivos', style: TextStyle(fontWeight: FontWeight.w600),),
         leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
