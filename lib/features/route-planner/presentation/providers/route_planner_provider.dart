@@ -106,10 +106,23 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     return options;
   }
 
-  void onCheckItem(CompanyLocalRoutePlanner item) {
-    state = state.copyWith(
-      selectedItems: [...state.selectedItems, item]
-    );
+  void onCheckItem(CompanyLocalRoutePlanner company) {
+    print('onCheckItem localCodigo: ${company.localCodigo}');
+    print('onCheckItem ruc: ${company.ruc}');
+    bool exists = state.selectedItems.any((item) => item.ruc == company.ruc && item.localCodigo == company.localCodigo);
+    print(exists);
+    print('onCheckItem total: ${state.selectedItems.length}');
+    if (!exists) {
+      state = state.copyWith(
+        selectedItems: [...state.selectedItems, company]
+      );
+    } else {
+      List<CompanyLocalRoutePlanner> newItems = [...state.selectedItems];
+      newItems.remove(company);
+      state = state.copyWith(
+        selectedItems: newItems
+      );
+    } 
   }
 
   Future<List<DropdownOption>> loadFilterCodigoPostal() async {

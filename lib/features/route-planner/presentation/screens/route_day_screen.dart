@@ -1,18 +1,18 @@
+import 'package:crm_app/features/route-planner/domain/domain.dart';
+import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-//import 'package:location/location.dart';
 import 'package:geolocator/geolocator.dart';
 
-
-class RouteDayScreen extends StatefulWidget {
+class RouteDayScreen extends ConsumerStatefulWidget {
   @override
-  _MapScreenState createState() => _MapScreenState();
+  _RouteDayScreenState createState() => _RouteDayScreenState();
 }
 
-class _MapScreenState extends State<RouteDayScreen> {
+class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
   GoogleMapController? mapController;
-  //LocationData? currentLocation;
   Set<Marker> _markers = {};
   Set<Polyline> _polylines = {};
   List<LatLng> routeCoordinates = [];
@@ -25,6 +25,7 @@ class _MapScreenState extends State<RouteDayScreen> {
     LatLng(-12.0253, -77.0131),
   ];
 
+
   @override
   void initState() {
     super.initState();
@@ -33,43 +34,27 @@ class _MapScreenState extends State<RouteDayScreen> {
   }
 
   void _getCurrentLocation() async {
-    //Location location = Location();
-
-    /*currentLocation = await location.getLocation();
     setState(() {
       _markers.add(
         Marker(
           markerId: MarkerId('currentLocation'),
-          position: LatLng(currentLocation!.latitude!, currentLocation!.longitude!),
+          position: LatLng(-12.0464, -77.0428),
         ),
       );
+      Position position = Position(
+        longitude: -12.0464,
+        latitude: -77.0428,
+        timestamp: DateTime.now(),
+        accuracy: 0,
+        altitude: 0,
+        altitudeAccuracy: 0,
+        heading: 0,
+        headingAccuracy: 0,
+        speed: 0,
+        speedAccuracy: 0,
+      );
+      _calculateRoutes(position);
     });
-
-    location.onLocationChanged.listen((LocationData newLoc) {
-      setState(() {
-        currentLocation = newLoc;
-        _markers.removeWhere((marker) => marker.markerId.value == 'currentLocation');
-        _markers.add(
-          Marker(
-            markerId: MarkerId('currentLocation'),
-            position: LatLng(currentLocation!.latitude!, currentLocation!.longitude!),
-          ),
-        );
-      });
-    });*/
-
-      setState(() {
-        _markers.add(
-          Marker(
-            markerId: MarkerId('currentLocation'),
-            position: LatLng(-12.0464, -77.0428),
-          ),
-        );
-        Position position = Position(longitude: -12.0464, latitude: -77.0428, timestamp: DateTime.now(), accuracy: 0, altitude: 0, altitudeAccuracy: 0, heading: 0, headingAccuracy: 0, speed: 0, speedAccuracy: 0);
-        _calculateRoutes(position);
-      });
-
-
   }
 
   void _addStoreMarkers() {
@@ -90,15 +75,13 @@ class _MapScreenState extends State<RouteDayScreen> {
       PolylinePoints polylinePoints = PolylinePoints();
 
       PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-      googleApiKey: 'AIzaSyAjpuHF1NQQigzXXmP7cGV6bUzTO9tQ0nI',
-      request: PolylineRequest(
-        origin: PointLatLng(currentLocation.latitude, currentLocation.longitude),
-        destination: PointLatLng(storeLocation.latitude, storeLocation.longitude), 
-        mode: TravelMode.driving
-      ),
-    );
-      print('RESULTADO POLy');
-      print(result.points);
+        googleApiKey: 'AIzaSyAjpuHF1NQQigzXXmP7cGV6bUzTO9tQ0nI',
+        request: PolylineRequest(
+          origin: PointLatLng(currentLocation.latitude, currentLocation.longitude),
+          destination: PointLatLng(storeLocation.latitude, storeLocation.longitude),
+          mode: TravelMode.driving,
+        ),
+      );
       if (result.points.isNotEmpty) {
         List<LatLng> route = [];
         result.points.forEach((PointLatLng point) {
@@ -138,61 +121,102 @@ class _MapScreenState extends State<RouteDayScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    final List<CompanyLocalRoutePlanner> listSelectedItems = ref.watch(routePlannerProvider).selectedItems;
+
     return Scaffold(
-      body: Stack(
+      body: Column(
         children: [
-          GoogleMap(
-            onMapCreated: (controller) => mapController = controller,
-            initialCameraPosition: CameraPosition(
-              target: LatLng(-12.0464, -77.0428),
-              zoom: 12,
-            ),
-            markers: _markers,
-            polylines: _polylines,
-          ),
-          Positioned(
-            top: 40,
-            left: 20,
-            child: FloatingActionButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Icon(Icons.arrow_back),
-            ),
-          ),
-          Positioned(
-            top: 40,
-            right: 20,
-            child: FloatingActionButton(
-              onPressed: () {
-                // Aquí puedes agregar la lógica para ordenar
-              },
-              child: Icon(Icons.sort),
-            ),
-          ),
-          Positioned(
-            bottom: 20,
-            left: 20,
-            right: 20,
-            child: Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 8,
+          Stack(
+            children: [
+              Container(
+                height: MediaQuery.of(context).size.height * 0.7,
+                child: GoogleMap(
+                  onMapCreated: (controller) => mapController = controller,
+                  initialCameraPosition: CameraPosition(
+                    target: LatLng(-12.0464, -77.0428),
+                    zoom: 12,
                   ),
-                ],
+                  markers: _markers,
+                  polylines: _polylines,
+                ),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('Distancia Total: ${totalDistance.toStringAsFixed(2)} km'),
-                  Text('Tiempo Estimado: ${totalTime.toStringAsFixed(2)} horas'),
-                ],
+              Positioned(
+                top: 40,
+                left: 20,
+                child: FloatingActionButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Icon(Icons.arrow_back),
+                ),
               ),
+              Positioned(
+                top: 40,
+                right: 20,
+                child: FloatingActionButton(
+                  onPressed: () {
+                    // Aquí puedes agregar la lógica para ordenar
+                  },
+                  child: Icon(Icons.sort),
+                ),
+              ),
+              Positioned(
+                bottom: 20,
+                left: 20,
+                right: 20,
+                child: Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 8,
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('Distancia Total: ${totalDistance.toStringAsFixed(2)} km'),
+                      Text('Tiempo Estimado: ${totalTime.toStringAsFixed(2)} horas'),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: listSelectedItems.length,
+              itemBuilder: (context, index) {
+
+                var item = listSelectedItems[index];
+
+                return Column(
+                  children: [
+                    ListTile(
+                      leading: Icon(Icons.store, color: Colors.blue),
+                      title: Text(
+                        '${item.localNombre}',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: Text(
+                        '${item.razon}'
+                      ),
+                      trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey),
+                    ),
+                    Divider(
+                      color: Colors.blueGrey,
+                      height: 1,
+                    ),
+                  ],
+                );
+              },
             ),
           ),
         ],

@@ -1,15 +1,26 @@
+import 'package:crm_app/features/route-planner/domain/domain.dart';
+import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class RouteCard extends StatelessWidget {
+class RouteCard extends ConsumerStatefulWidget {
+  @override
+  _RouteCardState createState() => _RouteCardState();
+}
+
+class _RouteCardState extends ConsumerState<RouteCard> {
   @override
   Widget build(BuildContext context) {
+
+    final List<CompanyLocalRoutePlanner> listSelectedItems = ref.watch(routePlannerProvider).selectedItems;
+
     return GestureDetector(
       onTap: () {
         context.push('/route_day_planner');
       },
       child: Container(
-        padding: EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
@@ -18,18 +29,18 @@ class RouteCard extends StatelessWidget {
               color: Colors.grey.withOpacity(0.5),
               spreadRadius: 1,
               blurRadius: 5,
-              offset: Offset(0, 3), // changes position of shadow
+              offset: const Offset(0, 3), // changes position of shadow
             ),
           ],
         ),
         child: Row(
           children: [
-            Icon(Icons.location_on, color: Colors.blue, size: 40),
-            SizedBox(width: 10),
+            const Icon(Icons.location_on, color: Colors.blue, size: 40),
+            const SizedBox(width: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Ver ruta del día',
                   style: TextStyle(
                     fontSize: 18,
@@ -37,14 +48,14 @@ class RouteCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                    '4 Check-ins',
-                    style: TextStyle(
+                    '${listSelectedItems.length} Check-ins',
+                    style: const TextStyle(
                       fontSize: 16,
                       color: Colors.blue,
                     ),
                 ),
-                SizedBox(height: 5),
-                Text(
+                const SizedBox(height: 5),
+                const Text(
                   '24,44km · 0:44h en coche',
                   style: TextStyle(
                     fontSize: 16,

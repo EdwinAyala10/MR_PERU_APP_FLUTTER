@@ -17,10 +17,10 @@ class ItemRoutePlannerLocal extends ConsumerWidget {
     numCantidadLocal = numCantidadLocal ?? 0;
 
     final List<CompanyLocalRoutePlanner> listItems = ref.watch(routePlannerProvider).selectedItems;
-    
-    bool checked = listItems.length > 0 
-    ? listItems.firstWhere((filter) => filter.id == local.id) != null ? false : true
-    : false;
+   
+    bool exists = listItems.any((item) => item.ruc == local.ruc && item.localCodigo == local.localCodigo);
+
+    print('CHECK: ${exists}');
 
     return ListTile(
       title: Text(local.localNombre,
@@ -50,9 +50,12 @@ class ItemRoutePlannerLocal extends ConsumerWidget {
           },
         ),
       )*/
-      const Icon(
+      Icon(
         //Icons.check_box_outline_blank_outlined, size: 40,
-        Icons.check_box, size: 40, color: primaryColor,
+        exists ? Icons.check_box : Icons.check_box_outline_blank, 
+
+        size: 40, 
+        color: primaryColor,
       )
       /*Stack(
         alignment: Alignment.center,
@@ -79,7 +82,10 @@ class ItemRoutePlannerLocal extends ConsumerWidget {
           Text(local.userreportName ?? '')
         ],
       ),
-      onTap: callbackOnTap,
+      //onTap: callbackOnTap,
+      onTap: () {
+        ref.read(routePlannerProvider.notifier).onCheckItem(local);
+      },
     );
   }
 }

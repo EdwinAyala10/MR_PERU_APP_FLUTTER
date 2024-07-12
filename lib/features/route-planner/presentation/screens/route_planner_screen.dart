@@ -25,6 +25,7 @@ class RoutePlannerScreen extends ConsumerWidget {
     final scaffoldKey = GlobalKey<ScaffoldState>();
 
     final List<FilterOption> listFiltersSuccess = ref.watch(routePlannerProvider).filtersSuccess;
+    final List<CompanyLocalRoutePlanner> listSelectedItems = ref.watch(routePlannerProvider).selectedItems;
 
     return Scaffold(
       drawer: SideMenu(scaffoldKey: scaffoldKey),
@@ -51,11 +52,48 @@ class RoutePlannerScreen extends ConsumerWidget {
           const Expanded(child: _RoutePlannerView()),
         ],
       ),
-      floatingActionButton: FloatingActionButtonCustom(
-          iconData: Icons.check_circle_outline,
-          callOnPressed: () {
-            context.push('/register_route_planner');
-          }),
+      floatingActionButton: listSelectedItems.length > 0 ? Stack(
+        alignment: Alignment.center, // Alineación central del FAB y el contador
+        children: [
+          SizedBox(
+            width: 46+ 9.0 * 2,
+            height: 46 + 9.0 * 2,
+            child: FloatingActionButton(
+              backgroundColor: primaryColor,
+              onPressed:  () {
+                context.push('/register_route_planner');
+              },
+              shape: const CircleBorder(),
+              child: const Icon(Icons.check, size: 32, color: Colors.white),
+            ),
+          ),
+          Positioned(
+            right: 0,
+            top: 0,
+            child: Container(
+              padding: const EdgeInsets.all(5),
+              constraints: const BoxConstraints(
+                minWidth: 25,
+                minHeight: 25,
+              ),
+              decoration: const BoxDecoration(
+                color: Colors.red,
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Text(
+                  '${listSelectedItems.length}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ): null,
     );
   }
 }

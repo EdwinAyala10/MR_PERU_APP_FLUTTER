@@ -24,7 +24,7 @@ class RegisterRoutePlannerScreen extends ConsumerWidget {
       child: Scaffold(
           appBar: AppBar(
             title:
-                const Text('Planificador Locales',
+                const Text('Planificador de rutas',
                 style: TextStyle(
                   fontWeight: FontWeight.w600
                 ),),
@@ -82,6 +82,8 @@ class _EventInformation extends ConsumerWidget {
       DropdownOption(id: '5', name: '1 SEMANA ANTES'),
     ];
 
+
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -96,56 +98,7 @@ class _EventInformation extends ConsumerWidget {
             },
             items: optionsTipoGestion,
           ),
-          Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Empresa',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                GestureDetector(
-                  onTap: () {
-                    //_openSearchCompanies(
-                    //    context, ref, eventForm.evntIdUsuarioResponsable ?? '');
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        //color: eventForm.evntRuc.errorMessage != null ? Colors.red : Colors.grey
-                      ),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Row(
-                      children: [
-                        const Expanded(
-                          child: Text(
-                            'Seleccione empresa',
-                            style: TextStyle(
-                              fontSize: 16,
-                              //color: eventForm.evntRuc.errorMessage != null ? Colors.red : Colors.black
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.search),
-                          onPressed: () {
-                            
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          
           const SizedBox(height: 10),
           const Text(
             'Fecha',
