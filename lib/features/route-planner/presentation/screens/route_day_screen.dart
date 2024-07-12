@@ -1,3 +1,4 @@
+import 'package:crm_app/features/location/presentation/providers/location_provider.dart';
 import 'package:crm_app/features/route-planner/domain/domain.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,7 @@ class RouteDayScreen extends ConsumerStatefulWidget {
 }
 
 class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
-  GoogleMapController? mapController;
+  /*GoogleMapController? mapController;
   Set<Marker> _markers = {};
   Set<Polyline> _polylines = {};
   List<LatLng> routeCoordinates = [];
@@ -20,28 +21,97 @@ class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
   double totalTime = 0.0;
 
   final List<LatLng> storeLocations = [
-    LatLng(-12.0453, -77.0311),
-    LatLng(-12.0353, -77.0231),
-    LatLng(-12.0253, -77.0131),
-  ];
+    const LatLng(-12.0453, -77.0311),
+    const LatLng(-12.0353, -77.0231),
+    const LatLng(-12.0253, -77.0131),
+  ];*/
+
+  late GoogleMapController mapController;
+  double _originLatitude = 6.5212402, _originLongitude = 3.3679965;
+  double _destLatitude = 6.849660, _destLongitude = 3.648190;
+
+  Map<MarkerId, Marker> markers = {};
+  Map<PolylineId, Polyline> polylines = {};
+  List<LatLng> polylineCoordinates = [];
+  PolylinePoints polylinePoints = PolylinePoints();
+  String googleAPiKey = "AIzaSyAjpuHF1NQQigzXXmP7cGV6bUzTO9tQ0nI";
 
 
   @override
   void initState() {
     super.initState();
-    _getCurrentLocation();
-    _addStoreMarkers();
+    //_getCurrentLocation();
+    //_addStoreMarkers();
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      final locationNotifier = ref.read(locationProvider.notifier);
+      locationNotifier.startFollowingUser();
+
+      _getCurrentLocation();
+
+    });
+
+
+    /// origin marker
+    _addMarker(LatLng(_originLatitude, _originLongitude), "origin",
+        BitmapDescriptor.defaultMarker);
+
+    /// destination marker
+    _addMarker(LatLng(_destLatitude, _destLongitude), "destination",
+        BitmapDescriptor.defaultMarkerWithHue(90));
+
+
+    _getPolyline();
   }
 
-  void _getCurrentLocation() async {
+   _addMarker(LatLng position, String id, BitmapDescriptor descriptor) {
+    MarkerId markerId = MarkerId(id);
+    Marker marker =
+        Marker(markerId: markerId, icon: descriptor, position: position);
+    markers[markerId] = marker;
+  }
+
+  _addPolyLine() {
+    PolylineId id = PolylineId("poly");
+    Polyline polyline = Polyline(
+        polylineId: id, color: Colors.red, points: polylineCoordinates);
+    polylines[id] = polyline;
+    setState(() {});
+  }
+
+  void _onMapCreated(GoogleMapController controller) async {
+    mapController = controller;
+  }
+
+  _getPolyline() async {
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+      googleApiKey: googleAPiKey,
+      request: PolylineRequest(
+        origin: PointLatLng(_originLatitude, _originLongitude),
+        destination: PointLatLng(_destLatitude, _destLongitude),
+        mode: TravelMode.driving,
+        wayPoints: [PolylineWayPoint(location: "Sabo, Yaba Lagos Nigeria")],
+      ),
+    );
+    if (result.points.isNotEmpty) {
+      result.points.forEach((PointLatLng point) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      });
+    }
+    _addPolyLine();
+  }
+
+  /*void _getCurrentLocation() async {
     setState(() {
+
       _markers.add(
-        Marker(
+        const Marker(
           markerId: MarkerId('currentLocation'),
           position: LatLng(-12.0464, -77.0428),
         ),
       );
-      Position position = Position(
+      
+      /*Position position = Position(
         longitude: -12.0464,
         latitude: -77.0428,
         timestamp: DateTime.now(),
@@ -52,12 +122,12 @@ class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
         headingAccuracy: 0,
         speed: 0,
         speedAccuracy: 0,
-      );
-      _calculateRoutes(position);
+      );*/
+      //_calculateRoutes(position);
     });
-  }
+  }*/
 
-  void _addStoreMarkers() {
+  /*void _addStoreMarkers() {
     for (int i = 0; i < storeLocations.length; i++) {
       _markers.add(
         Marker(
@@ -66,13 +136,18 @@ class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
         ),
       );
     }
-  }
+  }*/
 
-  void _calculateRoutes(Position origin) async {
-    LatLng currentLocation = LatLng(origin.latitude, origin.longitude);
+  /*  LatLng currentLocation = LatLng(origin.latitude, origin.longitude);
 
     for (LatLng storeLocation in storeLocations) {
       PolylinePoints polylinePoints = PolylinePoints();
+
+      print('currentLocation.latitude: ${currentLocation.latitude}');
+      print('currentLocation.longitude: ${currentLocation.longitude}');
+
+      print('storeLocation.latitude: ${storeLocation.latitude}');
+      print('storeLocation.longitude: ${storeLocation.longitude}');
 
       PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
         googleApiKey: 'AIzaSyAjpuHF1NQQigzXXmP7cGV6bUzTO9tQ0nI',
@@ -82,6 +157,10 @@ class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
           mode: TravelMode.driving,
         ),
       );
+
+      print('RESULT: ${result}');
+      print('RESULT POINTS: ${result.points}');
+
       if (result.points.isNotEmpty) {
         List<LatLng> route = [];
         result.points.forEach((PointLatLng point) {
@@ -96,7 +175,7 @@ class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
               width: 5,
             ),
           );
-          totalDistance += _calculateDistance(route);
+          //totalDistance += _calculateDistance(route);
           totalTime = totalDistance / 50; // Assuming average speed of 50 km/h
         });
 
@@ -104,9 +183,9 @@ class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
         currentLocation = storeLocation;
       }
     }
-  }
+  }*/
 
-  double _calculateDistance(List<LatLng> points) {
+  /*double _calculateDistance(List<LatLng> points) {
     double distance = 0.0;
     for (int i = 0; i < points.length - 1; i++) {
       distance += Geolocator.distanceBetween(
@@ -117,11 +196,37 @@ class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
       );
     }
     return distance / 1000; // Convert to km
+  }*/
+
+  void _getCurrentLocation() async {
+    /*Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    setState(() {
+      _markers.add(
+        Marker(
+          markerId: MarkerId('currentLocation'),
+          position: LatLng(position.latitude, position.longitude),
+        ),
+      );
+      _calculateRoutes(position);
+    });*/
+
+    final locationState = ref.watch(locationProvider);
+    //final mapState = ref.watch(mapProvider.notifier);
+    LatLng? lastKnownLocation = locationState.lastKnownLocation;
+
+    if (lastKnownLocation != null) {
+      _addMarker(LatLng(lastKnownLocation.latitude, lastKnownLocation.longitude), "location",
+          BitmapDescriptor.defaultMarkerWithHue(90));
+    }
+
+
+
   }
 
   @override
   Widget build(BuildContext context) {
 
+    
     final List<CompanyLocalRoutePlanner> listSelectedItems = ref.watch(routePlannerProvider).selectedItems;
 
     return Scaffold(
@@ -132,13 +237,24 @@ class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
               Container(
                 height: MediaQuery.of(context).size.height * 0.7,
                 child: GoogleMap(
-                  onMapCreated: (controller) => mapController = controller,
-                  initialCameraPosition: CameraPosition(
+                  /*onMapCreated: (controller) => mapController = controller,
+                  myLocationEnabled: true,
+                  initialCameraPosition: const CameraPosition(
                     target: LatLng(-12.0464, -77.0428),
                     zoom: 12,
                   ),
                   markers: _markers,
-                  polylines: _polylines,
+                  polylines: _polylines,*/
+                  initialCameraPosition: CameraPosition(
+                      target: LatLng(_originLatitude, _originLongitude), zoom: 15),
+                  myLocationEnabled: true,
+                  tiltGesturesEnabled: true,
+                  compassEnabled: true,
+                  scrollGesturesEnabled: true,
+                  zoomGesturesEnabled: true,
+                  onMapCreated: _onMapCreated,
+                  markers: Set<Marker>.of(markers.values),
+                  polylines: Set<Polyline>.of(polylines.values),
                 ),
               ),
               Positioned(
@@ -148,29 +264,29 @@ class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: Icon(Icons.arrow_back),
+                  child: const Icon(Icons.arrow_back),
                 ),
               ),
-              Positioned(
+              /*Positioned(
                 top: 40,
                 right: 20,
                 child: FloatingActionButton(
                   onPressed: () {
                     // Aquí puedes agregar la lógica para ordenar
                   },
-                  child: Icon(Icons.sort),
+                  child: const Icon(Icons.sort),
                 ),
-              ),
-              Positioned(
+              ),*/
+              /*Positioned(
                 bottom: 20,
                 left: 20,
                 right: 20,
                 child: Container(
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(8),
-                    boxShadow: [
+                    boxShadow: const [
                       BoxShadow(
                         color: Colors.black26,
                         blurRadius: 8,
@@ -185,7 +301,7 @@ class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
                     ],
                   ),
                 ),
-              ),
+              ),*/
             ],
           ),
           Expanded(
@@ -198,19 +314,19 @@ class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
                 return Column(
                   children: [
                     ListTile(
-                      leading: Icon(Icons.store, color: Colors.blue),
+                      leading: const Icon(Icons.store, color: Colors.blue),
                       title: Text(
-                        '${item.localNombre}',
-                        style: TextStyle(
+                        item.localNombre,
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       subtitle: Text(
                         '${item.razon}'
                       ),
-                      trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey),
+                      trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey),
                     ),
-                    Divider(
+                    const Divider(
                       color: Colors.blueGrey,
                       height: 1,
                     ),

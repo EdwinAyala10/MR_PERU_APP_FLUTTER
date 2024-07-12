@@ -20,8 +20,6 @@ class ItemRoutePlannerLocal extends ConsumerWidget {
    
     bool exists = listItems.any((item) => item.ruc == local.ruc && item.localCodigo == local.localCodigo);
 
-    print('CHECK: ${exists}');
-
     return ListTile(
       title: Text(local.localNombre,
           style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
