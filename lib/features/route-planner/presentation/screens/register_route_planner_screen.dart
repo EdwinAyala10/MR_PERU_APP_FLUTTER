@@ -67,9 +67,6 @@ class _EventInformation extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     List<DropdownOption> optionsTipoGestion = [
       DropdownOption(id: '', name: 'Selecciona'),
-      DropdownOption(id: '01', name: 'Comentario'),
-      DropdownOption(id: '02', name: 'Llamada Telefónica'),
-      DropdownOption(id: '03', name: 'Reunión'),
       DropdownOption(id: '04', name: 'Visita'),
     ];
 
@@ -92,7 +89,7 @@ class _EventInformation extends ConsumerWidget {
           const SizedBox(height: 10),
           SelectCustomForm(
             label: 'Tipo de gestión',
-            value: '',
+            value: '04',
             callbackChange: (String? newValue) {
               
             },
