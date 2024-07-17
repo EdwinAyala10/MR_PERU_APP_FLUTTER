@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:crm_app/config/config.dart';
+import 'package:crm_app/config/constants/environment.dart';
 import 'package:crm_app/features/location/presentation/widgets/widgets_to_marker.dart';
 import 'package:crm_app/features/route-planner/domain/domain.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 
 import '../../domain/domain.dart';
 import 'location_provider.dart';
@@ -81,6 +84,7 @@ class MapNotifier extends StateNotifier<MapState> {
   }
 
   void _sortCoordinates(Position currentPosition, List<Map<String, double>> coordinates) {
+    
     coordinates.sort((a, b) {
       final distanceA = _calculateDistance(
         currentPosition.latitude, currentPosition.longitude, a['lat']!, a['lng']!);
@@ -92,6 +96,9 @@ class MapNotifier extends StateNotifier<MapState> {
 
   void addMarkersAndLocation(List<CompanyLocalRoutePlanner> locales, LatLng position) async {
     final currentMarkers = Map<String, Marker>.from( state.markers );
+    final currentPolylines = Map<String, Polyline>.from( state.polylines );
+    
+    PolylinePoints polylinePoints = PolylinePoints();
 
     // LOCATION
     final locationMaker = await getLocationCustomMarker();
@@ -113,29 +120,57 @@ class MapNotifier extends StateNotifier<MapState> {
     for (var i = 0; i < locales.length; i++) {
         var number = i + 1;
         var companyLocal = locales[i];
+        List<LatLng> polylineCoordinates = [];
 
         var location = LatLng(double.parse(companyLocal.localCoordenadasLatitud), double.parse(companyLocal.localCoordenadasLongitud));
       
-        final startMaker = await getCustomMarker(number);
+        final endMaker = await getCustomMarker(number);
 
-        final startMarker = Marker(
+        final endMarker = Marker(
           //anchor: const Offset(0.1, 1),
           markerId: MarkerId(number.toString()),
           position: location,
-          icon: startMaker,
+          icon: endMaker,
           // infoWindow: InfoWindow(
           //   title: 'Inicio',
           //   snippet: 'Kms: $kms, duration: $tripDuration',
           // )
         );
 
-        currentMarkers[number.toString()] = startMarker;
+        currentMarkers[number.toString()] = endMarker;
+
+
+        PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+          googleApiKey: Environment.apiKeyGoogleMaps,
+          request: PolylineRequest(
+            origin: PointLatLng(position.latitude, position.longitude),
+            destination: PointLatLng(location.latitude, location.longitude),
+            mode: TravelMode.driving,
+            //wayPoints: [PolylineWayPoint(location: "Sabo, Yaba Lagos Nigeria")],
+          ),
+        );
+
+        if (result.points.isNotEmpty) {
+          result.points.forEach((PointLatLng point) {
+            polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+          });
+        }
+
+        PolylineId id = PolylineId("poly_${number}");
+        Polyline polyline = Polyline(
+            polylineId: id, 
+            points: polylineCoordinates,
+            color: primaryColor,
+            width: 5,
+            startCap: Cap.roundCap,
+            endCap: Cap.roundCap,
+          );
+        currentPolylines[id.toString()] = polyline;
     }
 
-
-
     state = state.copyWith(
-      markers: currentMarkers
+      markers: currentMarkers,
+      polylines: currentPolylines
     );
   }
 
@@ -223,7 +258,7 @@ class MapState {
   final LatLng? locationCurrent;
   final Place? selectedPlace;
   final Map<String, Marker> markers;
-  final Map<String, Polyline>? polylines;
+  final Map<String, Polyline> polylines;
 
   MapState({
     this.isMapInitialized = false, 

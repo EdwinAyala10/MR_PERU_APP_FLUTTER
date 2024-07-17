@@ -258,6 +258,7 @@ class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
     final List<CompanyLocalRoutePlanner> listSelectedItems = ref.watch(routePlannerProvider).selectedItems;
     LatLng lastKnownLocation = locationState.lastKnownLocation ?? LatLng(-12.046736441022516, -77.0440978949104);
     final markers = ref.watch(mapProvider).markers;
+    final polylines = ref.watch(mapProvider).polylines;
     
     CameraPosition initialCameraPosition =
         CameraPosition(target: lastKnownLocation, zoom: 11.5);
@@ -293,6 +294,7 @@ class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
                   //markers: Set<Marker>.of(markers!.values),
                   //polylines: Set<Polyline>.of(polylines.values),
                   markers: markers.values.toSet(),
+                  polylines: polylines.values.toSet(),
                 ),
               ),
               Positioned(
@@ -362,7 +364,7 @@ class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
                       subtitle: Text(
                         '${item.razon}'
                       ),
-                      trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey),
+                      trailing: const Icon(Icons.drag_handle, color: Colors.grey),
                     ),
                     const Divider(
                       color: Colors.blueGrey,
