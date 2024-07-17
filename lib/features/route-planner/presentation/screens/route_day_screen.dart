@@ -1,11 +1,13 @@
-import 'package:crm_app/features/location/presentation/providers/location_provider.dart';
+import 'package:crm_app/config/config.dart';
 import 'package:crm_app/features/location/presentation/providers/providers.dart';
 import 'package:crm_app/features/route-planner/domain/domain.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+import 'package:flutter/material.dart' hide ReorderableList;
+import 'package:flutter_reorderable_list/flutter_reorderable_list.dart';
 
 class RouteDayScreen extends ConsumerStatefulWidget {
   @override
@@ -77,7 +79,7 @@ class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
   }*/
 
   _addPolyLine() {
-    PolylineId id = PolylineId("poly");
+    PolylineId id = const PolylineId("poly");
     Polyline polyline = Polyline(
         polylineId: id, color: Colors.red, points: polylineCoordinates);
     polylines[id] = polyline;
@@ -256,7 +258,7 @@ class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
     final locationState = ref.watch(locationProvider);
     final mapState = ref.watch(mapProvider.notifier);
     final List<CompanyLocalRoutePlanner> listSelectedItems = ref.watch(routePlannerProvider).selectedItems;
-    LatLng lastKnownLocation = locationState.lastKnownLocation ?? LatLng(-12.046736441022516, -77.0440978949104);
+    LatLng lastKnownLocation = locationState.lastKnownLocation ?? const LatLng(-12.046736441022516, -77.0440978949104);
     final markers = ref.watch(mapProvider).markers;
     final polylines = ref.watch(mapProvider).polylines;
     
@@ -317,7 +319,7 @@ class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
                   child: const Icon(Icons.sort),
                 ),
               ),*/
-              /*Positioned(
+              Positioned(
                 bottom: 20,
                 left: 20,
                 right: 20,
@@ -333,18 +335,46 @@ class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
                       ),
                     ],
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Distancia Total: ${totalDistance.toStringAsFixed(2)} km'),
-                      Text('Tiempo Estimado: ${totalTime.toStringAsFixed(2)} horas'),
+                      Column(
+                        children: [
+                          Text(
+                            'Ruta planificada', 
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          Text('2 km'),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          Text(
+                            'Distancia',
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          Text('2 km'),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          Text(
+                            'Tiempo',
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          Text('10 min'),
+                        ],
+                      ),
+                      //Text('Distancia Total: ${totalDistance.toStringAsFixed(2)} km'),
+                      //Text('Tiempo Estimado: ${totalTime.toStringAsFixed(2)} horas'),
                     ],
                   ),
                 ),
-              ),*/
+              ),
             ],
           ),
-          Expanded(
+          
+          /*Expanded(
             child: ListView.builder(
               itemCount: listSelectedItems.length,
               itemBuilder: (context, index) {
@@ -354,7 +384,7 @@ class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
                 return Column(
                   children: [
                     ListTile(
-                      leading: const Icon(Icons.store, color: Colors.blue),
+                      leading: const Icon(Icons.store, color: primaryColor),
                       title: Text(
                         item.localNombre,
                         style: const TextStyle(
@@ -374,7 +404,72 @@ class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
                 );
               },
             ),
-          ),
+          ),*/
+          Expanded(
+            child: ReorderableList(
+              onReorder: (Key item, Key newPosition) {
+                  //int oldIndex = int.parse(item.value);
+                  //int newIndex = int.parse(newPosition.value);
+
+                  /*setState(() {
+                    if (oldIndex < newIndex) {
+                      newIndex -= 1;
+                    }
+                    final CompanyLocalRoutePlanner movedItem = listSelectedItems.removeAt(oldIndex);
+                    listSelectedItems.insert(newIndex, movedItem);
+                  });*/
+
+                  return true;
+              },
+              child: CustomScrollView(
+                slivers: <Widget>[
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                            (BuildContext context, int index) {
+                          var item = listSelectedItems[index];
+                          return ReorderableItem(
+                            key: Key('$index'),
+                            childBuilder: (context, state) {
+                              return Column(
+                                key: ValueKey('$index'),
+                                children: [
+                                  ListTile(
+                                    leading: CircleAvatar(
+                                      child: Text('${index + 1}'),
+                                      backgroundColor: primaryColor,
+                                      foregroundColor: Colors.white,
+                                    ),
+                                    title: Text(
+                                      item.localNombre,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    subtitle: Text(
+                                      '${item.razon}'
+                                    ),
+                                    trailing: const Icon(Icons.drag_handle, color: Colors.grey),
+                                  ),
+                                  const Divider(
+                                    color: Colors.blueGrey,
+                                    height: 1,
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        childCount: listSelectedItems.length,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          )
+
         ],
       ),
     );

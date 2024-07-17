@@ -59,6 +59,12 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     state = state.copyWith(filters: updatedFilters);
   }
 
+  void setLocalesOrder(List<CompanyLocalRoutePlanner> localesOrder) {
+    state = state.copyWith(
+      locales: localesOrder,
+    );
+  }
+
   void onDeleteAllFilter() {
     state = state.copyWith(filtersSuccess: [], filters: []);
     loadNextPage(isRefresh: true);

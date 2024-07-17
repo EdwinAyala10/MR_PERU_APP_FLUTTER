@@ -18,6 +18,7 @@ class _RouteCardState extends ConsumerState<RouteCard> {
   Widget build(BuildContext context) {
 
     final List<CompanyLocalRoutePlanner> listSelectedItems = ref.watch(routePlannerProvider).selectedItems;
+    final List<CompanyLocalRoutePlanner> locales = ref.watch(routePlannerProvider).locales;
 
     return GestureDetector(
       onTap: () async {
@@ -40,6 +41,10 @@ class _RouteCardState extends ConsumerState<RouteCard> {
 
 
         LatLng location = await ref.watch(locationProvider.notifier).currentPosition();
+
+        List<CompanyLocalRoutePlanner> orderLocales = await ref.read(mapProvider.notifier).sortLocalesByDistance(location, locales);
+
+        ref.read(routePlannerProvider.notifier).setLocalesOrder(orderLocales);
 
         print('location latitude: ${location.latitude}');
         print('location longitude: ${location.longitude}');

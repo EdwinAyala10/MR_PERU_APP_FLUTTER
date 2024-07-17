@@ -83,15 +83,16 @@ class MapNotifier extends StateNotifier<MapState> {
     return deg * (pi / 180);
   }
 
-  void _sortCoordinates(Position currentPosition, List<Map<String, double>> coordinates) {
-    
-    coordinates.sort((a, b) {
+
+  Future<List<CompanyLocalRoutePlanner>> sortLocalesByDistance(LatLng position, List<CompanyLocalRoutePlanner> locales) async {
+    locales.sort((a, b) {
       final distanceA = _calculateDistance(
-        currentPosition.latitude, currentPosition.longitude, a['lat']!, a['lng']!);
+        position.latitude, position.longitude, double.parse(a.localCoordenadasLatitud), double.parse(a.localCoordenadasLongitud));
       final distanceB = _calculateDistance(
-        currentPosition.latitude, currentPosition.longitude, b['lat']!, b['lng']!);
+        position.latitude, position.longitude, double.parse(b.localCoordenadasLatitud), double.parse(b.localCoordenadasLongitud));
       return distanceA.compareTo(distanceB);
     });
+    return locales;
   }
 
   void addMarkersAndLocation(List<CompanyLocalRoutePlanner> locales, LatLng position) async {
@@ -115,6 +116,8 @@ class MapNotifier extends StateNotifier<MapState> {
     );
 
     currentMarkers['location'] = startMarker;
+
+    //List<CompanyLocalRoutePlanner> localesOrderMarkers = await _sortLocalesByDistance(position, locales);
 
     //MARKERS
     for (var i = 0; i < locales.length; i++) {
@@ -170,7 +173,7 @@ class MapNotifier extends StateNotifier<MapState> {
 
     state = state.copyWith(
       markers: currentMarkers,
-      polylines: currentPolylines
+      polylines: currentPolylines,
     );
   }
 
