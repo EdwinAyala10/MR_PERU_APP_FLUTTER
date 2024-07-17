@@ -6,7 +6,6 @@ import 'package:crm_app/features/route-planner/presentation/providers/route_plan
 import 'package:crm_app/features/route-planner/presentation/widgets/filter_route_planner_bottom_sheet.dart';
 import 'package:crm_app/features/route-planner/presentation/widgets/item_route_planner_local.dart';
 
-import '../../../shared/widgets/floating_action_button_custom.dart';
 import '../../../shared/widgets/loading_modal.dart';
 import '../../../shared/widgets/no_exist_listview.dart';
 import 'package:flutter/material.dart';
@@ -52,7 +51,7 @@ class RoutePlannerScreen extends ConsumerWidget {
           const Expanded(child: _RoutePlannerView()),
         ],
       ),
-      floatingActionButton: listSelectedItems.length > 0 ? Stack(
+      floatingActionButton: listSelectedItems.isNotEmpty ? Stack(
         alignment: Alignment.center, // Alineación central del FAB y el contador
         children: [
           SizedBox(
@@ -64,7 +63,7 @@ class RoutePlannerScreen extends ConsumerWidget {
                 context.push('/register_route_planner');
               },
               shape: const CircleBorder(),
-              child: const Icon(Icons.check, size: 32, color: Colors.white),
+              child: const Icon(Icons.map, size: 32, color: Colors.white),
             ),
           ),
           Positioned(

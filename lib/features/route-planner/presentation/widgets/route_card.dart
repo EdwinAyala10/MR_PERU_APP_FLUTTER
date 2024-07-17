@@ -1,8 +1,12 @@
+import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
+import 'package:crm_app/features/location/presentation/providers/providers.dart';
 import 'package:crm_app/features/route-planner/domain/domain.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
+import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class RouteCard extends ConsumerStatefulWidget {
   @override
@@ -16,8 +20,36 @@ class _RouteCardState extends ConsumerState<RouteCard> {
     final List<CompanyLocalRoutePlanner> listSelectedItems = ref.watch(routePlannerProvider).selectedItems;
 
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
+
+        final gpsState = ref.read(gpsProvider.notifier).state;
+
+        if (!gpsState.isAllGranted) {
+          if (!gpsState.isGpsEnabled) {
+            showSnackbar(context, 'Debe de habilitar el GPS');
+          } else {
+            showSnackbar(context, 'Es necesario el acceso a GPS');
+            ref.read(gpsProvider.notifier).askGpsAccess();
+          }
+          //Navigator.pop(context);
+
+          return;
+        }
+
+        showLoadingMessage(context);
+
+
+        LatLng location = await ref.watch(locationProvider.notifier).currentPosition();
+
+        print('location latitude: ${location.latitude}');
+        print('location longitude: ${location.longitude}');
+        Navigator.pop(context);
+
+        ref.read(mapProvider.notifier).setLocation(location);
+
         context.push('/route_day_planner');
+
+
       },
       child: Container(
         padding: const EdgeInsets.all(10),

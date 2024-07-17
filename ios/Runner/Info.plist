@@ -3,6 +3,10 @@
 <plist version="1.0">
 <dict>
 	
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+	<string>tel</string>
+	</array>
     <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
     <string>Always and when in use!</string>
     <key>NSLocationUsageDescription</key>

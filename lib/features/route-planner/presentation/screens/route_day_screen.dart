@@ -1,11 +1,11 @@
 import 'package:crm_app/features/location/presentation/providers/location_provider.dart';
+import 'package:crm_app/features/location/presentation/providers/providers.dart';
 import 'package:crm_app/features/route-planner/domain/domain.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:geolocator/geolocator.dart';
 
 class RouteDayScreen extends ConsumerStatefulWidget {
   @override
@@ -30,7 +30,7 @@ class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
   double _originLatitude = 6.5212402, _originLongitude = 3.3679965;
   double _destLatitude = 6.849660, _destLongitude = 3.648190;
 
-  Map<MarkerId, Marker> markers = {};
+  //Map<MarkerId, Marker> markers = {};
   Map<PolylineId, Polyline> polylines = {};
   List<LatLng> polylineCoordinates = [];
   PolylinePoints polylinePoints = PolylinePoints();
@@ -44,32 +44,37 @@ class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
     //_addStoreMarkers();
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      final locationNotifier = ref.read(locationProvider.notifier);
-      locationNotifier.startFollowingUser();
+      //final locationNotifier = ref.read(locationProvider.notifier);
+      //locationNotifier.startFollowingUser();
 
-      _getCurrentLocation();
+      //_getCurrentLocation();
 
+      //_getLocalesMarkers();
+
+      _getLocationAndMarkers();
     });
 
 
+
+
     /// origin marker
-    _addMarker(LatLng(_originLatitude, _originLongitude), "origin",
+    /*_addMarker(LatLng(_originLatitude, _originLongitude), "origin",
         BitmapDescriptor.defaultMarker);
 
     /// destination marker
     _addMarker(LatLng(_destLatitude, _destLongitude), "destination",
         BitmapDescriptor.defaultMarkerWithHue(90));
+    */
 
-
-    _getPolyline();
+    //_getPolyline();
   }
 
-   _addMarker(LatLng position, String id, BitmapDescriptor descriptor) {
+   /*_addMarker(LatLng position, String id, BitmapDescriptor descriptor) {
     MarkerId markerId = MarkerId(id);
     Marker marker =
         Marker(markerId: markerId, icon: descriptor, position: position);
     markers[markerId] = marker;
-  }
+  }*/
 
   _addPolyLine() {
     PolylineId id = PolylineId("poly");
@@ -198,6 +203,21 @@ class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
     return distance / 1000; // Convert to km
   }*/
 
+  void _getLocationAndMarkers() async {
+    final mapState = ref.watch(mapProvider.notifier);
+    LatLng? location = ref.read(mapProvider).locationCurrent;
+    
+    final List<CompanyLocalRoutePlanner> listSelectedItems = ref.watch(routePlannerProvider).selectedItems;
+    ref.watch(mapProvider.notifier).addMarkersAndLocation(listSelectedItems, location!);
+
+  }
+
+  void _getLocalesMarkers() async {
+    final List<CompanyLocalRoutePlanner> listSelectedItems = ref.watch(routePlannerProvider).selectedItems;
+
+    ref.watch(mapProvider.notifier).addMarkers(listSelectedItems);
+  }
+
   void _getCurrentLocation() async {
     /*Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     setState(() {
@@ -210,13 +230,20 @@ class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
       _calculateRoutes(position);
     });*/
 
-    final locationState = ref.watch(locationProvider);
-    //final mapState = ref.watch(mapProvider.notifier);
-    LatLng? lastKnownLocation = locationState.lastKnownLocation;
+    //final locationState = ref.watch(locationProvider);
+    final mapState = ref.watch(mapProvider.notifier);
+    LatLng? location = ref.read(mapProvider).locationCurrent;
 
-    if (lastKnownLocation != null) {
-      _addMarker(LatLng(lastKnownLocation.latitude, lastKnownLocation.longitude), "location",
-          BitmapDescriptor.defaultMarkerWithHue(90));
+    //print('LAT LNG');
+    //print(lastKnownLocation);
+
+    if (location != null) {
+      /*_addMarker(LatLng(lastKnownLocation.latitude, lastKnownLocation.longitude), "location",
+          BitmapDescriptor.defaultMarkerWithHue(90));*/
+
+      ref.watch(mapProvider.notifier).addMarkerLocation(
+        LatLng(location.latitude, location.longitude), 
+      );
     }
 
 
@@ -226,8 +253,14 @@ class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
   @override
   Widget build(BuildContext context) {
 
-    
+    final locationState = ref.watch(locationProvider);
+    final mapState = ref.watch(mapProvider.notifier);
     final List<CompanyLocalRoutePlanner> listSelectedItems = ref.watch(routePlannerProvider).selectedItems;
+    LatLng lastKnownLocation = locationState.lastKnownLocation ?? LatLng(-12.046736441022516, -77.0440978949104);
+    final markers = ref.watch(mapProvider).markers;
+    
+    CameraPosition initialCameraPosition =
+        CameraPosition(target: lastKnownLocation, zoom: 11.5);
 
     return Scaffold(
       body: Column(
@@ -237,6 +270,7 @@ class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
               Container(
                 height: MediaQuery.of(context).size.height * 0.7,
                 child: GoogleMap(
+                  
                   /*onMapCreated: (controller) => mapController = controller,
                   myLocationEnabled: true,
                   initialCameraPosition: const CameraPosition(
@@ -245,16 +279,20 @@ class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
                   ),
                   markers: _markers,
                   polylines: _polylines,*/
-                  initialCameraPosition: CameraPosition(
-                      target: LatLng(_originLatitude, _originLongitude), zoom: 15),
+                  /*initialCameraPosition: CameraPosition(
+                      target: LatLng(_originLatitude, _originLongitude), zoom: 15),*/
+                  initialCameraPosition: initialCameraPosition,
+                  //myLocationEnabled: true,
+                  compassEnabled: false,
                   myLocationEnabled: true,
-                  tiltGesturesEnabled: true,
-                  compassEnabled: true,
-                  scrollGesturesEnabled: true,
-                  zoomGesturesEnabled: true,
-                  onMapCreated: _onMapCreated,
-                  markers: Set<Marker>.of(markers.values),
-                  polylines: Set<Polyline>.of(polylines.values),
+                  zoomControlsEnabled: false,
+                  myLocationButtonEnabled: false,
+                  //onMapCreated: _onMapCreated,
+                  onMapCreated: (controller) => mapState.onInitMap(controller),
+                  
+                  //markers: Set<Marker>.of(markers!.values),
+                  //polylines: Set<Polyline>.of(polylines.values),
+                  markers: markers.values.toSet(),
                 ),
               ),
               Positioned(

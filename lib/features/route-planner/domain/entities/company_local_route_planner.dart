@@ -22,6 +22,12 @@ class CompanyLocalRoutePlanner {
   String? localDireccion;
   String? localCantidad;
   String? localDistrito;
+  String localCoordenadasGeo;
+  String localCoordenadasLongitud;
+  String localCoordenadasLatitud;
+  String? localUbigeoCodigo;
+  String? localCodigoPostal;
+
 
   CompanyLocalRoutePlanner(
       {required this.id,
@@ -47,5 +53,10 @@ class CompanyLocalRoutePlanner {
       this.localDireccion,
       this.localCantidad,
       this.localDistrito,
+      required this.localCoordenadasGeo,
+      required this.localCoordenadasLongitud,
+      required this.localCoordenadasLatitud,
+      this.localUbigeoCodigo,
+      this.localCodigoPostal,
       });
 }

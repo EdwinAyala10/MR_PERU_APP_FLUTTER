@@ -11,7 +11,8 @@ void main() async {
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   await NotificationsNotifier.initialFCM();
 
-  await LocalNotifications.initializeLocalNotifications();
+  //TODO: DESCOMENTAR NOTIFICACIONES PUSH
+  //await LocalNotifications.initializeLocalNotifications();
 
   await Environment.initEnvironment();
 

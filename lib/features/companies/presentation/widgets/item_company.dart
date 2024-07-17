@@ -16,7 +16,7 @@ class ItemCompany extends StatelessWidget {
 
     return ListTile(
       title: Text(company.razon,
-          style: const TextStyle(fontWeight: FontWeight.w500)),
+          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -51,7 +51,9 @@ class ItemCompany extends StatelessWidget {
       trailing: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Text(company.calificacion ?? ''),
+          SizedBox(
+            width: 100,
+            child: Text(company.calificacion ?? '', style: TextStyle(fontSize: 10, overflow: TextOverflow.ellipsis), )),
           Text(company.userreporteName ?? '')
         ],
       ),

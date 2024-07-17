@@ -27,6 +27,11 @@ class CompanyLocalRoutePlannerMapper {
     localDireccion: json['LOCAL_DIRECCION'] ?? '', 
     localCantidad: json['LOCAL_CANTIDAD'] ?? '', 
     localDistrito: json['LOCAL_DISTRITO'] ?? '', 
+    localCoordenadasGeo: json['LOCAL_COORDENADAS_GEO'] ?? '', 
+    localCoordenadasLatitud: json['LOCAL_COORDENADAS_LATITUD'] ?? '', 
+    localCoordenadasLongitud: json['LOCAL_COORDENADAS_LONGITUD'] ?? '', 
+    localUbigeoCodigo: json['LOCAL_UBIGEO_CODIGO'] ?? '', 
+    localCodigoPostal: json['LOCAL_CODIGO_POSTAL'] ?? '', 
   );
 
 }

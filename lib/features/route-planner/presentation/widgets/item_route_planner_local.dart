@@ -22,12 +22,12 @@ class ItemRoutePlannerLocal extends ConsumerWidget {
 
     return ListTile(
       title: Text(local.localNombre,
-          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
+          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15, overflow: TextOverflow.ellipsis)),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(local.razon ?? '',
-            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),  
+            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)),  
           Row(
             children: [
               Text(local.clienteNombreEstado ?? ''),
@@ -76,7 +76,9 @@ class ItemRoutePlannerLocal extends ConsumerWidget {
       trailing: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Text(local.calificacion ?? ''),
+          SizedBox(
+            width: 100,
+            child: Text(local.calificacion ?? '', style: TextStyle(fontSize: 10, overflow: TextOverflow.ellipsis), )),
           Text(local.userreportName ?? '')
         ],
       ),
