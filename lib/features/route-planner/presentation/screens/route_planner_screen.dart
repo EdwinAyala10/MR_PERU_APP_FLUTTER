@@ -1,10 +1,15 @@
 import 'dart:async';
 
 import 'package:crm_app/config/config.dart';
+import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
+import 'package:crm_app/features/location/presentation/providers/providers.dart';
 import 'package:crm_app/features/route-planner/domain/domain.dart';
+import 'package:crm_app/features/route-planner/presentation/providers/forms/event_planner_form_provider.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
 import 'package:crm_app/features/route-planner/presentation/widgets/filter_route_planner_bottom_sheet.dart';
 import 'package:crm_app/features/route-planner/presentation/widgets/item_route_planner_local.dart';
+import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../shared/widgets/loading_modal.dart';
 import '../../../shared/widgets/no_exist_listview.dart';
@@ -59,7 +64,42 @@ class RoutePlannerScreen extends ConsumerWidget {
             height: 46 + 9.0 * 2,
             child: FloatingActionButton(
               backgroundColor: primaryColor,
-              onPressed:  () {
+              onPressed:  () async {
+
+                final gpsState = ref.read(gpsProvider.notifier).state;
+
+                if (!gpsState.isAllGranted) {
+                  if (!gpsState.isGpsEnabled) {
+                    showSnackbar(context, 'Debe de habilitar el GPS');
+                  } else {
+                    showSnackbar(context, 'Es necesario el acceso a GPS');
+                    ref.read(gpsProvider.notifier).askGpsAccess();
+                  }
+                  //Navigator.pop(context);
+
+                  return;
+                }
+
+                showLoadingMessage(context);
+
+                LatLng location = await ref.watch(locationProvider.notifier).currentPosition();
+
+                List<CompanyLocalRoutePlanner> orderSelectedItems = await ref.read(mapProvider.notifier).sortLocalesByDistance(location, listSelectedItems);
+
+                await ref.read(routePlannerProvider.notifier).setSelectedItemsOrder(orderSelectedItems);
+                await ref.read(routePlannerProvider.notifier).initialOrderkey();
+
+                ref.watch(eventPlannerFormProvider.notifier).setInitialForm();
+                await ref.read(eventPlannerFormProvider.notifier).setLocalesArray(orderSelectedItems);
+
+                ref.read(mapProvider.notifier).setLocation(location);
+
+                final mapState = ref.watch(mapProvider.notifier);
+                
+                ref.watch(mapProvider.notifier).addMarkersAndLocation(listSelectedItems, location);
+                
+                Navigator.pop(context);
+
                 context.push('/register_route_planner');
               },
               shape: const CircleBorder(),

@@ -1,6 +1,12 @@
 import 'dart:async';
 
+import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
+import 'package:crm_app/features/route-planner/domain/entities/create_event_planner_response.dart';
+import 'package:crm_app/features/route-planner/presentation/providers/forms/event_planner_form_provider.dart';
+import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
 import 'package:crm_app/features/route-planner/presentation/widgets/route_card.dart';
+import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../shared/domain/entities/dropdown_option.dart';
 
@@ -17,8 +23,7 @@ class RegisterRoutePlannerScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    //final eventState = ref.watch(eventProvider(eventId));
-
+   
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -38,6 +43,30 @@ class RegisterRoutePlannerScreen extends ConsumerWidget {
           body: const _EventView(),
           floatingActionButton: FloatingActionButtonCustom(
             callOnPressed:() {
+
+              showLoadingMessage(context);
+
+              ref
+                  .read(eventPlannerFormProvider.notifier)
+                  .onFormSubmit()
+                  .then((CreateEventPlannerResponse value) {
+                //if ( !value.response ) return;
+                if (value.message != '') {
+                  showSnackbar(context, value.message);
+
+                  if (value.response) {
+                    //Timer(const Duration(seconds: 3), () {
+                    //TODO: LIMPIAR LOS SELECT ITEMS Y TODO EL FORMULARIO
+                    ref.read(routePlannerProvider.notifier).clearSelectedLocales();
+                    
+                    context.replace('/route_planner');
+                    //});
+                  }
+                }
+
+                Navigator.pop(context);
+
+              });
 
             }, 
             iconData: Icons.check),
@@ -71,7 +100,7 @@ class _EventInformation extends ConsumerWidget {
     ];
 
     List<DropdownOption> optionsRecordatorio = [
-      DropdownOption(id: '', name: 'Selecciona'),
+      //DropdownOption(id: '', name: 'Selecciona'),
       DropdownOption(id: '1', name: '5 MINUTOS ANTES'),
       DropdownOption(id: '2', name: '15 MINUTOS ANTES'),
       DropdownOption(id: '3', name: '30 MINUTOS ANTES'),
@@ -79,8 +108,8 @@ class _EventInformation extends ConsumerWidget {
       DropdownOption(id: '5', name: '1 SEMANA ANTES'),
     ];
 
-
-
+    final evenPlannertForm = ref.watch(eventPlannerFormProvider);
+     
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -89,11 +118,17 @@ class _EventInformation extends ConsumerWidget {
           const SizedBox(height: 10),
           SelectCustomForm(
             label: 'Tipo de gestión',
-            value: '04',
+            value: evenPlannertForm.evntIdTipoGestion.value.trim(),
             callbackChange: (String? newValue) {
-              
+              DropdownOption searchTipoGestion = optionsTipoGestion
+                  .where((option) => option.id == newValue!)
+                  .first;
+              ref
+                  .read(eventPlannerFormProvider.notifier)
+                  .onTipoGestionChanged(newValue ?? '', searchTipoGestion.name);
             },
             items: optionsTipoGestion,
+            errorMessage: evenPlannertForm.evntIdTipoGestion.errorMessage,
           ),
           
           const SizedBox(height: 10),
@@ -115,7 +150,7 @@ class _EventInformation extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      DateFormat('dd-MM-yyyy').format(DateTime.now()),
+                      DateFormat('dd-MM-yyyy').format(evenPlannertForm.evntFechaInicioEvento ?? DateTime.now()),
                       style: const TextStyle(fontSize: 16),
                     ),
                     const Icon(Icons.calendar_today),
@@ -140,7 +175,10 @@ class _EventInformation extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          DateFormat('hh:mm a').format(DateTime.now()),
+                          DateFormat('hh:mm a').format(evenPlannertForm.evntHoraInicioEvento != null
+                                  ? DateFormat('HH:mm:ss').parse(
+                                      evenPlannertForm.evntHoraInicioEvento ?? '')
+                                  : DateTime.now()),
                           style: const TextStyle(fontSize: 16),
                         ),
                         const Icon(Icons.access_time),
@@ -169,9 +207,14 @@ class _EventInformation extends ConsumerWidget {
                           BorderRadius.circular(5.0), // Bordes redondeados
                     ),
                     child: DropdownButton<String>(
-                      value: '',
+                      value: evenPlannertForm.evntIdRecordatorio.toString(),
                       onChanged: (String? newValue) {
-                        
+                        DropdownOption searchRecordatorio = optionsRecordatorio
+                            .where((option) => option.id == newValue!)
+                            .first;
+                        ref
+                            .read(eventPlannerFormProvider.notifier)
+                            .onTiempoReunionesChanged(int.parse(newValue!), searchRecordatorio.name);
                       },
                       isExpanded: true,
                       style: const TextStyle(
@@ -195,21 +238,6 @@ class _EventInformation extends ConsumerWidget {
               ],
             ),
           ),
-          /*const SizedBox(height: 20),
-          CustomCompanyField(
-            label: 'Email de usuarios externos',
-            initialValue: eventForm.evntCorreosExternos ?? '',
-            onChanged: ref
-                .read(eventFormProvider(event).notifier)
-                .onCorreosExternosChanged,
-          ),*/
-          //const Text('  ingresar emails separado por comas (,)',
-          //    style: TextStyle(fontSize: 12, color: Colors.black45)),
-          //const SizedBox(height: 30),
-          /*const Text(
-            'DIRECCIÓN',
-            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
-          ),*/
           const SizedBox(height: 30),
           const Text(
             'Responsable',
@@ -218,14 +246,14 @@ class _EventInformation extends ConsumerWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const Row(
+          Row(
             children: [
               Expanded(
                 child: Wrap(
                   spacing: 8.0,
                   children: [
                     Chip(
-                        label: Text('Admin',
+                        label: Text('${evenPlannertForm.evntNombreUsuarioResponsable}',
                     ))
                   ],
                 ),
@@ -250,7 +278,7 @@ class _EventInformation extends ConsumerWidget {
 
     //if (picked != null && picked != selectedDate) {
     if (picked != null) {
-      //ref.read(eventFormProvider(event).notifier).onFechaChanged(picked);
+      ref.read(eventPlannerFormProvider.notifier).onFechaChanged(picked);
     }
   }
 
@@ -265,11 +293,11 @@ class _EventInformation extends ConsumerWidget {
     if (picked != null) {
       String formattedTime = '${picked.toString().substring(10, 15)}:00';
 
-      if (type == 'inicio') {
-        /*ref
-            .read(eventFormProvider(event).notifier)
-            .onHoraInicioChanged(formattedTime);*/
-      }
+      //if (type == 'inicio') {
+        ref
+            .read(eventPlannerFormProvider.notifier)
+            .onHoraInicioChanged(formattedTime);
+      //}
 
      
     }
