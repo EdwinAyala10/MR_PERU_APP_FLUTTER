@@ -92,12 +92,16 @@ class MapNotifier extends StateNotifier<MapState> {
         position.latitude, position.longitude, double.parse(b.localCoordenadasLatitud), double.parse(b.localCoordenadasLongitud));
       return distanceA.compareTo(distanceB);
     });
+
     return locales;
   }
 
-  void addMarkersAndLocation(List<CompanyLocalRoutePlanner> locales, LatLng position) async {
-    final currentMarkers = Map<String, Marker>.from( state.markers );
-    final currentPolylines = Map<String, Polyline>.from( state.polylines );
+
+
+  void addMarkersAndLocation(List<CompanyLocalRoutePlanner> locales, LatLng location) async {
+
+    final currentMarkers = Map<String, Marker>.from( {} );
+    final currentPolylines = Map<String, Polyline>.from( {} );
     
     PolylinePoints polylinePoints = PolylinePoints();
 
@@ -107,7 +111,7 @@ class MapNotifier extends StateNotifier<MapState> {
     final startMarker = Marker(
       //anchor: const Offset(0.1, 1),
       markerId: const MarkerId('location'),
-      position: position,
+      position: location,
       icon: locationMaker,
       // infoWindow: InfoWindow(
       //   title: 'Inicio',
@@ -125,14 +129,14 @@ class MapNotifier extends StateNotifier<MapState> {
         var companyLocal = locales[i];
         List<LatLng> polylineCoordinates = [];
 
-        var location = LatLng(double.parse(companyLocal.localCoordenadasLatitud), double.parse(companyLocal.localCoordenadasLongitud));
+        var position = LatLng(double.parse(companyLocal.localCoordenadasLatitud), double.parse(companyLocal.localCoordenadasLongitud));
       
         final endMaker = await getCustomMarker(number);
 
         final endMarker = Marker(
           //anchor: const Offset(0.1, 1),
           markerId: MarkerId(number.toString()),
-          position: location,
+          position: position,
           icon: endMaker,
           // infoWindow: InfoWindow(
           //   title: 'Inicio',
@@ -140,14 +144,29 @@ class MapNotifier extends StateNotifier<MapState> {
           // )
         );
 
-        currentMarkers[number.toString()] = endMarker;
+        currentMarkers[number.toString()] = endMarker;  
+
+        
+        LatLng positionDestination = position;
+        LatLng positionOrigin = location;
+
+        if (i == 0) {
+          positionOrigin = location;
+          positionDestination = position;
+        } else {
+          var positionOrig = LatLng(double.parse(locales[i-1].localCoordenadasLatitud), double.parse(locales[i-1].localCoordenadasLongitud));
+          var positionDest = position;
+
+          positionDestination = positionDest;
+          positionOrigin = positionOrig;
+        }
 
 
         PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
           googleApiKey: Environment.apiKeyGoogleMaps,
           request: PolylineRequest(
-            origin: PointLatLng(position.latitude, position.longitude),
-            destination: PointLatLng(location.latitude, location.longitude),
+            origin: PointLatLng(positionOrigin.latitude, positionOrigin.longitude),
+            destination: PointLatLng(positionDestination.latitude, positionDestination.longitude),
             mode: TravelMode.driving,
             //wayPoints: [PolylineWayPoint(location: "Sabo, Yaba Lagos Nigeria")],
           ),

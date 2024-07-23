@@ -139,6 +139,8 @@ class _ListKpis extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(kpi.objrNombrePeriodicidad ?? '',
+                          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
+                      Text(kpi.objrNombreAsignacion ?? '',
                           style: const TextStyle(fontWeight: FontWeight.w600)),
                       Text('${kpi.totalRegistro}/${convertTypeCategory(kpi)}',
                           style: const TextStyle(

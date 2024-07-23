@@ -16,10 +16,10 @@ class KpiMapper {
     objrIdUsuarioRegistro: json['OBJR_ID_USUARIO_REGISTRO'] ?? '',
     objrIdCategoria: json['OBJR_ID_CATEGORIA'] ?? '',
 
-    objrNombreAsignacion: json['OBJR_NOMNRE_ASIGNACION'] ?? '',
+    objrNombreAsignacion: json['OBJR_NOMBRE_ASIGNACION'] ?? '',
     objrNombreCategoria: json['OBJR_NOMBRE_CATEGORIA'] ?? '',
     objrNombreTipo: json['OBJR_NOMNRE_TIPO'] ?? '',
-    objrNombrePeriodicidad: json['OBJR_NOMNRE_PERIODICIDAD'] ?? '',
+    objrNombrePeriodicidad: json['OBJR_NOMBRE_PERIODICIDAD'] ?? '',
     totalRegistro: json['TOTAL_REGISTRO'] ?? 0,
     porcentaje: (json['PORCENTAJE']?? 0.00).toDouble() ,
     objrCantidad: json['OBJR_CANTIDAD'] ?? '0',

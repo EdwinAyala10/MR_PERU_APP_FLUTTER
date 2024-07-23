@@ -18,43 +18,10 @@ class _RouteCardState extends ConsumerState<RouteCard> {
   Widget build(BuildContext context) {
 
     final List<CompanyLocalRoutePlanner> listSelectedItems = ref.watch(routePlannerProvider).selectedItems;
-    final List<CompanyLocalRoutePlanner> locales = ref.watch(routePlannerProvider).locales;
 
     return GestureDetector(
       onTap: () async {
-
-        final gpsState = ref.read(gpsProvider.notifier).state;
-
-        if (!gpsState.isAllGranted) {
-          if (!gpsState.isGpsEnabled) {
-            showSnackbar(context, 'Debe de habilitar el GPS');
-          } else {
-            showSnackbar(context, 'Es necesario el acceso a GPS');
-            ref.read(gpsProvider.notifier).askGpsAccess();
-          }
-          //Navigator.pop(context);
-
-          return;
-        }
-
-        showLoadingMessage(context);
-
-
-        LatLng location = await ref.watch(locationProvider.notifier).currentPosition();
-
-        List<CompanyLocalRoutePlanner> orderLocales = await ref.read(mapProvider.notifier).sortLocalesByDistance(location, locales);
-
-        ref.read(routePlannerProvider.notifier).setLocalesOrder(orderLocales);
-
-        print('location latitude: ${location.latitude}');
-        print('location longitude: ${location.longitude}');
-        Navigator.pop(context);
-
-        ref.read(mapProvider.notifier).setLocation(location);
-
         context.push('/route_day_planner');
-
-
       },
       child: Container(
         padding: const EdgeInsets.all(10),
@@ -93,7 +60,7 @@ class _RouteCardState extends ConsumerState<RouteCard> {
                 ),
                 const SizedBox(height: 5),
                 const Text(
-                  '24,44km · 0:44h en coche',
+                  '0km · 0h en coche',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.black54,

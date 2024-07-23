@@ -1,4 +1,6 @@
 
+import 'package:crm_app/features/route-planner/domain/entities/event_planner_response.dart';
+
 import '../../domain/domain.dart';
 
 class RoutePlannerRepositoryImpl extends RoutePlannerRepository {
@@ -41,6 +43,11 @@ class RoutePlannerRepositoryImpl extends RoutePlannerRepository {
   @override
   Future<List<FilterRucRazonSocial>> getFilterRucRazonSocial({String search = ''}) {
     return datasource.getFilterRucRazonSocial(search: search);
+  }
+
+  @override
+  Future<EventPlannerResponse> createEventPlanner(Map<dynamic, dynamic> eventLike) {
+    return datasource.createEventPlanner(eventLike);
   }
 
 }

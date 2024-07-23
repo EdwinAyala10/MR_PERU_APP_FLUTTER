@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
+import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
+import 'package:crm_app/features/shared/widgets/select_custom_form.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 
 import '../../domain/domain.dart';
@@ -84,44 +86,72 @@ class _KpiView extends ConsumerWidget {
     return ListView(
       children: [
         const SizedBox(height: 10),
-        _KpiInformation(kpi: kpi),
+        _KpiInformationConsumer(kpi: kpi),
       ],
     );
   }
 }
 
-class _KpiInformation extends ConsumerWidget {
+class _KpiInformationConsumer extends ConsumerStatefulWidget {
   final Kpi kpi;
-
-  const _KpiInformation({required this.kpi});
+  const _KpiInformationConsumer({super.key, required this.kpi});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    List<DropdownOption> optionsAsignacion = [
-      DropdownOption(id: '01', name: 'INDIVIDUAL'),
-      DropdownOption(id: '02', name: 'EQUIPO'),
-    ];
+  ConsumerState<_KpiInformationConsumer> createState() => __KpiInformationConsumerState();
+}
 
-    List<DropdownOption> optionsCategoria = [
-      DropdownOption(id: '01', name: 'CHECK-INS'),
-      DropdownOption(id: '02', name: 'VISITAS'),
-      DropdownOption(id: '03', name: 'NUEVAS EMPRESAS'),
-      DropdownOption(id: '04', name: 'NUEVAS OPORTUNIDADES'),
-      DropdownOption(id: '05', name: 'OPORTUNIDADES GANADAS'),
-    ];
+class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsumer> {
 
-    List<DropdownOption> optionsPeriodicidad = [
-      DropdownOption(id: '01', name: 'SEMANAL'),
-      DropdownOption(id: '02', name: 'MENSUAL'),
-      DropdownOption(id: '03', name: 'TRIMESTRAL'),
-      DropdownOption(id: '04', name: 'ANUAL'),
-    ];
+  List<DropdownOption> optionsAsignacion = [
+    DropdownOption(id: '', name: 'Cargando...'),
+    /*DropdownOption(id: '01', name: 'INDIVIDUAL'),
+    DropdownOption(id: '02', name: 'EQUIPO'),*/
+  ];
 
-    List<DropdownOption> optionsTipo = [
-      DropdownOption(id: '01', name: 'VISITA'),
-    ];
+  List<DropdownOption> optionsCategoria = [
+    DropdownOption(id: '', name: 'Cargando...'),
+    /*DropdownOption(id: '01', name: 'CHECK-INS'),
+    DropdownOption(id: '02', name: 'VISITAS'),
+    DropdownOption(id: '03', name: 'NUEVAS EMPRESAS'),
+    DropdownOption(id: '04', name: 'NUEVAS OPORTUNIDADES'),
+    DropdownOption(id: '04', name: 'NUEVAS OPORTUNIDADES'),
+    DropdownOption(id: '05', name: 'OPORTUNIDADES GANADAS'),*/
+  ];
 
-    final kpiForm = ref.watch(kpiFormProvider(kpi));
+  List<DropdownOption> optionsPeriodicidad = [
+    DropdownOption(id: '01', name: 'SEMANAL'),
+    DropdownOption(id: '02', name: 'MENSUAL'),
+    DropdownOption(id: '03', name: 'TRIMESTRAL'),
+    DropdownOption(id: '04', name: 'ANUAL'),
+  ];
+
+  List<DropdownOption> optionsTipo = [
+    DropdownOption(id: '01', name: 'VISITA'),
+  ];
+  
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('12').then((value) => {
+        setState(() {
+          optionsCategoria = value;
+        })
+      });
+
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('11').then((value) => {
+        setState(() {
+          optionsAsignacion = value;
+        })
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    
+    final kpiForm = ref.watch(kpiFormProvider(widget.kpi));
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -146,60 +176,25 @@ class _KpiInformation extends ConsumerWidget {
           const SizedBox(
             height: 16,
           ),
-          Padding(
-            padding: const EdgeInsets.all(2.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                const Text('Asignación',
-                    style:
-                        TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500)),
-                const SizedBox(height: 6),
-                SizedBox(
-                  width: double
-                      .infinity, // Ancho específico para el DropdownButton
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey), // Estilo de borde
-                      borderRadius:
-                          BorderRadius.circular(5.0), // Bordes redondeados
-                    ),
-                    child: DropdownButton<String>(
-                      value: kpiForm.objrIdAsignacion,
-                      onChanged: kpiForm.id == "new"
-                          ? (String? newValue) {
-                              DropdownOption searchAsignacion =
-                                  optionsAsignacion
-                                      .where((option) => option.id == newValue!)
-                                      .first;
-                              ref
-                                  .read(kpiFormProvider(kpi).notifier)
-                                  .onAsignacionChanged(
-                                      newValue ?? '', searchAsignacion.name);
-                            }
-                          : null,
-                      isExpanded: true,
-                      style: const TextStyle(
-                        fontSize: 16.0,
-                        color: Color.fromRGBO(0, 0, 0, 1),
-                      ),
-                      items: optionsAsignacion.map((option) {
-                        return DropdownMenuItem<String>(
-                          value: option.id,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10.0, vertical: 8.0),
-                            child: Text(option.name),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
+
+          optionsAsignacion.length > 1 ? SelectCustomForm(
+            label: 'Rubro',
+            value: kpiForm.objrIdAsignacion.value,
+            callbackChange: (String? newValue) {
+               DropdownOption searchDropdown = optionsAsignacion
+                  .where((option) => option.id == newValue!)
+                  .first;
+
+              ref
+                  .read(kpiFormProvider(widget.kpi).notifier)
+                  .onAsignacionChanged(newValue!, searchDropdown.name);
+                  
+            },
+            items: optionsAsignacion,
+            errorMessage: kpiForm.objrIdAsignacion.errorMessage,
+          ): PlaceholderInput(text: 'Cargando...'),
+
+          
           const Text('Seleccione Usuario(s):'),
           const SizedBox(height: 10),
           Row(
@@ -220,7 +215,7 @@ class _KpiInformation extends ConsumerWidget {
                                         onDeleted: () {
                                           ref
                                               .read(
-                                                  kpiFormProvider(kpi).notifier)
+                                                  kpiFormProvider(widget.kpi).notifier)
                                               .onDeleteUserChanged(item);
 
                                           // Aquí puedes manejar la eliminación del chip si es necesario
@@ -235,7 +230,7 @@ class _KpiInformation extends ConsumerWidget {
               ElevatedButton(
                 onPressed: kpiForm.id == "new"
                     ? () {
-                        if (kpiForm.objrIdAsignacion == '01' &&
+                        if (kpiForm.objrIdAsignacion.value == '01' &&
                             kpiForm.arrayuserasignacion?.length == 1) {
                           showSnackbar(
                               context, 'Solo debe seleccionar un usuario');
@@ -258,61 +253,25 @@ class _KpiInformation extends ConsumerWidget {
             style: TextStyle(fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.all(2.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                const Text('Categoria',
-                    style:
-                        TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500)),
-                const SizedBox(height: 6),
-                SizedBox(
-                  width: double
-                      .infinity, // Ancho específico para el DropdownButton
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey), // Estilo de borde
-                      borderRadius:
-                          BorderRadius.circular(5.0), // Bordes redondeados
-                    ),
-                    child: DropdownButton<String>(
-                      value: kpiForm.objrIdCategoria,
-                      onChanged: kpiForm.id == "new"
-                          ? (String? newValue) {
-                              DropdownOption searchCategoria = optionsCategoria
-                                  .where((option) => option.id == newValue!)
-                                  .first;
-                              ref
-                                  .read(kpiFormProvider(kpi).notifier)
-                                  .onCategoriaChanged(
-                                      newValue ?? '', searchCategoria.name);
-                            }
-                          : null,
-                      isExpanded: true,
-                      style: const TextStyle(
-                        fontSize: 16.0,
-                        color: Color.fromRGBO(0, 0, 0, 1),
-                      ),
-                      // Mapeo de las opciones a elementos de menú desplegable
-                      items: optionsCategoria.map((option) {
-                        return DropdownMenuItem<String>(
-                          value: option.id,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10.0, vertical: 8.0),
-                            child: Text(option.name),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
-          kpiForm.objrIdCategoria == '01'
+
+          optionsCategoria.length > 1 ? SelectCustomForm(
+            label: 'Rubro',
+            value: kpiForm.objrIdCategoria.value,
+            callbackChange: (String? newValue) {
+               DropdownOption searchDropdown = optionsCategoria
+                  .where((option) => option.id == newValue!)
+                  .first;
+
+              ref
+                  .read(kpiFormProvider(widget.kpi).notifier)
+                  .onCategoriaChanged(newValue!, searchDropdown.name);
+                  
+            },
+            items: optionsCategoria,
+            errorMessage: kpiForm.objrIdCategoria.errorMessage,
+          ): PlaceholderInput(text: 'Cargando Rubro...'),
+
+          kpiForm.objrIdCategoria.value == '01'
               ? Padding(
                   padding: const EdgeInsets.all(2.0),
                   child: Column(
@@ -341,7 +300,7 @@ class _KpiInformation extends ConsumerWidget {
                                             (option) => option.id == newValue!)
                                         .first;
                                     ref
-                                        .read(kpiFormProvider(kpi).notifier)
+                                        .read(kpiFormProvider(widget.kpi).notifier)
                                         .onTipoChanged(
                                             newValue ?? '', searchTipo.name);
                                   }
@@ -373,7 +332,7 @@ class _KpiInformation extends ConsumerWidget {
           CustomCompanyField(
             label: 'Nombre de objetivo *',
             initialValue: kpiForm.objrNombre.value,
-            onChanged: ref.read(kpiFormProvider(kpi).notifier).onNombreChanged,
+            onChanged: ref.read(kpiFormProvider(widget.kpi).notifier).onNombreChanged,
             errorMessage: kpiForm.objrNombre.errorMessage,
           ),
           const SizedBox(height: 10),
@@ -404,7 +363,7 @@ class _KpiInformation extends ConsumerWidget {
                                       .where((option) => option.id == newValue!)
                                       .first;
                               ref
-                                  .read(kpiFormProvider(kpi).notifier)
+                                  .read(kpiFormProvider(widget.kpi).notifier)
                                   .onPeriodicidadChanged(
                                       newValue ?? '', searchPeriodicidad.name);
                             }
@@ -460,7 +419,7 @@ class _KpiInformation extends ConsumerWidget {
                   initialValue: kpiForm.objrCantidad,
                   enabled: !kpiForm.objrValorDifMes,
                   onChanged:
-                      ref.read(kpiFormProvider(kpi).notifier).onCantidadChanged,
+                      ref.read(kpiFormProvider(widget.kpi).notifier).onCantidadChanged,
                 ),
                 const SizedBox(
                   height: 10,
@@ -475,7 +434,7 @@ class _KpiInformation extends ConsumerWidget {
                             value: kpiForm.objrValorDifMes,
                             onChanged: (bool bol) {
                               ref
-                                  .read(kpiFormProvider(kpi).notifier)
+                                  .read(kpiFormProvider(widget.kpi).notifier)
                                   .onCheckDifMesChanged(bol);
                             },
                           ),
@@ -490,7 +449,7 @@ class _KpiInformation extends ConsumerWidget {
                 if (kpiForm.objrIdPeriodicidad == '02' &&
                     kpiForm.objrValorDifMes)
                   for (var periodicidad in kpiForm.peobIdPeriodicidad ?? [])
-                    ItemMes(periodicidad: periodicidad, ref: ref, kpi: kpi),
+                    ItemMes(periodicidad: periodicidad, ref: ref, kpi: widget.kpi),
               ],
             ),
           ),
@@ -500,13 +459,14 @@ class _KpiInformation extends ConsumerWidget {
             maxLines: 2,
             initialValue: kpiForm.objrObservaciones ?? '',
             onChanged: kpiForm.id == "new"
-                ? ref.read(kpiFormProvider(kpi).notifier).onObservacionesChanged
+                ? ref.read(kpiFormProvider(widget.kpi).notifier).onObservacionesChanged
                 : null,
           ),
           const SizedBox(height: 80),
         ],
       ),
     );
+
   }
 
   void _openSearchUsers(BuildContext context, WidgetRef ref) async {
@@ -524,10 +484,12 @@ class _KpiInformation extends ConsumerWidget {
         .then((user) {
       if (user == null) return;
 
-      ref.read(kpiFormProvider(kpi).notifier).onUsuarioChanged(user);
+      ref.read(kpiFormProvider(widget.kpi).notifier).onUsuarioChanged(user);
     });
   }
 }
+
+
 
 class ItemMes extends StatelessWidget {
   WidgetRef ref;

@@ -28,8 +28,8 @@ class KpiFormNotifier extends StateNotifier<KpiFormState> {
     required Kpi kpi,
   }) : super(KpiFormState(
           id: kpi.id,
-          objrIdAsignacion: kpi.objrIdAsignacion,
-          objrIdCategoria: kpi.objrIdCategoria,
+          objrIdAsignacion: StateCompany.dirty(kpi.objrIdAsignacion),
+          objrIdCategoria: Select.dirty(kpi.objrIdCategoria),
           objrIdPeriodicidad: kpi.objrIdPeriodicidad,
           objrIdTipo: kpi.objrIdTipo,
           objrIdUsuarioRegistro: kpi.objrIdUsuarioRegistro,
@@ -62,12 +62,12 @@ class KpiFormNotifier extends StateNotifier<KpiFormState> {
       'OBJR_ID_OBJETIVO': (state.id == 'new') ? null : state.id,
       'OBJR_NOMBRE': state.objrNombre.value,
       'OBJR_ID_USUARIO_RESPONSABLE': state.objrIdUsuarioResponsable,
-      'OBJR_ID_ASIGNACION': state.objrIdAsignacion,
+      'OBJR_ID_ASIGNACION': state.objrIdAsignacion.value,
       'OBJR_ID_TIPO': state.objrIdTipo,
       'OBJR_ID_PERIODICIDAD': state.objrIdPeriodicidad,
       'OBJR_OBSERVACIONES': state.objrObservaciones,
       'OBJR_ID_USUARIO_REGISTRO': state.objrIdUsuarioRegistro,
-      'OBJR_ID_CATEGORIA': state.objrIdCategoria,
+      'OBJR_ID_CATEGORIA': state.objrIdCategoria.value,
       'OBJR_NOMNRE_ASIGNACION': state.objrNombreAsignacion,
       'OBJR_NOMNRE_CATEGORIA': state.objrIdCategoria,
       'OBJR_NOMNRE_TIPO': state.objrNombreTipo,
@@ -93,6 +93,8 @@ class KpiFormNotifier extends StateNotifier<KpiFormState> {
     state = state.copyWith(
       isFormValid: Formz.validate([
         Name.dirty(state.objrNombre.value),
+        Select.dirty(state.objrIdCategoria.value),
+        StateCompany.dirty(state.objrIdAsignacion.value)
       ]),
     );
   }
@@ -102,6 +104,8 @@ class KpiFormNotifier extends StateNotifier<KpiFormState> {
         objrNombre: Name.dirty(value),
         isFormValid: Formz.validate([
           Name.dirty(value),
+          Select.dirty(state.objrIdCategoria.value),
+          StateCompany.dirty(state.objrIdAsignacion.value)
         ]));
   }
 
@@ -112,15 +116,33 @@ class KpiFormNotifier extends StateNotifier<KpiFormState> {
       newList = [newList[0]];
     }
 
-    state = state.copyWith(
+    /*state = state.copyWith(
       objrIdAsignacion: value, 
       objrNombreAsignacion: name,
       arrayuserasignacion: newList
-    );
+    );*/
+
+    state = state.copyWith(
+      objrIdAsignacion: StateCompany.dirty(value),
+      objrNombreCategoria: name,
+      arrayuserasignacion: newList,
+      isFormValid: Formz.validate([
+        Name.dirty(state.objrNombre.value),
+        Select.dirty(state.objrIdCategoria.value),
+        StateCompany.dirty(value)
+      ]));
   }
 
   void onCategoriaChanged(String value, String name) {
-    state = state.copyWith(objrIdCategoria: value, objrNombreCategoria: name);
+    //state = state.copyWith(objrIdCategoria: value, objrNombreCategoria: name);
+    state = state.copyWith(
+      objrIdCategoria: Select.dirty(value),
+      objrNombreCategoria: name,
+      isFormValid: Formz.validate([
+        Name.dirty(state.objrNombre.value),
+        Select.dirty(value),
+        StateCompany.dirty(state.objrIdAsignacion.value)
+      ]));
   }
 
   void onTipoChanged(String id, String name) {
@@ -210,7 +232,7 @@ class KpiFormState {
   final Name objrNombre;
   final String objrIdUsuarioResponsable;
   final String objrNombreUsuarioResponsable;
-  final String objrIdAsignacion;
+  final StateCompany objrIdAsignacion;
   final String objrNombreAsignacion;
   final String objrIdTipo;
   final String objrNombreTipo;
@@ -219,7 +241,7 @@ class KpiFormState {
   final String? objrObservaciones;
   final String objrIdUsuarioRegistro;
   final String objrNombreUsuarioRegistro;
-  final String objrIdCategoria;
+  final Select objrIdCategoria;
   final String objrNombreCategoria;
   final String objrCantidad;
   final bool objrValorDifMes;
@@ -230,9 +252,9 @@ class KpiFormState {
     this.isFormValid = false,
     this.id,
     this.objrNombre = const Name.dirty(''),
-    this.objrIdAsignacion = '',
+    this.objrIdAsignacion = const StateCompany.dirty(''),
     this.objrNombreAsignacion = '',
-    this.objrIdCategoria = '',
+    this.objrIdCategoria = const Select.dirty(''),
     this.objrNombreCategoria = '',
     this.objrIdPeriodicidad = '',
     this.objrNombrePeriodicidad = '',
@@ -253,9 +275,9 @@ class KpiFormState {
     bool? isFormValid,
     String? id,
     Name? objrNombre,
-    String? objrIdAsignacion,
+    StateCompany? objrIdAsignacion,
     String? objrNombreAsignacion,
-    String? objrIdCategoria,
+    Select? objrIdCategoria,
     String? objrNombreCategoria,
     String? objrIdPeriodicidad,
     String? objrNombrePeriodicidad,

@@ -17,6 +17,8 @@ class ItemRoutePlannerLocal extends ConsumerWidget {
     numCantidadLocal = numCantidadLocal ?? 0;
 
     final List<CompanyLocalRoutePlanner> listItems = ref.watch(routePlannerProvider).selectedItems;
+
+    print('DAVID LIST ITEMS: ${listItems.length}');
    
     bool exists = listItems.any((item) => item.ruc == local.ruc && item.localCodigo == local.localCodigo);
 

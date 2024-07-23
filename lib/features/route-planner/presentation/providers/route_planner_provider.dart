@@ -1,5 +1,7 @@
+import 'package:crm_app/features/route-planner/domain/entities/create_event_planner_response.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_repository_provider.dart';
 import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/domain.dart';
 
@@ -59,9 +61,62 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     state = state.copyWith(filters: updatedFilters);
   }
 
-  void setLocalesOrder(List<CompanyLocalRoutePlanner> localesOrder) {
+  /*onLocalesTemp() {
+    print('INICIO CAN START onLocalesTemp');
+
     state = state.copyWith(
-      locales: localesOrder,
+      localesOrderTemp: state.locales
+    );
+  }*/
+
+  /*onSetLocalesTmpInLocales() {
+    state = state.copyWith(
+      locales: state.localesOrderTemp
+    );
+  }*/
+
+  int indexOfKey(Key key) {
+    return state.selectedItems.indexWhere((CompanyLocalRoutePlanner d) => d.key == key);
+  }
+
+  bool onReorder(Key item, Key newPosition, List<CompanyLocalRoutePlanner> list) {
+
+    int draggingIndex = indexOfKey(item);
+    int newPositionIndex = indexOfKey(newPosition);
+
+    final draggedItem = state.selectedItems[draggingIndex];
+
+    final newListSelectedItems = [...state.selectedItems];
+
+    newListSelectedItems.removeAt(draggingIndex);
+    newListSelectedItems.insert(newPositionIndex, draggedItem);
+    
+    state = state.copyWith(
+      selectedItems: newListSelectedItems
+    );
+  
+    return true;
+  }
+
+  Future<void> setSelectedItemsOrder(List<CompanyLocalRoutePlanner> selectedItemsOrder) async {
+    state = state.copyWith(
+      selectedItems: selectedItemsOrder,
+    );
+  }
+
+  Future<void> initialOrderkey()  async {
+    List<CompanyLocalRoutePlanner> newListItemsSelected = [];
+    List<CompanyLocalRoutePlanner> oldListItemsSelected = state.selectedItems;
+
+    for (var i = 0; i < oldListItemsSelected.length; i++) {
+      CompanyLocalRoutePlanner local = oldListItemsSelected[i];
+      local.key = ValueKey(i);
+  
+      newListItemsSelected.add(local);
+    }
+
+    state = state.copyWith(
+      selectedItems: newListItemsSelected
     );
   }
 
@@ -123,8 +178,12 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
         selectedItems: [...state.selectedItems, company]
       );
     } else {
+      print('eliminar item');
       List<CompanyLocalRoutePlanner> newItems = [...state.selectedItems];
-      newItems.remove(company);
+
+      newItems.removeWhere((item) => item.ruc == company.ruc && item.localCodigo == company.localCodigo);
+      //newItems.remove(company);
+      print('total elimnado: ${newItems.length } ');
       state = state.copyWith(
         selectedItems: newItems
       );
@@ -208,6 +267,29 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     return options;
   }
 
+  Future<CreateEventPlannerResponse> createEventPlanner(
+      Map<dynamic, dynamic> eventLike) async {
+    try {
+      final eventResponse = await routePlannerRepository.createEventPlanner(eventLike);
+
+      final message = eventResponse.message;
+
+      if (eventResponse.status) {
+        return CreateEventPlannerResponse(response: true, message: message);
+      }
+
+      return CreateEventPlannerResponse(response: false, message: message);
+    } catch (e) {
+      return CreateEventPlannerResponse(
+          response: false, message: 'Error, revisar con su administrador.');
+    }
+  }
+
+  void clearSelectedLocales() {
+    state = state.copyWith(
+      selectedItems: []
+    );
+  }
 
   Future loadNextPage({bool isRefresh = false}) async {
     final search = state.textSearch;
@@ -264,6 +346,7 @@ class RoutePlannerState {
   final int offset;
   final bool isLoading;
   final List<CompanyLocalRoutePlanner> locales;
+  //final List<CompanyLocalRoutePlanner> localesOrderTemp;
   final bool isActiveSearch;
   final String textSearch;
   final List<FilterOption> filters;
@@ -280,6 +363,7 @@ class RoutePlannerState {
       this.filters = const [],
       this.filtersSuccess = const [],
       this.locales = const [],
+      //this.localesOrderTemp = const [],
       this.selectedItems = const []});
 
   RoutePlannerState copyWith({
@@ -290,6 +374,7 @@ class RoutePlannerState {
     bool? isActiveSearch,
     String? textSearch,
     List<CompanyLocalRoutePlanner>? locales,
+    //List<CompanyLocalRoutePlanner>? localesOrderTemp,
     List<FilterOption>? filters,
     List<FilterOption>? filtersSuccess,
     List<CompanyLocalRoutePlanner>? selectedItems,
@@ -300,6 +385,7 @@ class RoutePlannerState {
         offset: offset ?? this.offset,
         isLoading: isLoading ?? this.isLoading,
         locales: locales ?? this.locales,
+        //localesOrderTemp: localesOrderTemp ?? this.localesOrderTemp,
         isActiveSearch: isActiveSearch ?? this.isActiveSearch,
         textSearch: textSearch ?? this.textSearch,
         filters: filters ?? this.filters,

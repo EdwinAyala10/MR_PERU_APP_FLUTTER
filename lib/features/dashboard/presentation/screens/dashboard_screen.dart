@@ -57,7 +57,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     return Scaffold(
       drawer: SideMenu(scaffoldKey: scaffoldKey),
       appBar: AppBar(
-        title: const Text('Dashboard'),
+        title: const Text('Dashboard', style: TextStyle(
+          fontWeight: FontWeight.w500
+        ),),
       ),
       body: RefreshIndicator(
         key: _refreshIndicatorKey,
@@ -219,14 +221,16 @@ class _DashboardViewState extends ConsumerState {
               height: 4,
             ),
             kpisState.isLoading ? const PlaceholderSection() : _ContainerDashboardKpis(kpis: kpisState.kpis),
-            eventsState.isLoading ? const PlaceholderSection() : _ContainerDashboardEvents(
-                linkedEventsList: eventsState.linkedEventsList),
-            activitiesState.isLoading ? const PlaceholderSection() : _ContainerDashboardActivities(
-                activities: activitiesState.activities),
-            /*_ContainerDashboardOpportunities(
-                statusOpportunities: opportunitiesState.statusOpportunity),*/
             opportunitiesState.isLoading ? const PlaceholderSection() : _ContainerDashboardOpportunities(
                 opportunities: opportunitiesState.opportunities),
+            activitiesState.isLoading ? const PlaceholderSection() : _ContainerDashboardActivities(
+                activities: activitiesState.activities),
+            eventsState.isLoading ? const PlaceholderSection() : _ContainerDashboardEvents(
+                linkedEventsList: eventsState.linkedEventsList),
+            
+            /*_ContainerDashboardOpportunities(
+                statusOpportunities: opportunitiesState.statusOpportunity),*/
+            
             const SizedBox(
               height: 68,
             )

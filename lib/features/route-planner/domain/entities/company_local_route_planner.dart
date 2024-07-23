@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class CompanyLocalRoutePlanner {
   String id;
   String ruc;
@@ -27,6 +29,7 @@ class CompanyLocalRoutePlanner {
   String localCoordenadasLatitud;
   String? localUbigeoCodigo;
   String? localCodigoPostal;
+  Key? key;
 
 
   CompanyLocalRoutePlanner(
@@ -58,5 +61,6 @@ class CompanyLocalRoutePlanner {
       required this.localCoordenadasLatitud,
       this.localUbigeoCodigo,
       this.localCodigoPostal,
+      this.key
       });
 }
