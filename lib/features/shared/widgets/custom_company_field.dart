@@ -8,6 +8,7 @@ class CustomCompanyField extends StatefulWidget {
   final String? errorMessage;
   final bool obscureText;
   final TextInputType? keyboardType;
+  final TextCapitalization? textCapitalization;
   final int maxLines;
   final TextEditingController? controller;
   final bool? enabled;
@@ -25,6 +26,7 @@ class CustomCompanyField extends StatefulWidget {
     this.errorMessage,
     this.obscureText = false,
     this.keyboardType = TextInputType.text,
+    this.textCapitalization = TextCapitalization.none,
     this.maxLines = 1,
     this.controller,
     this.enabled = true,
@@ -78,6 +80,8 @@ class _CustomCompanyFieldState extends State<CustomCompanyField> {
           ),
           child: TextFormField(
             controller: _internalController,
+            //textCapitalization: TextCapitalization.characters,
+            textCapitalization: widget.textCapitalization!,
             onChanged: widget.onChanged,
             onFieldSubmitted: widget.onFieldSubmitted,
             validator: widget.validator,

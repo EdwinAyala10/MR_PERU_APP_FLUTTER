@@ -52,6 +52,7 @@ class Company {
   List<ArrayUser>? arrayresponsablesEliminar;
   String? userreporteName;
   String? localCantidad;
+  String? razonComercial;
 
   //ARRAYRESPONSABLES
 
@@ -106,5 +107,7 @@ class Company {
       this.cchkIdEstadoCheck,
       this.localCodigoPostal,
       this.clienteNombreEstado,
-      this.userreporteName});
+      this.userreporteName,
+      this.razonComercial
+      });
 }

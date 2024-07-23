@@ -40,6 +40,7 @@ class CompanyMapper {
     localDistrito: json['LOCAL_DISTRITO'] ?? '',
     localCantidad: json['LOCAL_CANTIDAD'] ?? '',
     userreporteName: json['USERREPORT_NAME'] ?? '',
+    razonComercial: json['RAZON_COMERCIAL'] ?? '',
     arrayresponsables: json["CLIENTES_RESPONSABLE"] != null ? List<ArrayUser>.from(json["CLIENTES_RESPONSABLE"].map((x) => ArrayUser.fromJson(x))) : [],
   );
 

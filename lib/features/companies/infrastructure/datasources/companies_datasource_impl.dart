@@ -59,6 +59,8 @@ class CompaniesDatasourceImpl extends CompaniesDatasource {
 
       if (rucId != 'new') {
         company.rucId = company.ruc;
+        company.localTipo = '2';
+        company.localDireccion = '-';
       }
       return company;
     } on DioException catch (e) {

@@ -186,6 +186,8 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
             spacingHeight,
             _buildInfoField('Nombre de la empresa', widget.company.razon,
                 styleLabel, styleContent),
+             _buildInfoField('Razon comercial', widget.company.razonComercial ?? '',
+                styleLabel, styleContent),
             _buildInfoField(
                 'RUC', widget.company.ruc, styleLabel, styleContent),
             _buildInfoField(
@@ -337,8 +339,25 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
               String idCheck = widget.company.cchkIdEstadoCheck == '06'
                   ? '01'
                   : (widget.company.cchkIdEstadoCheck == null ? '01' : '06');
+              
+
+              final locales = ref.watch(companyProvider(widget.company.ruc)).companyLocales;
+
+              final totalLocales = locales.length;
+              print('TOTAL Locales');
+
+              String idLocal = '-';
+              String nombreLocal = '-';
+
+              if (totalLocales == 1) {
+                idLocal = locales[0].id;
+                nombreLocal = '${locales[0].localNombre} ${locales[0].localDireccion}';
+              }
+              
               String ruc = widget.company.ruc;
-              String ids = '$idCheck*$ruc';
+              String ids = '$idCheck*$ruc*$idLocal*$nombreLocal';
+
+
               context.push('/company_check_in/$ids');
             },
             iconData: Icons.check_circle_outline_outlined);

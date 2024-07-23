@@ -35,6 +35,8 @@ class CompanyCheckInScreen extends ConsumerWidget {
     List<String> ids = id.split("*");
     String idCheck = ids[0];
     String ruc = ids[1];
+    String idLocal = ids[2];
+    String nombreLocal = ids[3];
 
     final locationState = ref.watch(locationProvider);
     bool? allowSave = locationState.allowSave;

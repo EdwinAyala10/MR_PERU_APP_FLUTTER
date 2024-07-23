@@ -61,9 +61,9 @@ class KpiScreen extends ConsumerWidget {
                   showSnackbar(context, value.message);
 
                   if (value.response) {
-                    Timer(const Duration(seconds: 3), () {
-                      context.push('/dashboard');
-                    });
+                    //Timer(const Duration(seconds: 3), () {
+                      context.replace('/dashboard');
+                    //});
                   }
                 }
 

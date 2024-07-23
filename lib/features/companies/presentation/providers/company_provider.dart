@@ -100,6 +100,7 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
       cchkIdEstadoCheck: '',
       ubigeoCodigo: '',
       voltajeTension: '',
+      razonComercial: '',
       userreporteName: user.name,
       arrayresponsables: [],
       arrayresponsablesEliminar: [],

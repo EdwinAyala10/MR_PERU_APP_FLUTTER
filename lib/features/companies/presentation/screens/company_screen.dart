@@ -183,6 +183,8 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
       DropdownOption(id: '2',name: 'PLANTA'),
     ];
 
+    final swIsCreate = widget.company.rucId == 'new';
+
     final companyForm = ref.watch(companyFormProvider(widget.company));
     //final selectMapState = ref.watch(selectedMapProvider.notifier).state;
 
@@ -247,15 +249,25 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
           CustomCompanyField(
             label: 'Nombre de la empresa *',
             initialValue: companyForm.razon.value,
+            textCapitalization: TextCapitalization.characters,
             onChanged: ref
                 .read(companyFormProvider(widget.company).notifier)
                 .onRazonChanged,
             errorMessage: companyForm.razon.errorMessage,
           ),
           CustomCompanyField(
+            label: 'Razon Comercial',
+            initialValue: companyForm.razonComercial,
+            textCapitalization: TextCapitalization.characters,
+            onChanged: ref
+                .read(companyFormProvider(widget.company).notifier)
+                .onRazonComercialChanged,
+          ),
+          CustomCompanyField(
             label: 'RUC *',
             initialValue:
                 companyForm.ruc.value == 'new' ? '' : companyForm.ruc.value,
+            keyboardType: TextInputType.number,
             onChanged: ref
                 .read(companyFormProvider(widget.company).notifier)
                 .onRucChanged,
@@ -396,7 +408,7 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
                 .onRecomendacionChanged,
           ),
           TitleSectionForm(title: 'DATOS DE CONTACTO'),
-          CustomCompanyField(
+          /*CustomCompanyField(
             isTopField: true,
             label: 'Teléfono',
             keyboardType: TextInputType.number,
@@ -405,8 +417,8 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
                 .read(companyFormProvider(widget.company).notifier)
                 .onTelefonoChanged,
             errorMessage: companyForm.telefono.errorMessage,
-          ),
-          CustomCompanyField(
+          ),*/
+          /*CustomCompanyField(
             isTopField: true,
             label: 'Email',
             keyboardType: TextInputType.emailAddress,
@@ -414,7 +426,7 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
             onChanged: ref
                 .read(companyFormProvider(widget.company).notifier)
                 .onEmailChanged,
-          ),
+          ),*/
           CustomCompanyField(
             isTopField: true,
             label: 'Web',
@@ -427,8 +439,9 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
           const SizedBox(
             height: 10,
           ),*/
-          TitleSectionForm(title: 'DATOS DE PRIMER LOCAL'),
-          SelectCustomForm(
+          if(swIsCreate)
+            TitleSectionForm(title: 'DATOS DE PRIMER LOCAL'),
+          if(swIsCreate) SelectCustomForm(
             label: 'Tipo de local',
             value: companyForm.localTipo.value,
             callbackChange: (String? newValue) {
@@ -439,10 +452,10 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
             items: optionsLocalTipo,
             errorMessage: companyForm.localTipo.errorMessage,
           ),
-          const SizedBox(
+          if(swIsCreate) const SizedBox(
             height: 6,
           ),
-          TextAddress(
+          if(swIsCreate) TextAddress(
               text: companyForm.localDireccion.value,
               error: companyForm.localDireccion.errorMessage,
               placeholder: 'Dirección de local',
@@ -452,10 +465,10 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
                 //context.push('/company_map/${companyForm.rucId}/direction');
               },
               paramContext: context),
-          const SizedBox(
+          if(swIsCreate) const SizedBox(
             height: 4,
           ),
-          companyForm.isEditLocalNombre
+          if(swIsCreate) companyForm.isEditLocalNombre
               ? CustomCompanyField(
                   key: _fieldKeyLocalName,
                   label: 'Nombre de local',
@@ -498,27 +511,27 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
           /*const SizedBox(
             height: 4,
           ),*/
-          TextViewCustom(
+          if(swIsCreate) TextViewCustom(
               text: companyForm.localDepartamentoDesc,
               label: 'Departamento local',
               placeholder: 'Departamento del local'),
-          TextViewCustom(
+          if(swIsCreate) TextViewCustom(
               text: companyForm.localProvinciaDesc,
               label: 'Provincia local',
               placeholder: 'Provincia del local'),
-          TextViewCustom(
+          if(swIsCreate) TextViewCustom(
               text: companyForm.localDistritoDesc,
               label: 'Distrito local',
               placeholder: 'Distrito del local'),
-          TextViewCustom(
+          if(swIsCreate) TextViewCustom(
               text: companyForm.localCodigoPostal ?? '',
               label: 'Código postal local',
               placeholder: 'Código postal del local'),
-          TextViewCustom(
+          if(swIsCreate) TextViewCustom(
               text: companyForm.coordenadasLatitud,
               label: 'Latitud',
               placeholder: 'Latitud'),
-          TextViewCustom(
+          if(swIsCreate) TextViewCustom(
               text: companyForm.coordenadasLongitud,
               label: 'Longitud',
               placeholder: 'Longitud'),

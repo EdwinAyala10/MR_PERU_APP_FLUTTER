@@ -13,6 +13,8 @@ final companyCheckInProvider = StateNotifierProvider.autoDispose
   List<String> ids = id.split("*");
   String idCheck = ids[0];
   String ruc = ids[1];
+  String idLocal = ids[2];
+  String nombreLocal = ids[3];
   final company = ref.read(companyProvider(ruc).notifier).state.company;
 
   return CompanyCheckInNotifier(
@@ -20,6 +22,8 @@ final companyCheckInProvider = StateNotifierProvider.autoDispose
     id: idCheck,
     ruc: company!.ruc,
     nameEmpresa: company.razon,
+    idLocal: idLocal,
+    nombreLocal: nombreLocal,
     user: user!,
   );
 });
@@ -29,18 +33,25 @@ class CompanyCheckInNotifier extends StateNotifier<CompanyCheckInState> {
   final User user;
   final String ruc;
   final String nameEmpresa;
+  final String idLocal;
+  final String nombreLocal;
 
   CompanyCheckInNotifier({
     required this.companiesRepository,
     required this.user,
     required this.ruc,
     required this.nameEmpresa,
+    required this.idLocal,
+    required this.nombreLocal,
     required String id,
   }) : super(CompanyCheckInState(id: id)) {
     loadCompanyCheckIn(id);
   }
 
   CompanyCheckIn newEmptyCompanyCheckIn(String idCheck) {
+    String isIdLocal = idLocal == '-' ? '' : idLocal;
+    String isNombreLocal = nombreLocal == '-' ? '' : nombreLocal;
+
     return CompanyCheckIn(
       cchkIdClientesCheck: 'new',
       cchkIdComentario: '',
@@ -56,8 +67,8 @@ class CompanyCheckInNotifier extends StateNotifier<CompanyCheckInState> {
       cchkDireccionMapa: '',
       cchkIdUsuarioRegistro: user.code,
       cchkUbigeo: '',
-      cchkLocalCodigo: '',
-      cchkLocalNombre: '',
+      cchkLocalCodigo: isIdLocal,
+      cchkLocalNombre: isNombreLocal,
       cchkNombreOportunidad: '',
       cchkNombreContacto: '',
     );

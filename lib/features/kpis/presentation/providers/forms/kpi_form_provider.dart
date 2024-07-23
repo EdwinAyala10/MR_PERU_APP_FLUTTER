@@ -69,7 +69,7 @@ class KpiFormNotifier extends StateNotifier<KpiFormState> {
       'OBJR_ID_USUARIO_REGISTRO': state.objrIdUsuarioRegistro,
       'OBJR_ID_CATEGORIA': state.objrIdCategoria.value,
       'OBJR_NOMNRE_ASIGNACION': state.objrNombreAsignacion,
-      'OBJR_NOMNRE_CATEGORIA': state.objrIdCategoria,
+      'OBJR_NOMNRE_CATEGORIA': state.objrNombreCategoria,
       'OBJR_NOMNRE_TIPO': state.objrNombreTipo,
       'OBJR_CANTIDAD': state.objrCantidad,
       'OBJR_NOMNRE_PERIODICIDAD': state.objrNombrePeriodicidad,
@@ -200,11 +200,11 @@ class KpiFormNotifier extends StateNotifier<KpiFormState> {
 
   void onUsuarioChanged(UserMaster usuario) {
     bool objExist = state.arrayuserasignacion!.any(
-        (objeto) => objeto.id == usuario.id && objeto.name == usuario.name);
+        (objeto) => objeto.id == usuario.code && objeto.name == usuario.name);
 
     if (!objExist) {
       ArrayUser array = ArrayUser();
-      array.id = usuario.id;
+      array.id = usuario.code;
       array.name = usuario.name;
 
       List<ArrayUser> arrayUsuarios = [

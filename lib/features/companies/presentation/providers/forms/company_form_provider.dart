@@ -37,7 +37,9 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
           ruc: Ruc.dirty(company.ruc),
           razon: Razon.dirty(company.razon),
           direccion: company.direccion ?? '',
-          telefono: Phone.dirty(company.telefono ?? ''),
+          //telefono: Phone.dirty(company.telefono ?? ''),
+          telefono: company.telefono ?? '',
+          razonComercial: company.razonComercial ?? '',
           observaciones: company.observaciones ?? '',
           departamento: company.departamento ?? '',
           provincia: company.provincia ?? '',
@@ -95,7 +97,8 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
       'RUC': state.ruc.value,
       'RAZON': state.razon.value,
       'DIRECCION': state.direccion,
-      'TELEFONO': state.telefono.value,
+      //'TELEFONO': state.telefono.value,
+      'TELEFONO': state.telefono,
       'OBSERVACIONES': state.observaciones,
       'DEPARTAMENTO': state.departamento,
       'PROVINCIA': state.provincia,
@@ -135,6 +138,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
       'CCHK_ID_ESTADO_CHECK': state.cchkIdEstadoCheck,
       'CLIENTE_NOMBRE_ESTADO': state.clienteNombreEstado,
       'LOCAL_DISTRITO_DESC': state.localDistritoDesc,
+      'RAZON_COMERCIAL': state.razonComercial,
       'CLIENTES_RESPONSABLE': state.arrayresponsables != null
           ? List<dynamic>.from(state.arrayresponsables!.map((x) => x.toJson()))
           : [],
@@ -156,7 +160,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
       isFormValid: Formz.validate([
         Ruc.dirty(state.ruc.value),
         Razon.dirty(state.razon.value),
-        Phone.dirty(state.telefono.value),
+        //Phone.dirty(state.telefono.value),
         //Address.dirty(state.direccion.value),
         Address.dirty(state.localDireccion.value),
         Type.dirty(state.tipoCliente.value),
@@ -174,7 +178,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
         isFormValid: Formz.validate([
           Ruc.dirty(value),
           Razon.dirty(state.razon.value),
-          Phone.dirty(state.telefono.value),
+          //Phone.dirty(state.telefono.value),
           //Address.dirty(state.direccion.value),
           Address.dirty(state.localDireccion.value),
           Type.dirty(state.tipoCliente.value),
@@ -191,7 +195,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
         isFormValid: Formz.validate([
           Ruc.dirty(state.ruc.value),
           Razon.dirty(value),
-          Phone.dirty(state.telefono.value),
+          //Phone.dirty(state.telefono.value),
           //Address.dirty(state.direccion.value),
           Address.dirty(state.localDireccion.value),
           Type.dirty(state.tipoCliente.value),
@@ -211,7 +215,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
       isFormValid: Formz.validate([
         Ruc.dirty(state.ruc.value),
         Razon.dirty(state.razon.value),
-        Phone.dirty(state.telefono.value),
+        //Phone.dirty(state.telefono.value),
         //Address.dirty(state.direccion.value),
         Address.dirty(state.localDireccion.value),
         Type.dirty(tipoId),
@@ -231,7 +235,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
       isFormValid: Formz.validate([
         Ruc.dirty(state.ruc.value),
         Razon.dirty(state.razon.value),
-        Phone.dirty(state.telefono.value),
+        //Phone.dirty(state.telefono.value),
         //Address.dirty(state.direccion.value),
         Address.dirty(state.localDireccion.value),
         Type.dirty(state.tipoCliente.value),
@@ -249,7 +253,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
       isFormValid: Formz.validate([
         Ruc.dirty(state.ruc.value),
         Razon.dirty(state.razon.value),
-        Phone.dirty(state.telefono.value),
+        //Phone.dirty(state.telefono.value),
         //Address.dirty(state.direccion.value),
         Address.dirty(state.localDireccion.value),
         Type.dirty(state.tipoCliente.value),
@@ -283,7 +287,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
       isFormValid: Formz.validate([
         Ruc.dirty(state.ruc.value),
         Razon.dirty(state.razon.value),
-        Phone.dirty(state.telefono.value),
+        //Phone.dirty(state.telefono.value),
         //Address.dirty(state.direccion.value),
         Address.dirty(state.localDireccion.value),
         Type.dirty(state.tipoCliente.value),
@@ -315,20 +319,24 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
     state = state.copyWith(website: web);
   }
 
-  void onTelefonoChanged(String value) {
+  void onRazonComercialChanged(String razonComercial) {
+    state = state.copyWith(razonComercial: razonComercial);
+  }
+
+  /*void onTelefonoChanged(String value) {
     state = state.copyWith(
         telefono: Phone.dirty(value),
         isFormValid: Formz.validate([
           Ruc.dirty(state.ruc.value),
           Razon.dirty(state.razon.value),
-          Phone.dirty(value),
+          //Phone.dirty(value),
           //Address.dirty(state.direccion.value),
           Address.dirty(state.localDireccion.value),
           Type.dirty(state.tipoCliente.value),
           StateCompany.dirty(state.estado.value),
           Rubro.dirty(state.idRubro.value),
         ]));
-  }
+  }*/
 
   void onRubroChanged(String value) {
     state = state.copyWith(
@@ -336,7 +344,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
         isFormValid: Formz.validate([
           Ruc.dirty(state.ruc.value),
           Razon.dirty(state.razon.value),
-          Phone.dirty(state.telefono.value),
+          //Phone.dirty(state.telefono.value),
           //Address.dirty(state.direccion.value),
           Address.dirty(state.localDireccion.value),
           Type.dirty(state.tipoCliente.value),
@@ -402,7 +410,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
         isFormValid: Formz.validate([
           Ruc.dirty(state.ruc.value),
           Razon.dirty(state.razon.value),
-          Phone.dirty(state.telefono.value),
+          //Phone.dirty(state.telefono.value),
           //Address.dirty(state.direccion.value),
           Address.dirty(direccion),
         ]));
@@ -414,7 +422,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
         isFormValid: Formz.validate([
           Ruc.dirty(state.ruc.value),
           Razon.dirty(state.razon.value),
-          Phone.dirty(state.telefono.value),
+          //Phone.dirty(state.telefono.value),
           //Address.dirty(state.direccion.value),
           Address.dirty(value)
         ]));
@@ -485,7 +493,7 @@ class CompanyFormState {
   final Ruc ruc;
   final Razon razon;
   final String direccion;
-  final Phone telefono;
+  final String telefono;
   final String observaciones;
   final String departamento;
   final String provincia;
@@ -534,6 +542,7 @@ class CompanyFormState {
   final List<Event>? events;
   final String? userreporteName;
   final String? localCantidad;
+  final String? razonComercial;
 
   CompanyFormState(
       {this.isFormValid = false,
@@ -541,7 +550,8 @@ class CompanyFormState {
       this.ruc = const Ruc.dirty(''),
       this.razon = const Razon.dirty(''),
       this.direccion = '',
-      this.telefono = const Phone.dirty(''),
+      //this.telefono = const Phone.dirty(''),
+      this.telefono = '',
       this.idRubro = const Rubro.dirty(''),
       this.observaciones = '',
       this.departamento = '',
@@ -589,7 +599,9 @@ class CompanyFormState {
       this.activities,
       this.events,
       this.userreporteName = '',
-      this.localDistritoDesc = ''});
+      this.localDistritoDesc = '',
+      this.razonComercial = ''
+      });
 
   CompanyFormState copyWith({
     bool? isFormValid,
@@ -597,7 +609,7 @@ class CompanyFormState {
     String? rucId,
     Razon? razon,
     String? direccion,
-    Phone? telefono,
+    String? telefono,
     String? observaciones,
     String? departamento,
     String? provincia,
@@ -646,6 +658,7 @@ class CompanyFormState {
     List<Opportunity>? opportunities,
     List<Activity>? activities,
     List<Event>? events,
+    String? razonComercial,
   }) =>
       CompanyFormState(
         isFormValid: isFormValid ?? this.isFormValid,
@@ -707,5 +720,6 @@ class CompanyFormState {
         opportunities: opportunities ?? this.opportunities,
         activities: activities ?? this.activities,
         events: events ?? this.events,
+        razonComercial: razonComercial ?? this.razonComercial,
       );
 }

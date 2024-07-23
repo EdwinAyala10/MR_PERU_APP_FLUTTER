@@ -20,6 +20,12 @@ class ItemCompany extends StatelessWidget {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (company.razonComercial != "") Text(
+            '${company.razonComercial}',
+            style: const TextStyle(
+              color: primaryColor,
+            ),
+          ),
           Row(
             children: [
               Text(company.clienteNombreEstado ?? ''),
