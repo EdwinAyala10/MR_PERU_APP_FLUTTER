@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
+import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
 import 'package:crm_app/features/route-planner/domain/entities/create_event_planner_response.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/forms/event_planner_form_provider.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
 import 'package:crm_app/features/route-planner/presentation/widgets/route_card.dart';
+import 'package:crm_app/features/shared/shared.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 import 'package:go_router/go_router.dart';
 
@@ -84,38 +86,54 @@ class _EventView extends ConsumerWidget {
     return ListView(
       children: const [
         SizedBox(height: 10),
-        _EventInformation(),
+        _EventPlannerInformation(),
       ],
     );
   }
 }
 
-class _EventInformation extends ConsumerWidget {
-  const _EventInformation();
+class _EventPlannerInformation extends ConsumerStatefulWidget {
+  const _EventPlannerInformation({super.key});
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    List<DropdownOption> optionsTipoGestion = [
-      DropdownOption(id: '', name: 'Selecciona'),
-      DropdownOption(id: '04', name: 'Visita'),
-    ];
+  ConsumerState<_EventPlannerInformation> createState() => _EventPlannerInformationState();
+}
 
-    List<DropdownOption> optionsRecordatorio = [
-      //DropdownOption(id: '', name: 'Selecciona'),
-      DropdownOption(id: '1', name: '5 MINUTOS ANTES'),
-      DropdownOption(id: '2', name: '15 MINUTOS ANTES'),
-      DropdownOption(id: '3', name: '30 MINUTOS ANTES'),
-      DropdownOption(id: '4', name: '1 DIA ANTES'),
-      DropdownOption(id: '5', name: '1 SEMANA ANTES'),
-    ];
+class _EventPlannerInformationState extends ConsumerState<_EventPlannerInformation> {
+  List<DropdownOption> optionsTipoGestion = [
+    DropdownOption(id: '', name: 'Selecciona'),
+    DropdownOption(id: '04', name: 'Visita'),
+  ];
 
+  List<DropdownOption> optionsRecordatorio = [
+    DropdownOption(id: '', name: 'Cargando...'),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('19').then((value) => {
+        setState(() {
+          optionsRecordatorio = value;
+        })
+      });
+
+    });
+  }
+  
+  @override
+  Widget build(BuildContext context) {
     final evenPlannertForm = ref.watch(eventPlannerFormProvider);
-     
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 10),
+          
           SelectCustomForm(
             label: 'Tipo de gestión',
             value: evenPlannertForm.evntIdTipoGestion.value.trim(),
@@ -129,7 +147,7 @@ class _EventInformation extends ConsumerWidget {
             },
             items: optionsTipoGestion,
             errorMessage: evenPlannertForm.evntIdTipoGestion.errorMessage,
-          ),
+          ),// : PlaceholderInput(text: 'Cargando...'),
           
           const SizedBox(height: 10),
           const Text(
@@ -188,56 +206,22 @@ class _EventInformation extends ConsumerWidget {
                 ),
     
           const SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.all(2.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                const Text('Tiempo entre reuniones',
-                    style:
-                        TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500)),
-                const SizedBox(height: 6),
-                SizedBox(
-                  width: double
-                      .infinity, // Ancho específico para el DropdownButton
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey), // Estilo de borde
-                      borderRadius:
-                          BorderRadius.circular(5.0), // Bordes redondeados
-                    ),
-                    child: DropdownButton<String>(
-                      value: evenPlannertForm.evntIdRecordatorio.toString(),
-                      onChanged: (String? newValue) {
-                        DropdownOption searchRecordatorio = optionsRecordatorio
-                            .where((option) => option.id == newValue!)
-                            .first;
-                        ref
-                            .read(eventPlannerFormProvider.notifier)
-                            .onTiempoReunionesChanged(int.parse(newValue!), searchRecordatorio.name);
-                      },
-                      isExpanded: true,
-                      style: const TextStyle(
-                        fontSize: 16.0,
-                        color: Color.fromRGBO(0, 0, 0, 1),
-                      ),
-                      // Mapeo de las opciones a elementos de menú desplegable
-                      items: optionsRecordatorio.map((option) {
-                        return DropdownMenuItem<String>(
-                          value: option.id,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10.0, vertical: 8.0),
-                            child: Text(option.name),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          optionsRecordatorio.length > 1 ? SelectCustomForm(
+            label: 'Tipo',
+            value: evenPlannertForm.evntIdIntervaloReunion.value,
+            callbackChange: (String? newValue) {
+              DropdownOption searchRecordatorio = optionsRecordatorio
+                    .where((option) => option.id == newValue!)
+                    .first;
+                ref
+                    .read(eventPlannerFormProvider.notifier)
+                    .onTiempoReunionesChanged(newValue!, searchRecordatorio.name);
+            },
+            items: optionsRecordatorio,
+            errorMessage: evenPlannertForm.evntIdIntervaloReunion.errorMessage,
+          ): PlaceholderInput(text: 'Cargando...'),
+
+          
           const SizedBox(height: 30),
           const Text(
             'Responsable',
@@ -265,9 +249,11 @@ class _EventInformation extends ConsumerWidget {
         ],
       ),
     );
-  }
 
-  Future<void> _selectDate(BuildContext context, WidgetRef ref) async {
+  }
+}
+
+Future<void> _selectDate(BuildContext context, WidgetRef ref) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -302,5 +288,3 @@ class _EventInformation extends ConsumerWidget {
      
     }
   }
-
-}
