@@ -161,7 +161,8 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
   Future loadNextPage({bool isRefresh = false}) async {
     final search = state.textSearch;
 
-    if (state.isLoading || state.isLastPage) return;
+   //if (state.isLoading || state.isLastPage) return;
+    if (state.isLoading) return;
 
     state = state.copyWith(isLoading: true);
 
@@ -177,26 +178,29 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
         search: search, limit: sLimit, offset: sOffset);
 
     if (companies.isEmpty) {
-      state = state.copyWith(isLoading: false, isLastPage: true);
+      //state = state.copyWith(isLoading: false, isLastPage: true);
+      state = state.copyWith(isLoading: false, companies: []);
       return;
-    }
-
-    int newOffset;
-    List<Company> newCompanies;
-
-    if (isRefresh) {
-      newOffset = 0;
-      newCompanies = companies;
     } else {
-      newOffset = state.offset + 10;
-      newCompanies = [...state.companies, ...companies];
+      int newOffset;
+      List<Company> newCompanies;
+
+      if (isRefresh) {
+        newOffset = 0;
+        newCompanies = companies;
+      } else {
+        newOffset = state.offset + 10;
+        newCompanies = [...state.companies, ...companies];
+      }
+
+      state = state.copyWith(
+          //isLastPage: false,
+          isLoading: false,
+          offset: newOffset,
+          companies: newCompanies);
     }
 
-    state = state.copyWith(
-        isLastPage: false,
-        isLoading: false,
-        offset: newOffset,
-        companies: newCompanies);
+   
 
     /*state = state.copyWith(
         isLastPage: false,

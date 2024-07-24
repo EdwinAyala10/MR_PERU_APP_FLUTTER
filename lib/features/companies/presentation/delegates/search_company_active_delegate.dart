@@ -4,19 +4,16 @@ import '../../domain/domain.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 
-typedef SearchCompaniesCallback = Future<List<Company>> Function(
-    String dni, String query);
+typedef SearchCompaniesCallback = Future<List<Company>> Function(String dni, String query);
 
 class SearchCompanyDelegate extends SearchDelegate<Company?> {
   final SearchCompaniesCallback searchCompanies;
   List<Company> initialCompanies;
 
-  StreamController<List<Company>> debouncedCompanies =
-      StreamController.broadcast();
-  StreamController<bool> isLoadingStream = StreamController.broadcast();
+  late StreamController<List<Company>> debouncedCompanies;
+  late StreamController<bool> isLoadingStream;
 
   Timer? _debounceTimer;
-
   String dni;
 
   SearchCompanyDelegate({
@@ -26,11 +23,18 @@ class SearchCompanyDelegate extends SearchDelegate<Company?> {
   }) : super(
           searchFieldLabel: 'Buscar empresas',
           searchFieldStyle: const TextStyle(color: Colors.black45, fontSize: 16),
-          // textInputAction: TextInputAction.done
-        );
+        ) {
+    _initializeStreams();
+  }
+
+  void _initializeStreams() {
+    debouncedCompanies = StreamController.broadcast();
+    isLoadingStream = StreamController.broadcast();
+  }
 
   void clearStreams() {
     debouncedCompanies.close();
+    isLoadingStream.close();
   }
 
   void _onQueryChanged(String query) {
@@ -39,11 +43,6 @@ class SearchCompanyDelegate extends SearchDelegate<Company?> {
     if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
 
     _debounceTimer = Timer(const Duration(milliseconds: 500), () async {
-      // if ( query.isEmpty ) {
-      //   debouncedCompanies.add([]);
-      //   return;
-      // }
-
       final companies = await searchCompanies(dni, query);
       initialCompanies = companies;
       debouncedCompanies.add(companies);
@@ -63,18 +62,15 @@ class SearchCompanyDelegate extends SearchDelegate<Company?> {
           itemCount: companies.length,
           itemBuilder: (context, index) => _CompanyItem(
             company: companies[index],
-            onCompanySelected: (context, movie) {
+            onCompanySelected: (context, company) {
               clearStreams();
-              close(context, movie);
+              close(context, company);
             },
           ),
         );
       },
     );
   }
-
-  // @override
-  // String get searchFieldLabel => 'Buscar empresa';
 
   @override
   List<Widget>? buildActions(BuildContext context) {
@@ -89,15 +85,18 @@ class SearchCompanyDelegate extends SearchDelegate<Company?> {
               spins: 10,
               infinite: true,
               child: IconButton(
-                  onPressed: () => query = '',
-                  icon: const Icon(Icons.refresh_rounded)),
+                onPressed: () => query = '',
+                icon: const Icon(Icons.refresh_rounded),
+              ),
             );
           }
 
           return FadeIn(
             animate: query.isNotEmpty,
             child: IconButton(
-                onPressed: () => query = '', icon: const Icon(Icons.clear)),
+              onPressed: () => query = '',
+              icon: const Icon(Icons.clear),
+            ),
           );
         },
       ),
@@ -107,11 +106,12 @@ class SearchCompanyDelegate extends SearchDelegate<Company?> {
   @override
   Widget? buildLeading(BuildContext context) {
     return IconButton(
-        onPressed: () {
-          clearStreams();
-          close(context, null);
-        },
-        icon: const Icon(Icons.arrow_back_ios_new_rounded));
+      onPressed: () {
+        clearStreams();
+        close(context, null);
+      },
+      icon: const Icon(Icons.arrow_back_ios_new_rounded),
+    );
   }
 
   @override
@@ -123,6 +123,21 @@ class SearchCompanyDelegate extends SearchDelegate<Company?> {
   Widget buildSuggestions(BuildContext context) {
     _onQueryChanged(query);
     return buildResultsAndSuggestions();
+  }
+
+  @override
+  void close(BuildContext context, Company? result) {
+    query = '';
+    clearStreams();
+    super.close(context, result);
+  }
+
+  @override
+  void showResults(BuildContext context) {
+    super.showResults(context);
+    clearStreams();
+    _initializeStreams();
+    _onQueryChanged(query);
   }
 }
 

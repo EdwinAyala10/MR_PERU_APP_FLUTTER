@@ -166,14 +166,25 @@ class _ListCompaniesState extends ConsumerState<_ListCompanies> {
   }
 }
 
-class _SearchComponent extends ConsumerWidget {
-  const _SearchComponent();
+
+class _SearchComponent extends ConsumerStatefulWidget {
+  const _SearchComponent({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_SearchComponent> createState() => __SearchComponentState();
+}
+
+class __SearchComponentState extends ConsumerState<_SearchComponent> {
+   TextEditingController searchController = TextEditingController(
+      //text: ref.read(routePlannerProvider).textSearch
+    );
+
+
+  @override
+  Widget build(BuildContext context) {
     Timer? debounce;
-    TextEditingController searchController =
-        TextEditingController(text: ref.read(companiesProvider).textSearch);
+    //TextEditingController searchController =
+    //    TextEditingController(text: ref.read(companiesProvider).textSearch);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
@@ -227,4 +238,5 @@ class _SearchComponent extends ConsumerWidget {
     );
   }
 }
+
 

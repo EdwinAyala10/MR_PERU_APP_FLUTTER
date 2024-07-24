@@ -4,17 +4,15 @@ import '../../domain/domain.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 
-typedef SearchCompanyLocalesCallback = Future<List<CompanyLocal>> Function(String ruc,
-    String query);
+typedef SearchCompanyLocalesCallback = Future<List<CompanyLocal>> Function(String ruc, String query);
 
 class SearchCompanyLocalDelegate extends SearchDelegate<CompanyLocal?> {
   final SearchCompanyLocalesCallback searchCompanyLocales;
   List<CompanyLocal> initialCompanyLocales;
   String ruc;
 
-  StreamController<List<CompanyLocal>> debouncedCompanyLocales =
-      StreamController.broadcast();
-  StreamController<bool> isLoadingStream = StreamController.broadcast();
+  late StreamController<List<CompanyLocal>> debouncedCompanyLocales;
+  late StreamController<bool> isLoadingStream;
 
   Timer? _debounceTimer;
 
@@ -25,11 +23,18 @@ class SearchCompanyLocalDelegate extends SearchDelegate<CompanyLocal?> {
   }) : super(
           searchFieldLabel: 'Buscar locales',
           searchFieldStyle: const TextStyle(color: Colors.black45, fontSize: 16),
-          // textInputAction: TextInputAction.done
-        );
+        ) {
+    _initializeStreams();
+  }
+
+  void _initializeStreams() {
+    debouncedCompanyLocales = StreamController.broadcast();
+    isLoadingStream = StreamController.broadcast();
+  }
 
   void clearStreams() {
     debouncedCompanyLocales.close();
+    isLoadingStream.close();
   }
 
   void _onQueryChanged(String query) {
@@ -38,11 +43,6 @@ class SearchCompanyLocalDelegate extends SearchDelegate<CompanyLocal?> {
     if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
 
     _debounceTimer = Timer(const Duration(milliseconds: 500), () async {
-      // if ( query.isEmpty ) {
-      //   debouncedCompanies.add([]);
-      //   return;
-      // }
-
       final companyLocales = await searchCompanyLocales(ruc, query);
       initialCompanyLocales = companyLocales;
       debouncedCompanyLocales.add(companyLocales);
@@ -61,18 +61,15 @@ class SearchCompanyLocalDelegate extends SearchDelegate<CompanyLocal?> {
           itemCount: companyLocales.length,
           itemBuilder: (context, index) => _CompanyLocalItem(
             companyLocal: companyLocales[index],
-            onCompanyLocalSelected: (context, movie) {
+            onCompanyLocalSelected: (context, companyLocal) {
               clearStreams();
-              close(context, movie);
+              close(context, companyLocal);
             },
           ),
         );
       },
     );
   }
-
-  // @override
-  // String get searchFieldLabel => 'Buscar empresa';
 
   @override
   List<Widget>? buildActions(BuildContext context) {
@@ -87,15 +84,18 @@ class SearchCompanyLocalDelegate extends SearchDelegate<CompanyLocal?> {
               spins: 10,
               infinite: true,
               child: IconButton(
-                  onPressed: () => query = '',
-                  icon: const Icon(Icons.refresh_rounded)),
+                onPressed: () => query = '',
+                icon: const Icon(Icons.refresh_rounded),
+              ),
             );
           }
 
           return FadeIn(
             animate: query.isNotEmpty,
             child: IconButton(
-                onPressed: () => query = '', icon: const Icon(Icons.clear)),
+              onPressed: () => query = '',
+              icon: const Icon(Icons.clear),
+            ),
           );
         },
       ),
@@ -105,11 +105,12 @@ class SearchCompanyLocalDelegate extends SearchDelegate<CompanyLocal?> {
   @override
   Widget? buildLeading(BuildContext context) {
     return IconButton(
-        onPressed: () {
-          clearStreams();
-          close(context, null);
-        },
-        icon: const Icon(Icons.arrow_back_ios_new_rounded));
+      onPressed: () {
+        clearStreams();
+        close(context, null);
+      },
+      icon: const Icon(Icons.arrow_back_ios_new_rounded),
+    );
   }
 
   @override
@@ -122,14 +123,28 @@ class SearchCompanyLocalDelegate extends SearchDelegate<CompanyLocal?> {
     _onQueryChanged(query);
     return buildResultsAndSuggestions();
   }
+
+  @override
+  void close(BuildContext context, CompanyLocal? result) {
+    query = '';
+    clearStreams();
+    super.close(context, result);
+  }
+
+  @override
+  void showResults(BuildContext context) {
+    super.showResults(context);
+    clearStreams();
+    _initializeStreams();
+    _onQueryChanged(query);
+  }
 }
 
 class _CompanyLocalItem extends StatelessWidget {
   final CompanyLocal companyLocal;
   final Function onCompanyLocalSelected;
 
-  const _CompanyLocalItem(
-      {required this.companyLocal, required this.onCompanyLocalSelected});
+  const _CompanyLocalItem({required this.companyLocal, required this.onCompanyLocalSelected});
 
   @override
   Widget build(BuildContext context) {

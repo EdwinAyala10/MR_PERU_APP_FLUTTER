@@ -4,20 +4,17 @@ import '../../domain/domain.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 
-typedef SearchContactsCallback = Future<List<Contact>> Function(
-    String query, String ruc);
+typedef SearchContactsCallback = Future<List<Contact>> Function(String query, String ruc);
 
 class SearchContactDelegate extends SearchDelegate<Contact?> {
   final SearchContactsCallback searchContacts;
   List<Contact> initialContacts;
+  String ruc;
 
-  StreamController<List<Contact>> debouncedContacts =
-      StreamController.broadcast();
-  StreamController<bool> isLoadingStream = StreamController.broadcast();
+  late StreamController<List<Contact>> debouncedContacts;
+  late StreamController<bool> isLoadingStream;
 
   Timer? _debounceTimer;
-
-  String ruc;
 
   SearchContactDelegate({
     required this.searchContacts,
@@ -26,11 +23,18 @@ class SearchContactDelegate extends SearchDelegate<Contact?> {
   }) : super(
           searchFieldLabel: 'Buscar contactos',
           searchFieldStyle: const TextStyle(color: Colors.black45, fontSize: 16),
-          // textInputAction: TextInputAction.done
-        );
+        ) {
+    _initializeStreams();
+  }
+
+  void _initializeStreams() {
+    debouncedContacts = StreamController.broadcast();
+    isLoadingStream = StreamController.broadcast();
+  }
 
   void clearStreams() {
     debouncedContacts.close();
+    isLoadingStream.close();
   }
 
   void _onQueryChanged(String query) {
@@ -39,11 +43,6 @@ class SearchContactDelegate extends SearchDelegate<Contact?> {
     if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
 
     _debounceTimer = Timer(const Duration(milliseconds: 500), () async {
-      // if ( query.isEmpty ) {
-      //   debouncedCompanies.add([]);
-      //   return;
-      // }
-
       final contacts = await searchContacts(query, ruc);
       initialContacts = contacts;
       debouncedContacts.add(contacts);
@@ -58,17 +57,6 @@ class SearchContactDelegate extends SearchDelegate<Contact?> {
       builder: (context, snapshot) {
         final contacts = snapshot.data ?? [];
 
-        /*return ListView.builder(
-          itemCount: contacts.length,
-          itemBuilder: (context, index) => _ContactItem(
-            contact: contacts[index],
-            onContactSelected: (context, movie) {
-              clearStreams();
-              close(context, movie);
-            },
-          ),
-        );*/
-
         if (contacts.isEmpty) {
           return Center(
             child: Text(
@@ -82,20 +70,16 @@ class SearchContactDelegate extends SearchDelegate<Contact?> {
           itemCount: contacts.length,
           itemBuilder: (context, index) => _ContactItem(
             contact: contacts[index],
-            onContactSelected: (context, movie) {
+            onContactSelected: (context, contact) {
               clearStreams();
-              close(context, movie);
+              close(context, contact);
             },
           ),
-          separatorBuilder: (BuildContext context, int index) =>
-              const Divider(),
+          separatorBuilder: (BuildContext context, int index) => const Divider(),
         );
       },
     );
   }
-
-  // @override
-  // String get searchFieldLabel => 'Buscar empresa';
 
   @override
   List<Widget>? buildActions(BuildContext context) {
@@ -144,6 +128,21 @@ class SearchContactDelegate extends SearchDelegate<Contact?> {
   Widget buildSuggestions(BuildContext context) {
     _onQueryChanged(query);
     return buildResultsAndSuggestions();
+  }
+
+  @override
+  void close(BuildContext context, Contact? result) {
+    query = '';
+    clearStreams();
+    super.close(context, result);
+  }
+
+  @override
+  void showResults(BuildContext context) {
+    super.showResults(context);
+    clearStreams();
+    _initializeStreams();
+    _onQueryChanged(query);
   }
 }
 
@@ -195,7 +194,6 @@ class _ContactItem extends StatelessWidget {
                   ],
                 ),
               ),
-
             ],
           ),
         ),

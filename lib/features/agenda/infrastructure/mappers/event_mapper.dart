@@ -31,6 +31,8 @@ class EventMapper {
     evntNombreOportunidad: json['EVNT_NOMBRE_OPORTUNIDAD'] ?? '',
     evntNombreTipoGestion: json['EVNT_NOMBRE_TIPO_GESTION'] ?? '',
     evntRuc: json['EVNT_RUC'] ?? '',
+    evntRazon: json['RAZON'] ?? '',
+    evntRazonComercial: json['RAZON_COMERCIAL'] ?? '',
     evntUbigeo: json['EVNT_UBIGEO'] ?? '',
     opt: json['OPT'] ?? '',
     todoDia: json['TODO_DIA'] ?? '',

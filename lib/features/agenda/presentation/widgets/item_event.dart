@@ -1,3 +1,5 @@
+import 'package:crm_app/config/config.dart';
+
 import '../../domain/domain.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -38,11 +40,16 @@ class ItemEvent extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Text('${event.evntRazon}',
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+              Text('${event.evntRazonComercial}',
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: primaryColor)),
               Text(event.evntAsunto,
                   style: const TextStyle(
                       fontSize: 16, fontWeight: FontWeight.w500)),
               Text('${event.evntNombreTipoGestion}',
-                  style: const TextStyle(fontSize: 14)),
+                  style: const TextStyle(fontSize: 13)),
+              
             ],
           ),
         ),

@@ -13,6 +13,7 @@ class Event {
   String evntIdTipoGestion;
   String? evntRuc;
   String? evntRazon;
+  String? evntRazonComercial;
   String evntIdOportunidad;
   String? evntComentario;
   String? evntUbigeo;
@@ -45,6 +46,7 @@ class Event {
     this.evntNombreUsuarioResponsable,
     this.evntRuc,
     this.evntRazon,
+    this.evntRazonComercial,
     this.evntComentario,
     this.evntUbigeo,
     this.evntCoordenadaLatitud,

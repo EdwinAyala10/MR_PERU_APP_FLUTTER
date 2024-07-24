@@ -4,19 +4,17 @@ import '../../domain/domain.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 
-typedef SearchOpportunitiesCallback = Future<List<Opportunity>> Function(
-    String ruc, String query);
+typedef SearchOpportunitiesCallback = Future<List<Opportunity>> Function(String ruc, String query);
 
 class SearchOpportunityDelegate extends SearchDelegate<Opportunity?> {
   final SearchOpportunitiesCallback searchOpportunities;
   List<Opportunity> initialOpportunities;
+  String ruc;
 
-  StreamController<List<Opportunity>> debouncedOpportunities =
-      StreamController.broadcast();
-  StreamController<bool> isLoadingStream = StreamController.broadcast();
+  late StreamController<List<Opportunity>> debouncedOpportunities;
+  late StreamController<bool> isLoadingStream;
 
   Timer? _debounceTimer;
-  String ruc;
 
   SearchOpportunityDelegate({
     required this.searchOpportunities,
@@ -25,11 +23,18 @@ class SearchOpportunityDelegate extends SearchDelegate<Opportunity?> {
   }) : super(
           searchFieldLabel: 'Buscar Oportunidades',
           searchFieldStyle: const TextStyle(color: Colors.black45, fontSize: 16),
-          // textInputAction: TextInputAction.done
-        );
+        ) {
+    _initializeStreams();
+  }
+
+  void _initializeStreams() {
+    debouncedOpportunities = StreamController.broadcast();
+    isLoadingStream = StreamController.broadcast();
+  }
 
   void clearStreams() {
     debouncedOpportunities.close();
+    isLoadingStream.close();
   }
 
   void _onQueryChanged(String query) {
@@ -38,13 +43,7 @@ class SearchOpportunityDelegate extends SearchDelegate<Opportunity?> {
     if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
 
     _debounceTimer = Timer(const Duration(milliseconds: 500), () async {
-      // if ( query.isEmpty ) {
-      //   debouncedCompanies.add([]);
-      //   return;
-      // }
-
       final opportunities = await searchOpportunities(ruc, query);
-
       initialOpportunities = opportunities;
       debouncedOpportunities.add(opportunities);
       isLoadingStream.add(false);
@@ -58,23 +57,29 @@ class SearchOpportunityDelegate extends SearchDelegate<Opportunity?> {
       builder: (context, snapshot) {
         final opportunities = snapshot.data ?? [];
 
+        if (opportunities.isEmpty) {
+          return Center(
+            child: Text(
+              'No existen registros',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          );
+        }
+
         return ListView.separated(
           separatorBuilder: (BuildContext context, int index) => const Divider(),
           itemCount: opportunities.length,
           itemBuilder: (context, index) => _OpportunityItem(
             opportunity: opportunities[index],
-            onOpportunitySelected: (context, movie) {
+            onOpportunitySelected: (context, opportunity) {
               clearStreams();
-              close(context, movie);
+              close(context, opportunity);
             },
           ),
         );
       },
     );
   }
-
-  // @override
-  // String get searchFieldLabel => 'Buscar empresa';
 
   @override
   List<Widget>? buildActions(BuildContext context) {
@@ -89,15 +94,18 @@ class SearchOpportunityDelegate extends SearchDelegate<Opportunity?> {
               spins: 10,
               infinite: true,
               child: IconButton(
-                  onPressed: () => query = '',
-                  icon: const Icon(Icons.refresh_rounded)),
+                onPressed: () => query = '',
+                icon: const Icon(Icons.refresh_rounded),
+              ),
             );
           }
 
           return FadeIn(
             animate: query.isNotEmpty,
             child: IconButton(
-                onPressed: () => query = '', icon: const Icon(Icons.clear)),
+              onPressed: () => query = '',
+              icon: const Icon(Icons.clear),
+            ),
           );
         },
       ),
@@ -107,11 +115,12 @@ class SearchOpportunityDelegate extends SearchDelegate<Opportunity?> {
   @override
   Widget? buildLeading(BuildContext context) {
     return IconButton(
-        onPressed: () {
-          clearStreams();
-          close(context, null);
-        },
-        icon: const Icon(Icons.arrow_back_ios_new_rounded));
+      onPressed: () {
+        clearStreams();
+        close(context, null);
+      },
+      icon: const Icon(Icons.arrow_back_ios_new_rounded),
+    );
   }
 
   @override
@@ -121,9 +130,23 @@ class SearchOpportunityDelegate extends SearchDelegate<Opportunity?> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-
     _onQueryChanged(query);
     return buildResultsAndSuggestions();
+  }
+
+  @override
+  void close(BuildContext context, Opportunity? result) {
+    query = '';
+    clearStreams();
+    super.close(context, result);
+  }
+
+  @override
+  void showResults(BuildContext context) {
+    super.showResults(context);
+    clearStreams();
+    _initializeStreams();
+    _onQueryChanged(query);
   }
 }
 
@@ -131,8 +154,7 @@ class _OpportunityItem extends StatelessWidget {
   final Opportunity opportunity;
   final Function onOpportunitySelected;
 
-  const _OpportunityItem(
-      {required this.opportunity, required this.onOpportunitySelected});
+  const _OpportunityItem({required this.opportunity, required this.onOpportunitySelected});
 
   @override
   Widget build(BuildContext context) {
@@ -153,9 +175,7 @@ class _OpportunityItem extends StatelessWidget {
                 width: size.width * 0.17,
                 child: const Icon(Icons.adf_scanner_rounded),
               ),
-
               const SizedBox(width: 10),
-
               // Description
               SizedBox(
                 width: size.width * 0.7,
