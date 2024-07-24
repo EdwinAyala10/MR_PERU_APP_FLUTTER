@@ -1,3 +1,5 @@
+import 'package:crm_app/features/shared/shared.dart';
+
 import '../../domain/entities/send_indicators_response.dart';
 import '../../domain/repositories/indicators_repository.dart';
 import 'indicators_repository_provider.dart';
@@ -23,8 +25,8 @@ class IndicatorsNotifier extends StateNotifier<IndicatorsState> {
     state = state.copyWith(dateInitial: fecha);
   }
 
-  void onPeriodicidadChanged(String id) {
-    state = state.copyWith(idPeriodicidad: id);
+  void onPeriodicidadChanged(String id, String name) {
+    state = state.copyWith(idPeriodicidad: id, nombrePeriodicidad: name);
   }
 
   void onDateEndChanged(DateTime fecha) {
@@ -37,7 +39,7 @@ class IndicatorsNotifier extends StateNotifier<IndicatorsState> {
 
     if (!objExist) {
       ArrayUser array = ArrayUser();
-      array.idResponsable = usuario.id;
+      array.idResponsable = usuario.code;
       array.cresIdUsuarioResponsable = usuario.code;
       array.userreportName = usuario.name;
       array.nombreResponsable = usuario.name;
@@ -116,7 +118,8 @@ class IndicatorsState {
   final DateTime? dateInitial;
   final DateTime? dateEnd;
   final String? tipoEnvio;
-  final String? idPeriodicidad;
+  final String idPeriodicidad;
+  final String? nombrePeriodicidad;
   final List<ArrayUser>? arrayresponsables;
   final bool isSend;
   final bool isLoading;
@@ -125,7 +128,8 @@ class IndicatorsState {
       {this.dateInitial,
       this.dateEnd,
       this.tipoEnvio,
-      this.idPeriodicidad,
+      this.idPeriodicidad = '',
+      this.nombrePeriodicidad = '',
       this.arrayresponsables = const [],
       this.isSend = false,
       this.isLoading = false});
@@ -136,6 +140,7 @@ class IndicatorsState {
     List<ArrayUser>? arrayresponsables,
     String? tipoEnvio,
     String? idPeriodicidad,
+    String? nombrePeriodicidad,
     bool? isSend,
     bool? isLoading,
   }) =>

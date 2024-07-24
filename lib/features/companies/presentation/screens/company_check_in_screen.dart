@@ -1,3 +1,7 @@
+import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
+import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
+import 'package:crm_app/features/shared/widgets/select_custom_form.dart';
+
 import '../../domain/domain.dart';
 import '../delegates/search_company_local_active_delegate.dart';
 import '../providers/providers.dart';
@@ -174,21 +178,45 @@ class _CompanyCheckInViewState extends ConsumerState<_CompanyCheckInView> {
     return ListView(
       children: [
         const SizedBox(height: 10),
-        _CompanyCheckInInformation(companyCheckIn: companyCheckIn),
+        CompanyCheckInformation(companyCheckIn: companyCheckIn),
       ],
     );
   }
 }
 
-class _CompanyCheckInInformation extends ConsumerWidget {
+class CompanyCheckInformation extends ConsumerStatefulWidget {
   final CompanyCheckIn companyCheckIn;
 
-  const _CompanyCheckInInformation({required this.companyCheckIn});
+  const CompanyCheckInformation({super.key, required this.companyCheckIn});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CompanyCheckInformation> createState() => _CompanyCheckInformationState();
+}
+
+class _CompanyCheckInformationState extends ConsumerState<CompanyCheckInformation> {
+
+  List<DropdownOption> optionsTipo = [
+    DropdownOption(id: '', name: 'Cargando...'),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    
+    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('20').then((value) => {
+        setState(() {
+          optionsTipo = value;
+        })
+      });
+
+    });
+  }
+  
+  @override
+  Widget build(BuildContext context) {
     final companyCheckInForm =
-        ref.watch(companyCheckInFormProvider(companyCheckIn));
+        ref.watch(companyCheckInFormProvider(widget.companyCheckIn));
 
     final locationState = ref.watch(locationProvider);
     bool? selectedLocationAddressDiff =
@@ -325,7 +353,24 @@ class _CompanyCheckInInformation extends ConsumerWidget {
               text: companyCheckInForm.cchkCoordenadaLongitud ?? '',
               placeholder: 'Longitud',
               label: 'Longitud Local'),
-          const SizedBox(height: 10),
+          
+          optionsTipo.length > 1 ? SelectCustomForm(
+            label: 'Tipo',
+            value: companyCheckInForm.cchkVisitaFrioCaliente!,
+            callbackChange: (String? newValue) {
+              DropdownOption searchDropdown = optionsTipo
+                  .where((option) => option.id == newValue!)
+                  .first;
+
+              ref
+                  .read(companyCheckInFormProvider(widget.companyCheckIn).notifier)
+                  .onTipoChanged(searchDropdown.name, searchDropdown.name);
+
+            },
+            items: optionsTipo,
+          ): PlaceholderInput(text: 'Cargando Tipo...'),
+
+          
           Padding(
             padding: const EdgeInsets.all(4.0),
             child: Column(
@@ -477,7 +522,7 @@ class _CompanyCheckInInformation extends ConsumerWidget {
             initialValue: companyCheckInForm.cchkIdComentario.value,
             errorMessage: companyCheckInForm.cchkIdComentario.errorMessage,
             onChanged: ref
-                .read(companyCheckInFormProvider(companyCheckIn).notifier)
+                .read(companyCheckInFormProvider(widget.companyCheckIn).notifier)
                 .onComentarioChanged,
           ),
           const SizedBox(height: 20),
@@ -553,7 +598,7 @@ class _CompanyCheckInInformation extends ConsumerWidget {
       if (opportunity == null) return;
 
       ref
-          .read(companyCheckInFormProvider(companyCheckIn).notifier)
+          .read(companyCheckInFormProvider(widget.companyCheckIn).notifier)
           .onOportunidadChanged(opportunity.id, opportunity.oprtNombre);
     });
   }
@@ -575,7 +620,7 @@ class _CompanyCheckInInformation extends ConsumerWidget {
       if (contact == null) return;
 
       ref
-          .read(companyCheckInFormProvider(companyCheckIn).notifier)
+          .read(companyCheckInFormProvider(widget.companyCheckIn).notifier)
           .onContactoChanged(contact.id, contact.contactoDesc);
     });
   }
@@ -598,12 +643,12 @@ class _CompanyCheckInInformation extends ConsumerWidget {
       if (companyLocal == null) return;
 
       ref
-          .read(companyCheckInFormProvider(companyCheckIn).notifier)
+          .read(companyCheckInFormProvider(widget.companyCheckIn).notifier)
           .onLocalChanged(companyLocal.id,
               '${companyLocal.localNombre} ${companyLocal.localDireccion}');
 
       ref
-          .read(companyCheckInFormProvider(companyCheckIn).notifier)
+          .read(companyCheckInFormProvider(widget.companyCheckIn).notifier)
           .onChangeCoors(companyLocal.coordenadasLatitud ?? '',
               companyLocal.coordenadasLongitud ?? '');
 
@@ -614,4 +659,6 @@ class _CompanyCheckInInformation extends ConsumerWidget {
       ref.read(locationProvider.notifier).setOnLocationAddressDiff();
     });
   }
+
+  
 }

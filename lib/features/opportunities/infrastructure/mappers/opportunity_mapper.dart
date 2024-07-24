@@ -24,7 +24,9 @@ class OpportunityMapper {
     oprtRucIntermediario02: json['OPRT_RUC_INTERMEDIARIO_02'] ?? '',
     opt: json['OPT'] ?? '',
     arrayresponsables: json["OPORTUNIDAD_RESPONSABLE"] != null ? List<ArrayUser>.from(json["OPORTUNIDAD_RESPONSABLE"].map((x) => ArrayUser.fromJson(x))) : [],
-
+    razon: json['RAZON'] ?? '',
+    razonComercial: json['RAZON_COMERCIAL'] ?? '',
+    localDistrito: json['LOCAL_DISTRITO'] ?? '',
   );
 
 }

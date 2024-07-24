@@ -21,6 +21,9 @@ class Opportunity {
     String? oprtIdOportunidadIn;
     List<ArrayUser>? arrayresponsables;
     List<ArrayUser>? arrayresponsablesEliminar;
+    String? razonComercial;
+    String? razon;
+    String? localDistrito;
 
     Opportunity({
         required this.id,
@@ -42,6 +45,9 @@ class Opportunity {
         this.oprtIdOportunidadIn,
         this.arrayresponsables,
         this.arrayresponsablesEliminar,
+        this.razon,
+        this.razonComercial,
+        this.localDistrito
     });
 
     

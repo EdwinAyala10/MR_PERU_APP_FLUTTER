@@ -20,6 +20,7 @@ class CompanyCheckInMapper {
     cchkNombreOportunidad:  json['CCHK_NOMBRE_OPORTUNIDAD'] ?? '',
     cchkLocalCodigo:  json['CCHK_LOCAL_CODIGO'] ?? '',
     cchkLocalNombre:  json['CCHK_LOCAL_NOMBRE'] ?? '',
+    cchkVisitaFrioCaliente:  json['CCHK_VISITA_FRIO_CALIENTE'] ?? '',
   );
 
 }

@@ -71,6 +71,7 @@ class CompanyCheckInNotifier extends StateNotifier<CompanyCheckInState> {
       cchkLocalNombre: isNombreLocal,
       cchkNombreOportunidad: '',
       cchkNombreContacto: '',
+      cchkVisitaFrioCaliente: ''
     );
   }
 

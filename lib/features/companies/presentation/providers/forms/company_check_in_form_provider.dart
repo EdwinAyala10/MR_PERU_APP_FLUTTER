@@ -48,6 +48,7 @@ class CompanyCheckInFormNotifier
           cchkUbigeo: companyCheckIn.cchkUbigeo ?? '',
           cchkLocalCodigo: Select.dirty(companyCheckIn.cchkLocalCodigo),
           cchkLocalNombre: companyCheckIn.cchkLocalNombre ?? '',
+          cchkVisitaFrioCaliente: companyCheckIn.cchkVisitaFrioCaliente ?? '',
         ));
 
   Future<CreateUpdateCompanyCheckInResponse> onFormSubmit() async {
@@ -79,6 +80,7 @@ class CompanyCheckInFormNotifier
       'CCHK_LOCAL_CODIGO': state.cchkLocalCodigo.value,
       'CCHK_LOCAL_NOMBRE': state.cchkLocalNombre,
       'CCHK_ID_USUARIO_REGISTRO': state.cchkIdUsuarioRegistro,
+      'CCHK_VISITA_FRIO_CALIENTE': state.cchkVisitaFrioCaliente,
     };
 
     try {
@@ -95,7 +97,7 @@ class CompanyCheckInFormNotifier
         Select.dirty(state.cchkIdContacto.value),
         Select.dirty(state.cchkIdOportunidad.value),
         Select.dirty(state.cchkLocalCodigo.value),
-        Select.dirty(state.cchkIdComentario.value),
+        Comment.dirty(state.cchkIdComentario.value),
       ]),
     );
   }
@@ -108,7 +110,7 @@ class CompanyCheckInFormNotifier
           Select.dirty(state.cchkIdContacto.value),
           Select.dirty(state.cchkIdOportunidad.value),
           Select.dirty(state.cchkLocalCodigo.value),
-          Select.dirty(state.cchkIdComentario.value),
+          Comment.dirty(state.cchkIdComentario.value),
         ]));
   }
 
@@ -121,7 +123,7 @@ class CompanyCheckInFormNotifier
           Select.dirty(state.cchkIdContacto.value),
           Select.dirty(value),
           Select.dirty(state.cchkLocalCodigo.value),
-          Select.dirty(state.cchkIdComentario.value),
+          Comment.dirty(state.cchkIdComentario.value),
         ]));
   }
 
@@ -134,7 +136,7 @@ class CompanyCheckInFormNotifier
           Select.dirty(value),
           Select.dirty(state.cchkIdOportunidad.value),
           Select.dirty(state.cchkLocalCodigo.value),
-          Select.dirty(state.cchkIdComentario.value),
+          Comment.dirty(state.cchkIdComentario.value),
         ]));
   }
 
@@ -169,9 +171,40 @@ class CompanyCheckInFormNotifier
           Select.dirty(state.cchkIdContacto.value),
           Select.dirty(state.cchkIdOportunidad.value),
           Select.dirty(value),
-          Select.dirty(state.cchkIdComentario.value),
+          Comment.dirty(state.cchkIdComentario.value),
         ]));
   }
+
+    void onTipoChanged(String tipoId, String name) {
+    //state = state.copyWith(tipoCliente: tipoId, clienteNombreTipo: name);
+
+      if (tipoId == '') {
+        state = state.copyWith(
+          cchkVisitaFrioCaliente: tipoId,
+          cchkNombreVisitaFrioCaliente: name,
+
+          cchkIdOportunidad: Select.dirty(''),
+          cchkNombreOportunidad: 'Seleccione oportunidad',
+
+          cchkIdContacto: Select.dirty(''),
+          cchkNombreContacto: 'Seleccione contacto',
+        );
+      } else {
+        state = state.copyWith(
+          cchkVisitaFrioCaliente: tipoId,
+          cchkNombreVisitaFrioCaliente: name,
+
+          cchkIdOportunidad: Select.dirty('0'),
+          cchkNombreOportunidad: 'Seleccione oportunidad',
+
+          cchkIdContacto: Select.dirty('0'),
+          cchkNombreContacto: 'Seleccione contacto',
+        );
+      }
+
+      
+      
+    }
 }
 
 class CompanyCheckInFormState {
@@ -194,6 +227,8 @@ class CompanyCheckInFormState {
   final String? cchkIdUsuarioRegistro;
   final Select cchkLocalCodigo;
   final String? cchkLocalNombre;
+  final String? cchkVisitaFrioCaliente;
+  final String? cchkNombreVisitaFrioCaliente;
 
   CompanyCheckInFormState(
       {this.isFormValid = false,
@@ -214,7 +249,10 @@ class CompanyCheckInFormState {
       this.cchkLocalNombre = '',
       this.cchkNombreUsuarioResponsable = '',
       this.cchkLocalCodigo = const Select.dirty(''),
-      this.cchkUbigeo = ''});
+      this.cchkUbigeo = '',
+      this.cchkVisitaFrioCaliente = '',
+      this.cchkNombreVisitaFrioCaliente = ''
+      });
 
   CompanyCheckInFormState copyWith({
     bool? isFormValid,
@@ -236,6 +274,8 @@ class CompanyCheckInFormState {
     Select? cchkLocalCodigo,
     String? cchkIdUsuarioRegistro,
     String? cchkLocalNombre,
+    String? cchkVisitaFrioCaliente,
+    String? cchkNombreVisitaFrioCaliente,
   }) =>
       CompanyCheckInFormState(
         isFormValid: isFormValid ?? this.isFormValid,
@@ -263,5 +303,7 @@ class CompanyCheckInFormState {
         cchkUbigeo: cchkUbigeo ?? this.cchkUbigeo,
         cchkLocalCodigo: cchkLocalCodigo ?? this.cchkLocalCodigo,
         cchkLocalNombre: cchkLocalNombre ?? this.cchkLocalNombre,
+        cchkVisitaFrioCaliente: cchkVisitaFrioCaliente ?? this.cchkVisitaFrioCaliente,
+        cchkNombreVisitaFrioCaliente: cchkNombreVisitaFrioCaliente ?? this.cchkNombreVisitaFrioCaliente,
       );
 }

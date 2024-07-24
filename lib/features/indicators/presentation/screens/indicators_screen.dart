@@ -81,10 +81,12 @@ class _ViewIndicatorsState extends ConsumerState {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 optionsPeriodicidad.length > 1 ? SelectCustomForm(
-                  label: 'Rubro',
-                  value: '01',
+                  label: 'Periodicidad',
+                  value: indicatorsState.idPeriodicidad,
                   callbackChange: (String? newValue) {
-                    ref.read(indicatorsProvider.notifier).onPeriodicidadChanged(newValue!);
+                    DropdownOption searchDropdown =
+                    optionsPeriodicidad.where((option) => option.id == newValue!).first;
+                      ref.read(indicatorsProvider.notifier).onPeriodicidadChanged(newValue!, searchDropdown.name);
                   },
                   items: optionsPeriodicidad,
                 ): PlaceholderInput(text: 'Cargando Periodicidad...'),
