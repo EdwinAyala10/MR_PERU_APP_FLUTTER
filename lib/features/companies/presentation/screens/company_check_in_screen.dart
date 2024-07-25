@@ -58,7 +58,10 @@ class CompanyCheckInScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-              'Crear ${companyCheckInState.id == '01' ? 'Check-In' : 'Check-out'}'),
+              'Crear ${companyCheckInState.id == '01' ? 'Check-In' : 'Check-out'}', style: 
+              const TextStyle(
+                fontWeight: FontWeight.w600
+              ),),
           /*eading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {

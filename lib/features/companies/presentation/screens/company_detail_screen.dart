@@ -327,9 +327,11 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
   }
 
   Widget? _itFloatingButton(currentIndex) {
+    final locales = ref.watch(companyProvider(widget.company.ruc)).companyLocales;
+
     switch (_currentIndex) {
       case 0:
-        return FloatingActionButtonIconCustom(
+        return locales.length > 0 ? FloatingActionButtonIconCustom(
             label: widget.company.cchkIdEstadoCheck == '06'
                 ? 'CHECK-IN'
                 : (widget.company.cchkIdEstadoCheck == null
@@ -348,19 +350,22 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
 
               String idLocal = '-';
               String nombreLocal = '-';
+              String latLocal = '-';
+              String lngLocal = '-';
 
               if (totalLocales == 1) {
                 idLocal = locales[0].id;
                 nombreLocal = '${locales[0].localNombre} ${locales[0].localDireccion}';
+                latLocal = locales[0].coordenadasLatitud!;
+                lngLocal = locales[0].coordenadasLongitud!;
               }
               
               String ruc = widget.company.ruc;
-              String ids = '$idCheck*$ruc*$idLocal*$nombreLocal';
-
+              String ids = '$idCheck*$ruc*$idLocal*$nombreLocal*$latLocal*$lngLocal';
 
               context.push('/company_check_in/$ids');
             },
-            iconData: Icons.check_circle_outline_outlined);
+            iconData: Icons.check_circle_outline_outlined) : null;
       case 1:
         return FloatingActionButtonCustom(
             callOnPressed: () {

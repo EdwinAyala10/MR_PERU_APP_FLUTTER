@@ -20,6 +20,9 @@ class CompanyLocal {
   String? distrito;
   String? localCodigoPostal;
   String? localTipoDescripcion;
+  String? localCoordenadasGeo;
+  String? localCoordenadasLongitud;
+  String? localCoordenadasLatitud;
 
   CompanyLocal(
       {required this.id,
@@ -42,5 +45,9 @@ class CompanyLocal {
       this.provincia,
       this.distrito,
       this.localCodigoPostal,
-      this.localTipoDescripcion});
+      this.localTipoDescripcion,
+      this.localCoordenadasGeo,
+      this.localCoordenadasLatitud,
+      this.localCoordenadasLongitud
+      });
 }

@@ -15,6 +15,8 @@ final companyCheckInProvider = StateNotifierProvider.autoDispose
   String ruc = ids[1];
   String idLocal = ids[2];
   String nombreLocal = ids[3];
+  String latLocal = ids[4];
+  String lngLocal = ids[5];
   final company = ref.read(companyProvider(ruc).notifier).state.company;
 
   return CompanyCheckInNotifier(
@@ -24,6 +26,8 @@ final companyCheckInProvider = StateNotifierProvider.autoDispose
     nameEmpresa: company.razon,
     idLocal: idLocal,
     nombreLocal: nombreLocal,
+    latLocal: latLocal,
+    lngLocal: lngLocal,
     user: user!,
   );
 });
@@ -35,6 +39,8 @@ class CompanyCheckInNotifier extends StateNotifier<CompanyCheckInState> {
   final String nameEmpresa;
   final String idLocal;
   final String nombreLocal;
+  final String latLocal;
+  final String lngLocal;
 
   CompanyCheckInNotifier({
     required this.companiesRepository,
@@ -43,6 +49,8 @@ class CompanyCheckInNotifier extends StateNotifier<CompanyCheckInState> {
     required this.nameEmpresa,
     required this.idLocal,
     required this.nombreLocal,
+    required this.latLocal,
+    required this.lngLocal,
     required String id,
   }) : super(CompanyCheckInState(id: id)) {
     loadCompanyCheckIn(id);
@@ -62,8 +70,8 @@ class CompanyCheckInNotifier extends StateNotifier<CompanyCheckInState> {
       cchkNombreUsuarioResponsable: user.name,
       cchkRuc: ruc,
       cchkRazon: nameEmpresa,
-      cchkCoordenadaLatitud: '',
-      cchkCoordenadaLongitud: '',
+      cchkCoordenadaLatitud: latLocal,
+      cchkCoordenadaLongitud: lngLocal,
       cchkDireccionMapa: '',
       cchkIdUsuarioRegistro: user.code,
       cchkUbigeo: '',
