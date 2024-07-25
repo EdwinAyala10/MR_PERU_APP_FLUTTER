@@ -26,7 +26,7 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
     required Contact contact,
   }) : super(ContactFormState(
           id: contact.id,
-          ruc: Ruc.dirty(contact.ruc),
+          ruc: StateCompany.dirty(contact.ruc),
           contactIdIn: contact.contactIdIn ?? '',
           contactoCargo: contact.contactoCargo,
           contactoDesc: Name.dirty(contact.contactoDesc),
@@ -82,7 +82,7 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
   void _touchedEverything() {
     state = state.copyWith(
       isFormValid: Formz.validate([
-        Ruc.dirty(state.ruc.value),
+        StateCompany.dirty(state.ruc.value),
         Name.dirty(state.contactoDesc.value),
         Phone.dirty(state.contactoTelefonoc.value),
         Cargo.dirty(state.contactoIdCargo.value),
@@ -92,9 +92,9 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
 
   void onRucChanged(String value) {
     state = state.copyWith(
-        ruc: Ruc.dirty(value),
+        ruc: StateCompany.dirty(value),
         isFormValid: Formz.validate([
-          Ruc.dirty(value),
+          StateCompany.dirty(value),
           Name.dirty(state.contactoDesc.value),
           Phone.dirty(state.contactoTelefonoc.value),
           Cargo.dirty(state.contactoIdCargo.value),
@@ -109,7 +109,7 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
     state = state.copyWith(
         contactoDesc: Name.dirty(value),
         isFormValid: Formz.validate([
-          Ruc.dirty(state.ruc.value),
+          StateCompany.dirty(state.ruc.value),
           Name.dirty(value),
           Phone.dirty(state.contactoTelefonoc.value),
           Cargo.dirty(state.contactoIdCargo.value),
@@ -121,7 +121,7 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
     state = state.copyWith(
         contactoIdCargo: Cargo.dirty(idCargo),
         isFormValid: Formz.validate([
-          Ruc.dirty(state.ruc.value),
+          StateCompany.dirty(state.ruc.value),
           Name.dirty(state.contactoDesc.value),
           Phone.dirty(state.contactoTelefonoc.value),
           Cargo.dirty(idCargo),
@@ -141,7 +141,7 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
     state = state.copyWith(
         contactoTelefonoc: Phone.dirty(telefono),
         isFormValid: Formz.validate([
-          Ruc.dirty(state.ruc.value),
+          StateCompany.dirty(state.ruc.value),
           Name.dirty(state.contactoDesc.value),
           Phone.dirty(telefono),
           Cargo.dirty(state.contactoIdCargo.value),
@@ -161,7 +161,7 @@ class ContactFormState {
   final bool isFormValid;
   final bool isLoading;
   final String? id;
-  final Ruc ruc;
+  final StateCompany ruc;
   final String razon;
 
   final String contactoTitulo;
@@ -182,7 +182,7 @@ class ContactFormState {
       {this.isFormValid = false,
       this.isLoading = false,
       this.id,
-      this.ruc = const Ruc.dirty(''),
+      this.ruc = const StateCompany.dirty(''),
       this.razon = '',
       this.contactoTitulo = '',
       this.contactoDesc = const Name.dirty(''),
@@ -201,7 +201,7 @@ class ContactFormState {
   ContactFormState copyWith({
     bool? isFormValid,
     bool? isLoading,
-    Ruc? ruc,
+    StateCompany? ruc,
     String? razon,
     String? id,
     String? contactoTitulo,

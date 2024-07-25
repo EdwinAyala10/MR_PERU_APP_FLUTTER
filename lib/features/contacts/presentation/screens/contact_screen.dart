@@ -29,7 +29,10 @@ class ContactScreen extends ConsumerWidget {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: Text('${ contactState.id == 'new' ? 'Crear': 'Editar' } contacto'),
+          title: Text('${ contactState.contact!.id == 'new' ? 'Crear': 'Editar' } contacto'
+          , style: TextStyle(
+            fontWeight: FontWeight.w500
+          )),
           /*leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {

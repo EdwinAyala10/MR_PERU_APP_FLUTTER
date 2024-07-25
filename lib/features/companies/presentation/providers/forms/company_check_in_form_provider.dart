@@ -114,6 +114,36 @@ class CompanyCheckInFormNotifier
         ]));
   }
 
+  void onTipoChanged(String tipoId, String name) {
+  //state = state.copyWith(tipoCliente: tipoId, clienteNombreTipo: name);
+
+    print("tipoId: ${tipoId}" );
+
+    if (tipoId == '' || tipoId == 'Selecciona') {
+      state = state.copyWith(
+        cchkVisitaFrioCaliente: tipoId,
+        cchkNombreVisitaFrioCaliente: name,
+
+        cchkIdOportunidad: Select.dirty(''),
+        cchkNombreOportunidad: 'Seleccione oportunidad',
+
+        cchkIdContacto: Select.dirty(''),
+        cchkNombreContacto: 'Seleccione contacto',
+      );
+    } else {
+      state = state.copyWith(
+        cchkVisitaFrioCaliente: tipoId,
+        cchkNombreVisitaFrioCaliente: name,
+
+        cchkIdOportunidad: Select.dirty('0'),
+        cchkNombreOportunidad: 'Seleccione oportunidad',
+
+        cchkIdContacto: Select.dirty('0'),
+        cchkNombreContacto: 'Seleccione contacto',
+      );
+    }
+  }
+
   void onOportunidadChanged(String value, String name) {
     state = state.copyWith(
         cchkIdOportunidad: Select.dirty(value),
@@ -175,36 +205,6 @@ class CompanyCheckInFormNotifier
         ]));
   }
 
-    void onTipoChanged(String tipoId, String name) {
-    //state = state.copyWith(tipoCliente: tipoId, clienteNombreTipo: name);
-
-      if (tipoId == '') {
-        state = state.copyWith(
-          cchkVisitaFrioCaliente: tipoId,
-          cchkNombreVisitaFrioCaliente: name,
-
-          cchkIdOportunidad: Select.dirty(''),
-          cchkNombreOportunidad: 'Seleccione oportunidad',
-
-          cchkIdContacto: Select.dirty(''),
-          cchkNombreContacto: 'Seleccione contacto',
-        );
-      } else {
-        state = state.copyWith(
-          cchkVisitaFrioCaliente: tipoId,
-          cchkNombreVisitaFrioCaliente: name,
-
-          cchkIdOportunidad: Select.dirty('0'),
-          cchkNombreOportunidad: 'Seleccione oportunidad',
-
-          cchkIdContacto: Select.dirty('0'),
-          cchkNombreContacto: 'Seleccione contacto',
-        );
-      }
-
-      
-      
-    }
 }
 
 class CompanyCheckInFormState {
