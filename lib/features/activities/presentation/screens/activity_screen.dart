@@ -68,8 +68,10 @@ class ActivityScreen extends ConsumerWidget {
                   showSnackbar(context, value.message);
 
                   if (value.response) {
+                      ref.read(activitiesProvider.notifier).loadNextPage(isRefresh: true);
                     //Timer(const Duration(seconds: 3), () {
-                      context.push('/activities');
+                      //context.replace('/activities');
+                      context.pop();
                     //});
                   }
                 }
@@ -346,7 +348,9 @@ class _ActivityInformationv2State extends ConsumerState<_ActivityInformationv2> 
                 )
               : const SizedBox(),
           const SizedBox(height: 15),
-          const Text('Contactos *'),
+          const Text('Contactos', style: TextStyle(
+            fontWeight: FontWeight.w600
+          ),),
           Row(
             children: [
               Expanded(
@@ -377,7 +381,12 @@ class _ActivityInformationv2State extends ConsumerState<_ActivityInformationv2> 
                 ],
               )),
               ElevatedButton(
-                onPressed: () {
+                onPressed: activityForm.actividadesContacto!.length > 0 ? null : () {
+
+                  if (activityForm.actiRuc.value == "") {
+                    showSnackbar(context, 'Debe seleccionar una empresa');
+                    return;
+                  }
                   _openSearchContacts(context, ref, activityForm.actiRuc.value);
                 },
                 child: const Row(
@@ -555,7 +564,11 @@ class _ActivityInformationv2State extends ConsumerState<_ActivityInformationv2> 
                 initialCompanies: searchedCompanies,
                 searchCompanies: ref
                     .read(searchedCompaniesProvider.notifier)
-                    .searchCompaniesByQuery))
+                    .searchCompaniesByQuery,
+                resetSearchQuery: () {
+                    ref.read(searchQueryCompaniesProvider.notifier).update((state) => '');
+                },
+            ))
         .then((company) {
       if (company == null) return;
 
@@ -578,7 +591,11 @@ class _ActivityInformationv2State extends ConsumerState<_ActivityInformationv2> 
                 initialOpportunities: searchedOpportunities,
                 searchOpportunities: ref
                     .read(searchedOpportunitiesProvider.notifier)
-                    .searchOpportunitiesByQuery))
+                    .searchOpportunitiesByQuery,
+                resetSearchQuery: () {
+                    ref.read(searchQueryOpportunitiesProvider.notifier).update((state) => '');
+                },
+            ))
         .then((opportunity) {
       if (opportunity == null) return;
 
@@ -601,7 +618,11 @@ class _ActivityInformationv2State extends ConsumerState<_ActivityInformationv2> 
                 initialContacts: searchedContacts,
                 searchContacts: ref
                     .read(searchedContactsProvider.notifier)
-                    .searchContactsByQuery))
+                    .searchContactsByQuery,
+                resetSearchQuery: () {
+                    ref.read(searchQueryContactsProvider.notifier).update((state) => '');
+                },
+            ))
         .then((contact) {
       if (contact == null) return;
 

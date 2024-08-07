@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 
 typedef SearchCompaniesCallback = Future<List<Company>> Function(String dni, String query);
+typedef ResetSearchQueryCallback = void Function();
 
 class SearchCompanyDelegate extends SearchDelegate<Company?> {
   final SearchCompaniesCallback searchCompanies;
+  final ResetSearchQueryCallback resetSearchQuery;
   List<Company> initialCompanies;
 
   late StreamController<List<Company>> debouncedCompanies;
@@ -19,6 +21,7 @@ class SearchCompanyDelegate extends SearchDelegate<Company?> {
   SearchCompanyDelegate({
     required this.searchCompanies,
     required this.initialCompanies,
+    required this.resetSearchQuery,
     required this.dni,
   }) : super(
           searchFieldLabel: 'Buscar empresas',
@@ -50,7 +53,7 @@ class SearchCompanyDelegate extends SearchDelegate<Company?> {
     });
   }
 
-  Widget buildResultsAndSuggestions() {
+  /*Widget buildResultsAndSuggestions() {
     return StreamBuilder(
       initialData: initialCompanies,
       stream: debouncedCompanies.stream,
@@ -68,6 +71,45 @@ class SearchCompanyDelegate extends SearchDelegate<Company?> {
             },
           ),
         );
+      },
+    );
+  }*/
+  Widget buildResultsAndSuggestions() {
+    return FutureBuilder<List<Company>>(
+      future: searchCompanies(dni, query),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Text(
+              'Error al cargar los datos',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          );
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(
+            child: Text(
+              'No existen registros',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          );
+        } else {
+          final companies = snapshot.data!;
+          return ListView.separated(
+            separatorBuilder: (BuildContext context, int index) => const Divider(),
+            itemCount: companies.length,
+            itemBuilder: (context, index) => _CompanyItem(
+              company: companies[index],
+              onCompanySelected: (context, user) {
+                clearStreams();
+                close(context, user);
+              },
+            ),
+          );
+        }
       },
     );
   }
@@ -108,6 +150,7 @@ class SearchCompanyDelegate extends SearchDelegate<Company?> {
     return IconButton(
       onPressed: () {
         clearStreams();
+        resetSearchQuery();
         close(context, null);
       },
       icon: const Icon(Icons.arrow_back_ios_new_rounded),
@@ -129,6 +172,7 @@ class SearchCompanyDelegate extends SearchDelegate<Company?> {
   void close(BuildContext context, Company? result) {
     query = '';
     clearStreams();
+    resetSearchQuery();
     super.close(context, result);
   }
 

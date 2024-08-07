@@ -28,7 +28,7 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
       final message = opportunityResponse.message;
 
       if (opportunityResponse.status) {
-        final opportunity = opportunityResponse.opportunity as Opportunity;
+        /*final opportunity = opportunityResponse.opportunity as Opportunity;
         final isOpportunityInList =
             state.opportunities.any((element) => element.id == opportunity.id);
 
@@ -45,7 +45,7 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
                   (element) =>
                       (element.id == opportunity.id) ? opportunity : element,
                 )
-                .toList());
+                .toList());*/
 
         return CreateUpdateOpportunityResponse(
             response: true, message: message);

@@ -172,7 +172,8 @@ class _AgendaViewState extends ConsumerState {
                           return ItemEvent(
                             event: event,
                             callbackOnTap: () {
-                              context.push('/event/${value[index].id}');
+                              //context.push('/event/${value[index].id}');
+                              context.push('/event_detail/${value[index].id}');
                             });
                         },
                       )

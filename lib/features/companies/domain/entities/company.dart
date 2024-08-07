@@ -22,6 +22,7 @@ class Company {
   String? seguimientoComentario;
   String? website;
   String? calificacion;
+  String? nombreCalificacion;
   String? visibleTodos;
   String? codigoPostal;
   String? usuarioRegistro;
@@ -79,6 +80,7 @@ class Company {
       this.seguimientoComentario,
       this.website,
       this.calificacion,
+      this.nombreCalificacion,
       this.visibleTodos,
       this.codigoPostal,
       this.clienteNombreTipo,

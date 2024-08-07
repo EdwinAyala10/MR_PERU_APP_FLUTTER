@@ -35,7 +35,11 @@ class OpportunityScreen extends ConsumerWidget {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Crear Oportunidad', style: TextStyle(fontWeight: FontWeight.w500)),
+          title: Text('${ opportunityState.opportunity!.id == 'new' ? 'Crear': 'Editar' } oportundidad'
+          , style: TextStyle(
+            fontWeight: FontWeight.w500
+          )),
+          //title: const Text('Crear Oportunidad', style: TextStyle(fontWeight: FontWeight.w500)),
           leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
@@ -63,8 +67,11 @@ class OpportunityScreen extends ConsumerWidget {
                   showSnackbar(context, value.message);
 
                   if (value.response) {
+
+                    ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: true);
                     //Timer(const Duration(seconds: 3), () {
-                      context.push('/opportunities');
+                      //context.push('/opportunities');
+                      context.pop();
                     //});
                   }
                 }
@@ -300,7 +307,7 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
               ),
             )
           : const SizedBox(),
-          const SizedBox(height: 8),
+          /*const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.all(4.0),
             child: Column(
@@ -360,7 +367,7 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
                 style: const TextStyle(color: Colors.red),
               ),
             )
-          : const SizedBox(),
+          : const SizedBox(),*/
           const SizedBox(height: 15),
           const Text('Responsable *', style: TextStyle(
             fontWeight: FontWeight.w500
@@ -466,7 +473,11 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
               initialCompanies: searchedCompanies,
               searchCompanies: ref
                   .read(searchedCompaniesProvider.notifier)
-                  .searchCompaniesByQuery))
+                  .searchCompaniesByQuery,
+              resetSearchQuery: () {
+                  ref.read(searchQueryCompaniesProvider.notifier).update((state) => '');
+              },
+          ))
         .then((company) {
       if (company == null) return;
 
@@ -476,11 +487,11 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
             .onRucChanged(company.ruc, company.razon);
       }
 
-      if (type == 'intermediario1') {
+      /*if (type == 'intermediario1') {
         ref
             .read(opportunityFormProvider(widget.opportunity).notifier)
             .onRucIntermediario01Changed(company.ruc, company.razon);
-      }
+      }*/
     });
   }
 
@@ -495,7 +506,11 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
                 initialUsers: searchedUsers,
                 searchUsers: ref
                     .read(searchedUsersProvider.notifier)
-                    .searchUsersByQuery))
+                    .searchUsersByQuery,
+                resetSearchQuery: () {
+                  ref.read(searchQueryUsersProvider.notifier).update((state) => '');
+                },
+            ))
         .then((user) {
       if (user == null) return;
 

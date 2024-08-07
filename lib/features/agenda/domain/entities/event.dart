@@ -29,6 +29,9 @@ class Event {
   String? evntNombreTipoGestion;
   String? evntNombreOportunidad;
   String? evntCorreosExternos;
+  String? evntLocalCodigo;
+  String? evntLocalNombre;
+  String? evntIdTipoRegistro;
   List<ContactArray>? arraycontacto;
   List<ContactArray>? arraycontactoElimimar;
   List<ResponsableArray>? arrayresponsable;
@@ -63,6 +66,9 @@ class Event {
     this.evntCorreosExternos,
     this.evntFechaInicioEvento,
     this.evntFechaFinEvento,
+    this.evntLocalCodigo,
+    this.evntLocalNombre,
+    this.evntIdTipoRegistro,
     this.arraycontacto,
     this.arraycontactoElimimar,
     this.arrayresponsable,

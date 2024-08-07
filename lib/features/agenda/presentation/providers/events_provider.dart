@@ -29,7 +29,7 @@ class EventsNotifier extends StateNotifier<EventsState> {
       final message = eventResponse.message;
 
       if (eventResponse.status) {
-        final event = eventResponse.event as Event;
+        /*final event = eventResponse.event as Event;
 
         final isEventInList = eventItExist(state.linkedEvents, event.id);
 
@@ -41,7 +41,7 @@ class EventsNotifier extends StateNotifier<EventsState> {
 
         final linkedEvents = replaceEventExist(state.linkedEvents, event);
         state = state.copyWith(linkedEvents: linkedEvents, focusedDay: event.evntFechaInicioEvento);
-
+*/
     
         /*
         final isEventInList = state.events.any((element) => element.id == event.id);
@@ -85,7 +85,8 @@ class EventsNotifier extends StateNotifier<EventsState> {
   }
 
   Future loadNextPage() async {
-    if (state.isLoading || state.isLastPage) return;
+    //if (state.isLoading || state.isLastPage) return;
+    if (state.isLoading) return;
 
     state = state.copyWith(isLoading: true);
 
@@ -93,15 +94,19 @@ class EventsNotifier extends StateNotifier<EventsState> {
     final linkedEventsList = await eventsRepository.getEventsList();
 
     if (linkedEvents.isEmpty) {
-      state = state.copyWith(isLoading: false, isLastPage: true);
+      //state = state.copyWith(isLoading: false, isLastPage: true);
+      state = state.copyWith(isLoading: false);
       return;
     }
 
     state = state.copyWith(
-        isLastPage: false,
+        //isLastPage: false,
         isLoading: false,
         offset: state.offset + 10,
         linkedEventsList:  linkedEventsList,
+        selectedEvents:
+            linkedEvents[DateTime(state.selectedDay.year, state.selectedDay.month, state.selectedDay.day)] ??
+                [],
         //linkedEvents: [...state.linkedEvents, ...linkedEvents]
         linkedEvents: LinkedHashMap.from(state.linkedEvents)
           ..addAll(linkedEvents));

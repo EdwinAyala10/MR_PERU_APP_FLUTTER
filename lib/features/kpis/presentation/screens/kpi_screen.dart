@@ -119,14 +119,16 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
   ];
 
   List<DropdownOption> optionsPeriodicidad = [
-    DropdownOption(id: '01', name: 'SEMANAL'),
+    /*DropdownOption(id: '01', name: 'SEMANAL'),
     DropdownOption(id: '02', name: 'MENSUAL'),
     DropdownOption(id: '03', name: 'TRIMESTRAL'),
-    DropdownOption(id: '04', name: 'ANUAL'),
+    DropdownOption(id: '04', name: 'ANUAL'),*/
+    DropdownOption(id: '', name: 'Cargando...'),
   ];
 
   List<DropdownOption> optionsTipo = [
-    DropdownOption(id: '01', name: 'VISITA'),
+    //DropdownOption(id: '01', name: 'VISITA'),
+    DropdownOption(id: '', name: 'Cargando...'),
   ];
   
   @override
@@ -143,6 +145,18 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
       await ref.read(resourceDetailsProvider.notifier).loadCatalogById('11').then((value) => {
         setState(() {
           optionsAsignacion = value;
+        })
+      });
+
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('13').then((value) => {
+        setState(() {
+          optionsPeriodicidad = value;
+        })
+      });
+
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('14').then((value) => {
+        setState(() {
+          optionsTipo = value;
         })
       });
     });
@@ -178,7 +192,7 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
           ),
 
           optionsAsignacion.length > 1 ? SelectCustomForm(
-            label: 'Rubro',
+            label: 'Asignación',
             value: kpiForm.objrIdAsignacion.value,
             callbackChange: (String? newValue) {
                DropdownOption searchDropdown = optionsAsignacion
@@ -194,8 +208,9 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
             errorMessage: kpiForm.objrIdAsignacion.errorMessage,
           ): PlaceholderInput(text: 'Cargando...'),
 
+          const SizedBox(height: 10),
           
-          const Text('Seleccione Usuario(s):'),
+          const Text('Seleccione Usuario(s):', style: TextStyle(fontWeight: FontWeight.w600),),
           const SizedBox(height: 10),
           Row(
             children: [
@@ -255,7 +270,7 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
           const SizedBox(height: 10),
 
           optionsCategoria.length > 1 ? SelectCustomForm(
-            label: 'Rubro',
+            label: 'Categoria',
             value: kpiForm.objrIdCategoria.value,
             callbackChange: (String? newValue) {
                DropdownOption searchDropdown = optionsCategoria
@@ -269,65 +284,28 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
             },
             items: optionsCategoria,
             errorMessage: kpiForm.objrIdCategoria.errorMessage,
-          ): PlaceholderInput(text: 'Cargando Rubro...'),
+          ): PlaceholderInput(text: 'Cargando...'),
 
-          kpiForm.objrIdCategoria.value == '01'
-              ? Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      const Text('Tipo',
-                          style: TextStyle(
-                              fontSize: 15.0, fontWeight: FontWeight.w500)),
-                      const SizedBox(height: 6),
-                      SizedBox(
-                        width: double
-                            .infinity, // Ancho específico para el DropdownButton
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                                color: Colors.grey), // Estilo de borde
-                            borderRadius: BorderRadius.circular(
-                                5.0), // Bordes redondeados
-                          ),
-                          child: DropdownButton<String>(
-                            value: kpiForm.objrIdTipo,
-                            onChanged: kpiForm.id == "new"
-                                ? (String? newValue) {
-                                    DropdownOption searchTipo = optionsTipo
-                                        .where(
-                                            (option) => option.id == newValue!)
-                                        .first;
-                                    ref
-                                        .read(kpiFormProvider(widget.kpi).notifier)
-                                        .onTipoChanged(
-                                            newValue ?? '', searchTipo.name);
-                                  }
-                                : null,
-                            isExpanded: true,
-                            style: const TextStyle(
-                              fontSize: 16.0,
-                              color: Color.fromRGBO(0, 0, 0, 1),
-                            ),
-                            // Mapeo de las opciones a elementos de menú desplegable
-                            items: optionsTipo.map((option) {
-                              return DropdownMenuItem<String>(
-                                value: option.id,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10.0, vertical: 8.0),
-                                  child: Text(option.name),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              : Container(),
+          
+          optionsTipo.length > 1 ? 
+            kpiForm.objrIdCategoria.value == '01' ? SelectCustomForm(
+              label: 'Tipo',
+              value: kpiForm.objrIdTipo,
+              callbackChange: (String? newValue) {
+                DropdownOption searchDropdown = optionsTipo
+                    .where((option) => option.id == newValue!)
+                    .first;
+
+                ref
+                    .read(kpiFormProvider(widget.kpi).notifier)
+                    .onTipoChanged(newValue!, searchDropdown.name);
+                    
+              },
+              items: optionsTipo,
+              //errorMessage: kpiForm.objrIdTipo.errorMessage,
+            ) : Container()
+            : PlaceholderInput(text: 'Cargando...'),
+
           const SizedBox(height: 20),
           CustomCompanyField(
             label: 'Nombre de objetivo *',
@@ -336,61 +314,24 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
             errorMessage: kpiForm.objrNombre.errorMessage,
           ),
           const SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.all(2.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                const Text('Periodicidad',
-                    style:
-                        TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500)),
-                const SizedBox(height: 6),
-                SizedBox(
-                  width: double
-                      .infinity, // Ancho específico para el DropdownButton
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey), // Estilo de borde
-                      borderRadius:
-                          BorderRadius.circular(5.0), // Bordes redondeados
-                    ),
-                    child: DropdownButton<String>(
-                      value: kpiForm.objrIdPeriodicidad,
-                      onChanged: kpiForm.id == "new"
-                          ? (String? newValue) {
-                              DropdownOption searchPeriodicidad =
-                                  optionsPeriodicidad
-                                      .where((option) => option.id == newValue!)
-                                      .first;
-                              ref
-                                  .read(kpiFormProvider(widget.kpi).notifier)
-                                  .onPeriodicidadChanged(
-                                      newValue ?? '', searchPeriodicidad.name);
-                            }
-                          : null,
-                      isExpanded: true,
-                      style: const TextStyle(
-                        fontSize: 16.0,
-                        color: Color.fromRGBO(0, 0, 0, 1),
-                      ),
-                      // Mapeo de las opciones a elementos de menú desplegable
-                      items: optionsPeriodicidad.map((option) {
-                        return DropdownMenuItem<String>(
-                          value: option.id,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10.0, vertical: 8.0),
-                            child: Text(option.name),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
+
+          optionsPeriodicidad.length > 1 ? SelectCustomForm(
+            label: 'Periodicidad',
+            value: kpiForm.objrIdPeriodicidad,
+            callbackChange: (String? newValue) {
+               DropdownOption searchDropdown = optionsPeriodicidad
+                  .where((option) => option.id == newValue!)
+                  .first;
+
+              ref
+                  .read(kpiFormProvider(widget.kpi).notifier)
+                  .onPeriodicidadChanged(newValue!, searchDropdown.name);
+                  
+            },
+            items: optionsPeriodicidad,
+            //errorMessage: kpiForm.objrIdPeriodicidad.errorMessage,
+          ): PlaceholderInput(text: 'Cargando...'),
+
           const SizedBox(
             height: 20,
           ),
@@ -418,6 +359,7 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
                   label: 'Objetivo individual a alcanzar',
                   initialValue: kpiForm.objrCantidad,
                   enabled: !kpiForm.objrValorDifMes,
+                  keyboardType: TextInputType.number,
                   onChanged:
                       ref.read(kpiFormProvider(widget.kpi).notifier).onCantidadChanged,
                 ),
@@ -480,7 +422,11 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
                 initialUsers: searchedUsers,
                 searchUsers: ref
                     .read(searchedUsersProvider.notifier)
-                    .searchUsersByQuery))
+                    .searchUsersByQuery,
+                resetSearchQuery: () {
+                  ref.read(searchQueryUsersProvider.notifier).update((state) => '');
+                },
+            ))
         .then((user) {
       if (user == null) return;
 
@@ -515,6 +461,7 @@ class ItemMes extends StatelessWidget {
               width: 200,
               child: TextFormField(
                 initialValue: periodicidad.peobCantidad,
+                keyboardType: TextInputType.number,
                 onChanged: (value) {
                   ref
                       .read(kpiFormProvider(kpi).notifier)

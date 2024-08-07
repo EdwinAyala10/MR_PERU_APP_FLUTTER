@@ -58,7 +58,7 @@ class _ViewIndicatorsState extends ConsumerState {
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
       ref.watch(indicatorsProvider.notifier).resetForm();
 
-      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('13').then((value) => {
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('21').then((value) => {
         setState(() {
           optionsPeriodicidad = value;
         })
@@ -279,7 +279,11 @@ class _ViewIndicatorsState extends ConsumerState {
                 initialUsers: searchedUsers,
                 searchUsers: ref
                     .read(searchedUsersProvider.notifier)
-                    .searchUsersByQuery))
+                    .searchUsersByQuery,
+                resetSearchQuery: () {
+                  ref.read(searchQueryUsersProvider.notifier).update((state) => '');
+                },
+            ))
         .then((user) {
       if (user == null) return;
 

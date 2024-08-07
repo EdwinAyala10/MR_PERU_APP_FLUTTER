@@ -19,6 +19,7 @@ export 'comment.dart';
 export 'oportunidad.dart';
 export 'tipo_gestion.dart';
 export 'cargo.dart';
+export 'state_local.dart';
 export 'state_opportunity.dart';
 export 'empresa_principal.dart';
 export 'empresa_intermediario.dart';

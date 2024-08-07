@@ -42,7 +42,8 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
           actiNombreArchivo: activity.actiNombreArchivo,
           actiNombreOportunidad: activity.actiNombreOportunidad,
           actiNombreTipoGestion: activity.actiNombreTipoGestion,
-          actiRuc: Ruc.dirty(activity.actiRuc),
+          actiIdTipoRegistro: activity.actiIdTipoRegistro,
+          actiRuc: StateCompany.dirty(activity.actiRuc),
           actiRazon: activity.actiRazon ?? '',
           actiNombreResponsable: activity.actiNombreResponsable ?? '',
           opt: activity.opt ?? '',
@@ -73,6 +74,7 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
       'ACTI_HORA_ACTIVIDAD': state.actiHoraActividad,
       'ACTI_RUC': state.actiRuc.value,
       'ACTI_RAZON': state.actiRazon,
+      'ACTI_ID_TIPO_REGISTRO': state.actiIdTipoRegistro,
       'ACTI_ID_OPORTUNIDAD': state.actiIdOportunidad.value,
       //'ACTI_ID_CONTACTO': state.actiIdContacto.value,
       'ACTI_ID_CONTACTO': state.actividadesContacto?[0].acntIdContacto ?? '',
@@ -103,7 +105,7 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
   void _touchedEverything() {
     state = state.copyWith(
       isFormValid: Formz.validate([
-        Ruc.dirty(state.actiRuc.value),
+        StateCompany.dirty(state.actiRuc.value),
         TipoGestion.dirty(state.actiIdTipoGestion.value),
         Oportunidad.dirty(state.actiIdOportunidad.value)
         //Contacto.dirty(state.actiIdContacto.value),
@@ -112,13 +114,17 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
   }
 
   void onRucChanged(String value, String name) {
+
+
     state = state.copyWith(
-        actiRuc: Ruc.dirty(value),
+        actiRuc: StateCompany.dirty(value),
         actiRazon: name,
+        actiIdOportunidad: Oportunidad.dirty(''),
+        actividadesContacto: [],
         isFormValid: Formz.validate([
-          Ruc.dirty(value),
+          StateCompany.dirty(value),
           TipoGestion.dirty(state.actiIdTipoGestion.value),
-          Oportunidad.dirty(state.actiIdOportunidad.value)
+          //Oportunidad.dirty(state.actiIdOportunidad.value),
           //Contacto.dirty(state.actiIdContacto.value)
         ]));
   }
@@ -139,7 +145,7 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
         actiIdTipoGestion: TipoGestion.dirty(value),
         actiNombreTipoGestion: name,
         isFormValid: Formz.validate([
-          Ruc.dirty(state.actiRuc.value),
+          StateCompany.dirty(state.actiRuc.value),
           TipoGestion.dirty(value),
           Oportunidad.dirty(state.actiIdOportunidad.value)
           //Contacto.dirty(state.actiIdContacto.value)
@@ -159,7 +165,7 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
         actiIdOportunidad: Oportunidad.dirty(id),
         actiNombreOportunidad: nombre,
         isFormValid: Formz.validate([
-          Ruc.dirty(state.actiRuc.value),
+          StateCompany.dirty(state.actiRuc.value),
           TipoGestion.dirty(state.actiIdTipoGestion.value),
           Oportunidad.dirty(id)
           //Contacto.dirty(state.actiIdContacto.value)
@@ -243,7 +249,7 @@ class ActivityFormState {
   final TipoGestion actiIdTipoGestion;
   final DateTime? actiFechaActividad;
   final String actiHoraActividad;
-  final Ruc actiRuc;
+  final StateCompany actiRuc;
   final String actiRazon;
   final Oportunidad actiIdOportunidad;
   //final Contacto actiIdContacto;
@@ -261,6 +267,7 @@ class ActivityFormState {
   final String actiNombreResponsable;
   final List<ContactArray>? actividadesContacto;
   final List<ContactArray>? actividadesContactoEliminar;
+  final String? actiIdTipoRegistro;
 
   ActivityFormState(
       {this.isFormValid = false,
@@ -279,10 +286,11 @@ class ActivityFormState {
       this.actiIdUsuarioRegistro = '',
       this.actiIdUsuarioResponsable = '',
       this.actiNombreArchivo = '',
+      this.actiIdTipoRegistro = '',
       this.actiNombreOportunidad = '',
       this.actiNombreTipoGestion = '',
       this.actiNombreResponsable = '',
-      this.actiRuc = const Ruc.dirty(''),
+      this.actiRuc = const StateCompany.dirty(''),
       this.actiRazon = '',
       this.contactoDesc = '',
       this.actividadesContactoEliminar,
@@ -295,8 +303,9 @@ class ActivityFormState {
           TipoGestion? actiIdTipoGestion,
           DateTime? actiFechaActividad,
           String? actiHoraActividad,
-          Ruc? actiRuc,
+          StateCompany? actiRuc,
           String? actiRazon,
+          String? actiIdTipoRegistro,
           Oportunidad? actiIdOportunidad,
           //Contacto? actiIdContacto,
           String? actiNombreContacto,
@@ -316,6 +325,7 @@ class ActivityFormState {
       ActivityFormState(
         isFormValid: isFormValid ?? this.isFormValid,
         id: id ?? this.id,
+        actiIdTipoRegistro: actiIdTipoRegistro ?? this.actiIdTipoRegistro,
         actiComentario: actiComentario ?? this.actiComentario,
         actividadesContacto: actividadesContacto ?? this.actividadesContacto,
         actividadesContactoEliminar:

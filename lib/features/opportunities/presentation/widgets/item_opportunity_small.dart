@@ -10,12 +10,14 @@ class ItemOpportunitySmall extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(opportunity.oprtNombre, style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.black87, fontSize: 14)),
+      title: Text('${opportunity.razon ?? ''}', style: TextStyle(fontWeight: FontWeight.w500),),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text(opportunity.razonComercial ?? '', style: TextStyle(fontWeight: FontWeight.w400),),
+          Text(opportunity.oprtNombre == '' ? '-' : opportunity.oprtNombre, style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.black87),),
           Text(opportunity.oprtNobbreEstadoOportunidad ?? ''),
-          Text('Ruc: ${opportunity.oprtRuc ?? ''}'),
+          if(opportunity.localDistrito != '') Text(opportunity.localDistrito ?? ''),
         ],
       ),
       trailing: Column(
@@ -23,7 +25,10 @@ class ItemOpportunitySmall extends StatelessWidget {
         children: [
           Text('${opportunity.oprtProbabilidad ?? ''}%',
               textAlign: TextAlign.right,
-              style: const TextStyle(fontSize: 14, color: Colors.green, fontWeight: FontWeight.w600)),
+              style: const TextStyle(fontSize: 16, color: Colors.blue, fontWeight: FontWeight.w600)),
+          Text('${opportunity.oprtValor == '.00' ? '0.00' : opportunity.oprtValor}',
+              textAlign: TextAlign.right,
+              style: const TextStyle(fontSize: 16, color: Colors.green, fontWeight: FontWeight.w600)),
         ],
       ),
       leading: const Icon(Icons.work_rounded),

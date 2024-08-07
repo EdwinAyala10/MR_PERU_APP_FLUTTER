@@ -27,7 +27,7 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
 
       if (activityResponse.status) {
 
-        final activity = activityResponse.activity as Activity;
+        /*final activity = activityResponse.activity as Activity;
         final isActivityInList =
             state.activities.any((element) => element.id == activity.id);
 
@@ -41,7 +41,7 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
                 .map(
                   (element) => (element.id == activity.id) ? activity : element,
                 )
-                .toList());
+                .toList());*/
 
         return CreateUpdateActivityResponse(response: true, message: message);
       }

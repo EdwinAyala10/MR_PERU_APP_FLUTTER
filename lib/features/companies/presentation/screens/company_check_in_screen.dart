@@ -373,88 +373,92 @@ class _CompanyCheckInformationState extends ConsumerState<CompanyCheckInformatio
             items: optionsTipo,
           ): PlaceholderInput(text: 'Cargando Tipo...'),
 
-          
-          Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Oportunidad',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: companyCheckInForm.cchkIdOportunidad.errorMessage !=
-                            null
-                        ? Theme.of(context).colorScheme.error
-                        : null,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                GestureDetector(
-                  onTap: () {
-                    _openSearchOportunities(
-                        context, ref, companyCheckInForm.cchkRuc.value);
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                          color: companyCheckInForm
-                                      .cchkIdOportunidad.errorMessage !=
-                                  null
-                              ? Theme.of(context).colorScheme.error
-                              : Colors.grey),
-                      borderRadius: BorderRadius.circular(5),
+          if (companyCheckInForm.cchkVisitaFrioCaliente == 'Selecciona' || companyCheckInForm.cchkVisitaFrioCaliente == "")
+            Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Oportunidad',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: companyCheckInForm.cchkIdOportunidad.errorMessage !=
+                              null
+                          ? Theme.of(context).colorScheme.error
+                          : null,
                     ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            companyCheckInForm.cchkIdOportunidad.value == ''
-                                ? 'Seleccione oportunidad'
-                                : companyCheckInForm.cchkNombreOportunidad ??
-                                    '',
-                            //_selectedCompany.isEmpty ? 'Seleccione una empresa' : _selectedCompany,
-                            style: TextStyle(
-                                fontSize: 16,
-                                color: companyCheckInForm
-                                            .cchkIdOportunidad.errorMessage !=
-                                        null
-                                    ? Theme.of(context).colorScheme.error
-                                    : null),
+                  ),
+                  const SizedBox(height: 6),
+                  GestureDetector(
+                    onTap: () {
+                      _openSearchOportunities(
+                          context, ref, companyCheckInForm.cchkRuc.value);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                            color: companyCheckInForm
+                                        .cchkIdOportunidad.errorMessage !=
+                                    null
+                                ? Theme.of(context).colorScheme.error
+                                : Colors.grey),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              companyCheckInForm.cchkIdOportunidad.value == ''
+                                  ? 'Seleccione oportunidad'
+                                  : companyCheckInForm.cchkNombreOportunidad ??
+                                      '',
+                              //_selectedCompany.isEmpty ? 'Seleccione una empresa' : _selectedCompany,
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  color: companyCheckInForm
+                                              .cchkIdOportunidad.errorMessage !=
+                                          null
+                                      ? Theme.of(context).colorScheme.error
+                                      : null),
+                            ),
                           ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.search),
-                          onPressed: () {
-                            _openSearchOportunities(
-                                context, ref, companyCheckInForm.cchkRuc.value);
-                          },
-                        ),
-                      ],
+                          IconButton(
+                            icon: const Icon(Icons.search),
+                            onPressed: () {
+                              _openSearchOportunities(
+                                  context, ref, companyCheckInForm.cchkRuc.value);
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 6),
-          if (companyCheckInForm.cchkIdOportunidad.errorMessage != null)
-            Text(
-              companyCheckInForm.cchkIdOportunidad.errorMessage ?? 'Requerido',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.error,
+                ],
               ),
             ),
-          const SizedBox(height: 10),
+
+          if (companyCheckInForm.cchkVisitaFrioCaliente == 'Selecciona' || companyCheckInForm.cchkVisitaFrioCaliente == "")
+            const SizedBox(height: 6),
+          if (companyCheckInForm.cchkVisitaFrioCaliente == 'Selecciona' || companyCheckInForm.cchkVisitaFrioCaliente == "")
+            if (companyCheckInForm.cchkIdOportunidad.errorMessage != null)
+              Text(
+                companyCheckInForm.cchkIdOportunidad.errorMessage ?? 'Requerido',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.error,
+                ),
+              ),
+          if (companyCheckInForm.cchkVisitaFrioCaliente == 'Selecciona' || companyCheckInForm.cchkVisitaFrioCaliente == "")
+            const SizedBox(height: 10),
           Padding(
             padding: const EdgeInsets.all(4.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Contacto *',
+                  'Contacto',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
@@ -596,7 +600,11 @@ class _CompanyCheckInformationState extends ConsumerState<CompanyCheckInformatio
                 initialOpportunities: searchedOpportunities,
                 searchOpportunities: ref
                     .read(searchedOpportunitiesProvider.notifier)
-                    .searchOpportunitiesByQuery))
+                    .searchOpportunitiesByQuery,
+                resetSearchQuery: () {
+                    ref.read(searchQueryOpportunitiesProvider.notifier).update((state) => '');
+                },
+            ))
         .then((opportunity) {
       if (opportunity == null) return;
 
@@ -618,7 +626,11 @@ class _CompanyCheckInformationState extends ConsumerState<CompanyCheckInformatio
                 initialContacts: searchedContacts,
                 searchContacts: ref
                     .read(searchedContactsProvider.notifier)
-                    .searchContactsByQuery))
+                    .searchContactsByQuery,
+                resetSearchQuery: () {
+                    ref.read(searchQueryContactsProvider.notifier).update((state) => '');
+                },
+            ))
         .then((contact) {
       if (contact == null) return;
 
@@ -641,7 +653,11 @@ class _CompanyCheckInformationState extends ConsumerState<CompanyCheckInformatio
                 initialCompanyLocales: searchedCompanyLocales,
                 searchCompanyLocales: ref
                     .read(searchedCompanyLocalesProvider.notifier)
-                    .searchCompanyLocalesByQuery))
+                    .searchCompanyLocalesByQuery,
+                resetSearchQuery: () {
+                    ref.read(searchQueryCompanyLocalesProvider.notifier).update((state) => '');
+                },
+            ))
         .then((companyLocal) {
       if (companyLocal == null) return;
 

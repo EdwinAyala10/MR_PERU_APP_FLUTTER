@@ -31,4 +31,9 @@ class OpportunitiesRepositoryImpl extends OpportunitiesRepository {
   Future<List<StatusOpportunity>> getStatusOpportunityByPeriod() {
     return datasource.getStatusOpportunityByPeriod();
   }
+
+  @override
+  Future<List<Opportunity>> getOpportunitiesByName({String ruc = '', String name = ''}) {
+    return datasource.getOpportunitiesByName(ruc: ruc, name: name);
+  }
 }

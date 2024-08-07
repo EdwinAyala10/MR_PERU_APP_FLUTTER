@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 
 typedef SearchOpportunitiesCallback = Future<List<Opportunity>> Function(String ruc, String query);
+typedef ResetSearchQueryCallback = void Function();
 
 class SearchOpportunityDelegate extends SearchDelegate<Opportunity?> {
   final SearchOpportunitiesCallback searchOpportunities;
+  final ResetSearchQueryCallback resetSearchQuery;
   List<Opportunity> initialOpportunities;
   String ruc;
 
@@ -19,6 +21,7 @@ class SearchOpportunityDelegate extends SearchDelegate<Opportunity?> {
   SearchOpportunityDelegate({
     required this.searchOpportunities,
     required this.ruc,
+    required this.resetSearchQuery,
     required this.initialOpportunities,
   }) : super(
           searchFieldLabel: 'Buscar Oportunidades',
@@ -50,7 +53,7 @@ class SearchOpportunityDelegate extends SearchDelegate<Opportunity?> {
     });
   }
 
-  Widget buildResultsAndSuggestions() {
+  /*Widget buildResultsAndSuggestions() {
     return StreamBuilder(
       initialData: initialOpportunities,
       stream: debouncedOpportunities.stream,
@@ -77,6 +80,46 @@ class SearchOpportunityDelegate extends SearchDelegate<Opportunity?> {
             },
           ),
         );
+      },
+    );
+  }*/
+
+  Widget buildResultsAndSuggestions() {
+    return FutureBuilder<List<Opportunity>>(
+      future: searchOpportunities(ruc, query),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Text(
+              'Error al cargar los datos',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          );
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(
+            child: Text(
+              'No existen registros',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          );
+        } else {
+          final opportunities = snapshot.data!;
+          return ListView.separated(
+            separatorBuilder: (BuildContext context, int index) => const Divider(),
+            itemCount: opportunities.length,
+            itemBuilder: (context, index) => _OpportunityItem(
+              opportunity: opportunities[index],
+              onOpportunitySelected: (context, oportunity) {
+                clearStreams();
+                close(context, oportunity);
+              },
+            ),
+          );
+        }
       },
     );
   }
@@ -117,6 +160,7 @@ class SearchOpportunityDelegate extends SearchDelegate<Opportunity?> {
     return IconButton(
       onPressed: () {
         clearStreams();
+        resetSearchQuery();
         close(context, null);
       },
       icon: const Icon(Icons.arrow_back_ios_new_rounded),
@@ -138,6 +182,7 @@ class SearchOpportunityDelegate extends SearchDelegate<Opportunity?> {
   void close(BuildContext context, Opportunity? result) {
     query = '';
     clearStreams();
+    resetSearchQuery();
     super.close(context, result);
   }
 

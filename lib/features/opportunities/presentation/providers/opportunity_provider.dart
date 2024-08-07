@@ -43,7 +43,7 @@ class OpportunityNotifier extends StateNotifier<OpportunityState> {
       oprtNombreValor: '',
       oprtProbabilidad: '0',
       oprtRuc: '',
-      oprtRucIntermediario01: '',
+      //oprtRucIntermediario01: '',
       oprtRucIntermediario02: '',
       opt: '',
       arrayresponsables: [],

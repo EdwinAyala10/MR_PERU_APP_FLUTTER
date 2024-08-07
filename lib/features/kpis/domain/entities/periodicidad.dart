@@ -7,6 +7,7 @@ String periodicidadToJson(Periodicidad data) => json.encode(data.toJson());
 
 class Periodicidad {
   String? periIdPeriodicidad;
+  String? peobIdPeriodicidadCalendario;
   String? periCodigo;
   String? periNombre;
   String? peobIdPeriodicidad;
@@ -15,6 +16,7 @@ class Periodicidad {
   Periodicidad({
     this.periIdPeriodicidad,
     this.peobIdPeriodicidad,
+    this.peobIdPeriodicidadCalendario,
     this.periCodigo,
     this.periNombre,
     this.peobCantidad,
@@ -22,6 +24,7 @@ class Periodicidad {
 
   factory Periodicidad.fromJson(Map<String, dynamic> json) => Periodicidad(
         periIdPeriodicidad: json["PERI_ID_PERIODICIDAD_CALENDARIO"],
+        peobIdPeriodicidadCalendario: json["PEOB_ID_PERIODICIDAD_CALENDARIO"],
         periCodigo: json["PERI_CODIGO"],
         periNombre: json["PERI_NOMBRE"],
         peobIdPeriodicidad: json["PEOB_ID_PERIODICIDAD"],
@@ -30,6 +33,7 @@ class Periodicidad {
 
   Map<String, dynamic> toJson() => {
         "PERI_ID_PERIODICIDAD_CALENDARIO": periIdPeriodicidad,
+        "PEOB_ID_PERIODICIDAD_CALENDARIO": peobIdPeriodicidadCalendario,
         "PEOB_ID_PERIODICIDAD": peobIdPeriodicidad,
         "PERI_CODIGO": periCodigo,
         "PERI_NOMBRE": periNombre,

@@ -12,7 +12,7 @@ void main() async {
   await NotificationsNotifier.initialFCM();
 
   //TODO: DESCOMENTAR NOTIFICACIONES PUSH
-  //await LocalNotifications.initializeLocalNotifications();
+  await LocalNotifications.initializeLocalNotifications();
 
   await Environment.initEnvironment();
 

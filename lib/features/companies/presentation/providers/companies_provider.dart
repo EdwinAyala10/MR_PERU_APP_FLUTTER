@@ -26,7 +26,7 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
       final message = companyResponse.message;
 
       if (companyResponse.status) {
-        final company = companyResponse.company as Company;
+        /*final company = companyResponse.company as Company;
         final isCompanyInList =
             state.companies.any((element) => element.ruc == company.ruc);
 
@@ -40,7 +40,7 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
                 .map(
                   (element) => (element.ruc == company.ruc) ? company : element,
                 )
-                .toList());
+                .toList());*/
 
         return CreateUpdateCompanyResponse(response: true, message: message);
       }

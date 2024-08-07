@@ -44,7 +44,7 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
           oprtNombreValor: opportunity.oprtNombreValor ?? '',
           oprtProbabilidad: opportunity.oprtProbabilidad ?? '',
           oprtRuc: EmpresaPrincipal.dirty(opportunity.oprtRuc ?? ''),
-          oprtRucIntermediario01: EmpresaIntermediario.dirty(opportunity.oprtRucIntermediario01 ?? ''),
+          //oprtRucIntermediario01: EmpresaIntermediario.dirty(opportunity.oprtRucIntermediario01 ?? ''),
           oprtRucIntermediario02: opportunity.oprtRucIntermediario02 ?? '',
           opt: opportunity.opt ?? '',
           optrValor: opportunity.oprtValor ?? '0',
@@ -75,7 +75,7 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
       'OPRT_FECHA_PREVISTA_VENTA':
           "${state.oprtFechaPrevistaVenta?.year.toString().padLeft(4, '0')}-${state.oprtFechaPrevistaVenta?.month.toString().padLeft(2, '0')}-${state.oprtFechaPrevistaVenta?.day.toString().padLeft(2, '0')}",
       'OPRT_RUC': state.oprtRuc.value,
-      'OPRT_RUC_INTERMEDIARIO_01': state.oprtRucIntermediario01.value,
+      //'OPRT_RUC_INTERMEDIARIO_01': state.oprtRucIntermediario01.value,
       'OPRT_RUC_INTERMEDIARIO_02': state.oprtRucIntermediario02,
       'OPRT_COMENTARIO': state.oprtComentario,
       'OPRT_ID_USUARIO_REGISTRO': state.oprtIdUsuarioRegistro,
@@ -104,7 +104,7 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
         Name.dirty(state.oprtNombre.value),
         StateOpportunity.dirty(state.oprtIdEstadoOportunidad.value),
         EmpresaPrincipal.dirty(state.oprtRuc.value),
-        EmpresaIntermediario.dirty(state.oprtRucIntermediario01.value),
+        //EmpresaIntermediario.dirty(state.oprtRucIntermediario01.value),
       ]),
     );
   }
@@ -116,7 +116,7 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
         Name.dirty(value),
         StateOpportunity.dirty(state.oprtIdEstadoOportunidad.value),
         EmpresaPrincipal.dirty(state.oprtRuc.value),
-        EmpresaIntermediario.dirty(state.oprtRucIntermediario01.value),
+        //EmpresaIntermediario.dirty(state.oprtRucIntermediario01.value),
       ]));
   }
 
@@ -128,7 +128,7 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
         Name.dirty(state.oprtNombre.value),
         StateOpportunity.dirty(idEstado),
         EmpresaPrincipal.dirty(state.oprtRuc.value),
-        EmpresaIntermediario.dirty(state.oprtRucIntermediario01.value),
+        //EmpresaIntermediario.dirty(state.oprtRucIntermediario01.value),
       ]));
   }
 
@@ -165,11 +165,11 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
         Name.dirty(state.oprtNombre.value),
         StateOpportunity.dirty(state.oprtIdEstadoOportunidad.value),
         EmpresaPrincipal.dirty(ruc),
-        EmpresaIntermediario.dirty(state.oprtRucIntermediario01.value),
+        //EmpresaIntermediario.dirty(state.oprtRucIntermediario01.value),
       ]));
   }
 
-  void onRucIntermediario01Changed(String ruc, String razon) {
+  /*void onRucIntermediario01Changed(String ruc, String razon) {
     //state = state.copyWith(
     //    oprtRucIntermediario01: ruc, oprtRazonIntermediario01: razon);
     state = state.copyWith(
@@ -181,7 +181,7 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
         EmpresaPrincipal.dirty(state.oprtRuc.value),
         EmpresaIntermediario.dirty(ruc),
       ]));
-  }
+  }*/
 
   void onRucIntermediario02Changed(String ruc, String razon) {
     state = state.copyWith(
@@ -263,7 +263,7 @@ class OpportunityFormState {
   final DateTime? oprtFechaPrevistaVenta;
   final EmpresaPrincipal oprtRuc;
   final String oprtRazon;
-  final EmpresaIntermediario oprtRucIntermediario01;
+  //final EmpresaIntermediario oprtRucIntermediario01;
   final String oprtRazonIntermediario01;
   final String oprtRucIntermediario02;
   final String oprtRazonIntermediario02;
@@ -290,7 +290,7 @@ class OpportunityFormState {
       this.optrValor = '0',
       this.oprtRazon = '',
       this.oprtRazonIntermediario01 = '',
-      this.oprtRucIntermediario01 = const EmpresaIntermediario.dirty(''),
+      //this.oprtRucIntermediario01 = const EmpresaIntermediario.dirty(''),
       this.oprtRucIntermediario02 = '',
       this.oprtRazonIntermediario02 = '',
       this.oprtComentario = '',
@@ -313,7 +313,7 @@ class OpportunityFormState {
     DateTime? oprtFechaPrevistaVenta,
     EmpresaPrincipal? oprtRuc,
     String? oprtRazon,
-    EmpresaIntermediario? oprtRucIntermediario01,
+    //EmpresaIntermediario? oprtRucIntermediario01,
     String? oprtRazonIntermediario01,
     String? oprtRucIntermediario02,
     String? oprtRazonIntermediario02,
@@ -341,8 +341,8 @@ class OpportunityFormState {
         oprtRuc: oprtRuc ?? this.oprtRuc,
         optrValor: optrValor ?? this.optrValor,
         oprtRazon: oprtRazon ?? this.oprtRazon,
-        oprtRucIntermediario01:
-            oprtRucIntermediario01 ?? this.oprtRucIntermediario01,
+        //oprtRucIntermediario01:
+        //    oprtRucIntermediario01 ?? this.oprtRucIntermediario01,
         oprtRazonIntermediario01:
             oprtRazonIntermediario01 ?? this.oprtRazonIntermediario01,
         oprtRucIntermediario02:

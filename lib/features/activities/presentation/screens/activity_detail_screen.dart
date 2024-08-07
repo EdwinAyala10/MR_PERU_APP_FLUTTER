@@ -48,7 +48,7 @@ class ActivityDetailScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
-            onPressed: activity.actiIdTipoRegistro != '01' ? () {
+            onPressed: activity.actiIdTipoRegistro == '01' ? () {
               context.push('/activity/${activity.id}');
             }: null,
           ),

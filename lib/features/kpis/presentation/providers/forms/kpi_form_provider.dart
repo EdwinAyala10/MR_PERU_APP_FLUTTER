@@ -180,6 +180,7 @@ class KpiFormNotifier extends StateNotifier<KpiFormState> {
       // Crear un nuevo objeto Periodicidad con el campo 'peobCantidad' actualizado
       Periodicidad updatedPeriodicidad = Periodicidad(
         periIdPeriodicidad: periodicidad.periIdPeriodicidad,
+        peobIdPeriodicidadCalendario: periodicidad.peobIdPeriodicidad,  
         peobIdPeriodicidad: periodicidad.peobIdPeriodicidad,
         periCodigo: periodicidad.periCodigo,
         periNombre: periodicidad.periNombre,

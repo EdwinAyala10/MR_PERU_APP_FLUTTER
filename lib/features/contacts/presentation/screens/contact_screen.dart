@@ -65,8 +65,10 @@ class ContactScreen extends ConsumerWidget {
                   showSnackbar(context, value.message);
 
                   if (value.response) {
+                    ref.read(contactsProvider.notifier).loadNextPage(isRefresh: true);
                     //Timer(const Duration(seconds: 3), () {
-                      context.replace('/contacts');
+                      //context.replace('/contacts');
+                      context.pop();
                     //});
                   }
                 }
@@ -291,7 +293,11 @@ class __ContactInformationv2State extends ConsumerState<_ContactInformationv2> {
                 initialCompanies: searchedCompanies,
                 searchCompanies: ref
                     .read(searchedCompaniesProvider.notifier)
-                    .searchCompaniesByQuery))
+                    .searchCompaniesByQuery,
+                resetSearchQuery: () {
+                    ref.read(searchQueryCompaniesProvider.notifier).update((state) => '');
+                },
+            ))
         .then((company) {
       if (company == null) return;
 

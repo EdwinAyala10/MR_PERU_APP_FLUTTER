@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 
 typedef SearchContactsCallback = Future<List<Contact>> Function(String query, String ruc);
+typedef ResetSearchQueryCallback = void Function();
 
 class SearchContactDelegate extends SearchDelegate<Contact?> {
   final SearchContactsCallback searchContacts;
+  final ResetSearchQueryCallback resetSearchQuery;
   List<Contact> initialContacts;
   String ruc;
 
@@ -19,6 +21,7 @@ class SearchContactDelegate extends SearchDelegate<Contact?> {
   SearchContactDelegate({
     required this.searchContacts,
     required this.ruc,
+    required this.resetSearchQuery,
     required this.initialContacts,
   }) : super(
           searchFieldLabel: 'Buscar contactos',
@@ -50,7 +53,7 @@ class SearchContactDelegate extends SearchDelegate<Contact?> {
     });
   }
 
-  Widget buildResultsAndSuggestions() {
+  /*Widget buildResultsAndSuggestions() {
     return StreamBuilder(
       initialData: initialContacts,
       stream: debouncedContacts.stream,
@@ -77,6 +80,46 @@ class SearchContactDelegate extends SearchDelegate<Contact?> {
           ),
           separatorBuilder: (BuildContext context, int index) => const Divider(),
         );
+      },
+    );
+  }*/
+
+  Widget buildResultsAndSuggestions() {
+    return FutureBuilder<List<Contact>>(
+      future: searchContacts(query, ruc),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Text(
+              'Error al cargar los datos',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          );
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(
+            child: Text(
+              'No existen registros',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          );
+        } else {
+          final contacts = snapshot.data!;
+          return ListView.separated(
+            separatorBuilder: (BuildContext context, int index) => const Divider(),
+            itemCount: contacts.length,
+            itemBuilder: (context, index) => _ContactItem(
+              contact: contacts[index],
+              onContactSelected: (context, contact) {
+                clearStreams();
+                close(context, contact);
+              },
+            ),
+          );
+        }
       },
     );
   }
@@ -114,6 +157,7 @@ class SearchContactDelegate extends SearchDelegate<Contact?> {
     return IconButton(
         onPressed: () {
           clearStreams();
+          resetSearchQuery();
           close(context, null);
         },
         icon: const Icon(Icons.arrow_back_ios_new_rounded));
@@ -134,6 +178,7 @@ class SearchContactDelegate extends SearchDelegate<Contact?> {
   void close(BuildContext context, Contact? result) {
     query = '';
     clearStreams();
+    resetSearchQuery();
     super.close(context, result);
   }
 

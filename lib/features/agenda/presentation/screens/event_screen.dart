@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:crm_app/config/config.dart';
+import 'package:crm_app/features/companies/presentation/delegates/search_company_local_active_delegate.dart';
+import 'package:crm_app/features/companies/presentation/search/search_company_locales_active_provider.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 
@@ -80,8 +82,10 @@ class EventScreen extends ConsumerWidget {
                         showSnackbar(context, value.message);
 
                         if (value.response) {
+                          ref.read(eventsProvider.notifier).loadNextPage();
                           //Timer(const Duration(seconds: 3), () {
-                          context.push('/agenda');
+                          //context.replace('/agenda');
+                          context.pop();
                           //});
                         }
                       }
@@ -168,11 +172,15 @@ class _EventInformation extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Empresa',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
+                    color:
+                        eventForm.evntRuc.errorMessage != null
+                            ? Colors.red[400]
+                            : null,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -221,11 +229,101 @@ class _EventInformation extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 6.0),
                   child: Text(
                     eventForm.evntRuc.errorMessage ?? '',
-                    style: TextStyle(color: Colors.red[400], fontSize: 11),
+                    style: TextStyle(color: Colors.red[400], fontSize: 12),
                   ),
                 )
               : Container(),
-          const SizedBox(height: 14),
+          const SizedBox(height: 4),
+
+
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Local',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color:
+                        eventForm.evntLocalCodigo.errorMessage != null
+                            ? Colors.red[400]
+                            : null,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                GestureDetector(
+                  onTap: () {
+                    
+                    if (eventForm.evntRuc.value == "") {
+                        showSnackbar(context, 'Debe seleccionar una empresa');
+                        return;
+                    }
+
+                    _openSearchCompanyLocales(
+                        context, ref, eventForm.evntRuc.value);
+
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                          color:
+                              eventForm.evntLocalCodigo.errorMessage !=
+                                      null
+                                  ? Colors.red
+                                  : Colors.grey),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            eventForm.evntLocalCodigo.value == ''
+                                ? 'Seleccione local'
+                                : eventForm.evntLocalNombre ?? '',
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: eventForm
+                                            .evntLocalCodigo.errorMessage !=
+                                        null
+                                    ? Colors.red
+                                    : null),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.search),
+                          onPressed: () {
+                            
+                            if (eventForm.evntRuc.value == "") {
+                                showSnackbar(context, 'Debe seleccionar una empresa');
+                                return;
+                            }
+
+                            _openSearchCompanyLocales(
+                                context, ref, eventForm.evntRuc.value);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (eventForm.evntLocalCodigo.errorMessage != null)
+            Text(
+              eventForm.evntLocalCodigo.errorMessage ?? 'Requerido',
+              style: TextStyle(
+                color: Colors.red[400],
+                fontSize: 12
+              ),
+            ),
+          const SizedBox(height: 10),
+          
+
+
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -349,49 +447,23 @@ class _EventInformation extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                const Text('Recordatorio de cita',
-                    style:
-                        TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500)),
-                const SizedBox(height: 6),
-                SizedBox(
-                  width: double
-                      .infinity, // Ancho específico para el DropdownButton
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey), // Estilo de borde
-                      borderRadius:
-                          BorderRadius.circular(5.0), // Bordes redondeados
-                    ),
-                    child: DropdownButton<String>(
-                      value: eventForm.evntIdRecordatorio.toString(),
-                      onChanged: (String? newValue) {
-                        DropdownOption searchRecordatorio = optionsRecordatorio
-                            .where((option) => option.id == newValue!)
-                            .first;
-                        ref
-                            .read(eventFormProvider(event).notifier)
-                            .onRecordatorioChanged(int.parse(newValue ?? '1'),
-                                searchRecordatorio.name);
-                      },
-                      isExpanded: true,
-                      style: const TextStyle(
-                        fontSize: 16.0,
-                        color: Color.fromRGBO(0, 0, 0, 1),
-                      ),
-                      // Mapeo de las opciones a elementos de menú desplegable
-                      items: optionsRecordatorio.map((option) {
-                        return DropdownMenuItem<String>(
-                          value: option.id,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10.0, vertical: 8.0),
-                            child: Text(option.name),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ),
+                
+                
+                optionsRecordatorio.length > 1 ? SelectCustomForm(
+                  label: 'Recordatorio de cita',
+                  value: eventForm.evntIdRecordatorio.toString(),
+                  callbackChange: (String? newValue) {
+                    DropdownOption searchDropdown =
+                        optionsRecordatorio.where((option) => option.id == newValue!).first;
+
+                    ref
+                        .read(eventFormProvider(event).notifier)
+                        .onRecordatorioChanged(int.parse(newValue ?? '1'), searchDropdown.name);
+                  },
+                  items: optionsRecordatorio,
+                  //errorMessage: eventForm.evntIdRecordatorio.errorMessage,
+                ): PlaceholderInput(text: 'Cargando...'),
+
               ],
             ),
           ),
@@ -438,7 +510,7 @@ class _EventInformation extends ConsumerWidget {
                                         backgroundColor:
                                             primaryColor,
                                         deleteIconColor: Colors.white,
-                                        label: Text(item.nombre ?? '',
+                                        label: Text(item.contactoDesc ?? '',
                                             style: const TextStyle(
                                               
                                               color: Colors.white,
@@ -464,7 +536,7 @@ class _EventInformation extends ConsumerWidget {
                                   .map((item) => Chip(
                                         backgroundColor: secondaryColor,
                                         deleteIconColor: Colors.white,
-                                        label: Text(item.nombre ?? '',
+                                        label: Text(item.userreportName ?? '',
                                             style: const TextStyle(
                                                 color: Colors.white,
                                                 fontSize:
@@ -561,6 +633,9 @@ class _EventInformation extends ConsumerWidget {
               ),
             ],
           ),
+          if(!eventForm.arraycontacto!.isNotEmpty || !eventForm.arrayresponsable!.isNotEmpty)
+          const Text('* Es obligatorio seleccionar un contacto y un personal',
+              style: TextStyle(fontWeight: FontWeight.w400, fontSize: 13.0, color: Colors.red)),
           /*const SizedBox(height: 20),
           CustomCompanyField(
             label: 'Email de usuarios externos',
@@ -748,7 +823,11 @@ class _EventInformation extends ConsumerWidget {
                 initialOpportunities: searchedOpportunities,
                 searchOpportunities: ref
                     .read(searchedOpportunitiesProvider.notifier)
-                    .searchOpportunitiesByQuery))
+                    .searchOpportunitiesByQuery,
+                resetSearchQuery: () {
+                    ref.read(searchQueryOpportunitiesProvider.notifier).update((state) => '');
+                },
+            ))
         .then((opportunity) {
       if (opportunity == null) return;
 
@@ -771,7 +850,11 @@ class _EventInformation extends ConsumerWidget {
                 initialCompanies: searchedCompanies,
                 searchCompanies: ref
                     .read(searchedCompaniesProvider.notifier)
-                    .searchCompaniesByQuery))
+                    .searchCompaniesByQuery,
+                resetSearchQuery: () {
+                    ref.read(searchQueryCompaniesProvider.notifier).update((state) => '');
+                },
+            ))
         .then((company) {
       if (company == null) return;
 
@@ -793,7 +876,11 @@ class _EventInformation extends ConsumerWidget {
                 initialContacts: searchedContacts,
                 searchContacts: ref
                     .read(searchedContactsProvider.notifier)
-                    .searchContactsByQuery))
+                    .searchContactsByQuery,
+                resetSearchQuery: () {
+                  ref.read(searchQueryContactsProvider.notifier).update((state) => '');
+                },
+            ))
         .then((contact) {
       if (contact == null) return;
 
@@ -812,11 +899,44 @@ class _EventInformation extends ConsumerWidget {
                 initialUsers: searchedUsers,
                 searchUsers: ref
                     .read(searchedUsersProvider.notifier)
-                    .searchUsersByQuery))
+                    .searchUsersByQuery,
+                resetSearchQuery: () {
+                  ref.read(searchQueryUsersProvider.notifier).update((state) => '');
+                },
+            ))
         .then((user) {
       if (user == null) return;
 
       ref.read(eventFormProvider(event).notifier).onResponsableChanged(user);
+    });
+  }
+
+  void _openSearchCompanyLocales(
+      BuildContext context, WidgetRef ref, String ruc) async {
+    final searchedCompanyLocales = ref.read(searchedCompanyLocalesProvider);
+    final searchQuery = ref.read(searchQueryCompanyLocalesProvider);
+
+    showSearch<CompanyLocal?>(
+            query: searchQuery,
+            context: context,
+            delegate: SearchCompanyLocalDelegate(
+                ruc: ruc,
+                initialCompanyLocales: searchedCompanyLocales,
+                searchCompanyLocales: ref
+                    .read(searchedCompanyLocalesProvider.notifier)
+                    .searchCompanyLocalesByQuery,
+                resetSearchQuery: () {
+                    ref.read(searchQueryCompanyLocalesProvider.notifier).update((state) => '');
+                },
+            ))
+        .then((companyLocal) {
+      if (companyLocal == null) return;
+
+      ref
+          .read(eventFormProvider(event).notifier)
+          .onLocalChanged(companyLocal.id,
+              '${companyLocal.localNombre} ${companyLocal.localDireccion}');
+
     });
   }
 }

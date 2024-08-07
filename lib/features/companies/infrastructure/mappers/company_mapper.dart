@@ -29,6 +29,7 @@ class CompanyMapper {
     website: json['WEBSITE'] ?? '',
     cchkIdEstadoCheck: json['CCHK_ID_ESTADO_CHECK'],
     calificacion: json['CALIFICACION'] ?? '',
+    nombreCalificacion: json['NOMBRE_CALIFICACION'] ?? '',
     visibleTodos: json['VISIBLE_TODOS'] ?? '',
     codigoPostal: json['CODIGO_POSTAL'] ?? '',
     clienteNombreEstado: json['CLIENTE_NOMBRE_ESTADO'] ?? '',

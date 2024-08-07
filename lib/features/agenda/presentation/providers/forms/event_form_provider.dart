@@ -1,3 +1,5 @@
+import 'package:crm_app/features/shared/infrastructure/inputs/inputs.dart';
+
 import '../../../../contacts/domain/domain.dart';
 import '../../../../users/domain/domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -52,9 +54,10 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
           evntNombreTipoGestion: event.evntNombreTipoGestion ?? '',
           evntRazon: event.evntRazon ?? '',
           todoDia: event.todoDia ?? '0',
-          evntRuc: Ruc.dirty(event.evntRuc ?? ''),
+          evntRuc: StateCompany.dirty(event.evntRuc ?? ''),
           evntUbigeo: event.evntUbigeo ?? '',
           opt: event.opt ?? '',
+          evntLocalCodigo: StateLocal.dirty(event.evntLocalCodigo ?? ''),
           arraycontacto: event.arraycontacto ?? [],
           arraycontactoElimimar: event.arraycontacto ?? [],
           arrayresponsable: event.arrayresponsable ?? [],
@@ -99,6 +102,7 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
       'EVNT_NOMBRE_TIPO_GESTION': state.evntNombreTipoGestion,
       'EVNT_NOMBRE_OPORTUNIDAD': state.evntNombreOportunidad,
       'EVNT_CORREOS_EXTERNOS': state.evntCorreosExternos,
+      'EVNT_LOCAL_CODIGO': state.evntLocalCodigo.value,
       'EVENTOS_INVITACION_CONTACTO': state.arraycontacto != null
           ? List<dynamic>.from(state.arraycontacto!.map((x) => x.toJson()))
           : [],
@@ -128,7 +132,8 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
         Name.dirty(state.evntAsunto.value),
         Select.dirty(state.evntIdTipoGestion.value),
         Oportunidad.dirty(state.evntIdOportunidad.value),
-        Ruc.dirty(state.evntRuc.value),
+        StateCompany.dirty(state.evntRuc.value),
+        StateLocal.dirty(state.evntLocalCodigo.value),
       ]),
     );
   }
@@ -140,7 +145,8 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
           Name.dirty(value),
           Select.dirty(state.evntIdTipoGestion.value),
           Oportunidad.dirty(state.evntIdOportunidad.value),
-          Ruc.dirty(state.evntRuc.value),
+          StateCompany.dirty(state.evntRuc.value),
+          StateLocal.dirty(state.evntLocalCodigo.value),
         ]));
   }
 
@@ -152,21 +158,26 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
         Name.dirty(state.evntAsunto.value),
         Select.dirty(id),
         Oportunidad.dirty(state.evntIdOportunidad.value),
-        Ruc.dirty(state.evntRuc.value),
+        StateCompany.dirty(state.evntRuc.value),
+        StateLocal.dirty(state.evntLocalCodigo.value),
       ]));
   }
 
   void onEmpresaChanged(String id, String name) {
     //state = state.copyWith(evntRuc: id, evntRazon: name);
     state = state.copyWith(
-      evntRuc: Ruc.dirty(id),
+      evntRuc: StateCompany.dirty(id),
       evntRazon: name,
       evntNombreOportunidad: name,
+      evntLocalCodigo: StateLocal.dirty(''),
+      arraycontacto: [],
+      evntIdOportunidad: Oportunidad.dirty(''),
       isFormValid: Formz.validate([
         Name.dirty(state.evntAsunto.value),
         Select.dirty(state.evntIdTipoGestion.value),
         Oportunidad.dirty(state.evntIdOportunidad.value),
-        Ruc.dirty(id),
+        StateCompany.dirty(id),
+        StateLocal.dirty(state.evntLocalCodigo.value),
       ]));
   }
 
@@ -200,7 +211,8 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
         Name.dirty(state.evntAsunto.value),
         Select.dirty(state.evntIdTipoGestion.value),
         Oportunidad.dirty(state.evntIdOportunidad.value),
-        Ruc.dirty(state.evntRuc.value),
+        StateCompany.dirty(state.evntRuc.value),
+        StateLocal.dirty(state.evntLocalCodigo.value),
       ]));
   }
 
@@ -210,6 +222,19 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
 
   void onCorreosExternosChanged(String correos) {
     state = state.copyWith(evntCorreosExternos: correos);
+  }
+
+  void onLocalChanged(String value, String name) {
+    state = state.copyWith(
+        evntLocalCodigo: StateLocal.dirty(value),
+        evntLocalNombre: name,
+        isFormValid: Formz.validate([
+          Name.dirty(state.evntAsunto.value),
+          Select.dirty(state.evntIdTipoGestion.value),
+          Oportunidad.dirty(state.evntIdOportunidad.value),
+          StateCompany.dirty(state.evntRuc.value),
+          StateLocal.dirty(value)
+        ]));
   }
 
   void onContactoChanged(Contact contacto) {
@@ -222,6 +247,7 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
       ContactArray array = ContactArray();
       array.ecntIdContacto = contacto.id;
       array.nombre = contacto.contactoDesc;
+      array.contactoDesc = contacto.contactoDesc;
 
       List<ContactArray> arrayContactos = [...state.arraycontacto ?? [], array];
 
@@ -269,13 +295,13 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
   void onResponsableChanged(UserMaster responsable) {
 
     bool objExist = state.arrayresponsable!.any((objeto) =>
-        objeto.ecntIdResponsable == responsable.id &&
-        objeto.nombre == responsable.name);
+        objeto.ecntIdResponsable == responsable.code);
 
     if (!objExist) {
       ResponsableArray array = ResponsableArray();
-      array.ecntIdResponsable = responsable.id;
+      array.ecntIdResponsable = responsable.code;
       array.nombre = responsable.name;
+      array.userreportName = responsable.name;
 
       List<ResponsableArray> arrayResponsables = [...state.arrayresponsable ?? [], array];
 
@@ -289,8 +315,8 @@ class EventFormNotifier extends StateNotifier<EventFormState> {
     List<ResponsableArray> arrayresponsableElimimar = [];
 
     if (state.id != "new") {
-      bool objExist = state.arraycontactoElimimar!
-          .any((objeto) => objeto.ecntIdContacto == responsable.ecntIdResponsable);
+      bool objExist = state.arrayresponsableElimimar!
+          .any((objeto) => objeto.ecntIdResponsable == responsable.ecntIdResponsable);
 
       if (!objExist) {
         ResponsableArray array = ResponsableArray();
@@ -334,7 +360,7 @@ class EventFormState {
   final String? evntIdUsuarioResponsable;
   final String? evntNombreUsuarioResponsable;
   final Select evntIdTipoGestion;
-  final Ruc evntRuc;
+  final StateCompany evntRuc;
   final String? evntRazon;
   final String? todoDia;
   final Oportunidad evntIdOportunidad;
@@ -351,6 +377,8 @@ class EventFormState {
   final String? evntNombreTipoGestion;
   final String? evntNombreOportunidad;
   final String? evntCorreosExternos;
+  final StateLocal evntLocalCodigo;
+  final String? evntLocalNombre;
   final List<ContactArray>? arraycontacto;
   final List<ContactArray>? arraycontactoElimimar;
   final List<ResponsableArray>? arrayresponsable;
@@ -368,7 +396,7 @@ class EventFormState {
       this.evntIdUsuarioResponsable = '',
       this.evntNombreUsuarioResponsable = '',
       this.evntIdTipoGestion = const Select.dirty(''),
-      this.evntRuc = const Ruc.dirty(''),
+      this.evntRuc = const StateCompany.dirty(''),
       this.evntRazon = '',
       this.evntIdOportunidad = const Oportunidad.dirty(''),
       this.evntComentario = '',
@@ -385,6 +413,8 @@ class EventFormState {
       this.evntNombreTipoGestion = '',
       this.evntNombreOportunidad = '',
       this.evntCorreosExternos = '',
+      this.evntLocalCodigo = const StateLocal.dirty(''),
+      this.evntLocalNombre = '',
       this.arraycontacto,
       this.arraycontactoElimimar,
       this.arrayresponsable,
@@ -403,7 +433,7 @@ class EventFormState {
     String? evntIdUsuarioResponsable,
     String? evntNombreUsuarioResponsable,
     Select? evntIdTipoGestion,
-    Ruc? evntRuc,
+    StateCompany? evntRuc,
     String? evntRazon,
     Oportunidad? evntIdOportunidad,
     String? evntComentario,
@@ -420,6 +450,8 @@ class EventFormState {
     String? evntNombreTipoGestion,
     String? evntNombreOportunidad,
     String? evntCorreosExternos,
+    StateLocal? evntLocalCodigo,
+    String? evntLocalNombre,
     List<ContactArray>? arraycontacto,
     List<ContactArray>? arraycontactoElimimar,
     List<ResponsableArray>? arrayresponsable,
@@ -463,6 +495,8 @@ class EventFormState {
         evntRazon: evntRazon ?? this.evntRazon,
         todoDia: todoDia ?? this.todoDia,
         opt: opt ?? this.opt,
+        evntLocalCodigo: evntLocalCodigo ?? this.evntLocalCodigo,
+        evntLocalNombre: evntLocalNombre ?? this.evntLocalNombre,
         arraycontacto: arraycontacto ?? this.arraycontacto,
         arraycontactoElimimar:
             arraycontactoElimimar ?? this.arraycontactoElimimar,

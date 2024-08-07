@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CustomCompanyField extends StatefulWidget {
   final bool isTopField;
@@ -12,10 +13,12 @@ class CustomCompanyField extends StatefulWidget {
   final int maxLines;
   final TextEditingController? controller;
   final bool? enabled;
+  final bool readOnly; // Nuevo parámetro para el campo de solo lectura
   final Function(String)? onChanged;
   final Function(String)? onFieldSubmitted;
   final String? Function(String?)? validator;
-  final String? initialValue; // Nuevo parámetro para el valor inicial
+  final String? initialValue;
+  final int? maxLength; // Nuevo parámetro para el límite de caracteres
 
   const CustomCompanyField({
     Key? key,
@@ -30,10 +33,12 @@ class CustomCompanyField extends StatefulWidget {
     this.maxLines = 1,
     this.controller,
     this.enabled = true,
+    this.readOnly = false, // Valor predeterminado para el campo de solo lectura
     this.onChanged,
     this.onFieldSubmitted,
     this.validator,
-    this.initialValue, // Incluir el nuevo parámetro
+    this.initialValue,
+    this.maxLength, // Incluir el nuevo parámetro
   }) : super(key: key);
 
   @override
@@ -67,7 +72,7 @@ class _CustomCompanyFieldState extends State<CustomCompanyField> {
         Container(
           padding: const EdgeInsets.only(bottom: 10.0),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: widget.readOnly ? Colors.grey[200] : Colors.white, // Cambiar color de fondo cuando es readonly
             borderRadius: BorderRadius.circular(8),
             boxShadow: [
               if (widget.isBottomField)
@@ -80,16 +85,19 @@ class _CustomCompanyFieldState extends State<CustomCompanyField> {
           ),
           child: TextFormField(
             controller: _internalController,
-            //textCapitalization: TextCapitalization.characters,
             textCapitalization: widget.textCapitalization!,
             onChanged: widget.onChanged,
             onFieldSubmitted: widget.onFieldSubmitted,
             validator: widget.validator,
             enabled: widget.enabled,
             obscureText: widget.obscureText,
+            readOnly: widget.readOnly, // Establecer el campo de solo lectura
             keyboardType: widget.keyboardType,
             style: const TextStyle(fontSize: 15, color: Colors.black87),
             maxLines: widget.maxLines,
+            inputFormatters: widget.maxLength != null
+                ? [LengthLimitingTextInputFormatter(widget.maxLength)]
+                : null, // Agregar el limitador de caracteres
             decoration: InputDecoration(
               border: border,
               floatingLabelBehavior: widget.maxLines > 1

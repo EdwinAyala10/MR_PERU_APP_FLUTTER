@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 
 typedef SearchCompanyLocalesCallback = Future<List<CompanyLocal>> Function(String ruc, String query);
+typedef ResetSearchQueryCallback = void Function();
 
 class SearchCompanyLocalDelegate extends SearchDelegate<CompanyLocal?> {
   final SearchCompanyLocalesCallback searchCompanyLocales;
+  final ResetSearchQueryCallback resetSearchQuery;
   List<CompanyLocal> initialCompanyLocales;
   String ruc;
 
@@ -19,6 +21,7 @@ class SearchCompanyLocalDelegate extends SearchDelegate<CompanyLocal?> {
   SearchCompanyLocalDelegate({
     required this.searchCompanyLocales,
     required this.initialCompanyLocales,
+    required this.resetSearchQuery,
     required this.ruc,
   }) : super(
           searchFieldLabel: 'Buscar locales',
@@ -50,7 +53,7 @@ class SearchCompanyLocalDelegate extends SearchDelegate<CompanyLocal?> {
     });
   }
 
-  Widget buildResultsAndSuggestions() {
+  /*Widget buildResultsAndSuggestions() {
     return StreamBuilder(
       initialData: initialCompanyLocales,
       stream: debouncedCompanyLocales.stream,
@@ -67,6 +70,46 @@ class SearchCompanyLocalDelegate extends SearchDelegate<CompanyLocal?> {
             },
           ),
         );
+      },
+    );
+  }*/
+
+  Widget buildResultsAndSuggestions() {
+    return FutureBuilder<List<CompanyLocal>>(
+      future: searchCompanyLocales(ruc, query),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Text(
+              'Error al cargar los datos',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          );
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(
+            child: Text(
+              'No existen registros',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          );
+        } else {
+          final companies = snapshot.data!;
+          return ListView.separated(
+            separatorBuilder: (BuildContext context, int index) => const Divider(),
+            itemCount: companies.length,
+            itemBuilder: (context, index) => _CompanyLocalItem(
+              companyLocal: companies[index],
+              onCompanyLocalSelected: (context, user) {
+                clearStreams();
+                close(context, user);
+              },
+            ),
+          );
+        }
       },
     );
   }
@@ -107,6 +150,7 @@ class SearchCompanyLocalDelegate extends SearchDelegate<CompanyLocal?> {
     return IconButton(
       onPressed: () {
         clearStreams();
+        resetSearchQuery();
         close(context, null);
       },
       icon: const Icon(Icons.arrow_back_ios_new_rounded),
@@ -128,6 +172,7 @@ class SearchCompanyLocalDelegate extends SearchDelegate<CompanyLocal?> {
   void close(BuildContext context, CompanyLocal? result) {
     query = '';
     clearStreams();
+    resetSearchQuery();
     super.close(context, result);
   }
 

@@ -372,7 +372,11 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
                 initialOpportunities: searchedOpportunities,
                 searchOpportunities: ref
                     .read(searchedOpportunitiesProvider.notifier)
-                    .searchOpportunitiesByQuery))
+                    .searchOpportunitiesByQuery,
+                resetSearchQuery: () {
+                    ref.read(searchQueryOpportunitiesProvider.notifier).update((state) => '');
+                },
+            ))
         .then((opportunity) {
       if (opportunity == null) return;
 

@@ -196,7 +196,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
                 styleLabel, styleContent),
             _buildInfoField('Estado', widget.company.clienteNombreEstado ?? '',
                 styleLabel, styleContent),
-            _buildInfoField('Calificación', widget.company.calificacion ?? '',
+            _buildInfoField('Calificación', widget.company.nombreCalificacion ?? '',
                 styleLabel, styleContent),
             if (widget.company.arrayresponsables != null &&
                 widget.company.arrayresponsables!.isNotEmpty)
@@ -206,7 +206,8 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
                   Text('Responsables', style: styleTitle),
                   const SizedBox(height: 8),
                   Wrap(
-                    spacing: 8,
+                    spacing: 8.2,
+                    runSpacing: 6,
                     children:
                         widget.company.arrayresponsables!.map((responsable) {
                       return Container(
@@ -248,16 +249,15 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
             const SizedBox(height: 20), // Espaciado adicional
             Text('DATOS DE CONTACTO', style: styleTitle),
             spacingHeight,
-            _buildInfoField('Teléfono', widget.company.telefono ?? '',
-                styleLabel, styleContent),
+            widget.company.email != "" 
+              ?_buildInfoField('Teléfono', widget.company.telefono ?? '',
+                styleLabel, styleContent) : const SizedBox(),
             widget.company.email != ""
                 ? _buildInfoField('Email', widget.company.email ?? '',
                     styleLabel, styleContent)
                 : const SizedBox(),
-            widget.company.email != ""
-                ? _buildInfoField('Web', widget.company.website ?? '',
-                    styleLabel, styleContent)
-                : const SizedBox(),
+            _buildInfoField('Web', widget.company.website ?? '-',
+                    styleLabel, styleContent),
             const SizedBox(height: 20), // Espaciado adicional
           ],
         ),
@@ -398,7 +398,7 @@ class _ListContacts extends StatelessWidget {
           return ItemContact(
               contact: contact,
               callbackOnTap: () {
-                context.push('/contact/${contact.id}');
+                context.push('/contact_detail/${contact.id}');
               });
         },
       ),
@@ -448,7 +448,7 @@ class _ListOpportunities extends StatelessWidget {
           return ItemOpportunity(
               opportunity: opportunity,
               callbackOnTap: () {
-                context.push('/opportunity/${opportunity.id}');
+                context.push('/opportunity_detail/${opportunity.id}');
               });
         },
       ),
@@ -473,7 +473,7 @@ class _ListActivities extends StatelessWidget {
           return ItemActivity(
               activity: activity,
               callbackOnTap: () {
-                context.push('/activity/${activity.id}');
+                context.push('/activity_detail/${activity.id}');
               });
         },
       ),
@@ -498,7 +498,7 @@ class _ListEvents extends StatelessWidget {
           return ItemEvent(
               event: event,
               callbackOnTap: () {
-                context.push('/event/${event.id}');
+                context.push('/event_detail/${event.id}');
               });
         },
       ),

@@ -1,3 +1,4 @@
+import 'package:crm_app/features/agenda/presentation/screens/event_detail_screen.dart';
 import 'package:crm_app/features/documents/presentation/screens/enlace_screen.dart';
 import 'package:crm_app/features/opportunities/presentation/screens/opportunity_detail_screen.dart';
 import 'package:crm_app/features/route-planner/presentation/screens/register_route_planner_screen.dart';
@@ -120,6 +121,13 @@ final goRouterProvider = Provider((ref) {
       GoRoute(
         path: '/event/:id', // /event/new
         builder: (context, state) => EventScreen(
+          eventId: state.pathParameters['id'] ?? 'no-id',
+        ),
+      ),
+
+      GoRoute(
+        path: '/event_detail/:id', // /event/new
+        builder: (context, state) => EventDetailScreen(
           eventId: state.pathParameters['id'] ?? 'no-id',
         ),
       ),

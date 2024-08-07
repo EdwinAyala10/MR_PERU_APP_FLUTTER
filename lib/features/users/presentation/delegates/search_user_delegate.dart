@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 
 typedef SearchUsersCallback = Future<List<UserMaster>> Function(String query);
+typedef ResetSearchQueryCallback = void Function();
 
 class SearchUserDelegate extends SearchDelegate<UserMaster?> {
   final SearchUsersCallback searchUsers;
+  final ResetSearchQueryCallback resetSearchQuery;
   List<UserMaster> initialUsers;
   
   late StreamController<List<UserMaster>> debouncedUsers;
@@ -17,6 +19,7 @@ class SearchUserDelegate extends SearchDelegate<UserMaster?> {
 
   SearchUserDelegate({
     required this.searchUsers,
+    required this.resetSearchQuery,
     required this.initialUsers,
   }) : super(
           searchFieldLabel: 'Buscar personas',
@@ -48,7 +51,7 @@ class SearchUserDelegate extends SearchDelegate<UserMaster?> {
     });
   }
 
-  Widget buildResultsAndSuggestions() {
+  /*Widget buildResultsAndSuggestions() {
     return StreamBuilder(
       initialData: initialUsers,
       stream: debouncedUsers.stream,
@@ -75,6 +78,46 @@ class SearchUserDelegate extends SearchDelegate<UserMaster?> {
             },
           ),
         );
+      },
+    );
+  }*/
+
+  Widget buildResultsAndSuggestions() {
+    return FutureBuilder<List<UserMaster>>(
+      future: searchUsers(query),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Text(
+              'Error al cargar los datos',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          );
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(
+            child: Text(
+              'No existen registros',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          );
+        } else {
+          final users = snapshot.data!;
+          return ListView.separated(
+            separatorBuilder: (BuildContext context, int index) => const Divider(),
+            itemCount: users.length,
+            itemBuilder: (context, index) => _UserItem(
+              user: users[index],
+              onUserSelected: (context, user) {
+                clearStreams();
+                close(context, user);
+              },
+            ),
+          );
+        }
       },
     );
   }
@@ -115,6 +158,7 @@ class SearchUserDelegate extends SearchDelegate<UserMaster?> {
     return IconButton(
       onPressed: () {
         clearStreams();
+        resetSearchQuery();
         close(context, null);
       },
       icon: const Icon(Icons.arrow_back_ios_new_rounded),
@@ -136,6 +180,7 @@ class SearchUserDelegate extends SearchDelegate<UserMaster?> {
   void close(BuildContext context, UserMaster? result) {
     query = '';
     clearStreams();
+    resetSearchQuery();
     super.close(context, result);
   }
 

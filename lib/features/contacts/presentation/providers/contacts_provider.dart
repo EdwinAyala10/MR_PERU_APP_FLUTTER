@@ -26,7 +26,7 @@ class ContactsNotifier extends StateNotifier<ContactsState> {
       final message = contactResponse.message;
 
       if (contactResponse.status) {
-        final contact = contactResponse.contact as Contact;
+        /*final contact = contactResponse.contact as Contact;
         final isContactInList =
             state.contacts.any((element) => element.id == contact.id);
 
@@ -40,7 +40,7 @@ class ContactsNotifier extends StateNotifier<ContactsState> {
                 .map(
                   (element) => (element.id == contact.id) ? contact : element,
                 )
-                .toList());
+                .toList());*/
 
         return CreateUpdateContactResponse(response: true, message: message);
       }

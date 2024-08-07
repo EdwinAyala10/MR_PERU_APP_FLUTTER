@@ -152,11 +152,11 @@ class _ListKpis extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Text(kpi.objrNombreAsignacion ?? '',
+                      /*Text(kpi.objrNombreAsignacion ?? '',
                           textAlign: TextAlign.right,
                           style: const TextStyle(
                             fontSize: 12,
-                          )),
+                          )),*/
                       //for (var user in kpi.usuariosAsignados ?? [])
                       for (var i = 0; i < 2 && i < kpi.usuariosAsignados!.length; i++)
                         Text(

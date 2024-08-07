@@ -62,6 +62,7 @@ class CompanyScreen extends ConsumerWidget {
                 if (value.message != '') {
                   showSnackbar(context, value.message);
                   if (value.response) {
+                    ref.read(companiesProvider.notifier).loadNextPage(isRefresh: true);
                     //Timer(const Duration(seconds: 3), () {
                     //context.push('/companies');
                     context.pop();
@@ -265,6 +266,8 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
           ),
           CustomCompanyField(
             label: 'RUC *',
+            maxLength: 11,
+            readOnly: companyForm.rucId == 'new' ? false : true,
             initialValue:
                 companyForm.ruc.value == 'new' ? '' : companyForm.ruc.value,
             keyboardType: TextInputType.number,
@@ -298,7 +301,7 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
             },
             items: optionsTipoCliente,
             errorMessage: companyForm.tipoCliente.errorMessage,
-          ): PlaceholderInput(text: 'Cargando Tipo...'),
+          ): PlaceholderInput(text: 'Cargando...'),
           optionsEstado.length > 1 ? SelectCustomForm(
             label: 'Estado',
             value: companyForm.estado.value,
@@ -312,7 +315,7 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
             },
             items: optionsEstado,
             errorMessage: companyForm.estado.errorMessage,
-          ): PlaceholderInput(text: 'Cargando Estado...'),
+          ): PlaceholderInput(text: 'Cargando...'),
           optionsCalificacion.length > 1 ? SelectCustomForm(
             label: 'Calificación',
             value: companyForm.calificacion.value,
@@ -323,7 +326,7 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
             },
             items: optionsCalificacion,
             errorMessage: companyForm.calificacion.errorMessage,
-          ): PlaceholderInput(text: 'Cargando Calificación...'),
+          ): PlaceholderInput(text: 'Cargando...'),
           const SizedBox(height: 15),
           const Text('Responsable *', style: TextStyle(
             fontWeight: FontWeight.w600
@@ -719,9 +722,20 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
                 initialUsers: searchedUsers,
                 searchUsers: ref
                     .read(searchedUsersProvider.notifier)
-                    .searchUsersByQuery))
+                    .searchUsersByQuery,
+                resetSearchQuery: () {
+                  ref.read(searchQueryUsersProvider.notifier).update((state) => '');
+                },
+            ))
         .then((user) {
-      if (user == null) return;
+      
+      //if (user == null) return;
+
+      if (user == null) {
+        // Reiniciar el valor del proveedor de la búsqueda
+        ref.read(searchQueryUsersProvider.notifier).update((state) => '');
+        return;
+      }
 
       ref
           .read(companyFormProvider(widget.company).notifier)
