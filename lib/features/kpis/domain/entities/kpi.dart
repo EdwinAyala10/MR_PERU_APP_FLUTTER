@@ -21,7 +21,8 @@ class Kpi {
     String? objrNombreCategoria;
     int? totalRegistro;
     double? porcentaje;
-    bool? objrValorDifMes;
+    String? objrValorDifMes;
+    String? userreportNameResponsable;
     List<ArrayUser>? arrayuserasignacion;
     List<Periodicidad>? peobIdPeriodicidad;
     List<UsuarioAsignado>? usuariosAsignados;
@@ -49,5 +50,6 @@ class Kpi {
         this.porcentaje,
         this.objrValorDifMes,
         this.usuariosAsignados,
+        this.userreportNameResponsable
     });
 }

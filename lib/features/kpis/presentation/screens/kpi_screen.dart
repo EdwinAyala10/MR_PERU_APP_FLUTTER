@@ -1,4 +1,3 @@
-import 'dart:async';
 
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
@@ -32,14 +31,20 @@ class KpiScreen extends ConsumerWidget {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Crear objetivo', style: TextStyle(
-            fontWeight: FontWeight.w600
-          ),),
+          title:  
+            Text('${kpiId == 'new' ? 'Crear' : 'Editar'} objetivo', style: const TextStyle(
+              fontWeight: FontWeight.w700
+            )),
           leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
-              //context.pop();
-              context.replace('/dashboard');
+
+
+              if (kpiId == 'new') {
+                context.replace('/dashboard');
+              } else {
+                context.pop();
+              }
             },
           ),
         ),
@@ -61,8 +66,19 @@ class KpiScreen extends ConsumerWidget {
                   showSnackbar(context, value.message);
 
                   if (value.response) {
+                    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+                      await ref.watch(kpisProvider.notifier).loadNextPage();
+                    });
+                    
+
+                    ref.watch(kpiProvider(kpiId).notifier).loadKpi();
+
                     //Timer(const Duration(seconds: 3), () {
-                      context.replace('/dashboard');
+                      if (kpiId == 'new') {
+                        context.replace('/dashboard');
+                      } else {
+                        context.pop();
+                      }
                     //});
                   }
                 }
@@ -167,6 +183,8 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
     
     final kpiForm = ref.watch(kpiFormProvider(widget.kpi));
 
+    final isReadOnly = kpiForm.id == 'new' ? false : true;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -182,7 +200,7 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
               Wrap(
                 spacing: 8.0,
                 children: [
-                  Chip(label: Text(kpiForm.objrNombreUsuarioResponsable))
+                  Chip(label: Text(kpiForm.userreportNameResponsable ?? ''))
                 ],
               ),
             ],
@@ -194,7 +212,7 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
           optionsAsignacion.length > 1 ? SelectCustomForm(
             label: 'Asignación',
             value: kpiForm.objrIdAsignacion.value,
-            callbackChange: (String? newValue) {
+            callbackChange: isReadOnly ? null : (String? newValue) {
                DropdownOption searchDropdown = optionsAsignacion
                   .where((option) => option.id == newValue!)
                   .first;
@@ -223,11 +241,11 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
                           children: kpiForm.arrayuserasignacion != null
                               ? List<Widget>.from(kpiForm.arrayuserasignacion!
                                   .map((item) => Chip(
-                                        label: Text(item.name ?? '',
+                                        label: Text(item.userreportName ?? '',
                                             style: const TextStyle(
                                                 fontSize:
                                                     12)), // Aquí deberías colocar el texto que deseas mostrar en el chip para cada elemento de la lista
-                                        onDeleted: () {
+                                        onDeleted: isReadOnly ? null : () {
                                           ref
                                               .read(
                                                   kpiFormProvider(widget.kpi).notifier)
@@ -272,7 +290,7 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
           optionsCategoria.length > 1 ? SelectCustomForm(
             label: 'Categoria',
             value: kpiForm.objrIdCategoria.value,
-            callbackChange: (String? newValue) {
+            callbackChange: isReadOnly ? null : (String? newValue) {
                DropdownOption searchDropdown = optionsCategoria
                   .where((option) => option.id == newValue!)
                   .first;
@@ -291,7 +309,7 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
             kpiForm.objrIdCategoria.value == '01' ? SelectCustomForm(
               label: 'Tipo',
               value: kpiForm.objrIdTipo,
-              callbackChange: (String? newValue) {
+              callbackChange: isReadOnly ? null : (String? newValue) {
                 DropdownOption searchDropdown = optionsTipo
                     .where((option) => option.id == newValue!)
                     .first;
@@ -318,7 +336,7 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
           optionsPeriodicidad.length > 1 ? SelectCustomForm(
             label: 'Periodicidad',
             value: kpiForm.objrIdPeriodicidad,
-            callbackChange: (String? newValue) {
+            callbackChange: isReadOnly ? null : (String? newValue) {
                DropdownOption searchDropdown = optionsPeriodicidad
                   .where((option) => option.id == newValue!)
                   .first;
@@ -358,7 +376,7 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
                 CustomCompanyField(
                   label: 'Objetivo individual a alcanzar',
                   initialValue: kpiForm.objrCantidad,
-                  enabled: !kpiForm.objrValorDifMes,
+                  enabled: kpiForm.objrValorDifMes == '0' ? true : false,
                   keyboardType: TextInputType.number,
                   onChanged:
                       ref.read(kpiFormProvider(widget.kpi).notifier).onCantidadChanged,
@@ -366,6 +384,7 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
                 const SizedBox(
                   height: 10,
                 ),
+                //Text(kpiForm.id == 'new' ? 'Crear' : ''),
                 kpiForm.objrIdPeriodicidad == '02'
                     ? Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -373,7 +392,8 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
                           const Text('Valor diferente cada mes',
                               style: TextStyle(fontWeight: FontWeight.w500)),
                           Switch(
-                            value: kpiForm.objrValorDifMes,
+                            value: kpiForm.objrValorDifMes == '0' ? false : true,
+                            //value: kpiForm.id == 'new' ? kpiForm.objrValorDifMes : true,
                             onChanged: (bool bol) {
                               ref
                                   .read(kpiFormProvider(widget.kpi).notifier)
@@ -389,7 +409,7 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
                       )
                     : const SizedBox(),
                 if (kpiForm.objrIdPeriodicidad == '02' &&
-                    kpiForm.objrValorDifMes)
+                    kpiForm.objrValorDifMes == '1')
                   for (var periodicidad in kpiForm.peobIdPeriodicidad ?? [])
                     ItemMes(periodicidad: periodicidad, ref: ref, kpi: widget.kpi),
               ],
@@ -399,6 +419,7 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
           CustomCompanyField(
             label: 'Comentarios',
             maxLines: 2,
+            readOnly: isReadOnly,
             initialValue: kpiForm.objrObservaciones ?? '',
             onChanged: kpiForm.id == "new"
                 ? ref.read(kpiFormProvider(widget.kpi).notifier).onObservacionesChanged

@@ -19,6 +19,8 @@ class ContactMapper {
     contactoNombreCargo: json['CONTACTO_NOMBRE_CARGO'] ?? '',
     opt: json['OPT'] ?? '',
     contactIdIn: json['CONTACTO_ID'] ?? '',
+    actiIdTipoGestion: json['ACTI_ID_TIPO_GESTION'] ?? '',
+    actiNombreTipoGestion: json['ACTI_NOMBRE_TIPO_GESTION'] ?? '',
   );
 
 }

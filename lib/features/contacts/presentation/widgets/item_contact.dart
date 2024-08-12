@@ -1,3 +1,5 @@
+import 'package:crm_app/features/shared/shared.dart';
+
 import '../../domain/domain.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -57,7 +59,41 @@ class ItemContact extends StatelessWidget {
                   ],
                 )
               : Container(),
-          
+          if (contact.actiIdTipoGestion != null) 
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 1.0),
+              decoration: BoxDecoration(
+                color: Color.fromARGB(255, 230, 255, 249),
+                border: Border.all(color: Color.fromARGB(255, 21, 158, 124), width: 1.5),
+                borderRadius: BorderRadius.circular(20.0),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Ultima actividad: ',
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 96, 95, 95),
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  IconsActivity(type: contact.actiIdTipoGestion!, size: 19),
+                  const SizedBox(
+                    width: 4,
+                  ),
+                  Text(
+                    contact.actiNombreTipoGestion ?? '',
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  
+                ],
+              ),
+            )      
         ],
       ),
       //trailing: Text(contact.contactoCargo),

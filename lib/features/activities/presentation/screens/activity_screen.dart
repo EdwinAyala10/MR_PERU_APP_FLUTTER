@@ -68,7 +68,8 @@ class ActivityScreen extends ConsumerWidget {
                   showSnackbar(context, value.message);
 
                   if (value.response) {
-                      ref.read(activitiesProvider.notifier).loadNextPage(isRefresh: true);
+                    ref.read(activitiesProvider.notifier).loadNextPage(isRefresh: true);
+                    ref.read(activityProvider(activityId).notifier).loadActivity();
                     //Timer(const Duration(seconds: 3), () {
                       //context.replace('/activities');
                       context.pop();

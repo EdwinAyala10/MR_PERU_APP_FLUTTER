@@ -90,7 +90,7 @@ class OpportunityDetailScreen extends ConsumerWidget {
               ),
               ContainerCustom(
                 label: 'Empresa principal',
-                text: opportunity.oprtRuc ?? '',
+                text: opportunity.oprtRazon ?? '',
               ),
               ContainerCustom(
                 label: 'Empresa Intermediario',

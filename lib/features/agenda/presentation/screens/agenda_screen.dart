@@ -83,6 +83,10 @@ class _AgendaViewState extends ConsumerState {
     //}
   }
 
+  Future<void> _onRefresh() async {
+    await ref.read(eventsProvider.notifier).loadNextPage();
+  }
+
   @override
   Widget build(BuildContext context) {
     final eventsState = ref.watch(eventsProvider);
@@ -162,26 +166,37 @@ class _AgendaViewState extends ConsumerState {
               //valueListenable: _selectedEvents,
               valueListenable: ValueNotifier(eventsState.selectedEvents),
               builder: (context, value, _) {
-                return value.isNotEmpty
-                    ? ListView.builder(
-                        itemCount: value.length,
-                        itemBuilder: (context, index) {
-                         
-                          final event = value[index];
-
-                          return ItemEvent(
-                            event: event,
-                            callbackOnTap: () {
-                              //context.push('/event/${value[index].id}');
-                              context.push('/event_detail/${value[index].id}');
-                            });
-                        },
-                      )
-                    : const Center(
-                        child: Text('Sin eventos',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w500)),
-                      );
+                return RefreshIndicator(
+                  onRefresh: _onRefresh,
+                  child: value.isNotEmpty
+                      ? ListView.builder(
+                          itemCount: value.length,
+                          itemBuilder: (context, index) {
+                           
+                            final event = value[index];
+                  
+                            return ItemEvent(
+                              event: event,
+                              callbackOnTap: () {
+                                //context.push('/event/${value[index].id}');
+                                context.push('/event_detail/${value[index].id}');
+                              });
+                          },
+                        )
+                      : ListView(
+                          children: const [
+                            Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: Text('Sin eventos',
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500)),
+                              ),
+                            ),
+                          ],
+                        ),
+                );
               },
             ),
           ),

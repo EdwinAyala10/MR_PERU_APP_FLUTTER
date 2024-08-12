@@ -39,6 +39,13 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     //}
   }
 
+  void onChangeNotIsActiveSearchSinRefresh() {
+    state = state.copyWith(isActiveSearch: false, textSearch: '');
+    //if (state.textSearch != "") {
+    //loadNextPage(isRefresh: true);
+    //}
+  }
+
   void onSelectedFilter(FilterOption opt) {
     bool found = false;
 

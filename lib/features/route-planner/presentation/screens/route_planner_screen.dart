@@ -159,8 +159,8 @@ class _RoutePlannerViewState extends ConsumerState {
     });
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
+      ref.read(routePlannerProvider.notifier).onChangeNotIsActiveSearchSinRefresh();
       ref.read(routePlannerProvider.notifier).loadNextPage(isRefresh: true);
-      ref.read(routePlannerProvider.notifier).onChangeNotIsActiveSearch();
     });
   }
 
@@ -188,7 +188,11 @@ class _RoutePlannerViewState extends ConsumerState {
           onRefreshCallback: _refresh,
           scrollController: scrollController,
       )
-      : NoExistData(textCenter: 'No hay locales registradas', icon: Icons.business);
+      : NoExistData(
+        textCenter: 'No hay locales registradas', 
+        onRefreshCallback: _refresh, 
+        icon: Icons.business
+        );
   }
 }
 

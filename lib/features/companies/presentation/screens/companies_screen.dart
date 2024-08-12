@@ -64,8 +64,8 @@ class _CompaniesViewState extends ConsumerState {
     });
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
+      ref.read(companiesProvider.notifier).onChangeNotIsActiveSearchSinRefresh();
       ref.read(companiesProvider.notifier).loadNextPage(isRefresh: true);
-      ref.read(companiesProvider.notifier).onChangeNotIsActiveSearch();
     });
   }
 
@@ -94,7 +94,11 @@ class _CompaniesViewState extends ConsumerState {
           onRefreshCallback: _refresh,
           scrollController: scrollController,
       )
-      : NoExistData(textCenter: 'No hay empresas registradas', icon: Icons.business);
+      : NoExistData(
+        textCenter: 'No hay empresas registradas',
+        onRefreshCallback: _refresh, 
+        icon: Icons.business
+      );
   }
 }
 

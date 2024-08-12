@@ -1,3 +1,5 @@
+import 'package:crm_app/features/kpis/domain/entities/array_user.dart';
+
 import '../../../auth/domain/domain.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,6 +30,18 @@ class OpportunityNotifier extends StateNotifier<OpportunityState> {
   }
 
   Opportunity newEmptyOpportunity() {
+
+    List<ArrayUser>? arrayResponsables = [];
+
+    if (!user.isAdmin) {
+      ArrayUser array = ArrayUser();
+      array.idResponsable = user.id;
+      array.cresIdUsuarioResponsable = user.code;
+      array.userreportName = user.name;
+      array.nombreResponsable = user.name;
+      arrayResponsables.add(array);
+    }
+    
     return Opportunity(
       id: 'new',
       oprtEntorno: 'MR PERU',
@@ -46,7 +60,7 @@ class OpportunityNotifier extends StateNotifier<OpportunityState> {
       //oprtRucIntermediario01: '',
       oprtRucIntermediario02: '',
       opt: '',
-      arrayresponsables: [],
+      arrayresponsables: arrayResponsables,
       arrayresponsablesEliminar: [],
     );
   }

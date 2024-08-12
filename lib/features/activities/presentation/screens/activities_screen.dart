@@ -180,7 +180,11 @@ class _ActivitiesViewState extends ConsumerState {
             onRefreshCallback: _refresh,
             scrollController: scrollController,
           )
-        : NoExistData(textCenter: 'No hay actividades registradas', icon: Icons.graphic_eq);
+        : NoExistData(
+          textCenter: 'No hay actividades registradas',
+          onRefreshCallback: _refresh,
+          icon: Icons.graphic_eq
+        );
   }
 }
 

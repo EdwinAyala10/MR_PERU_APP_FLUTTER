@@ -82,6 +82,7 @@ class KpisDatasourceImpl extends KpisDatasource {
     final response = await dio.get('/objetivo/listar-periodicidad');
     final List<Periodicidad> periodicidades = [];
     for (final periodicidad in response.data['data'] ?? []) {
+      periodicidad['PEOB_ID_PERIODICIDAD_CALENDARIO'] = periodicidad['PERI_ID_PERIODICIDAD_CALENDARIO'];
       periodicidades.add(PeriodicidadMapper.jsonToEntity(periodicidad));
     }
 

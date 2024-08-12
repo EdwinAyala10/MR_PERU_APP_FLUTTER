@@ -192,7 +192,7 @@ class _ListKpis extends StatelessWidget {
                     ],
                   ),
                   onTap: () {
-                    context.push('/kpi/${kpi.id}');
+                    context.push('/kpi_detail/${kpi.id}');
                   },
                 );
               },

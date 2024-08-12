@@ -44,6 +44,7 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
           oprtNombreValor: opportunity.oprtNombreValor ?? '',
           oprtProbabilidad: opportunity.oprtProbabilidad ?? '',
           oprtRuc: EmpresaPrincipal.dirty(opportunity.oprtRuc ?? ''),
+          oprtRazon: opportunity.oprtRazon ?? '',
           //oprtRucIntermediario01: EmpresaIntermediario.dirty(opportunity.oprtRucIntermediario01 ?? ''),
           oprtRucIntermediario02: opportunity.oprtRucIntermediario02 ?? '',
           opt: opportunity.opt ?? '',
@@ -75,6 +76,7 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
       'OPRT_FECHA_PREVISTA_VENTA':
           "${state.oprtFechaPrevistaVenta?.year.toString().padLeft(4, '0')}-${state.oprtFechaPrevistaVenta?.month.toString().padLeft(2, '0')}-${state.oprtFechaPrevistaVenta?.day.toString().padLeft(2, '0')}",
       'OPRT_RUC': state.oprtRuc.value,
+      'RAZON': state.oprtRazon,
       //'OPRT_RUC_INTERMEDIARIO_01': state.oprtRucIntermediario01.value,
       'OPRT_RUC_INTERMEDIARIO_02': state.oprtRucIntermediario02,
       'OPRT_COMENTARIO': state.oprtComentario,

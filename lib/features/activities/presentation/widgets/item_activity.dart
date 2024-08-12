@@ -180,14 +180,7 @@ class ItemActivity extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 10),
-            activity.actiIdTipoGestion == '05' 
-            ? const FaIcon(FontAwesomeIcons.whatsapp, color: Colors.green, size: 36) 
-            : Icon(
-              //Icons.airline_stops_sharp
-              icono, 
-              size: 36,
-              color: color,
-            ),
+            IconsActivity(type: activity.actiIdTipoGestion),
           ],
         ),
       ),

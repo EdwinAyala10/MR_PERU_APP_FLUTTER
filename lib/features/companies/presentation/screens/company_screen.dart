@@ -1,4 +1,6 @@
 import 'package:crm_app/config/config.dart';
+import 'package:crm_app/features/auth/domain/domain.dart';
+import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 
 import '../../domain/domain.dart';
@@ -62,6 +64,7 @@ class CompanyScreen extends ConsumerWidget {
                 if (value.message != '') {
                   showSnackbar(context, value.message);
                   if (value.response) {
+                    ref.read(companyProvider(rucId).notifier).loadCompany();
                     ref.read(companiesProvider.notifier).loadNextPage(isRefresh: true);
                     //Timer(const Duration(seconds: 3), () {
                     //context.push('/companies');
@@ -185,6 +188,8 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
     ];
 
     final swIsCreate = widget.company.rucId == 'new';
+
+    bool isAdmin = ref.watch(authProvider).user!.isAdmin;
 
     final companyForm = ref.watch(companyFormProvider(widget.company));
     //final selectMapState = ref.watch(selectedMapProvider.notifier).state;
@@ -327,51 +332,7 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
             items: optionsCalificacion,
             errorMessage: companyForm.calificacion.errorMessage,
           ): PlaceholderInput(text: 'Cargando...'),
-          const SizedBox(height: 15),
-          const Text('Responsable *', style: TextStyle(
-            fontWeight: FontWeight.w600
-          ),),
-          Row(
-            children: [
-              Expanded(
-                  child: Column(
-                children: [
-                  companyForm.arrayresponsables!.isNotEmpty
-                      ? Wrap(
-                          spacing: 6.0,
-                          children: companyForm.arrayresponsables != null
-                              ? List<Widget>.from(companyForm.arrayresponsables!
-                                  .map((item) => Chip(
-                                        label: Text(item.userreportName ?? '',
-                                            style:
-                                                const TextStyle(fontSize: 12)),
-                                        onDeleted: () {
-                                          ref
-                                              .read(companyFormProvider(
-                                                      widget.company)
-                                                  .notifier)
-                                              .onDeleteUserChanged(item);
-                                        },
-                                      )))
-                              : [],
-                        )
-                      : const Text('Seleccione usuario(s)',
-                          style: TextStyle(color: Colors.black45)),
-                ],
-              )),
-              ElevatedButton(
-                onPressed: () {
-                  _openSearchUsers(context, ref);
-                },
-                child: const Row(
-                  children: [
-                    Icon(Icons.add),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
@@ -391,7 +352,55 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 15),
+          //Text('rucId: ${companyForm.rucId}'),
+          if (companyForm.visibleTodos != '1')
+            const Text('Responsable ', style: TextStyle(
+              fontWeight: FontWeight.w600
+            ),),
+          if (companyForm.visibleTodos != '1')
+            Row(
+              children: [
+                Expanded(
+                    child: Column(
+                  children: [
+                    companyForm.arrayresponsables!.isNotEmpty
+                        ? Wrap(
+                            spacing: 6.0,
+                            children: companyForm.arrayresponsables != null
+                                ? List<Widget>.from(companyForm.arrayresponsables!
+                                    .map((item) => Chip(
+                                          label: Text(item.userreportName ?? '',
+                                              style:
+                                                  const TextStyle(fontSize: 12)),
+                                          onDeleted: isAdmin ? () {
+                                            ref
+                                                .read(companyFormProvider(
+                                                        widget.company)
+                                                    .notifier)
+                                                .onDeleteUserChanged(item);
+                                          } : null,
+                                        )))
+                                : [],
+                          )
+                        : const Text('Seleccione usuario(s)',
+                            style: TextStyle(color: Colors.black45)),
+                  ],
+                )),
+                ElevatedButton(
+                  onPressed: isAdmin ?  () {
+                    _openSearchUsers(context, ref);
+                  } : null,
+                  child: const Row(
+                    children: [
+                      Icon(Icons.add),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          if (companyForm.visibleTodos != '1')
+            const SizedBox(height: 24),
           CustomCompanyField(
             maxLines: 2,
             label: 'Comentarios',

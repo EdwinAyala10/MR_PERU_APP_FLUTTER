@@ -15,6 +15,8 @@ class Contact {
   String? contactoNombreCargo;
   String? contactoNotas;
   String? contactoUsuarioRegistro;
+  String? actiIdTipoGestion;
+  String? actiNombreTipoGestion;
 
   Contact({
     required this.id,
@@ -33,5 +35,7 @@ class Contact {
     this.contactoIdCargo,
     this.contactoNombreCargo,
     this.contactoUsuarioRegistro,
+    this.actiIdTipoGestion,
+    this.actiNombreTipoGestion,
   });
 }

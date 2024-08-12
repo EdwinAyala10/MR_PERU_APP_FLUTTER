@@ -23,9 +23,11 @@ class KpiMapper {
     totalRegistro: json['TOTAL_REGISTRO'] ?? 0,
     porcentaje: (json['PORCENTAJE']?? 0.00).toDouble() ,
     objrCantidad: json['OBJR_CANTIDAD'] ?? '0',
+    objrValorDifMes: json['OBJR_VALOR_DIFERENTE'] ?? '0',
+    userreportNameResponsable: json['USERREPORT_NAME_RESPONSABLE'] ?? '',
     usuariosAsignados: json["USUARIOS_ASIGNADOS"] != null ? List<UsuarioAsignado>.from(json["USUARIOS_ASIGNADOS"].map((x) => UsuarioAsignado.fromJson(x))) : [],
-    arrayuserasignacion: json["ARRAYUSERASIGNACION"] != null ? List<ArrayUser>.from(json["ARRAYUSERASIGNACION"].map((x) => ArrayUser.fromJson(x))) : [],
-    peobIdPeriodicidad: json["PEOB_ID_PERIODICIDAD"] != null ? List<Periodicidad>.from(json["PEOB_ID_PERIODICIDAD"].map((x) => Periodicidad.fromJson(x))) : [],
+    arrayuserasignacion: json["USUARIOS_ASIGNADOS"] != null ? List<ArrayUser>.from(json["USUARIOS_ASIGNADOS"].map((x) => ArrayUser.fromJson(x))) : [],
+    peobIdPeriodicidad: json["OBJETIVO_PERIODICIDAD_CALENDARIO"] != null ? List<Periodicidad>.from(json["OBJETIVO_PERIODICIDAD_CALENDARIO"].map((x) => Periodicidad.fromJson(x))) : [],
   );
 
 }

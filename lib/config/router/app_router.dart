@@ -1,5 +1,6 @@
 import 'package:crm_app/features/agenda/presentation/screens/event_detail_screen.dart';
 import 'package:crm_app/features/documents/presentation/screens/enlace_screen.dart';
+import 'package:crm_app/features/kpis/presentation/screens/kpi_detail_screen.dart';
 import 'package:crm_app/features/opportunities/presentation/screens/opportunity_detail_screen.dart';
 import 'package:crm_app/features/route-planner/presentation/screens/register_route_planner_screen.dart';
 import 'package:crm_app/features/route-planner/presentation/screens/route_day_screen.dart';
@@ -114,6 +115,13 @@ final goRouterProvider = Provider((ref) {
       GoRoute(
         path: '/kpi/:id', // /event/new
         builder: (context, state) => KpiScreen(
+          kpiId: state.pathParameters['id'] ?? 'no-id',
+        ),
+      ),
+
+      GoRoute(
+        path: '/kpi_detail/:id', // /event/new
+        builder: (context, state) => KpiDetailScreen(
           kpiId: state.pathParameters['id'] ?? 'no-id',
         ),
       ),

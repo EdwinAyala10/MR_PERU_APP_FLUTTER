@@ -1,13 +1,16 @@
 
 
 
+import 'package:crm_app/features/auth/domain/domain.dart';
+
 class User {
 
   final String id;
   final String code;
   final String name;
   final String type;
-  final List<String> roles;
+  //final List<String> roles;
+  final List<Rol>? roles; 
   final String token;
   final String email;
 
@@ -17,12 +20,17 @@ class User {
     required this.name,
     required this.type,
     required this.token,
-    required this.roles,
+    this.roles,
     required this.email,
   });
 
-  bool get isAdmin {
+  /*bool get isAdmin {
     return roles.contains('admin');
-  }
+  }*/
+
+   bool get isAdmin {
+    return roles!.any((rol) => rol.code == '01');
+   }
+
 
 }

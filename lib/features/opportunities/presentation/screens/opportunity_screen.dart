@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 
@@ -67,6 +68,7 @@ class OpportunityScreen extends ConsumerWidget {
                   showSnackbar(context, value.message);
 
                   if (value.response) {
+                    ref.read(opportunityProvider(opportunityId).notifier).loadOpportunity();
 
                     ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: true);
                     //Timer(const Duration(seconds: 3), () {
@@ -133,6 +135,8 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
     List<DropdownOption> optionsMoneda = [
       DropdownOption(id: '01', name: 'USB'),
     ];
+
+    bool isAdmin = ref.watch(authProvider).user!.isAdmin;
 
     final opportunityForm = ref.watch(opportunityFormProvider(widget.opportunity));
 
@@ -369,7 +373,7 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
             )
           : const SizedBox(),*/
           const SizedBox(height: 15),
-          const Text('Responsable *', style: TextStyle(
+          const Text('Responsable', style: TextStyle(
             fontWeight: FontWeight.w500
           ),),
           Row(
@@ -387,13 +391,13 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
                                         label: Text(item.userreportName ?? '',
                                             style:
                                                 const TextStyle(fontSize: 12)),
-                                        onDeleted: () {
+                                        onDeleted: isAdmin ?  () {
                                           ref
                                               .read(opportunityFormProvider(
                                                       widget.opportunity)
                                                   .notifier)
                                               .onDeleteUserChanged(item);
-                                        },
+                                        } : null,
                                       )))
                               : [],
                         )
@@ -402,9 +406,9 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
                 ],
               )),
               ElevatedButton(
-                onPressed: () {
+                onPressed: isAdmin ? () {
                   _openSearchUsers(context, ref);
-                },
+                } : null,
                 child: const Row(
                   children: [
                     Icon(Icons.add),

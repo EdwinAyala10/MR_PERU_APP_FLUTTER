@@ -1,3 +1,5 @@
+import 'package:crm_app/features/kpis/domain/entities/array_user.dart';
+
 import '../../../activities/domain/domain.dart';
 import '../../../activities/presentation/providers/activities_repository_provider.dart';
 import '../../../agenda/domain/domain.dart';
@@ -54,6 +56,18 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
   }
 
   Company newEmptyCompany() {
+
+    List<ArrayUser>? arrayResponsables = [];
+
+    if (!user.isAdmin) {
+      ArrayUser array = ArrayUser();
+      array.idResponsable = user.id;
+      array.cresIdUsuarioResponsable = user.code;
+      array.userreportName = user.name;
+      array.nombreResponsable = user.name;
+      arrayResponsables.add(array);
+    }
+
     return Company(
       rucId: 'new',
       razon: '',
@@ -102,7 +116,7 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
       voltajeTension: '',
       razonComercial: '',
       userreporteName: user.name,
-      arrayresponsables: [],
+      arrayresponsables: arrayResponsables,
       arrayresponsablesEliminar: [],
     );
   }

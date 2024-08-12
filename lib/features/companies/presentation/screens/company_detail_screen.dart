@@ -132,7 +132,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
       child: Scaffold(
           appBar: AppBar(
             title: Text(widget.company.razon,
-                style: const TextStyle(fontSize: 16)),
+                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600, overflow: TextOverflow.ellipsis)),
             bottom: TabBar(
               controller: _tabController,
               tabs: const [

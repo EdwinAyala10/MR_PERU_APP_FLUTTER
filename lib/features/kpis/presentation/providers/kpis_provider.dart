@@ -50,19 +50,21 @@ class KpisNotifier extends StateNotifier<KpisState> {
 
   Future loadNextPage() async {
     print('cargar KPIS');
-    if (state.isLoading || state.isLastPage) return;
+    //if (state.isLoading || state.isLastPage) return;
+    if (state.isLoading) return;
 
     state = state.copyWith(isLoading: true);
 
     final kpis = await kpisRepository.getKpis();
 
     if (kpis.isEmpty) {
-      state = state.copyWith(isLoading: false, isLastPage: true);
+      //state = state.copyWith(isLoading: false, isLastPage: true);
+      state = state.copyWith(isLoading: false);
       return;
     }
 
     state = state.copyWith(
-        isLastPage: false,
+        //isLastPage: false,
         isLoading: false,
         offset: state.offset + 10,
         kpis: kpis);

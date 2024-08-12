@@ -30,7 +30,7 @@ class ContactScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text('${ contactState.contact!.id == 'new' ? 'Crear': 'Editar' } contacto'
-          , style: TextStyle(
+          , style: const TextStyle(
             fontWeight: FontWeight.w500
           )),
           /*leading: IconButton(
@@ -66,6 +66,7 @@ class ContactScreen extends ConsumerWidget {
 
                   if (value.response) {
                     ref.read(contactsProvider.notifier).loadNextPage(isRefresh: true);
+                    ref.read(contactProvider(contactId).notifier).loadContact(contactId);
                     //Timer(const Duration(seconds: 3), () {
                       //context.replace('/contacts');
                       context.pop();

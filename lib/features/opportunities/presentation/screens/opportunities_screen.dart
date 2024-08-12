@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:crm_app/features/shared/widgets/no_exist_listview.dart';
+
 import '../../domain/domain.dart';
 import '../providers/providers.dart';
 import '../widgets/item_opportunity.dart';
@@ -102,8 +104,8 @@ class _OpportunitiesViewState extends ConsumerState {
     });
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
+      ref.read(opportunitiesProvider.notifier).onChangeNotIsActiveSearchSinRefresh();
       ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: true);
-      ref.read(opportunitiesProvider.notifier).onChangeNotIsActiveSearch();
     });
   }
 
@@ -132,7 +134,11 @@ class _OpportunitiesViewState extends ConsumerState {
           onRefreshCallback: _refresh,
           scrollController: scrollController,
           )
-        : const _NoExistData();
+        : NoExistData(
+          textCenter: 'No hay actividades registradas',
+          onRefreshCallback: _refresh,
+          icon: Icons.graphic_eq
+        );
   }
 }
 
@@ -261,33 +267,3 @@ class _ListOpportunitiesState extends ConsumerState<_ListOpportunities> {
   }
 }
 
-class _NoExistData extends StatelessWidget {
-  const _NoExistData();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-        child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Icon(
-          Icons.business,
-          size: 100,
-          color: Colors.grey,
-        ),
-        const SizedBox(height: 20),
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: Colors.grey.withOpacity(0.1),
-          ),
-          child: const Text(
-            'No hay oportunidades registradas',
-            style: TextStyle(fontSize: 20, color: Colors.grey),
-          ),
-        ),
-      ],
-    ));
-  }
-}

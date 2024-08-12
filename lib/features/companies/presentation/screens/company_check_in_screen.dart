@@ -39,8 +39,8 @@ class CompanyCheckInScreen extends ConsumerWidget {
     List<String> ids = id.split("*");
     String idCheck = ids[0];
     String ruc = ids[1];
-    String idLocal = ids[2];
-    String nombreLocal = ids[3];
+    //String idLocal = ids[2];
+    //String nombreLocal = ids[3];
 
     final locationState = ref.watch(locationProvider);
     bool? allowSave = locationState.allowSave;
@@ -78,8 +78,6 @@ class CompanyCheckInScreen extends ConsumerWidget {
           isDisabled: !isButtonAllowSave,
           callOnPressed: () {
             if (!isButtonAllowSave) {
-              print('QUE PASO');
-
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
@@ -213,6 +211,16 @@ class _CompanyCheckInformationState extends ConsumerState<CompanyCheckInformatio
         })
       });
 
+      final companyCheckInForm =
+        ref.watch(companyCheckInFormProvider(widget.companyCheckIn));
+
+      if (companyCheckInForm.cchkLocalCodigo.value != null) {
+        ref.read(locationProvider.notifier).setCoorsLocationAddressDiff(
+            double.parse(companyCheckInForm.cchkCoordenadaLatitud ?? '0'),
+            double.parse(companyCheckInForm.cchkCoordenadaLongitud ?? '0'));
+
+        ref.read(locationProvider.notifier).setOnLocationAddressDiff();
+      }
     });
   }
   

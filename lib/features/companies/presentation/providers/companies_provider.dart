@@ -157,6 +157,12 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
     loadNextPage(isRefresh: true);
     //}
   }
+  void onChangeNotIsActiveSearchSinRefresh() {
+    state = state.copyWith(isActiveSearch: false, textSearch: '');
+    //if (state.textSearch != "") {
+    //loadNextPage(isRefresh: true);
+    //}
+  }
 
   Future loadNextPage({bool isRefresh = false}) async {
     final search = state.textSearch;

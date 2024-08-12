@@ -300,7 +300,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
   }
 
   void onVisibleTodosChanged(String visible) {
-    state = state.copyWith(visibleTodos: visible);
+    state = state.copyWith(visibleTodos: visible, arrayresponsables: []);
   }
 
   void onComentarioChanged(String comentario) {

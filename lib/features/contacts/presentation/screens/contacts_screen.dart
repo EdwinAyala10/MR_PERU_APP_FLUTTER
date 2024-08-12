@@ -65,8 +65,8 @@ class _ContactsViewState extends ConsumerState {
     });
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
+      ref.read(contactsProvider.notifier).onChangeNotIsActiveSearchSinRefresh();
       ref.read(contactsProvider.notifier).loadNextPage(isRefresh: true);
-      ref.read(contactsProvider.notifier).onChangeNotIsActiveSearch();
     });
   }
 
@@ -94,7 +94,10 @@ class _ContactsViewState extends ConsumerState {
             onRefreshCallback: _refresh,
             scrollController: scrollController,
           )
-      : NoExistData(textCenter: 'No hay contactos registradas', icon: Icons.person);
+      : NoExistData(
+        textCenter: 'No hay contactos registradas', 
+        onRefreshCallback: _refresh, 
+        icon: Icons.person);
   }
 }
 

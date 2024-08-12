@@ -70,6 +70,13 @@ class ContactsNotifier extends StateNotifier<ContactsState> {
     //}
   }
 
+  void onChangeNotIsActiveSearchSinRefresh() {
+    state = state.copyWith(isActiveSearch: false, textSearch: '');
+    //if (state.textSearch != "") {
+      //loadNextPage(isRefresh: true);
+    //}
+  }
+
   Future loadNextPage({bool isRefresh = false}) async {
     final search = state.textSearch;
 

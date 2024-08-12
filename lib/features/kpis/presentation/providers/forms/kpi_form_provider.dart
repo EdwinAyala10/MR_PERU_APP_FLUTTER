@@ -40,9 +40,12 @@ class KpiFormNotifier extends StateNotifier<KpiFormState> {
           objrNombreCategoria: kpi.objrNombreCategoria ?? '',
           objrNombrePeriodicidad: kpi.objrNombrePeriodicidad ?? '',
           objrNombreTipo: kpi.objrNombreTipo ?? '',
+          //objrValorDifMes: kpi.id == 'new' ? kpi.objrValorDifMes ?? false : true,
+          objrValorDifMes: kpi.objrValorDifMes ?? '0',
           objrNombreUsuarioRegistro: kpi.objrNombreUsuarioRegistro ?? '',
           objrNombreUsuarioResponsable: kpi.objrNombreUsuarioResponsable ?? '',
           objrCantidad: kpi.objrCantidad ?? '',
+          userreportNameResponsable: kpi.userreportNameResponsable ?? '',
           arrayuserasignacion: kpi.arrayuserasignacion ?? [],
           peobIdPeriodicidad: kpi.peobIdPeriodicidad ?? [],
         ));
@@ -69,9 +72,11 @@ class KpiFormNotifier extends StateNotifier<KpiFormState> {
       'OBJR_ID_USUARIO_REGISTRO': state.objrIdUsuarioRegistro,
       'OBJR_ID_CATEGORIA': state.objrIdCategoria.value,
       'OBJR_NOMNRE_ASIGNACION': state.objrNombreAsignacion,
+      'OBJR_VALOR_DIFERENTE': state.objrValorDifMes,
       'OBJR_NOMNRE_CATEGORIA': state.objrNombreCategoria,
       'OBJR_NOMNRE_TIPO': state.objrNombreTipo,
       'OBJR_CANTIDAD': state.objrCantidad,
+      'USERREPORT_NAME_RESPONSABLE': state.userreportNameResponsable,
       'OBJR_NOMNRE_PERIODICIDAD': state.objrNombrePeriodicidad,
       'USUARIOS_ASIGNADOS': state.arrayuserasignacion != null
           ? List<dynamic>.from(
@@ -179,12 +184,15 @@ class KpiFormNotifier extends StateNotifier<KpiFormState> {
     if (index != -1) {
       // Crear un nuevo objeto Periodicidad con el campo 'peobCantidad' actualizado
       Periodicidad updatedPeriodicidad = Periodicidad(
-        periIdPeriodicidad: periodicidad.periIdPeriodicidad,
-        peobIdPeriodicidadCalendario: periodicidad.peobIdPeriodicidad,  
+        //periIdPeriodicidad: periodicidad.periIdPeriodicidad,
+        periIdPeriodicidadCalendario: periodicidad.periIdPeriodicidadCalendario,
+        peobIdPeriodicidadCalendario: periodicidad.peobIdPeriodicidadCalendario,  
         peobIdPeriodicidad: periodicidad.peobIdPeriodicidad,
         periCodigo: periodicidad.periCodigo,
         periNombre: periodicidad.periNombre,
         peobCantidad: cantidad,
+        peoIdObjetivoPeriodicidad: periodicidad.peoIdObjetivoPeriodicidad,
+        peobIdObjetivo: periodicidad.peobIdObjetivo
       );
 
       // Reemplazar el objeto original con el nuevo objeto actualizado
@@ -196,7 +204,7 @@ class KpiFormNotifier extends StateNotifier<KpiFormState> {
   }
 
   void onCheckDifMesChanged(bool bol) {
-    state = state.copyWith(objrValorDifMes: bol);
+    state = state.copyWith(objrValorDifMes: bol ? '1' : '0');
   }
 
   void onUsuarioChanged(UserMaster usuario) {
@@ -207,6 +215,7 @@ class KpiFormNotifier extends StateNotifier<KpiFormState> {
       ArrayUser array = ArrayUser();
       array.id = usuario.code;
       array.name = usuario.name;
+      array.userreportName = usuario.name;
 
       List<ArrayUser> arrayUsuarios = [
         ...state.arrayuserasignacion ?? [],
@@ -245,7 +254,8 @@ class KpiFormState {
   final Select objrIdCategoria;
   final String objrNombreCategoria;
   final String objrCantidad;
-  final bool objrValorDifMes;
+  final String objrValorDifMes;
+  final String? userreportNameResponsable;
   final List<ArrayUser>? arrayuserasignacion;
   final List<Periodicidad>? peobIdPeriodicidad;
 
@@ -267,7 +277,8 @@ class KpiFormState {
     this.objrNombreUsuarioResponsable = '',
     this.objrObservaciones = '',
     this.objrCantidad = '',
-    this.objrValorDifMes = false,
+    this.userreportNameResponsable = '',
+    this.objrValorDifMes = '0',
     this.arrayuserasignacion,
     this.peobIdPeriodicidad,
   });
@@ -290,7 +301,8 @@ class KpiFormState {
     String? objrIdUsuarioResponsable,
     String? objrNombreUsuarioResponsable,
     String? objrObservaciones,
-    bool? objrValorDifMes,
+    String? objrValorDifMes,
+    String? userreportNameResponsable,
     List<ArrayUser>? arrayuserasignacion,
     List<Periodicidad>? peobIdPeriodicidad,
   }) =>
@@ -315,6 +327,7 @@ class KpiFormState {
         objrNombreUsuarioResponsable:
             objrNombreUsuarioResponsable ?? this.objrNombreUsuarioResponsable,
         objrNombre: objrNombre ?? this.objrNombre,
+        userreportNameResponsable: userreportNameResponsable ?? this.userreportNameResponsable,
         objrObservaciones: objrObservaciones ?? this.objrObservaciones,
         objrValorDifMes: objrValorDifMes ?? this.objrValorDifMes,
         arrayuserasignacion: arrayuserasignacion ?? this.arrayuserasignacion,

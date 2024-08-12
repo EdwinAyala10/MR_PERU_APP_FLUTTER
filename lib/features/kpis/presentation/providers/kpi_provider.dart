@@ -39,8 +39,9 @@ class KpiNotifier extends StateNotifier<KpiState> {
       objrNombreUsuarioResponsable: user.name,
       objrNombre: '',
       objrCantidad: '0',
+      userreportNameResponsable: user.name,
       objrObservaciones: '',
-      objrValorDifMes: false,
+      objrValorDifMes: '0',
       arrayuserasignacion: [],
       peobIdPeriodicidad: periodicidades,
     );
