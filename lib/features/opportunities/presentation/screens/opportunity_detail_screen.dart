@@ -89,12 +89,12 @@ class OpportunityDetailScreen extends ConsumerWidget {
                           opportunity.oprtFechaPrevistaVenta ?? DateTime.now()),
               ),
               ContainerCustom(
-                label: 'Empresa principal',
+                label: 'Empresa',
                 text: opportunity.oprtRazon ?? '',
               ),
               ContainerCustom(
-                label: 'Empresa Intermediario',
-                text: opportunity.oprtRucIntermediario01 ?? '',
+                label: 'Local',
+                text: opportunity.oprtLocalNombre ?? '',
               ),
               if (opportunity.arrayresponsables != null &&
                 opportunity.arrayresponsables!.isNotEmpty)
@@ -106,6 +106,7 @@ class OpportunityDetailScreen extends ConsumerWidget {
                     const Text('Responsables', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
                     const SizedBox(height: 8),
                     Wrap(
+                      runSpacing: 4,
                       spacing: 8,
                       children:
                           opportunity.arrayresponsables!.map((responsable) {

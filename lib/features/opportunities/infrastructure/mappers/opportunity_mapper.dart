@@ -20,6 +20,8 @@ class OpportunityMapper {
     oprtValor: json['OPRT_VALOR'] ?? '0',
     oprtProbabilidad: json['OPRT_PROBABILIDAD'] ?? '',
     oprtRuc: json['OPRT_RUC'] ?? '',
+    oprtLocalCodigo: json['OPRT_LOCAL_CODIGO'] ?? '',
+    oprtLocalNombre: json['LOCAL_NOMBRE'] ?? '',
     oprtRazon: json['RAZON'] ?? '',
     oprtRucIntermediario01: json['OPRT_RUC_INTERMEDIARIO_01'] ?? '',
     oprtRucIntermediario02: json['OPRT_RUC_INTERMEDIARIO_02'] ?? '',

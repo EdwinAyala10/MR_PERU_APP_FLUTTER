@@ -11,6 +11,8 @@ class Opportunity {
     String? oprtValor;
     DateTime? oprtFechaPrevistaVenta;
     String? oprtRuc;
+    String? oprtLocalCodigo;
+    String? oprtLocalNombre;
     String? oprtRazon;
     String? oprtRucIntermediario01;
     String? oprtRucIntermediario02;
@@ -49,7 +51,9 @@ class Opportunity {
         this.arrayresponsablesEliminar,
         this.razon,
         this.razonComercial,
-        this.localDistrito
+        this.localDistrito,
+        this.oprtLocalCodigo,
+        this.oprtLocalNombre
     });
 
     

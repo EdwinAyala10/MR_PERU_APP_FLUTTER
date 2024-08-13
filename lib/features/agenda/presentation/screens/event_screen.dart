@@ -235,7 +235,6 @@ class _EventInformation extends ConsumerWidget {
               : Container(),
           const SizedBox(height: 4),
 
-
           Padding(
             padding: const EdgeInsets.all(4.0),
             child: Column(

@@ -1,3 +1,5 @@
+import 'package:crm_app/features/shared/infrastructure/inputs/state_local.dart';
+
 import '../../../../kpis/domain/entities/array_user.dart';
 import '../../../../shared/infrastructure/inputs/inputs.dart';
 import '../../../../users/domain/domain.dart';
@@ -42,8 +44,11 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
           oprtNobbreEstadoOportunidad:
               opportunity.oprtNobbreEstadoOportunidad ?? '',
           oprtNombreValor: opportunity.oprtNombreValor ?? '',
+          oprtLocalNombre: opportunity.oprtLocalNombre ?? '',
           oprtProbabilidad: opportunity.oprtProbabilidad ?? '',
           oprtRuc: EmpresaPrincipal.dirty(opportunity.oprtRuc ?? ''),
+          oprtLocalCodigo: StateLocal.dirty(opportunity.oprtLocalCodigo ?? ''),
+          //oprtLocalNombre: opportunity.oprtLocalNombre ?? '',
           oprtRazon: opportunity.oprtRazon ?? '',
           //oprtRucIntermediario01: EmpresaIntermediario.dirty(opportunity.oprtRucIntermediario01 ?? ''),
           oprtRucIntermediario02: opportunity.oprtRucIntermediario02 ?? '',
@@ -72,6 +77,8 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
       'OPRT_PROBABILIDAD': state.oprtProbabilidad,
       'OPRT_ID_VALOR': state.oprtIdValor,
       'OPRT_VALOR': state.optrValor,
+      'OPRT_LOCAL_CODIGO': state.oprtLocalCodigo.value,
+      'LOCAL_NOMBRE': state.oprtLocalNombre,
       //'OPRT_FECHA_PREVISTA_VENTA': state.oprtFechaPrevistaVenta,
       'OPRT_FECHA_PREVISTA_VENTA':
           "${state.oprtFechaPrevistaVenta?.year.toString().padLeft(4, '0')}-${state.oprtFechaPrevistaVenta?.month.toString().padLeft(2, '0')}-${state.oprtFechaPrevistaVenta?.day.toString().padLeft(2, '0')}",
@@ -106,6 +113,7 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
         Name.dirty(state.oprtNombre.value),
         StateOpportunity.dirty(state.oprtIdEstadoOportunidad.value),
         EmpresaPrincipal.dirty(state.oprtRuc.value),
+        StateLocal.dirty(state.oprtLocalCodigo.value),
         //EmpresaIntermediario.dirty(state.oprtRucIntermediario01.value),
       ]),
     );
@@ -118,6 +126,7 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
         Name.dirty(value),
         StateOpportunity.dirty(state.oprtIdEstadoOportunidad.value),
         EmpresaPrincipal.dirty(state.oprtRuc.value),
+        StateLocal.dirty(state.oprtLocalCodigo.value),
         //EmpresaIntermediario.dirty(state.oprtRucIntermediario01.value),
       ]));
   }
@@ -130,6 +139,7 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
         Name.dirty(state.oprtNombre.value),
         StateOpportunity.dirty(idEstado),
         EmpresaPrincipal.dirty(state.oprtRuc.value),
+        StateLocal.dirty(state.oprtLocalCodigo.value),
         //EmpresaIntermediario.dirty(state.oprtRucIntermediario01.value),
       ]));
   }
@@ -163,6 +173,8 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
     state = state.copyWith(
       oprtRuc: EmpresaPrincipal.dirty(ruc),
       oprtRazon: razon,
+      oprtLocalCodigo: const StateLocal.dirty(''),
+      oprtLocalNombre: '',
       isFormValid: Formz.validate([
         Name.dirty(state.oprtNombre.value),
         StateOpportunity.dirty(state.oprtIdEstadoOportunidad.value),
@@ -196,6 +208,18 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
 
   void onImporteChanged(String valor) {
     state = state.copyWith(optrValor: valor);
+  }
+
+  void onLocalChanged(String value, String name) {
+    state = state.copyWith(
+        oprtLocalCodigo: StateLocal.dirty(value),
+        oprtLocalNombre: name,
+        isFormValid: Formz.validate([
+          Name.dirty(state.oprtNombre.value),
+          StateOpportunity.dirty(state.oprtIdEstadoOportunidad.value),
+          EmpresaPrincipal.dirty(state.oprtRuc.value),
+          StateLocal.dirty(value),
+        ]));
   }
 
   void onUsuarioChanged(UserMaster usuario) {
@@ -265,6 +289,8 @@ class OpportunityFormState {
   final DateTime? oprtFechaPrevistaVenta;
   final EmpresaPrincipal oprtRuc;
   final String oprtRazon;
+  final StateLocal oprtLocalCodigo;
+  final String? oprtLocalNombre;
   //final EmpresaIntermediario oprtRucIntermediario01;
   final String oprtRazonIntermediario01;
   final String oprtRucIntermediario02;
@@ -291,6 +317,8 @@ class OpportunityFormState {
       this.oprtRuc = const EmpresaPrincipal.dirty(''),
       this.optrValor = '0',
       this.oprtRazon = '',
+      this.oprtLocalCodigo = const StateLocal.dirty(''),
+      this.oprtLocalNombre = '',
       this.oprtRazonIntermediario01 = '',
       //this.oprtRucIntermediario01 = const EmpresaIntermediario.dirty(''),
       this.oprtRucIntermediario02 = '',
@@ -315,6 +343,8 @@ class OpportunityFormState {
     DateTime? oprtFechaPrevistaVenta,
     EmpresaPrincipal? oprtRuc,
     String? oprtRazon,
+    StateLocal? oprtLocalCodigo,
+    String? oprtLocalNombre,
     //EmpresaIntermediario? oprtRucIntermediario01,
     String? oprtRazonIntermediario01,
     String? oprtRucIntermediario02,
@@ -334,6 +364,8 @@ class OpportunityFormState {
         id: id ?? this.id,
         oprtNombre: oprtNombre ?? this.oprtNombre,
         oprtEntorno: oprtEntorno ?? this.oprtEntorno,
+        oprtLocalCodigo: oprtLocalCodigo ?? this.oprtLocalCodigo,
+        oprtLocalNombre: oprtLocalNombre ?? this.oprtLocalNombre,
         oprtIdEstadoOportunidad:
             oprtIdEstadoOportunidad ?? this.oprtIdEstadoOportunidad,
         oprtProbabilidad: oprtProbabilidad ?? this.oprtProbabilidad,

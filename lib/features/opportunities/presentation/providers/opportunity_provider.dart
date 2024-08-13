@@ -56,6 +56,8 @@ class OpportunityNotifier extends StateNotifier<OpportunityState> {
       oprtNobbreEstadoOportunidad: '',
       oprtNombreValor: '',
       oprtProbabilidad: '0',
+      oprtLocalCodigo: '',
+      oprtLocalNombre: '',
       oprtRuc: '',
       //oprtRucIntermediario01: '',
       oprtRucIntermediario02: '',

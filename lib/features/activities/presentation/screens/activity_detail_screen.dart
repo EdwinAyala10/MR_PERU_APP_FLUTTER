@@ -95,10 +95,11 @@ class ActivityDetailScreen extends ConsumerWidget {
                 label: 'Oportunidad',
                 text: activity.actiNombreOportunidad,
               ),
-              ContainerCustom(
-                label: 'Contacto',
-                text: activity.actividadesContacto?[0].contactoDesc ?? '',
-              ),
+              if ( activity.actividadesContacto!.length > 0 ) 
+                ContainerCustom(
+                  label: 'Contacto',
+                  text: activity.actividadesContacto?[0].contactoDesc ?? '',
+                ),
               ContainerCustom(
                 label: 'Responsable',
                 text: activity.actiNombreResponsable ?? '',

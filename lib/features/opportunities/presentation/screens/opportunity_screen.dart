@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:crm_app/features/companies/presentation/delegates/search_company_local_active_delegate.dart';
+import 'package:crm_app/features/companies/presentation/search/search_company_locales_active_provider.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 
@@ -36,7 +38,7 @@ class OpportunityScreen extends ConsumerWidget {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: Text('${ opportunityState.opportunity!.id == 'new' ? 'Crear': 'Editar' } oportundidad'
+          title: Text('${ opportunityState.opportunity!.id == 'new' ? 'Crear': 'Editar' } oportunidad'
           , style: TextStyle(
             fontWeight: FontWeight.w500
           )),
@@ -256,11 +258,12 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                 Text(
                   'Empresa principal',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 13,
                     fontWeight: FontWeight.bold,
+                    color: opportunityForm.oprtRuc.errorMessage != null ? Colors.red : Colors.grey,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -307,10 +310,98 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
               padding: const EdgeInsets.only(left: 4),
               child: Text(
                 opportunityForm.oprtRuc.errorMessage ?? '',
-                style: const TextStyle(color: Colors.red),
+                style: const TextStyle(color: Colors.red, fontSize: 13),
               ),
             )
           : const SizedBox(),
+
+
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Local',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color:
+                        opportunityForm.oprtLocalCodigo.errorMessage != null
+                            ? Colors.red[400]
+                            : null,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                GestureDetector(
+                  onTap: () {
+                    
+                    if (opportunityForm.oprtRuc.value == "") {
+                        showSnackbar(context, 'Debe seleccionar una empresa');
+                        return;
+                    }
+
+                    _openSearchCompanyLocales(
+                        context, ref, opportunityForm.oprtRuc.value);
+
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                          color:
+                              opportunityForm.oprtLocalCodigo.errorMessage !=
+                                      null
+                                  ? Colors.red
+                                  : Colors.grey),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            opportunityForm.oprtLocalCodigo.value == ''
+                                ? 'Seleccione local'
+                                : opportunityForm.oprtLocalNombre ?? '',
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: opportunityForm
+                                            .oprtLocalCodigo.errorMessage !=
+                                        null
+                                    ? Colors.red
+                                    : null),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.search),
+                          onPressed: () {
+                            
+                            if (opportunityForm.oprtRuc.value == "") {
+                                showSnackbar(context, 'Debe seleccionar una empresa');
+                                return;
+                            }
+
+                            _openSearchCompanyLocales(
+                                context, ref, opportunityForm.oprtRuc.value);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (opportunityForm.oprtLocalCodigo.errorMessage != null)
+            Text(
+              opportunityForm.oprtLocalCodigo.errorMessage ?? 'Requerido',
+              style: TextStyle(
+                color: Colors.red[400],
+                fontSize: 13
+              ),
+            ),
+          const SizedBox(height: 10),
+
           /*const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.all(4.0),
@@ -521,6 +612,35 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
       ref
           .read(opportunityFormProvider(widget.opportunity).notifier)
           .onUsuarioChanged(user);
+    });
+  }
+
+  void _openSearchCompanyLocales(
+      BuildContext context, WidgetRef ref, String ruc) async {
+    final searchedCompanyLocales = ref.read(searchedCompanyLocalesProvider);
+    final searchQuery = ref.read(searchQueryCompanyLocalesProvider);
+
+    showSearch<CompanyLocal?>(
+            query: searchQuery,
+            context: context,
+            delegate: SearchCompanyLocalDelegate(
+                ruc: ruc,
+                initialCompanyLocales: searchedCompanyLocales,
+                searchCompanyLocales: ref
+                    .read(searchedCompanyLocalesProvider.notifier)
+                    .searchCompanyLocalesByQuery,
+                resetSearchQuery: () {
+                    ref.read(searchQueryCompanyLocalesProvider.notifier).update((state) => '');
+                },
+            ))
+        .then((companyLocal) {
+      if (companyLocal == null) return;
+
+      ref
+          .read(opportunityFormProvider(widget.opportunity).notifier)
+          .onLocalChanged(companyLocal.id,
+              '${companyLocal.localNombre} ${companyLocal.localDireccion}');
+
     });
   }
 }

@@ -70,7 +70,6 @@ class KpiScreen extends ConsumerWidget {
                       await ref.watch(kpisProvider.notifier).loadNextPage();
                     });
                     
-
                     ref.watch(kpiProvider(kpiId).notifier).loadKpi();
 
                     //Timer(const Duration(seconds: 3), () {
