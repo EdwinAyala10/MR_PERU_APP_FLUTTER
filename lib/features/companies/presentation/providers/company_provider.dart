@@ -131,6 +131,13 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
   }
 
   Future<void> loadSecundaryDetails() async {
+    state = state.copyWith(
+      isLoadingContacts: true,
+      isLoadingOpportunities: true,
+      isLoadingActivities: true,
+      isLoadingEvents: true,
+      isLoadingLocales: true
+    );
 
     final contacts = await contactsRepository.getContacts(ruc: state.company!.ruc, search: '', limit: 100, offset: 0);
     final opportunities =
@@ -142,10 +149,76 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
 
     state = state.copyWith(
       contacts: contacts,
+      isLoadingContacts: false,
       opportunities: opportunities,
+      isLoadingOpportunities: false,
       activities: activities,
+      isLoadingActivities: false,
       events: events,
+      isLoadingEvents: false,
       companyLocales: companyLocales,
+      isLoadingLocales: false
+    );
+  }
+
+  Future<void> loadSecundaryLocales() async {
+    if (state.isLoadingLocales) return;
+    state = state.copyWith(isLoadingLocales: true);
+
+    final companyLocales =
+        await companiesRepository.getCompanyLocales(state.company!.ruc);
+    state = state.copyWith(
+      isLoadingLocales: false,
+      companyLocales: companyLocales,
+    );
+  }
+
+  Future<void> loadSecundaryContacts() async {
+    //if (state.isLoadingContacts) return;
+    state = state.copyWith(isLoadingContacts: true);
+
+    final contacts = await contactsRepository.getContacts(ruc: state.company!.ruc, search: '', limit: 100, offset: 0);
+    state = state.copyWith(
+      isLoadingContacts: false,
+      contacts: contacts,
+    );
+  }
+
+  Future<void> loadSecundaryOpportunities() async {
+    if (state.isLoadingOpportunities) return;
+    state = state.copyWith(isLoadingOpportunities: true);
+
+    final opportunities =
+        await opportunitiesRepository.getOpportunitiesByName(ruc:state.company!.ruc);
+    
+    state = state.copyWith(
+      isLoadingOpportunities: false,
+      opportunities: opportunities,
+    );
+  }
+
+  Future<void> loadSecundaryActivities() async {
+    if (state.isLoadingActivities) return;
+    state = state.copyWith(isLoadingActivities: true);
+
+    final activities = await activitiesRepository.getActivitiesByRuc(state.company!.ruc);
+    
+    state = state.copyWith(
+      isLoadingActivities: false,
+      activities: activities,
+    );
+  }
+
+  Future<void> loadSecundaryEvents() async {
+    if (state.isLoadingEvents) return;
+
+    state = state.copyWith(isLoadingEvents: true);
+
+    final events = await eventsRepository.getEventsListByRuc(state.company!.ruc);
+    
+    state = state.copyWith(
+      isLoadingEvents: false,
+      events: events,
     );
   }
 
@@ -258,6 +331,11 @@ class CompanyState {
   final List<Event> events;
   final List<CompanyLocal> companyLocales;
   final bool isLoading;
+  final bool isLoadingLocales;
+  final bool isLoadingContacts;
+  final bool isLoadingOpportunities;
+  final bool isLoadingActivities;
+  final bool isLoadingEvents;
   final bool isSaving;
 
   CompanyState({
@@ -269,6 +347,11 @@ class CompanyState {
     this.events = const [],
     this.companyLocales = const [],
     this.isLoading = true,
+    this.isLoadingLocales = true,
+    this.isLoadingContacts = true,
+    this.isLoadingOpportunities = true,
+    this.isLoadingActivities = true,
+    this.isLoadingEvents = true,
     this.isSaving = false,
   });
 
@@ -281,6 +364,11 @@ class CompanyState {
     List<Event>? events,
     List<CompanyLocal>? companyLocales,
     bool? isLoading,
+    bool? isLoadingLocales,
+    bool? isLoadingActivities,
+    bool? isLoadingContacts,
+    bool? isLoadingEvents,
+    bool? isLoadingOpportunities,
     bool? isSaving,
   }) =>
       CompanyState(
@@ -292,6 +380,11 @@ class CompanyState {
         events: events ?? this.events,
         companyLocales: companyLocales ?? this.companyLocales,
         isLoading: isLoading ?? this.isLoading,
+        isLoadingLocales: isLoadingLocales ?? this.isLoadingLocales,
+        isLoadingContacts: isLoadingContacts ?? this.isLoadingContacts,
+        isLoadingOpportunities: isLoadingOpportunities ?? this.isLoadingOpportunities,
+        isLoadingActivities: isLoadingActivities ?? this.isLoadingActivities,
+        isLoadingEvents: isLoadingEvents ?? this.isLoadingEvents,
         isSaving: isSaving ?? this.isSaving,
       );
 }

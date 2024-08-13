@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:crm_app/config/config.dart';
+import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crm_app/features/companies/presentation/delegates/search_company_local_active_delegate.dart';
+import 'package:crm_app/features/companies/presentation/providers/company_provider.dart';
 import 'package:crm_app/features/companies/presentation/search/search_company_locales_active_provider.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
@@ -83,6 +85,8 @@ class EventScreen extends ConsumerWidget {
 
                         if (value.response) {
                           ref.read(eventsProvider.notifier).loadNextPage();
+                          ref.read(companyProvider(value.id!).notifier).loadSecundaryEvents();
+
                           //Timer(const Duration(seconds: 3), () {
                           //context.replace('/agenda');
                           context.pop();
@@ -890,11 +894,13 @@ class _EventInformation extends ConsumerWidget {
   void _openSearchUsers(BuildContext context, WidgetRef ref) async {
     final searchedUsers = ref.read(searchedUsersProvider);
     final searchQuery = ref.read(searchQueryUsersProvider);
+    final user = ref.watch(authProvider).user;
 
     showSearch<UserMaster?>(
             query: searchQuery,
             context: context,
             delegate: SearchUserDelegate(
+              userCurrent: user!,
                 initialUsers: searchedUsers,
                 searchUsers: ref
                     .read(searchedUsersProvider.notifier)

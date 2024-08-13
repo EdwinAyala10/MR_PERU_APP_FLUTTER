@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:crm_app/config/config.dart';
+import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
 import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
@@ -271,11 +272,13 @@ class _ViewIndicatorsState extends ConsumerState {
   void _openSearchUsers(BuildContext context, WidgetRef ref) async {
     final searchedUsers = ref.read(searchedUsersProvider);
     final searchQuery = ref.read(searchQueryUsersProvider);
+    final user = ref.watch(authProvider).user;
 
     showSearch<UserMaster?>(
             query: searchQuery,
             context: context,
             delegate: SearchUserDelegate(
+              userCurrent: user!,
                 initialUsers: searchedUsers,
                 searchUsers: ref
                     .read(searchedUsersProvider.notifier)

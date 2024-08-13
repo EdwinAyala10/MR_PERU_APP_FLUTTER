@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:crm_app/features/companies/presentation/providers/company_provider.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 
@@ -70,6 +71,8 @@ class ActivityScreen extends ConsumerWidget {
                   if (value.response) {
                     ref.read(activitiesProvider.notifier).loadNextPage(isRefresh: true);
                     ref.read(activityProvider(activityId).notifier).loadActivity();
+                    ref.read(companyProvider(value.id!).notifier).loadSecundaryActivities();
+
                     //Timer(const Duration(seconds: 3), () {
                       //context.replace('/activities');
                       context.pop();

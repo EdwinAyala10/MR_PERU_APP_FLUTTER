@@ -26,7 +26,7 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
       final message = activityResponse.message;
 
       if (activityResponse.status) {
-
+        final activity = activityResponse.activity as Activity;
         /*final activity = activityResponse.activity as Activity;
         final isActivityInList =
             state.activities.any((element) => element.id == activity.id);
@@ -43,7 +43,7 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
                 )
                 .toList());*/
 
-        return CreateUpdateActivityResponse(response: true, message: message);
+        return CreateUpdateActivityResponse(response: true, message: message, id: activity.actiRuc);
       }
 
       return CreateUpdateActivityResponse(response: false, message: message);
@@ -73,7 +73,8 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
   Future loadNextPage({bool isRefresh = false}) async {
     final search = state.textSearch;
 
-    if (state.isLoading || state.isLastPage) return;
+    //if (state.isLoading || state.isLastPage) return;
+    if (state.isLoading) return;
 
     state = state.copyWith(isLoading: true);
 
@@ -92,7 +93,8 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
     );
 
     if (activities.isEmpty) {
-      state = state.copyWith(isLoading: false, isLastPage: true);
+      //state = state.copyWith(isLoading: false, isLastPage: true);
+      state = state.copyWith(isLoading: false);
       return;
     }
 
@@ -109,7 +111,7 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
 
 
     state = state.copyWith(
-        isLastPage: false,
+        //isLastPage: false,
         isLoading: false,
         offset: newOffset,
         //activities: [...state.activities, ...activities]

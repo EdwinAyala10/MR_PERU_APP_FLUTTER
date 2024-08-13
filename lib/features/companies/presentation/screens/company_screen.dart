@@ -723,11 +723,13 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
   void _openSearchUsers(BuildContext context, WidgetRef ref) async {
     final searchedUsers = ref.read(searchedUsersProvider);
     final searchQuery = ref.read(searchQueryUsersProvider);
-
+    final user = ref.watch(authProvider).user;
+    
     showSearch<UserMaster?>(
             query: searchQuery,
             context: context,
             delegate: SearchUserDelegate(
+              userCurrent: user!,
                 initialUsers: searchedUsers,
                 searchUsers: ref
                     .read(searchedUsersProvider.notifier)

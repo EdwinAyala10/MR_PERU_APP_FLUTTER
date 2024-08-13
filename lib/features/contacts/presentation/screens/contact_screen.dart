@@ -1,3 +1,4 @@
+import 'package:crm_app/features/companies/presentation/providers/company_provider.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 
@@ -65,8 +66,11 @@ class ContactScreen extends ConsumerWidget {
                   showSnackbar(context, value.message);
 
                   if (value.response) {
+                    print('CONTATID: ${value.id}');
                     ref.read(contactsProvider.notifier).loadNextPage(isRefresh: true);
                     ref.read(contactProvider(contactId).notifier).loadContact(contactId);
+                    ref.read(companyProvider(value.id!).notifier).loadSecundaryContacts();
+
                     //Timer(const Duration(seconds: 3), () {
                       //context.replace('/contacts');
                       context.pop();

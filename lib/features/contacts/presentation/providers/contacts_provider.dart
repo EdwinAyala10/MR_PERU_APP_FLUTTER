@@ -26,6 +26,10 @@ class ContactsNotifier extends StateNotifier<ContactsState> {
       final message = contactResponse.message;
 
       if (contactResponse.status) {
+
+        final contact = contactResponse.contact as Contact;
+        print('CONTACT X');
+        print(contact.id);
         /*final contact = contactResponse.contact as Contact;
         final isContactInList =
             state.contacts.any((element) => element.id == contact.id);
@@ -42,7 +46,7 @@ class ContactsNotifier extends StateNotifier<ContactsState> {
                 )
                 .toList());*/
 
-        return CreateUpdateContactResponse(response: true, message: message);
+        return CreateUpdateContactResponse(response: true, message: message, id: contact.ruc);
       }
 
       return CreateUpdateContactResponse(response: false, message: message);
@@ -80,7 +84,8 @@ class ContactsNotifier extends StateNotifier<ContactsState> {
   Future loadNextPage({bool isRefresh = false}) async {
     final search = state.textSearch;
 
-    if (state.isLoading || state.isLastPage) return;
+    //if (state.isLoading || state.isLastPage) return;
+    if (state.isLoading) return;
 
     state = state.copyWith(isLoading: true);
 
@@ -100,7 +105,8 @@ class ContactsNotifier extends StateNotifier<ContactsState> {
     );
 
     if (contacts.isEmpty) {
-      state = state.copyWith(isLoading: false, isLastPage: true);
+      //state = state.copyWith(isLoading: false, isLastPage: true);
+      state = state.copyWith(isLoading: false);
       return;
     }
 
@@ -116,7 +122,7 @@ class ContactsNotifier extends StateNotifier<ContactsState> {
     }
 
     state = state.copyWith(
-      isLastPage: false,
+      //isLastPage: false,
       isLoading: false,
       contacts: newContacts,
       offset: newOffset

@@ -539,7 +539,7 @@ class _ContainerDashboardOpportunities extends StatelessWidget {
       return const SizedBox();
     }*/
 
-    if (opportunities.length >= 0) {
+    if (opportunities.length > 0) {
       return Container(
         width: double.infinity,
         margin: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 8),

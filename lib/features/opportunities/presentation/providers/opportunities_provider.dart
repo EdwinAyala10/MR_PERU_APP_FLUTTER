@@ -28,6 +28,8 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
       final message = opportunityResponse.message;
 
       if (opportunityResponse.status) {
+        final opportunity = opportunityResponse.opportunity as Opportunity;
+
         /*final opportunity = opportunityResponse.opportunity as Opportunity;
         final isOpportunityInList =
             state.opportunities.any((element) => element.id == opportunity.id);
@@ -48,7 +50,7 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
                 .toList());*/
 
         return CreateUpdateOpportunityResponse(
-            response: true, message: message);
+            response: true, message: message, id: opportunity.oprtRuc);
       }
 
       return CreateUpdateOpportunityResponse(response: false, message: message);
@@ -86,7 +88,8 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
   Future loadNextPage({bool isRefresh = false}) async {
     final search = state.textSearch;
 
-    if (state.isLoading || state.isLastPage) return;
+    //if (state.isLoading || state.isLastPage) return;
+    if (state.isLoading) return;
 
     state = state.copyWith(isLoading: true);
 
@@ -107,7 +110,8 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
         );
 
     if (opportunities.isEmpty) {
-      state = state.copyWith(isLoading: false, isLastPage: true);
+      //state = state.copyWith(isLoading: false, isLastPage: true);
+      state = state.copyWith(isLoading: false);
       return;
     }
 
@@ -123,7 +127,7 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
     }
 
     state = state.copyWith(
-        isLastPage: false,
+        //isLastPage: false,
         isLoading: false,
         offset: newOffset,
         //opportunities: [...state.opportunities, ...opportunities]);

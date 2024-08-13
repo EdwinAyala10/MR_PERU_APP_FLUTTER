@@ -63,9 +63,15 @@ class ItemContact extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 1.0),
               decoration: BoxDecoration(
-                color: Color.fromARGB(255, 230, 255, 249),
-                border: Border.all(color: Color.fromARGB(255, 21, 158, 124), width: 1.5),
+                color: const Color.fromARGB(255, 247, 247, 247),
+                border: Border.all(color: Color.fromARGB(255, 218, 218, 218), width: 1.5),
                 borderRadius: BorderRadius.circular(20.0),
+                boxShadow: const [
+                  BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 2,
+                      offset: Offset(0, 2))
+                ]
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -85,9 +91,9 @@ class ItemContact extends StatelessWidget {
                   Text(
                     contact.actiNombreTipoGestion ?? '',
                     style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 14.0,
-                      fontWeight: FontWeight.w400,
+                      color: Color.fromRGBO(130, 130, 130, 1),
+                      fontSize: 13.0,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                   

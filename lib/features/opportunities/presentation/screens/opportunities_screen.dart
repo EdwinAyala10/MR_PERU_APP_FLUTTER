@@ -142,6 +142,82 @@ class _OpportunitiesViewState extends ConsumerState {
   }
 }
 
+class _SearchComponent extends ConsumerStatefulWidget {
+  const _SearchComponent({super.key});
+
+  @override
+  ConsumerState<_SearchComponent> createState() => __SearchComponentState();
+}
+
+class __SearchComponentState extends ConsumerState<_SearchComponent> {
+   TextEditingController searchController = TextEditingController(
+      //text: ref.read(routePlannerProvider).textSearch
+    );
+
+
+  @override
+  Widget build(BuildContext context) {
+    Timer? debounce;
+    //TextEditingController searchController =
+    //    TextEditingController(text: ref.read(companiesProvider).textSearch);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+      width: double.infinity,
+      child: Stack(
+        alignment: Alignment.centerRight,
+        children: [
+          TextFormField(
+            style: const TextStyle(fontSize: 14.0),
+            controller: searchController,
+            onChanged: (String value) {
+              if (debounce?.isActive ?? false) debounce?.cancel();
+              debounce = Timer(const Duration(milliseconds: 500), () {
+                //ref.read(companiesProvider.notifier).loadNextPage(value);
+                ref.read(opportunitiesProvider.notifier).onChangeTextSearch(value);
+              });
+            },
+            decoration: InputDecoration(
+              hintText: 'Buscar oportunidad...',
+              filled: true,
+              fillColor: Colors.grey[200],
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20.0),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20.0),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20.0),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 0, horizontal: 18.0),
+              hintStyle: const TextStyle(fontSize: 14.0, color: Colors.black38),
+            ),
+          ),
+          if (ref.watch(opportunitiesProvider).textSearch != "")
+            IconButton(
+              onPressed: () {
+                ref
+                    .read(opportunitiesProvider.notifier)
+                    .onChangeNotIsActiveSearch();
+                searchController.text = '';
+              },
+              icon: const Icon(Icons.clear, size: 18.0),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+
+
+/*
+
 class _SearchComponent extends ConsumerWidget {
   const _SearchComponent();
 
@@ -201,6 +277,9 @@ class _SearchComponent extends ConsumerWidget {
     );
   }
 }
+
+*/
+
 
 
 class _ListOpportunities extends ConsumerStatefulWidget {

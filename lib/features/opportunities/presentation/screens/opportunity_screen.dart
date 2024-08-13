@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crm_app/features/companies/presentation/delegates/search_company_local_active_delegate.dart';
+import 'package:crm_app/features/companies/presentation/providers/company_provider.dart';
 import 'package:crm_app/features/companies/presentation/search/search_company_locales_active_provider.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
@@ -71,6 +72,7 @@ class OpportunityScreen extends ConsumerWidget {
 
                   if (value.response) {
                     ref.read(opportunityProvider(opportunityId).notifier).loadOpportunity();
+                    ref.read(companyProvider(value.id!).notifier).loadSecundaryOpportunities();
 
                     ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: true);
                     //Timer(const Duration(seconds: 3), () {
@@ -593,12 +595,14 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
   void _openSearchUsers(BuildContext context, WidgetRef ref) async {
     final searchedUsers = ref.read(searchedUsersProvider);
     final searchQuery = ref.read(searchQueryUsersProvider);
+    final user = ref.watch(authProvider).user;
 
     showSearch<UserMaster?>(
             query: searchQuery,
             context: context,
             delegate: SearchUserDelegate(
                 initialUsers: searchedUsers,
+                userCurrent: user!,
                 searchUsers: ref
                     .read(searchedUsersProvider.notifier)
                     .searchUsersByQuery,

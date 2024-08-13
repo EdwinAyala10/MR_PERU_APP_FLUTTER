@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:crm_app/features/auth/domain/domain.dart';
+
 import '../../domain/domain.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
@@ -9,6 +11,7 @@ typedef ResetSearchQueryCallback = void Function();
 
 class SearchUserDelegate extends SearchDelegate<UserMaster?> {
   final SearchUsersCallback searchUsers;
+  final User userCurrent;
   final ResetSearchQueryCallback resetSearchQuery;
   List<UserMaster> initialUsers;
   
@@ -19,6 +22,7 @@ class SearchUserDelegate extends SearchDelegate<UserMaster?> {
 
   SearchUserDelegate({
     required this.searchUsers,
+    required this.userCurrent,
     required this.resetSearchQuery,
     required this.initialUsers,
   }) : super(
@@ -106,6 +110,10 @@ class SearchUserDelegate extends SearchDelegate<UserMaster?> {
           );
         } else {
           final users = snapshot.data!;
+
+          // Eliminar usuario con el código especificado
+          users.removeWhere((usuario) => usuario.code == userCurrent.code);
+
           return ListView.separated(
             separatorBuilder: (BuildContext context, int index) => const Divider(),
             itemCount: users.length,

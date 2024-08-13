@@ -1,4 +1,6 @@
 import 'package:crm_app/config/config.dart';
+import 'package:crm_app/features/shared/widgets/loading_modal.dart';
+import 'package:crm_app/features/shared/widgets/no_exist_listview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -159,15 +161,15 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
               _buildInformationTab(
                   styleTitle, styleLabel, styleContent, spacingHeight),
               _buildLocalesTab(
-                  styleTitle, styleLabel, styleContent, spacingHeight, companyState.companyLocales),
+                  styleTitle, styleLabel, styleContent, spacingHeight, companyState.companyLocales, companyState.isLoadingLocales),
               _buildContactsTab(
-                  styleTitle, styleLabel, styleContent, spacingHeight, companyState.contacts),
+                  styleTitle, styleLabel, styleContent, spacingHeight, companyState.contacts, companyState.isLoadingContacts),
               _buildOpportunitiesTab(styleTitle, styleLabel, styleContent,
-                  spacingHeight, companyState.opportunities), // Nueva pestaña de oportunidades
+                  spacingHeight, companyState.opportunities, companyState.isLoadingOpportunities), // Nueva pestaña de oportunidades
               _buildActivitiesTab(
-                  styleTitle, styleLabel, styleContent, spacingHeight, companyState.activities),
+                  styleTitle, styleLabel, styleContent, spacingHeight, companyState.activities, companyState.isLoadingActivities),
               _buildEventsTab(
-                  styleTitle, styleLabel, styleContent, spacingHeight, companyState.events),
+                  styleTitle, styleLabel, styleContent, spacingHeight, companyState.events, companyState.isLoadingEvents),
             ],
           ),
           floatingActionButton: _itFloatingButton(_currentIndex)),
@@ -265,39 +267,92 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
     );
   }
 
+  Future<void> _refreshLocales() async {
+    ref.watch(companyProvider(widget.company.ruc).notifier).loadSecundaryLocales();
+  }
+
+  Future<void> _refreshContacts() async {
+    ref.watch(companyProvider(widget.company.ruc).notifier).loadSecundaryContacts();
+  }
+
+  Future<void> _refreshOpportunities() async {
+    ref.watch(companyProvider(widget.company.ruc).notifier).loadSecundaryOpportunities();
+  }
+
+  Future<void> _refreshActivities() async {
+    ref.watch(companyProvider(widget.company.ruc).notifier).loadSecundaryActivities();
+  }
+
+  Future<void> _refreshEvents() async {
+    ref.watch(companyProvider(widget.company.ruc).notifier).loadSecundaryEvents();
+  }
+
   Widget _buildLocalesTab(TextStyle styleTitle, TextStyle styleLabel,
-      TextStyle styleContent, SizedBox spacingHeight, List<CompanyLocal> companyLocales) {
-    return companyLocales.isNotEmpty
-        ? _ListCompanyLocales(companyLocales: companyLocales)
-        : _NoExistData(description: 'No existe locales registrados');
+      TextStyle styleContent, SizedBox spacingHeight, List<CompanyLocal> companyLocales, bool isLoading) {
+
+    if (isLoading) {
+      return const LoadingModal();
+    } else {
+      return companyLocales.isNotEmpty
+        ? _ListCompanyLocales(companyLocales: companyLocales, onRefreshCallback: _refreshLocales)
+        : NoExistData(
+          icon: Icons.business, 
+          onRefreshCallback: _refreshLocales, 
+          textCenter: 'No existe locales registrados'
+        );
+    }
+
+   
   }
 
   Widget _buildContactsTab(TextStyle styleTitle, TextStyle styleLabel,
-      TextStyle styleContent, SizedBox spacingHeight, List<Contact> contacts) {
-    return contacts.isNotEmpty
-        ? _ListContacts(contacts: contacts)
-        : _NoExistData(description: 'No existe contactos registradas');
+      TextStyle styleContent, SizedBox spacingHeight, List<Contact> contacts, bool isLoading) {
+      
+    if (isLoading) {
+      return const LoadingModal();
+    } else {
+      return contacts.isNotEmpty
+        ? _ListContacts(contacts: contacts, onRefreshCallback: _refreshContacts)
+        : NoExistData(icon: Icons.person, onRefreshCallback: _refreshContacts, textCenter: 'No existe contactos registradas');
+    }
   }
 
   Widget _buildOpportunitiesTab(TextStyle styleTitle, TextStyle styleLabel,
-      TextStyle styleContent, SizedBox spacingHeight, List<Opportunity> opportunities) {
-    return opportunities.isNotEmpty
-        ? _ListOpportunities(opportunities: opportunities)
-        : _NoExistData(description: 'No existe oportunidades registradas');
+      TextStyle styleContent, SizedBox spacingHeight, List<Opportunity> opportunities, bool isLoading) {
+
+    if (isLoading) {
+      return const LoadingModal();
+    } else {
+      return opportunities.isNotEmpty
+          ? _ListOpportunities(opportunities: opportunities, onRefreshCallback: _refreshOpportunities)
+          : NoExistData(icon: Icons.graphic_eq, onRefreshCallback: _refreshOpportunities, textCenter: 'No existe oportunidades registradas');
+    }
   }
 
   Widget _buildActivitiesTab(TextStyle styleTitle, TextStyle styleLabel,
-      TextStyle styleContent, SizedBox spacingHeight, List<Activity> activities) {
-    return activities.isNotEmpty
-        ? _ListActivities(activities: activities)
-        : _NoExistData(description: 'No existe actividades registradas');
+      TextStyle styleContent, SizedBox spacingHeight, List<Activity> activities, bool isLoading) {
+    
+    if (isLoading) {
+      return const LoadingModal();
+    } else {
+      return activities.isNotEmpty
+          ? _ListActivities(activities: activities, onRefreshCallback: _refreshActivities)
+          : NoExistData(icon: Icons.graphic_eq, onRefreshCallback: _refreshActivities, textCenter: 'No existe actividades registradas');
+    }
   }
 
   Widget _buildEventsTab(TextStyle styleTitle, TextStyle styleLabel,
-      TextStyle styleContent, SizedBox spacingHeight,  List<Event> events) {
-    return events.isNotEmpty
-        ? _ListEvents(events: events)
-        : _NoExistData(description: 'No existe eventos registradas');
+      TextStyle styleContent, SizedBox spacingHeight,  List<Event> events, bool isLoading) {
+
+    if (isLoading) {
+      return const LoadingModal();
+    } else {
+      return events.isNotEmpty
+        ? _ListEvents(events: events, onRefreshCallback: _refreshEvents)
+        : NoExistData(icon: Icons.graphic_eq, onRefreshCallback: _refreshEvents, textCenter: 'No existe eventos registrados');  
+    } 
+    
+    
   }
 
   Widget _buildInfoField(
@@ -375,6 +430,34 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
             },
             iconData: Icons.add);
 
+      case 2:
+        return FloatingActionButtonCustom(
+            callOnPressed: () {
+              context.push('/contact/new');
+            },
+            iconData: Icons.add);
+
+      case 3:
+        return FloatingActionButtonCustom(
+            callOnPressed: () {
+              context.push('/opportunity/new');
+            },
+            iconData: Icons.add);
+      
+      case 4:
+        return FloatingActionButtonCustom(
+            callOnPressed: () {
+              context.push('/activity/new');
+            },
+            iconData: Icons.add);
+
+      case 5:
+        return FloatingActionButtonCustom(
+            callOnPressed: () {
+              context.push('/event/new');
+            },
+            iconData: Icons.add);
+
       default:
         return null;
     }
@@ -383,24 +466,29 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
 
 class _ListContacts extends StatelessWidget {
   final List<Contact> contacts;
-  const _ListContacts({required this.contacts});
+  final Future<void> Function() onRefreshCallback;
+  
+  const _ListContacts({required this.contacts, required this.onRefreshCallback});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: ListView.separated(
-        itemCount: contacts.length,
-        separatorBuilder: (BuildContext context, int index) => const Divider(),
-        itemBuilder: (context, index) {
-          final contact = contacts[index];
-
-          return ItemContact(
-              contact: contact,
-              callbackOnTap: () {
-                context.push('/contact_detail/${contact.id}');
-              });
-        },
+    return RefreshIndicator(
+      onRefresh: onRefreshCallback,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: ListView.separated(
+          itemCount: contacts.length,
+          separatorBuilder: (BuildContext context, int index) => const Divider(),
+          itemBuilder: (context, index) {
+            final contact = contacts[index];
+      
+            return ItemContact(
+                contact: contact,
+                callbackOnTap: () {
+                  context.push('/contact_detail/${contact.id}');
+                });
+          },
+        ),
       ),
     );
   }
@@ -408,24 +496,29 @@ class _ListContacts extends StatelessWidget {
 
 class _ListCompanyLocales extends StatelessWidget {
   final List<CompanyLocal> companyLocales;
-  const _ListCompanyLocales({required this.companyLocales});
+  final Future<void> Function() onRefreshCallback;
+
+  const _ListCompanyLocales({required this.companyLocales, required this.onRefreshCallback});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: ListView.separated(
-        itemCount: companyLocales.length,
-        separatorBuilder: (BuildContext context, int index) => const Divider(),
-        itemBuilder: (context, index) {
-          final companyLocal = companyLocales[index];
-
-          return ItemCompanyLocal(
-              companyLocal: companyLocal,
-              callbackOnTap: () {
-                context.push('/view-map/${companyLocal.coordenadasGeo}');
-              });
-        },
+    return RefreshIndicator(
+      onRefresh: onRefreshCallback,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: ListView.separated(
+          itemCount: companyLocales.length,
+          separatorBuilder: (BuildContext context, int index) => const Divider(),
+          itemBuilder: (context, index) {
+            final companyLocal = companyLocales[index];
+      
+            return ItemCompanyLocal(
+                companyLocal: companyLocal,
+                callbackOnTap: () {
+                  context.push('/view-map/${companyLocal.coordenadasGeo}');
+                });
+          },
+        ),
       ),
     );
   }
@@ -433,24 +526,28 @@ class _ListCompanyLocales extends StatelessWidget {
 
 class _ListOpportunities extends StatelessWidget {
   final List<Opportunity> opportunities;
+  final Future<void> Function() onRefreshCallback;
 
-  const _ListOpportunities({required this.opportunities});
+  const _ListOpportunities({required this.opportunities, required this.onRefreshCallback});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: ListView.separated(
-        itemCount: opportunities.length,
-        separatorBuilder: (BuildContext context, int index) => const Divider(),
-        itemBuilder: (context, index) {
-          final opportunity = opportunities[index];
-          return ItemOpportunity(
-              opportunity: opportunity,
-              callbackOnTap: () {
-                context.push('/opportunity_detail/${opportunity.id}');
-              });
-        },
+    return RefreshIndicator(
+      onRefresh: onRefreshCallback,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: ListView.separated(
+          itemCount: opportunities.length,
+          separatorBuilder: (BuildContext context, int index) => const Divider(),
+          itemBuilder: (context, index) {
+            final opportunity = opportunities[index];
+            return ItemOpportunity(
+                opportunity: opportunity,
+                callbackOnTap: () {
+                  context.push('/opportunity_detail/${opportunity.id}');
+                });
+          },
+        ),
       ),
     );
   }
@@ -458,24 +555,28 @@ class _ListOpportunities extends StatelessWidget {
 
 class _ListActivities extends StatelessWidget {
   final List<Activity> activities;
+  final Future<void> Function() onRefreshCallback;
 
-  const _ListActivities({required this.activities});
+  const _ListActivities({required this.activities, required this.onRefreshCallback});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: ListView.separated(
-        itemCount: activities.length,
-        separatorBuilder: (BuildContext context, int index) => const Divider(),
-        itemBuilder: (context, index) {
-          final activity = activities[index];
-          return ItemActivity(
-              activity: activity,
-              callbackOnTap: () {
-                context.push('/activity_detail/${activity.id}');
-              });
-        },
+    return RefreshIndicator(
+      onRefresh: onRefreshCallback,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: ListView.separated(
+          itemCount: activities.length,
+          separatorBuilder: (BuildContext context, int index) => const Divider(),
+          itemBuilder: (context, index) {
+            final activity = activities[index];
+            return ItemActivity(
+                activity: activity,
+                callbackOnTap: () {
+                  context.push('/activity_detail/${activity.id}');
+                });
+          },
+        ),
       ),
     );
   }
@@ -483,58 +584,31 @@ class _ListActivities extends StatelessWidget {
 
 class _ListEvents extends StatelessWidget {
   final List<Event> events;
+  final Future<void> Function() onRefreshCallback;
 
-  const _ListEvents({required this.events});
+  const _ListEvents({required this.events, required this.onRefreshCallback});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: ListView.separated(
-        itemCount: events.length,
-        separatorBuilder: (BuildContext context, int index) => const Divider(),
-        itemBuilder: (context, index) {
-          final event = events[index];
-          return ItemEvent(
-              event: event,
-              callbackOnTap: () {
-                context.push('/event_detail/${event.id}');
-              });
-        },
+    return RefreshIndicator(
+      onRefresh: onRefreshCallback,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: ListView.separated(
+          itemCount: events.length,
+          separatorBuilder: (BuildContext context, int index) => const Divider(),
+          itemBuilder: (context, index) {
+            final event = events[index];
+            return ItemEvent(
+                event: event,
+                callbackOnTap: () {
+                  context.push('/event_detail/${event.id}');
+                });
+          },
+        ),
       ),
     );
   }
 }
 
-class _NoExistData extends StatelessWidget {
-  String description;
 
-  _NoExistData({required this.description});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-        child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Icon(
-          Icons.extension_outlined,
-          size: 100,
-          color: Colors.grey,
-        ),
-        const SizedBox(height: 20),
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: Colors.grey.withOpacity(0.1),
-          ),
-          child: Text(
-            description,
-            style: const TextStyle(fontSize: 20, color: Colors.grey),
-          ),
-        ),
-      ],
-    ));
-  }
-}

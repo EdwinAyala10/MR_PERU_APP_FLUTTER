@@ -1,8 +1,5 @@
 import 'dart:collection';
 
-import '../widgets/add_event_not_exist.dart';
-import '../widgets/exist_event.dart';
-import '../widgets/replace_event_exist.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/domain.dart';
 
@@ -29,6 +26,7 @@ class EventsNotifier extends StateNotifier<EventsState> {
       final message = eventResponse.message;
 
       if (eventResponse.status) {
+        final event = eventResponse.event as Event;
         /*final event = eventResponse.event as Event;
 
         final isEventInList = eventItExist(state.linkedEvents, event.id);
@@ -59,7 +57,7 @@ class EventsNotifier extends StateNotifier<EventsState> {
                 )
                 .toList());*/
 
-        return CreateUpdateEventResponse(response: true, message: message);
+        return CreateUpdateEventResponse(response: true, message: message, id: event.evntRuc);
       }
 
       return CreateUpdateEventResponse(response: false, message: message);
