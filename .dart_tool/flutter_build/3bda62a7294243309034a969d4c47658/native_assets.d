@@ -1,0 +1,1 @@
+ D:\\MR_PERU_APP_FLUTTER\\.dart_tool\\flutter_build\\3bda62a7294243309034a969d4c47658\\native_assets.yaml: 

@@ -1,0 +1,4 @@
+#Fri Apr 26 17:17:46 PET 2024
+base.0=D\:\\MR_PERU_APP_FLUTTER\\build\\app\\intermediates\\dex\\debug\\mergeDexDebug\\classes.dex
+path.0=classes.dex
+renamed.0=classes.dex

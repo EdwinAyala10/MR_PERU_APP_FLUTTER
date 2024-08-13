@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gcm_defaultSenderId" translatable="false">296671498266</string>
+    <string name="google_api_key" translatable="false">AIzaSyB1hV5i3F65bt1zJD90ReALAGBUhxs6xUc</string>
+    <string name="google_app_id" translatable="false">1:296671498266:android:8ca35bdf1d2306a33741a3</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyB1hV5i3F65bt1zJD90ReALAGBUhxs6xUc</string>
+    <string name="google_storage_bucket" translatable="false">crm-app-flutter-a1740.appspot.com</string>
+    <string name="project_id" translatable="false">crm-app-flutter-a1740</string>
+</resources>
