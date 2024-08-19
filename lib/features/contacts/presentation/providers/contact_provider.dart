@@ -48,15 +48,11 @@ class ContactNotifier extends StateNotifier<ContactState> {
   }
 
   Future<void> isSaving() async {
-    state = state.copyWith(
-      isSaving: true
-    );
+    state = state.copyWith(isSaving: true);
   }
 
   Future<void> isNotSaving() async {
-    state = state.copyWith(
-      isSaving: false
-    );
+    state = state.copyWith(isSaving: false);
   }
 
   Future<void> loadContact(String idContact) async {
@@ -78,7 +74,9 @@ class ContactNotifier extends StateNotifier<ContactState> {
 
       state = state.copyWith(isLoading: false, contact: contact, id: idContact);
     } catch (e) {
-      state = state.copyWith(isLoading: false, contact: null);
+      if (mounted) {
+        state = state.copyWith(isLoading: false, contact: null);
+      }
       // 404 product not found
     }
   }

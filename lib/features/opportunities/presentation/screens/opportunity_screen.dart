@@ -5,6 +5,7 @@ import 'package:crm_app/features/companies/presentation/delegates/search_company
 import 'package:crm_app/features/companies/presentation/providers/company_provider.dart';
 import 'package:crm_app/features/companies/presentation/search/search_company_locales_active_provider.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
+import 'package:crm_app/features/contacts/presentation/providers/contact_provider.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 
 import '../../../companies/domain/domain.dart';
@@ -39,10 +40,9 @@ class OpportunityScreen extends ConsumerWidget {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: Text('${ opportunityState.opportunity!.id == 'new' ? 'Crear': 'Editar' } oportunidad'
-          , style: TextStyle(
-            fontWeight: FontWeight.w500
-          )),
+          title: Text(
+              '${opportunityState.opportunity!.id == 'new' ? 'Crear' : 'Editar'} oportunidad',
+              style: TextStyle(fontWeight: FontWeight.w500)),
           //title: const Text('Crear Oportunidad', style: TextStyle(fontWeight: FontWeight.w500)),
           leading: IconButton(
             icon: const Icon(Icons.close),
@@ -71,18 +71,23 @@ class OpportunityScreen extends ConsumerWidget {
                   showSnackbar(context, value.message);
 
                   if (value.response) {
-                    ref.read(opportunityProvider(opportunityId).notifier).loadOpportunity();
-                    ref.read(companyProvider(value.id!).notifier).loadSecundaryOpportunities();
+                    ref
+                        .read(opportunityProvider(opportunityId).notifier)
+                        .loadOpportunity();
+                    ref
+                        .read(companyProvider(value.id!).notifier)
+                        .loadSecundaryOpportunities();
 
-                    ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: true);
+                    ref
+                        .read(opportunitiesProvider.notifier)
+                        .loadNextPage(isRefresh: true);
                     //Timer(const Duration(seconds: 3), () {
-                      //context.push('/opportunities');
-                      context.pop();
+                    //context.push('/opportunities');
+                    context.pop();
                     //});
                   }
                 }
                 Navigator.pop(context);
-
               });
             }),
       ),
@@ -112,10 +117,12 @@ class _OpportunityInformationv2 extends ConsumerStatefulWidget {
   const _OpportunityInformationv2({required this.opportunity});
 
   @override
-  _OpportunityInformationv2State createState() => _OpportunityInformationv2State();
+  _OpportunityInformationv2State createState() =>
+      _OpportunityInformationv2State();
 }
 
-class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformationv2> {
+class _OpportunityInformationv2State
+    extends ConsumerState<_OpportunityInformationv2> {
   List<DropdownOption> optionsEstado = [
     DropdownOption(id: '', name: 'Cargando...')
   ];
@@ -125,24 +132,27 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
     super.initState();
 
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('05').then((value) => {
-        setState(() {
-          optionsEstado = value;
-        })
-      });
+      await ref
+          .read(resourceDetailsProvider.notifier)
+          .loadCatalogById('05')
+          .then((value) => {
+                setState(() {
+                  optionsEstado = value;
+                })
+              });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-
     List<DropdownOption> optionsMoneda = [
       DropdownOption(id: '01', name: 'USB'),
     ];
 
     bool isAdmin = ref.watch(authProvider).user!.isAdmin;
 
-    final opportunityForm = ref.watch(opportunityFormProvider(widget.opportunity));
+    final opportunityForm =
+        ref.watch(opportunityFormProvider(widget.opportunity));
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -159,17 +169,21 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
             errorMessage: opportunityForm.oprtNombre.errorMessage,
           ),
           TitleSectionForm(title: 'DATOS DE OPORTUNIDAD'),
-          optionsEstado.length > 1 ? SelectCustomForm(
-            label: 'Estado',
-            value: opportunityForm.oprtIdEstadoOportunidad.value,
-            callbackChange: (String? newValue) {
-              ref
-                  .read(opportunityFormProvider(widget.opportunity).notifier)
-                  .onIdEstadoChanged(newValue!);
-            },
-            items: optionsEstado,
-            errorMessage: opportunityForm.oprtIdEstadoOportunidad.errorMessage,
-          ): PlaceholderInput(text: 'Cargando Estado...'),
+          optionsEstado.length > 1
+              ? SelectCustomForm(
+                  label: 'Estado',
+                  value: opportunityForm.oprtIdEstadoOportunidad.value,
+                  callbackChange: (String? newValue) {
+                    ref
+                        .read(opportunityFormProvider(widget.opportunity)
+                            .notifier)
+                        .onIdEstadoChanged(newValue!);
+                  },
+                  items: optionsEstado,
+                  errorMessage:
+                      opportunityForm.oprtIdEstadoOportunidad.errorMessage,
+                )
+              : PlaceholderInput(text: 'Cargando Estado...'),
           Padding(
             padding: const EdgeInsets.all(2.0),
             child: Row(
@@ -190,7 +204,8 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
                       '${double.parse(opportunityForm.oprtProbabilidad).round()}%',
                   onChanged: (double value) {
                     ref
-                        .read(opportunityFormProvider(widget.opportunity).notifier)
+                        .read(opportunityFormProvider(widget.opportunity)
+                            .notifier)
                         .onProbabilidadChanged(value.toString());
                   },
                 ),
@@ -214,7 +229,6 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
             items: optionsMoneda,
           ),
           const SizedBox(height: 10),
-      
           CustomCompanyField(
             label: 'Importe Total',
             keyboardType: TextInputType.number,
@@ -260,24 +274,29 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                 Text(
+                Text(
                   'Empresa principal',
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
-                    color: opportunityForm.oprtRuc.errorMessage != null ? Colors.red : Colors.grey,
+                    color: opportunityForm.oprtRuc.errorMessage != null
+                        ? Colors.red
+                        : Colors.grey,
                   ),
                 ),
                 const SizedBox(height: 6),
                 GestureDetector(
                   onTap: () {
-                    _openSearch(context, ref, 'ruc', opportunityForm.oprtIdUsuarioRegistro);
+                    _openSearch(context, ref, 'ruc',
+                        opportunityForm.oprtIdUsuarioRegistro);
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     decoration: BoxDecoration(
                       border: Border.all(
-                        color: opportunityForm.oprtRuc.errorMessage != null ? Colors.red : Colors.grey,
+                        color: opportunityForm.oprtRuc.errorMessage != null
+                            ? Colors.red
+                            : Colors.grey,
                       ),
                       borderRadius: BorderRadius.circular(5),
                     ),
@@ -289,15 +308,18 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
                                 ? 'Seleccione empresa'
                                 : opportunityForm.oprtRazon,
                             style: TextStyle(
-                              fontSize: 16,
-                              color: opportunityForm.oprtRuc.errorMessage != null ? Colors.red : Colors.black
-                            ),
+                                fontSize: 16,
+                                color:
+                                    opportunityForm.oprtRuc.errorMessage != null
+                                        ? Colors.red
+                                        : Colors.black),
                           ),
                         ),
                         IconButton(
                           icon: const Icon(Icons.search),
                           onPressed: () {
-                            _openSearch(context, ref, 'ruc', opportunityForm.oprtIdUsuarioRegistro);
+                            _openSearch(context, ref, 'ruc',
+                                opportunityForm.oprtIdUsuarioRegistro);
                           },
                         ),
                       ],
@@ -308,16 +330,14 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
             ),
           ),
           opportunityForm.oprtRuc.errorMessage != null
-          ? Padding(
-              padding: const EdgeInsets.only(left: 4),
-              child: Text(
-                opportunityForm.oprtRuc.errorMessage ?? '',
-                style: const TextStyle(color: Colors.red, fontSize: 13),
-              ),
-            )
-          : const SizedBox(),
-
-
+              ? Padding(
+                  padding: const EdgeInsets.only(left: 4),
+                  child: Text(
+                    opportunityForm.oprtRuc.errorMessage ?? '',
+                    style: const TextStyle(color: Colors.red, fontSize: 13),
+                  ),
+                )
+              : const SizedBox(),
           Padding(
             padding: const EdgeInsets.all(4.0),
             child: Column(
@@ -328,34 +348,30 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color:
-                        opportunityForm.oprtLocalCodigo.errorMessage != null
-                            ? Colors.red[400]
-                            : null,
+                    color: opportunityForm.oprtLocalCodigo.errorMessage != null
+                        ? Colors.red[400]
+                        : null,
                   ),
                 ),
                 const SizedBox(height: 6),
                 GestureDetector(
                   onTap: () {
-                    
                     if (opportunityForm.oprtRuc.value == "") {
-                        showSnackbar(context, 'Debe seleccionar una empresa');
-                        return;
+                      showSnackbar(context, 'Debe seleccionar una empresa');
+                      return;
                     }
 
                     _openSearchCompanyLocales(
                         context, ref, opportunityForm.oprtRuc.value);
-
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     decoration: BoxDecoration(
                       border: Border.all(
-                          color:
-                              opportunityForm.oprtLocalCodigo.errorMessage !=
-                                      null
-                                  ? Colors.red
-                                  : Colors.grey),
+                          color: opportunityForm.oprtLocalCodigo.errorMessage !=
+                                  null
+                              ? Colors.red
+                              : Colors.grey),
                       borderRadius: BorderRadius.circular(5),
                     ),
                     child: Row(
@@ -377,10 +393,10 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
                         IconButton(
                           icon: const Icon(Icons.search),
                           onPressed: () {
-                            
                             if (opportunityForm.oprtRuc.value == "") {
-                                showSnackbar(context, 'Debe seleccionar una empresa');
-                                return;
+                              showSnackbar(
+                                  context, 'Debe seleccionar una empresa');
+                              return;
                             }
 
                             _openSearchCompanyLocales(
@@ -397,10 +413,7 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
           if (opportunityForm.oprtLocalCodigo.errorMessage != null)
             Text(
               opportunityForm.oprtLocalCodigo.errorMessage ?? 'Requerido',
-              style: TextStyle(
-                color: Colors.red[400],
-                fontSize: 13
-              ),
+              style: TextStyle(color: Colors.red[400], fontSize: 13),
             ),
           const SizedBox(height: 10),
 
@@ -466,9 +479,10 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
             )
           : const SizedBox(),*/
           const SizedBox(height: 15),
-          const Text('Responsable', style: TextStyle(
-            fontWeight: FontWeight.w500
-          ),),
+          const Text(
+            'Responsable',
+            style: TextStyle(fontWeight: FontWeight.w500),
+          ),
           Row(
             children: [
               Expanded(
@@ -484,13 +498,17 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
                                         label: Text(item.userreportName ?? '',
                                             style:
                                                 const TextStyle(fontSize: 12)),
-                                        onDeleted: isAdmin ?  () {
-                                          ref
-                                              .read(opportunityFormProvider(
-                                                      widget.opportunity)
-                                                  .notifier)
-                                              .onDeleteUserChanged(item);
-                                        } : null,
+                                        onDeleted: isAdmin
+                                            ? () {
+                                                ref
+                                                    .read(
+                                                        opportunityFormProvider(
+                                                                widget
+                                                                    .opportunity)
+                                                            .notifier)
+                                                    .onDeleteUserChanged(item);
+                                              }
+                                            : null,
                                       )))
                               : [],
                         )
@@ -499,9 +517,11 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
                 ],
               )),
               ElevatedButton(
-                onPressed: isAdmin ? () {
-                  _openSearchUsers(context, ref);
-                } : null,
+                onPressed: isAdmin
+                    ? () {
+                        _openSearchUsers(context, ref);
+                      }
+                    : null,
                 child: const Row(
                   children: [
                     Icon(Icons.add),
@@ -558,24 +578,26 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
     }
   }
 
-  void _openSearch(BuildContext context, WidgetRef ref, String type, String dni) async {
+  void _openSearch(
+      BuildContext context, WidgetRef ref, String type, String dni) async {
     final searchedCompanies = ref.read(searchedCompaniesProvider);
     final searchQuery = ref.read(searchQueryCompaniesProvider);
 
     showSearch<Company?>(
-            query: searchQuery,
-            context: context,
-            delegate: SearchCompanyDelegate(
-              dni: dni,
-              initialCompanies: searchedCompanies,
-              searchCompanies: ref
-                  .read(searchedCompaniesProvider.notifier)
-                  .searchCompaniesByQuery,
-              resetSearchQuery: () {
-                  ref.read(searchQueryCompaniesProvider.notifier).update((state) => '');
-              },
-          ))
-        .then((company) {
+        query: searchQuery,
+        context: context,
+        delegate: SearchCompanyDelegate(
+          dni: dni,
+          initialCompanies: searchedCompanies,
+          searchCompanies: ref
+              .read(searchedCompaniesProvider.notifier)
+              .searchCompaniesByQuery,
+          resetSearchQuery: () {
+            ref
+                .read(searchQueryCompaniesProvider.notifier)
+                .update((state) => '');
+          },
+        )).then((company) {
       if (company == null) return;
 
       if (type == 'ruc') {
@@ -598,19 +620,17 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
     final user = ref.watch(authProvider).user;
 
     showSearch<UserMaster?>(
-            query: searchQuery,
-            context: context,
-            delegate: SearchUserDelegate(
-                initialUsers: searchedUsers,
-                userCurrent: user!,
-                searchUsers: ref
-                    .read(searchedUsersProvider.notifier)
-                    .searchUsersByQuery,
-                resetSearchQuery: () {
-                  ref.read(searchQueryUsersProvider.notifier).update((state) => '');
-                },
-            ))
-        .then((user) {
+        query: searchQuery,
+        context: context,
+        delegate: SearchUserDelegate(
+          initialUsers: searchedUsers,
+          userCurrent: user!,
+          searchUsers:
+              ref.read(searchedUsersProvider.notifier).searchUsersByQuery,
+          resetSearchQuery: () {
+            ref.read(searchQueryUsersProvider.notifier).update((state) => '');
+          },
+        )).then((user) {
       if (user == null) return;
 
       ref
@@ -625,26 +645,26 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
     final searchQuery = ref.read(searchQueryCompanyLocalesProvider);
 
     showSearch<CompanyLocal?>(
-            query: searchQuery,
-            context: context,
-            delegate: SearchCompanyLocalDelegate(
-                ruc: ruc,
-                initialCompanyLocales: searchedCompanyLocales,
-                searchCompanyLocales: ref
-                    .read(searchedCompanyLocalesProvider.notifier)
-                    .searchCompanyLocalesByQuery,
-                resetSearchQuery: () {
-                    ref.read(searchQueryCompanyLocalesProvider.notifier).update((state) => '');
-                },
-            ))
-        .then((companyLocal) {
+        query: searchQuery,
+        context: context,
+        delegate: SearchCompanyLocalDelegate(
+          ruc: ruc,
+          initialCompanyLocales: searchedCompanyLocales,
+          searchCompanyLocales: ref
+              .read(searchedCompanyLocalesProvider.notifier)
+              .searchCompanyLocalesByQuery,
+          resetSearchQuery: () {
+            ref
+                .read(searchQueryCompanyLocalesProvider.notifier)
+                .update((state) => '');
+          },
+        )).then((companyLocal) {
       if (companyLocal == null) return;
 
       ref
           .read(opportunityFormProvider(widget.opportunity).notifier)
           .onLocalChanged(companyLocal.id,
               '${companyLocal.localNombre} ${companyLocal.localDireccion}');
-
     });
   }
 }

@@ -1,7 +1,10 @@
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:crm_app/features/kpis/presentation/widgets/custom_switch.dart';
+import 'package:crm_app/features/kpis/presentation/widgets/item_objetive_by_category.dart';
 
 import '../providers/providers.dart';
 import '../../../shared/shared.dart';
+import 'package:crm_app/features/kpis/domain/entities/kpi.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,20 +12,18 @@ import 'package:go_router/go_router.dart';
 class KpiDetailScreen extends ConsumerWidget {
   final String kpiId;
 
-  const KpiDetailScreen({super.key, 
+  const KpiDetailScreen({
+    super.key,
     required this.kpiId,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final kpiState = ref.watch(kpiProvider(kpiId));
-
     final kpi = kpiState.kpi;
-
     final user = ref.watch(authProvider).user;
-
     final isAdmin = user!.isAdmin;
-
+    final selectIndexView = ref.watch(selecIndexViewProvider);
     if (kpiState.isLoading) {
       return const FullScreenLoader();
     }
@@ -35,13 +36,14 @@ class KpiDetailScreen extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-                width: double.infinity, // Ocupa todo el ancho disponible
-                alignment: Alignment.center,
-                child: const Text(
-                  'No se encontro información de objetivo.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
-                ))
+              width: double.infinity, // Ocupa todo el ancho disponible
+              alignment: Alignment.center,
+              child: const Text(
+                'No se encontro información de objetivo.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+              ),
+            )
           ],
         ),
       );
@@ -49,11 +51,12 @@ class KpiDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Detalles de objetivo', style: TextStyle(
-          fontWeight: FontWeight.w500
-        ),),
+        title: const Text(
+          'Detalles de objetivo',
+          style: TextStyle(fontWeight: FontWeight.w500),
+        ),
         actions: [
-          if (isAdmin) 
+          if (isAdmin)
             IconButton(
               icon: const Icon(Icons.edit),
               onPressed: () {
@@ -62,155 +65,329 @@ class KpiDetailScreen extends ConsumerWidget {
             ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(
-                height: 10,
-              ),
-              ContainerCustom(
-                label: 'Responsable',
-                text: kpi.userreportNameResponsable ?? '',
-              ),
-              ContainerCustom(
-                label: 'Asignación',
-                text: kpi.objrNombreAsignacion ?? '',
-              ),
-              if (kpi.arrayuserasignacion != null &&
+      body: Column(
+        children: [
+          const SizedBox(
+            height: 25,
+          ),
+          resumedHeadData(context, ref),
+          const SizedBox(
+            height: 25,
+          ),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.90,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      CustomSwitch(
+                        options: const ['Information', 'Performance'],
+                        index: selectIndexView,
+                        onChanged: (index) {
+                          ref.read(selecIndexViewProvider.notifier).state =
+                              index;
+
+                          index == 2
+                              ? ref
+                                  .read(goalsByCatProvider.notifier)
+                                  .listgoalsByCategories()
+                              : () {};
+                        },
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      selectIndexView == 1
+                          ? Expanded(
+                              child: SizedBox(
+                                child: informationSection(kpi),
+                              ),
+                            )
+                          : Expanded(
+                              child: SizedBox(
+                                child: perfomceSection(context, ref),
+                              ),
+                            ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget resumedHeadData(BuildContext context, WidgetRef ref) {
+    final kpi = ref.read(goalsModelProvider);
+    if (kpi == null) {
+      return Container();
+    }
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 28),
+      title: Text(
+        kpi.objrNombreCategoria ?? '',
+        style: const TextStyle(fontWeight: FontWeight.w600),
+      ),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Text(kpi.objrNombrePeriodicidad ?? '',
+          // style:
+          // const TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
+          // Text(kpi.objrNombreAsignacion ?? '',
+          // style: const TextStyle(fontWeight: FontWeight.w600)),
+          Text(
+            '${kpi.totalRegistro}/${convertTypeCategory(kpi)}',
+            style: const TextStyle(
+                fontWeight: FontWeight.w400, color: Colors.black45),
+          )
+        ],
+      ),
+      // trailing: Column(
+      //   crossAxisAlignment: CrossAxisAlignment.end,
+      //   mainAxisAlignment: MainAxisAlignment.start,
+      //   children: [
+      //     /*Text(kpi.objrNombreAsignacion ?? '',
+      //                     textAlign: TextAlign.right,
+      //                     style: const TextStyle(
+      //                       fontSize: 12,
+      //                     )),*/
+      //     //for (var user in kpi.usuariosAsignados ?? [])
+      //     for (var i = 0; i < 2 && i < kpi.usuariosAsignados!.length; i++)
+      //       Text(
+      //         kpi.usuariosAsignados![i].userreportName ?? '',
+      //         overflow: TextOverflow.ellipsis,
+      //         style: const TextStyle(fontSize: 10),
+      //       )
+      //   ],
+      // ),
+      leading: Stack(
+        alignment: Alignment.center,
+        children: [
+          SizedBox(
+            width: 46,
+            height: 46,
+            child: CircularProgressIndicator(
+              strokeWidth: 5,
+              value: ((kpi.porcentaje ?? 0) / 100).toDouble(),
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                Colors.blue,
+              ), // Color cuando está marcado
+              backgroundColor: Colors.grey,
+            ),
+          ),
+          Text(
+            "${kpi.porcentaje!.round()}%", // El porcentaje se multiplica por 100 para mostrarlo correctamente
+            style: const TextStyle(
+              fontSize: 13, // Tamaño del texto
+              color: Colors.black, // Color del texto
+              fontWeight: FontWeight.bold, // Negrita
+            ),
+          ),
+        ],
+      ),
+      // onTap: () {},
+    );
+  }
+
+  Widget perfomceSection(BuildContext context, WidgetRef ref) {
+    final listGoals = ref.watch(goalsByCatProvider);
+    if (listGoals.isLoading == true) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+    return RefreshIndicator(
+      // notificationPredicate: defaultScrollNotificationPredicate,
+      onRefresh: () async {}, //widget.onRefreshCallback,
+      //key: _refreshIndicatorKey,
+      child: SizedBox(
+        width: double.infinity,
+        child: ListView.separated(
+          itemCount:
+              listGoals.goalsbycat?.length ?? 0, // widget.companies.length,
+          //controller: widget.scrollController,
+          physics: const BouncingScrollPhysics(),
+          separatorBuilder: (BuildContext context, int index) =>
+              const Divider(),
+          itemBuilder: (context, index) {
+            // final company = widget.companies[index];
+            return ItemObjetiveByCategory(
+              callbackOnTap: () {
+                // context.push('/company_detail/${company.ruc}',);
+              },
+              model: listGoals.goalsbycat?[index],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  SingleChildScrollView informationSection(Kpi kpi) {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(
+              height: 10,
+            ),
+            ContainerCustom(
+              label: 'Responsable',
+              text: kpi.userreportNameResponsable ?? '',
+            ),
+            ContainerCustom(
+              label: 'Asignación',
+              text: kpi.objrNombreAsignacion ?? '',
+            ),
+            if (kpi.arrayuserasignacion != null &&
                 kpi.arrayuserasignacion!.isNotEmpty)
               Container(
-                padding: const EdgeInsets.symmetric( horizontal: 10 ),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Usuarios', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+                    const Text(
+                      'Usuarios',
+                      style:
+                          TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                    ),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
-                      children:
-                          kpi.arrayuserasignacion!.map((arr) {
-                        return Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.blue[300],
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            '${arr.userreportName}',
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        );
-                      }).toList(),
+                      children: kpi.arrayuserasignacion!.map(
+                        (arr) {
+                          return Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.blue[300],
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              '${arr.userreportName}',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          );
+                        },
+                      ).toList(),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(
-                height: 10,
-              ),
-              const Padding(
-                padding: EdgeInsets.only(left: 13, bottom: 10, top: 10),
-                child: Text('DEFINICION DE OBJETIVO', style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 16
-                )),
-              ),
-              ContainerCustom(
-                label: 'Categoria',
-                text: '${kpi.objrNombreCategoria}',
-              ),
-              ContainerCustom(
-                label: 'Tipo',
-                text: '${kpi.objrNombreTipo}',
-              ),
-              ContainerCustom(
-                label: 'Nombre de objetivo',
-                text: kpi.objrNombre,
-              ),
-              ContainerCustom(
-                label: 'Periodicidad',
-                text: kpi.objrNombrePeriodicidad ?? '',
-              ),
-              ContainerCustom(
-                label: 'Objetivo Alcanzar',
-                text: kpi.objrCantidad ?? '',
-              ),
-              if (kpi.objrIdPeriodicidad == '02' || kpi.objrValorDifMes == '1') 
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 14),
-                      child: Text('Valor diferente cada mes', style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 17
-                      ),),
+            const SizedBox(
+              height: 10,
+            ),
+            const Padding(
+              padding: EdgeInsets.only(left: 13, bottom: 10, top: 10),
+              child: Text('DEFINICION DE OBJETIVO',
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
+            ),
+            ContainerCustom(
+              label: 'Categoria',
+              text: '${kpi.objrNombreCategoria}',
+            ),
+            ContainerCustom(
+              label: 'Tipo',
+              text: '${kpi.objrNombreTipo}',
+            ),
+            ContainerCustom(
+              label: 'Nombre de objetivo',
+              text: kpi.objrNombre,
+            ),
+            ContainerCustom(
+              label: 'Periodicidad',
+              text: kpi.objrNombrePeriodicidad ?? '',
+            ),
+            ContainerCustom(
+              label: 'Objetivo Alcanzar',
+              text: kpi.objrCantidad ?? '',
+            ),
+            if (kpi.objrIdPeriodicidad == '02' || kpi.objrValorDifMes == '1')
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 14),
+                    child: Text(
+                      'Valor diferente cada mes',
+                      style:
+                          TextStyle(fontWeight: FontWeight.w600, fontSize: 17),
                     ),
-
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Card(
-                        elevation: 4,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            children: [
-                              // Cabecera de la tabla
-                              const Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Mes',
-                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          children: [
+                            // Cabecera de la tabla
+                            const Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Mes',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16),
+                                ),
+                                Text(
+                                  'Cantidad',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16),
+                                ),
+                              ],
+                            ),
+                            const Divider(),
+                            // Listado de filas
+                            Column(
+                              children: kpi.peobIdPeriodicidad!.map((dato) {
+                                return Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(dato.periNombre ?? ''),
+                                      Text(dato.peobCantidad.toString()),
+                                    ],
                                   ),
-                                  Text(
-                                    'Cantidad',
-                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                                  ),
-                                ],
-                              ),
-                              const Divider(),
-                              // Listado de filas
-                              Column(
-                                children: kpi.peobIdPeriodicidad!.map((dato) {
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(dato.periNombre ?? ''),
-                                        Text(dato.peobCantidad.toString()),
-                                      ],
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                            ],
-                          ),
+                                );
+                              }).toList(),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-
-                  ],
-                ),
-              const SizedBox(
-                height: 10,
+                  ),
+                ],
               ),
-              ContainerCustom(
-                label: 'Comentario',
-                text: kpi.objrObservaciones ?? '',
-              ),
-              
-            ],
-          ),
+            const SizedBox(
+              height: 10,
+            ),
+            ContainerCustom(
+              label: 'Comentario',
+              text: kpi.objrObservaciones ?? '',
+            ),
+          ],
         ),
       ),
     );
@@ -305,4 +482,14 @@ String agregarPrefijoPeru(String numero) {
   }
   // Si ya tiene el prefijo, devolver el número sin cambios
   return numero;
+}
+
+convertTypeCategory(Kpi kpi) {
+  String res = kpi.objrCantidad ?? '';
+  if (kpi.objrIdCategoria == '05') {
+    res = ' ${res}K';
+  } else {
+    res = (double.parse(res).toInt()).toString();
+  }
+  return res;
 }

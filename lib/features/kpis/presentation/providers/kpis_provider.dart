@@ -1,7 +1,12 @@
+import 'package:crm_app/features/kpis/domain/domain.dart';
+import 'package:crm_app/features/kpis/domain/entities/objetive_by_category.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../domain/domain.dart';
 
 import 'kpis_repository_provider.dart';
+
+final selecIndexViewProvider = StateProvider<int>((ref) => 1);
+
+final goalsModelProvider = StateProvider<Kpi?>((ref) => null);
 
 final kpisProvider = StateNotifierProvider<KpisNotifier, KpisState>((ref) {
   final kpisRepository = ref.watch(kpisRepositoryProvider);
@@ -124,4 +129,77 @@ class KpisState {
         isLoading: isLoading ?? this.isLoading,
         kpis: kpis ?? this.kpis,
       );
+}
+
+final goalsByCatProvider =
+    StateNotifierProvider<GoalsByCatNotifier, GoalsByCatState>(
+  (ref) {
+    final kpiRepository = ref.watch(kpisRepositoryProvider);
+    final lastKpi = ref.watch(goalsModelProvider);
+    return GoalsByCatNotifier(kpiRepository: kpiRepository, lastKpi: lastKpi);
+  },
+);
+
+class GoalsByCatNotifier extends StateNotifier<GoalsByCatState> {
+  final KpisRepository kpiRepository;
+  final Kpi? lastKpi;
+  GoalsByCatNotifier({
+    this.lastKpi,
+    required this.kpiRepository,
+  }) : super(GoalsByCatState()) {
+    listgoalsByCategories();
+  }
+
+  Future<void> listgoalsByCategories() async {
+    final form = <String, dynamic>{
+      'OBJR_ID_CATEGORIA': lastKpi?.objrIdCategoria,
+      'OBJR_ID_OBJETIVO': lastKpi?.id,
+      'SEARCH': '',
+    };
+    final response = await kpiRepository.listObjetiveByCategory(form);
+    if (response.isEmpty) {
+      state = state.copyWith(
+        type: "full",
+        icon: "",
+        status: false,
+        message: "Empty objetive category",
+        goalsbycat: [],
+      );
+      return;
+    }
+    state = state.copyWith(
+      goalsbycat: response,
+    );
+  }
+}
+
+class GoalsByCatState {
+  final bool? isLastPage;
+  final int? limit;
+  final int? offset;
+  final bool? isLoading;
+  final List<ObjetiveByCategory>? goalsbycat;
+
+  GoalsByCatState({
+    this.goalsbycat,
+    this.isLastPage = false,
+    this.limit = 10,
+    this.offset = 0,
+    this.isLoading = false,
+  });
+  GoalsByCatState copyWith({
+    String? type,
+    String? icon,
+    bool? status,
+    String? message,
+    List<ObjetiveByCategory>? goalsbycat,
+  }) {
+    return GoalsByCatState(
+      isLastPage: isLastPage,
+      isLoading: isLoading,
+      limit: limit,
+      offset: offset,
+      goalsbycat: goalsbycat,
+    );
+  }
 }

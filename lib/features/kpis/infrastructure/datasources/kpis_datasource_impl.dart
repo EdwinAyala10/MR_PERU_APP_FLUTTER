@@ -1,3 +1,8 @@
+import 'dart:developer';
+
+import 'package:crm_app/features/kpis/domain/entities/objetive_by_category.dart';
+import 'package:crm_app/features/kpis/infrastructure/mappers/objetive_by_category_mapper.dart';
+
 import '../../domain/entities/periodicidad.dart';
 import '../mappers/kpi_response_mapper.dart';
 import '../mappers/periodicidad_mapper.dart';
@@ -82,10 +87,41 @@ class KpisDatasourceImpl extends KpisDatasource {
     final response = await dio.get('/objetivo/listar-periodicidad');
     final List<Periodicidad> periodicidades = [];
     for (final periodicidad in response.data['data'] ?? []) {
-      periodicidad['PEOB_ID_PERIODICIDAD_CALENDARIO'] = periodicidad['PERI_ID_PERIODICIDAD_CALENDARIO'];
+      periodicidad['PEOB_ID_PERIODICIDAD_CALENDARIO'] =
+          periodicidad['PERI_ID_PERIODICIDAD_CALENDARIO'];
       periodicidades.add(PeriodicidadMapper.jsonToEntity(periodicidad));
     }
 
     return periodicidades;
+  }
+
+  @override
+  Future<List<ObjetiveByCategory>> listObjetiveByCategory(
+    Map<dynamic, dynamic> kpiForm,
+  ) async {
+    final kpiFormData = kpiForm;
+    try {
+      log(Environment.apiUrl.toString());
+      log(kpiFormData.toString());
+      final response = await dio.post(
+        '/objetivo/listar-objetivo-by-categoria',
+        data: kpiFormData,
+      );
+      log(response.statusCode.toString());
+      log(response.realUri.path.toString());
+      log(response.data.toString());
+
+      final List<ObjetiveByCategory> listObjetiveCategory = [];
+      final listData = response.data['data'] as List;
+      log(response.data.toString());
+      for (final item in listData) {
+        final tempItem = ObjetiveByCategoryMapper.jsonToEntity(item);
+        listObjetiveCategory.add(tempItem);
+      }
+      return listObjetiveCategory;
+    } catch (e) {
+      log(e.toString());
+      return [];
+    }
   }
 }

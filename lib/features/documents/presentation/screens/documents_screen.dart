@@ -32,13 +32,15 @@ class DocumentsScreen extends ConsumerWidget {
       length: 2, // Número de pestañas
       child: Builder(
         builder: (context) {
-          final tabController = DefaultTabController.of(context); // Obtén el TabController aquí
+          final tabController = DefaultTabController.of(context); 
+          // Obtén el TabController aquí
 
           return Scaffold(
             key: scaffoldKey,
             drawer: SideMenu(scaffoldKey: scaffoldKey),
             appBar: AppBar(
-              title: const Text('Documentos', style: TextStyle(fontWeight: FontWeight.w600)),
+              title: const Text('Documentos',
+                  style: TextStyle(fontWeight: FontWeight.w600)),
               centerTitle: true,
               bottom: TabBar(
                 controller: tabController, // Asigna el controlador aquí
@@ -51,37 +53,38 @@ class DocumentsScreen extends ConsumerWidget {
             body: TabBarView(
               controller: tabController, // Asigna el controlador aquí
               children: [
-                documentsState.isLoading 
-                  ? const FullScreenLoader()
-                  : (documentsState.listDocuments != null
-                    ? const _DocumentsView()
-                    : const Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('No se encontraron documentos'),
-                            SizedBox(height: 10),
-                          ],
-                        ),
-                      )),
-                documentsState.isLoading 
-                  ? const FullScreenLoader()
-                  : (documentsState.listLinks != null
-                    ? const _LinksView()
-                    : const Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('No se encontraron enlaces'),
-                            SizedBox(height: 10),
-                          ],
-                        ),
-                      )),
+                documentsState.isLoading
+                    ? const FullScreenLoader()
+                    : (documentsState.listDocuments != null
+                        ? const _DocumentsView()
+                        : const Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text('No se encontraron documentos'),
+                                SizedBox(height: 10),
+                              ],
+                            ),
+                          )),
+                documentsState.isLoading
+                    ? const FullScreenLoader()
+                    : (documentsState.listLinks != null
+                        ? const _LinksView()
+                        : const Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text('No se encontraron enlaces'),
+                                SizedBox(height: 10),
+                              ],
+                            ),
+                          )),
               ],
             ),
             floatingActionButton: FloatingActionButtonCustom(
               callOnPressed: () async {
-                showModalAdd(context, ref, tabController); // Pasa el controlador aquí
+                showModalAdd(
+                    context, ref, tabController); // Pasa el controlador aquí
               },
               iconData: Icons.add,
             ),
@@ -127,37 +130,40 @@ class _DocumentsViewState extends ConsumerState<_DocumentsView> {
         child: MasonryGridView.count(
           controller: scrollController,
           physics: const BouncingScrollPhysics(),
-          crossAxisCount: 1, 
+          crossAxisCount: 1,
           itemCount: documentsState.listDocuments.length,
-          itemBuilder: (_ , index) {
+          itemBuilder: (_, index) {
             final document = documentsState.listDocuments[index];
-            
-            return GestureDetector(
-              onTap: () async {
-                String fileUrl = '${Environment.urlPublic}${document.adjtRutalRelativa}';
-                String fileName = document.adjtNombreOriginal;
 
-                await _requestStoragePermission(context, fileUrl, fileName);
-              },
-              child: DocumentCard(document: document, callback: () {
-                showLoadingMessage(context);
-                ref.read(documentsProvider.notifier).deleteDocument(document.adjtIdAdjunto).then((DeleteDocumentResponse value) {
-                  if (value.message != '') {
-                    showSnackbar(context, value.message);
-                    if (value.response) {
-                    }
-                  }
-                });
-                Navigator.pop(context);
-              })
-            );
+            return GestureDetector(
+                onTap: () async {
+                  String fileUrl =
+                      '${Environment.urlPublic}${document.adjtRutalRelativa}';
+                  String fileName = document.adjtNombreOriginal;
+
+                  await _requestStoragePermission(context, fileUrl, fileName);
+                },
+                child: DocumentCard(
+                    document: document,
+                    callback: () {
+                      showLoadingMessage(context);
+                      ref
+                          .read(documentsProvider.notifier)
+                          .deleteDocument(document.adjtIdAdjunto)
+                          .then((DeleteDocumentResponse value) {
+                        if (value.message != '') {
+                          showSnackbar(context, value.message);
+                          if (value.response) {}
+                        }
+                      });
+                      Navigator.pop(context);
+                    }));
           },
         ),
       ),
     );
-  }  
+  }
 }
-
 
 class _LinksView extends ConsumerStatefulWidget {
   const _LinksView();
@@ -194,29 +200,32 @@ class _LinksViewState extends ConsumerState<_LinksView> {
         child: MasonryGridView.count(
           controller: scrollController,
           physics: const BouncingScrollPhysics(),
-          crossAxisCount: 1, 
+          crossAxisCount: 1,
           itemCount: documentsState.listLinks.length,
           itemBuilder: (context, index) {
             final document = documentsState.listLinks[index];
-            
-            return GestureDetector(
-              onTap: () async {
-                String enlace = document.adjtEnlace ?? '';
 
-                _copyToClipboard(context, enlace);
-              },
-              child: DocumentCard(document: document, callback: () {
-                showLoadingMessage(context);
-                ref.read(documentsProvider.notifier).deleteDocument(document.adjtIdAdjunto).then((DeleteDocumentResponse value) {
-                  if (value.message != '') {
-                    showSnackbar(context, value.message);
-                    if (value.response) {
-                    }
-                  }
-                });
-                Navigator.pop(context);
-              })
-            );
+            return GestureDetector(
+                onTap: () async {
+                  String enlace = document.adjtEnlace ?? '';
+
+                  _copyToClipboard(context, enlace);
+                },
+                child: DocumentCard(
+                    document: document,
+                    callback: () {
+                      showLoadingMessage(context);
+                      ref
+                          .read(documentsProvider.notifier)
+                          .deleteDocument(document.adjtIdAdjunto)
+                          .then((DeleteDocumentResponse value) {
+                        if (value.message != '') {
+                          showSnackbar(context, value.message);
+                          if (value.response) {}
+                        }
+                      });
+                      Navigator.pop(context);
+                    }));
           },
         ),
       ),
@@ -243,7 +252,8 @@ Future<void> _requestStoragePermission(context, fileUrl, fileName) async {
     // Permiso denegado permanentemente, mostrar diálogo para abrir la configuración
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Permiso de almacenamiento denegado permanentemente. Por favor habilítelo en la configuración.'),
+        content: const Text(
+            'Permiso de almacenamiento denegado permanentemente. Por favor habilítelo en la configuración.'),
         action: SnackBarAction(
           label: 'Abrir configuración',
           onPressed: () {
@@ -260,18 +270,19 @@ Future<void> _requestStoragePermission(context, fileUrl, fileName) async {
 
 Future<void> showNotification(String filePath, String filename) async {
   LocalNotifications.showLocalNotification(
-    id: 2, 
-    body: 'Descarga completa',
-    title: 'El archivo se ha descargado correctamente $filename.',
-    data: filePath
-  );
+      id: 2,
+      body: 'Descarga completa',
+      title: 'El archivo se ha descargado correctamente $filename.',
+      data: filePath);
 }
 
 void openFile(String filePath) {
   OpenFile.open(filePath);
 }
 
-Future<dynamic> showModalAdd(BuildContext context, WidgetRef ref, TabController tabController) { // Agrega el controlador como parámetro
+Future<dynamic> showModalAdd(
+    BuildContext context, WidgetRef ref, TabController tabController) {
+  // Agrega el controlador como parámetro
   return showModalBottomSheet(
     context: context,
     builder: (BuildContext modalContext) {
@@ -297,13 +308,14 @@ Future<dynamic> showModalAdd(BuildContext context, WidgetRef ref, TabController 
                   Center(child: Text('Subir documento')),
                 ],
               ),
-              minTileHeight: 12,
+              // minTileHeight: 12,
               onTap: () async {
                 Navigator.pop(modalContext);
 
                 tabController.index = 0;
 
-                FilePickerResult? result = await FilePicker.platform.pickFiles();
+                FilePickerResult? result =
+                    await FilePicker.platform.pickFiles();
 
                 String? fileName;
                 String? filePath;
@@ -313,16 +325,17 @@ Future<dynamic> showModalAdd(BuildContext context, WidgetRef ref, TabController 
                   filePath = result.files.single.path;
 
                   showLoadingMessage(context);
-                  
-                  ref.read(documentsProvider.notifier).createDocument(filePath!, fileName).then((CreateDocumentResponse value) {
+
+                  ref
+                      .read(documentsProvider.notifier)
+                      .createDocument(filePath!, fileName)
+                      .then((CreateDocumentResponse value) {
                     if (value.message != '') {
                       showSnackbar(context, value.message);
-                      if (value.response) {
-                      }
+                      if (value.response) {}
                     }
                     Navigator.pop(context);
                   });
-
                 } else {
                   // El usuario canceló la selección del archivo
                 }
@@ -337,20 +350,19 @@ Future<dynamic> showModalAdd(BuildContext context, WidgetRef ref, TabController 
                   Center(child: Text('Agregar enlace')),
                 ],
               ),
-              minTileHeight: 14,
+              // minTileHeight: 14,
               onTap: () async {
                 Navigator.pop(modalContext);
 
                 tabController.index = 1;
 
                 context.push('/text_enlace');
-
               },
             ),
             const Divider(),
             const SizedBox(height: 6),
             ListTile(
-              minTileHeight: 12,
+              // minTileHeight: 12,
               title: const Center(
                 child: Text(
                   'CANCELAR',
@@ -368,33 +380,34 @@ Future<dynamic> showModalAdd(BuildContext context, WidgetRef ref, TabController 
   );
 }
 
-Future<void> downloadFile(String fileUrl, String fileName, BuildContext context) async {
-    final dio = Dio();
+Future<void> downloadFile(
+    String fileUrl, String fileName, BuildContext context) async {
+  final dio = Dio();
 
-    try {
-      final dir = await getExternalStorageDirectory();
-      final filePath = '${dir!.path}/$fileName';
+  try {
+    final dir = await getExternalStorageDirectory();
+    final filePath = '${dir!.path}/$fileName';
 
-      final response = await dio.download(fileUrl, filePath);
+    final response = await dio.download(fileUrl, filePath);
 
-      if (response.statusCode == 200) {
-        await showNotification(filePath, fileName);
+    if (response.statusCode == 200) {
+      await showNotification(filePath, fileName);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Archivo descargado en: $filePath'),
-            action: SnackBarAction(
-              label: 'Abrir',
-              onPressed: () {
-                openFile(filePath);
-              },
-            ),
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Archivo descargado en: $filePath'),
+          action: SnackBarAction(
+            label: 'Abrir',
+            onPressed: () {
+              openFile(filePath);
+            },
           ),
-        );
-      } else {
-        print('Error al descargar el archivo: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error al descargar el archivo: $e');
+        ),
+      );
+    } else {
+      print('Error al descargar el archivo: ${response.statusCode}');
     }
+  } catch (e) {
+    print('Error al descargar el archivo: $e');
   }
+}

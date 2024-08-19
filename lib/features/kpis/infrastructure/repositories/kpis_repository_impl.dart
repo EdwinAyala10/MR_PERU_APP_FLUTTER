@@ -1,8 +1,9 @@
+import 'package:crm_app/features/kpis/domain/entities/objetive_by_category.dart';
+
 import '../../domain/domain.dart';
 import '../../domain/entities/periodicidad.dart';
 
 class KpisRepositoryImpl extends KpisRepository {
-
   final KpisDatasource datasource;
 
   KpisRepositoryImpl(this.datasource);
@@ -27,4 +28,10 @@ class KpisRepositoryImpl extends KpisRepository {
     return datasource.getPeriodicidades();
   }
 
+  @override
+  Future<List<ObjetiveByCategory>> listObjetiveByCategory(
+    Map<dynamic, dynamic> kpiForm,
+  ) {
+    return datasource.listObjetiveByCategory(kpiForm);
+  }
 }

@@ -1,44 +1,43 @@
 import 'package:crm_app/config/config.dart';
-
-import '../../domain/domain.dart';
+import 'package:crm_app/features/kpis/domain/entities/objetive_by_category.dart';
 import 'package:flutter/material.dart';
 
-class ItemCompany extends StatelessWidget {
-  Company company;
+class ItemObjetiveByCategory extends StatelessWidget {
+  final ObjetiveByCategory? model;
   final Function()? callbackOnTap;
 
-  ItemCompany({super.key, required this.company, required this.callbackOnTap});
+  const ItemObjetiveByCategory({
+    super.key,
+    required this.model,
+    required this.callbackOnTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    int? numCantidadLocal = int.tryParse(company.localCantidad ?? '0');
+    int? numCantidadLocal = int.tryParse('0');
     numCantidadLocal = numCantidadLocal ?? 0;
 
     return ListTile(
-      title: Text(company.razon,
+      title: Text('',
           style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (company.razonComercial != "")
+          if (true)
             Text(
-              '${company.razonComercial}',
+              '',
               style: const TextStyle(
                 color: primaryColor,
               ),
             ),
           Row(
             children: [
-              Text(company.clienteNombreEstado ?? ''),
+              Text(''),
               const Text(' - '),
-              Text(company.clienteNombreTipo ?? ''),
+              Text(''),
             ],
           ),
-          Text(
-              (numCantidadLocal > 1
-                      ? company.localDistrito
-                      : company.localDireccion) ??
-                  '',
+          Text((numCantidadLocal > 1 ? '' : '') ?? '',
               style: const TextStyle(color: Colors.black45))
         ],
       ),
@@ -66,10 +65,10 @@ class ItemCompany extends StatelessWidget {
           SizedBox(
               width: 100,
               child: Text(
-                company.calificacion ?? '',
+                '',
                 style: TextStyle(fontSize: 10, overflow: TextOverflow.ellipsis),
               )),
-          Text(company.userreporteName ?? '')
+          Text('')
         ],
       ),
       onTap: callbackOnTap,

@@ -12,41 +12,50 @@ import 'package:go_router/go_router.dart';
 class ContactDetailScreen extends ConsumerStatefulWidget {
   final String contactId;
 
-  const ContactDetailScreen({super.key, required this.contactId,});
+  const ContactDetailScreen({
+    super.key,
+    required this.contactId,
+  });
 
   @override
   _ContactDetailScreenState createState() => _ContactDetailScreenState();
 }
 
 class _ContactDetailScreenState extends ConsumerState<ContactDetailScreen> {
-
   @override
   void initState() {
     super.initState();
+    initializedServices();
+  }
 
+  initializedServices() async {
+    await Future.delayed(const Duration(milliseconds: 500));
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      ref.read(contactProvider(widget.contactId).notifier).loadContact(widget.contactId);
+      ref
+          .read(contactProvider(widget.contactId).notifier)
+          .loadContact(widget.contactId);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final contactState = ref.watch(contactProvider(widget.contactId));
-
     if (contactState.isLoading) {
       return const Scaffold(
         body: FullScreenLoader(),
       );
     }
 
-    return contactState.contact != null 
-      ? _ViewContactDetailScreen(contact: contactState.contact!)
-      : Scaffold(
-        appBar: AppBar(
-          title: const Text('Contacto'),
-        ),
-        body: const Center(child: Text('No existe información del contacto.'),),
-      );
+    return contactState.contact != null
+        ? _ViewContactDetailScreen(contact: contactState.contact!)
+        : Scaffold(
+            appBar: AppBar(
+              title: const Text('Contacto'),
+            ),
+            body: const Center(
+              child: Text('No existe información del contacto.'),
+            ),
+          );
   }
 }
 
@@ -69,7 +78,6 @@ class _ViewContactDetailScreen extends ConsumerWidget {
     /*if (contactState.isLoading) {
       return const FullScreenLoader();
     }*/
-
 
     if (contact == null) {
       return Scaffold(

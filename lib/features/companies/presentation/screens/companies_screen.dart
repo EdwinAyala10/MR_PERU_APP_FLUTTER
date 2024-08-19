@@ -64,7 +64,9 @@ class _CompaniesViewState extends ConsumerState {
     });
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      ref.read(companiesProvider.notifier).onChangeNotIsActiveSearchSinRefresh();
+      ref
+          .read(companiesProvider.notifier)
+          .onChangeNotIsActiveSearchSinRefresh();
       ref.read(companiesProvider.notifier).loadNextPage(isRefresh: true);
     });
   }
@@ -89,16 +91,15 @@ class _CompaniesViewState extends ConsumerState {
     }
 
     return companiesState.companies.isNotEmpty
-      ? _ListCompanies(
-          companies: companiesState.companies, 
-          onRefreshCallback: _refresh,
-          scrollController: scrollController,
-      )
-      : NoExistData(
-        textCenter: 'No hay empresas registradas',
-        onRefreshCallback: _refresh, 
-        icon: Icons.business
-      );
+        ? _ListCompanies(
+            companies: companiesState.companies,
+            onRefreshCallback: _refresh,
+            scrollController: scrollController,
+          )
+        : NoExistData(
+            textCenter: 'No hay empresas registradas',
+            onRefreshCallback: _refresh,
+            icon: Icons.business);
   }
 }
 
@@ -108,7 +109,9 @@ class _ListCompanies extends ConsumerStatefulWidget {
   final ScrollController scrollController;
 
   const _ListCompanies(
-      {required this.companies, required this.onRefreshCallback, required this.scrollController});
+      {required this.companies,
+      required this.onRefreshCallback,
+      required this.scrollController});
 
   @override
   _ListCompaniesState createState() => _ListCompaniesState();
@@ -141,13 +144,16 @@ class _ListCompaniesState extends ConsumerState<_ListCompanies> {
                 )),
           )
         : NotificationListener(
-          onNotification: (ScrollNotification scrollInfo) {
-            if (scrollInfo.metrics.pixels + 400 == scrollInfo.metrics.maxScrollExtent) {
-              ref.read(companiesProvider.notifier).loadNextPage(isRefresh: false);
-            }
-            return false;
-          },
-          child: RefreshIndicator(
+            onNotification: (ScrollNotification scrollInfo) {
+              if (scrollInfo.metrics.pixels + 400 ==
+                  scrollInfo.metrics.maxScrollExtent) {
+                ref
+                    .read(companiesProvider.notifier)
+                    .loadNextPage(isRefresh: false);
+              }
+              return false;
+            },
+            child: RefreshIndicator(
               notificationPredicate: defaultScrollNotificationPredicate,
               onRefresh: widget.onRefreshCallback,
               //key: _refreshIndicatorKey,
@@ -155,21 +161,23 @@ class _ListCompaniesState extends ConsumerState<_ListCompanies> {
                 itemCount: widget.companies.length,
                 //controller: widget.scrollController,
                 //physics: const BouncingScrollPhysics(),
-                separatorBuilder: (BuildContext context, int index) =>   const Divider(),
+                separatorBuilder: (BuildContext context, int index) =>
+                    const Divider(),
                 itemBuilder: (context, index) {
                   final company = widget.companies[index];
-          
+
                   return ItemCompany(
-                      company: company,
-                      callbackOnTap: () {
-                        context.push('/company_detail/${company.ruc}');
-                      });
+                    company: company,
+                    callbackOnTap: () {
+                      context.push('/company_detail/${company.ruc}');
+                    },
+                  );
                 },
-              )),
-        );
+              ),
+            ),
+          );
   }
 }
-
 
 class _SearchComponent extends ConsumerStatefulWidget {
   const _SearchComponent({super.key});
@@ -179,10 +187,9 @@ class _SearchComponent extends ConsumerStatefulWidget {
 }
 
 class __SearchComponentState extends ConsumerState<_SearchComponent> {
-   TextEditingController searchController = TextEditingController(
+  TextEditingController searchController = TextEditingController(
       //text: ref.read(routePlannerProvider).textSearch
-    );
-
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -242,5 +249,3 @@ class __SearchComponentState extends ConsumerState<_SearchComponent> {
     );
   }
 }
-
-

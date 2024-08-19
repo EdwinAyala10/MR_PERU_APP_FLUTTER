@@ -9,16 +9,18 @@ class KpisScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       //drawer: SideMenu(scaffoldKey: scaffoldKey),
       appBar: AppBar(
-        title: const Text('Objetivos', style: TextStyle(fontWeight: FontWeight.w600),),
+        title: const Text(
+          'Objetivos',
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
         leading: IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: () {
-              context.replace('/dashboard');
-            },
+          icon: const Icon(Icons.close),
+          onPressed: () {
+            context.replace('/dashboard');
+          },
         ),
         centerTitle: true,
         /*actions: [
@@ -26,10 +28,9 @@ class KpisScreen extends StatelessWidget {
 
           }, icon: const Icon(Icons.search_rounded))
         ],*/
-        
       ),
       body: const _KpisView(),
-      
+
       /*floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () {
@@ -89,15 +90,14 @@ class _KpisViewState extends ConsumerState {
   }
 }
 
-class _ListKpis extends StatelessWidget {
+class _ListKpis extends ConsumerWidget {
   final List<Kpi> kpis;
   final Future<void> Function() onRefreshCallback;
 
-  const _ListKpis(
-      {required this.kpis, required this.onRefreshCallback});
+  const _ListKpis({required this.kpis, required this.onRefreshCallback});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final GlobalKey<RefreshIndicatorState> refreshIndicatorKey =
         GlobalKey<RefreshIndicatorState>();
 
@@ -119,8 +119,7 @@ class _ListKpis extends StatelessWidget {
                       ),
                     ],
                   ),
-                )
-            ),
+                )),
           )
         : RefreshIndicator(
             onRefresh: onRefreshCallback,
@@ -139,13 +138,15 @@ class _ListKpis extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(kpi.objrNombrePeriodicidad ?? '',
-                          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w500, fontSize: 16)),
                       Text(kpi.objrNombreAsignacion ?? '',
                           style: const TextStyle(fontWeight: FontWeight.w600)),
-                      Text('${kpi.totalRegistro}/${convertTypeCategory(kpi)}',
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w400,
-                              color: Colors.black45))
+                      Text(
+                        '${kpi.totalRegistro}/${convertTypeCategory(kpi)}',
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w400, color: Colors.black45),
+                      )
                     ],
                   ),
                   trailing: Column(
@@ -158,13 +159,14 @@ class _ListKpis extends StatelessWidget {
                             fontSize: 12,
                           )),*/
                       //for (var user in kpi.usuariosAsignados ?? [])
-                      for (var i = 0; i < 2 && i < kpi.usuariosAsignados!.length; i++)
+                      for (var i = 0;
+                          i < 2 && i < kpi.usuariosAsignados!.length;
+                          i++)
                         Text(
-                          kpi.usuariosAsignados![i].userreportName ?? '', 
+                          kpi.usuariosAsignados![i].userreportName ?? '',
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle( fontSize: 10 ),
+                          style: const TextStyle(fontSize: 10),
                         )
-
                     ],
                   ),
                   leading: Stack(
@@ -177,7 +179,8 @@ class _ListKpis extends StatelessWidget {
                           strokeWidth: 5,
                           value: ((kpi.porcentaje ?? 0) / 100).toDouble(),
                           valueColor: const AlwaysStoppedAnimation<Color>(
-                              Colors.blue), // Color cuando está marcado
+                            Colors.blue,
+                          ), // Color cuando está marcado
                           backgroundColor: Colors.grey,
                         ),
                       ),
@@ -192,6 +195,9 @@ class _ListKpis extends StatelessWidget {
                     ],
                   ),
                   onTap: () {
+                    print(kpi.objrIdCategoria);
+                    print(kpi.id);
+                    ref.read(goalsModelProvider.notifier).state = kpi;
                     context.push('/kpi_detail/${kpi.id}');
                   },
                 );

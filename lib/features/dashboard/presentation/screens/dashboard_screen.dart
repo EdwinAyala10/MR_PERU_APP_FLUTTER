@@ -178,15 +178,15 @@ class _DashboardViewState extends ConsumerState {
       ref.read(activitiesProvider.notifier).loadNextPage(isRefresh: true);
       ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: true);
       //ref.read(opportunitiesProvider.notifier).loadStatusOpportunity();
-      ref.read(notificationsProvider.notifier).requestPermission();
+      // ref.read(notificationsProvider.notifier).requestPermission();
     });
 
-    final isGpsPermissionGranted =
-        ref.read(gpsProvider.notifier).state.isGpsPermissionGranted;
+    // final isGpsPermissionGranted =
+    //     ref.read(gpsProvider.notifier).state.isGpsPermissionGranted;
 
-    if (!isGpsPermissionGranted) {
-      ref.read(gpsProvider.notifier).askGpsAccess();
-    }
+    // if (!isGpsPermissionGranted) {
+    //   ref.read(gpsProvider.notifier).askGpsAccess();
+    // }
   }
 
   @override
