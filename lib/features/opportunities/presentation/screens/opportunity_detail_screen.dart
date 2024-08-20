@@ -1,28 +1,20 @@
 import 'package:crm_app/config/constants/environment.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
-import 'package:crm_app/features/documents/infrastructure/mapers/delete_document_response.dart';
-import 'package:crm_app/features/documents/presentation/providers/documents_provider.dart';
-import 'package:crm_app/features/documents/presentation/screens/screens.dart';
-import 'package:crm_app/features/documents/presentation/widgets/document_card.dart';
+import 'package:crm_app/features/documents/presentation/screens/documents_screen.dart';
+import 'package:crm_app/features/opportunities/infrastructure/mappers/op_create_document_response.dart';
+import 'package:crm_app/features/opportunities/infrastructure/mappers/op_delete_document_mapper.dart';
+import 'package:crm_app/features/opportunities/presentation/widgets/op_document_card.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
+import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-// import 'package:go_router/go_router.dart';
-// import '../../../activities/domain/domain.dart';
-// import '../../../activities/presentation/widgets/item_activity.dart';
-// import '../../../agenda/domain/domain.dart';
-// import '../../../agenda/presentation/widgets/item_event.dart';
-// import '../../../contacts/domain/domain.dart';
-// import '../../../contacts/presentation/widgets/item_contact.dart';
-// import '../../../opportunities/domain/domain.dart';
-// import '../../../opportunities/presentation/widgets/item_opportunity.dart';
-// import '../../../shared/widgets/floating_action_button_custom.dart';
-// import '../../../shared/widgets/floating_action_button_icon_custom.dart';
-// import '../../../shared/shared.dart';
 import '../providers/providers.dart';
 import '../../../shared/shared.dart';
 import 'package:intl/intl.dart';
@@ -97,12 +89,12 @@ class _CompanyDetailView extends ConsumerStatefulWidget {
 class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  int _currentIndex = 0;
+  int currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 6, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     _tabController.addListener(_handleTabChange);
 
     // WidgetsBinding.instance?.addPostFrameCallback((_) {
@@ -120,7 +112,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
 
   void _handleTabChange() {
     setState(() {
-      _currentIndex = _tabController.index;
+      currentIndex = _tabController.index;
     });
   }
 
@@ -135,7 +127,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
     // SizedBox spacingHeight = const SizedBox(height: 14);
 
     return DefaultTabController(
-      length: 6, // Ahora tenemos 6 pestañas
+      length: 4, // Ahora tenemos 6 pestañas
       child: Scaffold(
         appBar: AppBar(
           title: const Text(
@@ -150,17 +142,19 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
             controller: _tabController,
             tabs: const [
               Tab(
-                  icon: Icon(
-                    Icons.info,
-                    size: 30,
-                  ),
-                  text: 'Informacion'),
+                icon: Icon(
+                  Icons.info,
+                  size: 30,
+                ),
+                text: 'Informacion',
+              ),
               Tab(
-                  icon: Icon(
-                    Icons.local_activity,
-                    size: 30,
-                  ),
-                  text: 'Actividad'),
+                icon: Icon(
+                  Icons.local_activity,
+                  size: 30,
+                ),
+                text: 'Actividad',
+              ),
               Tab(
                 icon: Icon(
                   Icons.camera_enhance_sharp,
@@ -190,6 +184,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
         ),
         body: TabBarView(
           controller: _tabController,
+          physics: const NeverScrollableScrollPhysics(), // Desactiva el scroll
           children: [
             buildInformation(),
             const SizedBox(
@@ -212,7 +207,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
   }
 
   Widget buildPhotos() {
-    return _DocumentsView(_tabController);
+    return _PhotoView(_tabController);
   }
 
   Widget buildDocuments() {
@@ -231,7 +226,6 @@ class OpportunityDetailView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final opportunityState = ref.watch(opportunityProvider(opportunityId));
-
     final opportunity = opportunityState.opportunity;
 
     if (opportunityState.isLoading) {
@@ -334,7 +328,7 @@ class OpportunityDetailView extends ConsumerWidget {
                 label: 'Probabilidad',
                 text: '${opportunity.oprtProbabilidad}%',
               ),
-              ContainerCustom(
+              const ContainerCustom(
                 label: 'Moneda',
                 text: 'USD',
               ),
@@ -480,14 +474,131 @@ class ContainerCustom extends StatelessWidget {
   }
 }
 
-String agregarPrefijoPeru(String numero) {
-  // Verificar si el número ya tiene el prefijo de país "+51"
-  if (!numero.startsWith('+51')) {
-    // Si no tiene el prefijo, agregarlo al principio
-    return '+51$numero';
+class _PhotoView extends ConsumerStatefulWidget {
+  final TabController tabController;
+  const _PhotoView(this.tabController);
+
+  @override
+  _PhotoViewState createState() => _PhotoViewState();
+}
+
+class _PhotoViewState extends ConsumerState<_PhotoView> {
+  final ScrollController scrollController = ScrollController();
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .watch(docOpportunitieProvider.notifier)
+          .loadNextPage(type: TypeFileOp.photo);
+    });
+    super.initState();
   }
-  // Si ya tiene el prefijo, devolver el número sin cambios
-  return numero;
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final docsOpState = ref.watch(docOpportunitieProvider);
+    return Scaffold(
+      floatingActionButton: FloatingActionButtonCustom(
+        callOnPressed: () async {
+          showModalAdd(
+            context,
+            ref,
+            widget.tabController,
+            TypeFileOp.photo,
+          ); // Pasa el controlador aquí
+        },
+        iconData: Icons.add,
+      ),
+      body: docsOpState.documents.isEmpty
+          ? Center(
+              child: RefreshIndicator(
+                  onRefresh: () async {
+                    ref
+                        .watch(docOpportunitieProvider.notifier)
+                        .loadNextPage(type: TypeFileOp.photo);
+                  },
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: Column(
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            ref
+                                .watch(docOpportunitieProvider.notifier)
+                                .loadNextPage(type: TypeFileOp.photo);
+                          },
+                          child: const Icon(Icons.refresh),
+                        ),
+                        const Center(
+                          child: Text('No hay registros'),
+                        ),
+                      ],
+                    ),
+                  )),
+            )
+          : RefreshIndicator(
+              onRefresh: () async {
+                ref.read(docOpportunitieProvider.notifier).loadNextPage(
+                      type: TypeFileOp.photo,
+                    );
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 10,
+                ),
+                margin: const EdgeInsets.symmetric(vertical: 10),
+                child: MasonryGridView.count(
+                  controller: scrollController,
+                  // physics: const BouncingScrollPhysics(),
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  crossAxisCount: 1,
+                  itemCount: docsOpState.documents.length,
+                  itemBuilder: (_, index) {
+                    final document = docsOpState.documents[index];
+                    return GestureDetector(
+                      onTap: () async {
+                        String fileUrl =
+                            '${Environment.urlPublic}${document.oadjRutalRelativa}';
+                        String fileName = document.oadjNombreOriginal;
+                        await _requestStoragePermission(
+                          context,
+                          fileUrl,
+                          fileName,
+                        );
+                      },
+                      child: OPDocumentCard(
+                        document: document,
+                        callback: () {
+                          showLoadingMessage(context);
+                          ref
+                              .read(docOpportunitieProvider.notifier)
+                              .deleteDocument(document.oadjIdOportunidadAdjunto)
+                              .then(
+                            (OPDeleteDocumentResponse value) {
+                              if (value.message != '') {
+                                showSnackbar(context, value.message);
+                                if (value.response) {}
+                              }
+                            },
+                          );
+                          Navigator.pop(context);
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+    );
+  }
 }
 
 class _DocumentsView extends ConsumerStatefulWidget {
@@ -503,6 +614,11 @@ class _DocumentsViewState extends ConsumerState<_DocumentsView> {
 
   @override
   void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .watch(docOpportunitieProvider.notifier)
+          .loadNextPage(type: TypeFileOp.archive);
+    });
     super.initState();
   }
 
@@ -514,8 +630,7 @@ class _DocumentsViewState extends ConsumerState<_DocumentsView> {
 
   @override
   Widget build(BuildContext context) {
-    final documentsState = ref.watch(documentsProvider);
-
+    final docsOpState = ref.watch(docOpportunitieProvider);
     return Scaffold(
       floatingActionButton: FloatingActionButtonCustom(
         callOnPressed: () async {
@@ -523,54 +638,94 @@ class _DocumentsViewState extends ConsumerState<_DocumentsView> {
             context,
             ref,
             widget.tabController,
+            TypeFileOp.archive,
           ); // Pasa el controlador aquí
         },
         iconData: Icons.add,
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          ref.read(documentsProvider.notifier).loadNextPage();
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          margin: const EdgeInsets.symmetric(vertical: 10),
-          child: MasonryGridView.count(
-            controller: scrollController,
-            physics: const BouncingScrollPhysics(),
-            crossAxisCount: 1,
-            itemCount: documentsState.listDocuments.length,
-            itemBuilder: (_, index) {
-              final document = documentsState.listDocuments[index];
-
-              return GestureDetector(
-                onTap: () async {
-                  String fileUrl =
-                      '${Environment.urlPublic}${document.adjtRutalRelativa}';
-                  String fileName = document.adjtNombreOriginal;
-
-                  await _requestStoragePermission(context, fileUrl, fileName);
-                },
-                child: DocumentCard(
-                  document: document,
-                  callback: () {
-                    showLoadingMessage(context);
+      body: docsOpState.documents.isEmpty
+          ? Center(
+              child: RefreshIndicator(
+                  onRefresh: () async {
                     ref
-                        .read(documentsProvider.notifier)
-                        .deleteDocument(document.adjtIdAdjunto)
-                        .then((DeleteDocumentResponse value) {
-                      if (value.message != '') {
-                        showSnackbar(context, value.message);
-                        if (value.response) {}
-                      }
-                    });
-                    Navigator.pop(context);
+                        .watch(docOpportunitieProvider.notifier)
+                        .loadNextPage(type: TypeFileOp.archive);
+                  },
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: Column(
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            ref
+                                .watch(docOpportunitieProvider.notifier)
+                                .loadNextPage(
+                                  type: TypeFileOp.archive,
+                                );
+                          },
+                          child: const Icon(Icons.refresh),
+                        ),
+                        const Center(
+                          child: Text('No hay registros'),
+                        ),
+                      ],
+                    ),
+                  )),
+            )
+          : RefreshIndicator(
+              onRefresh: () async {
+                ref.read(docOpportunitieProvider.notifier).loadNextPage(
+                      type: TypeFileOp.archive,
+                    );
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 10,
+                ),
+                margin: const EdgeInsets.symmetric(vertical: 10),
+                child: MasonryGridView.count(
+                  controller: scrollController,
+                  // physics: const BouncingScrollPhysics(),
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  crossAxisCount: 1,
+                  itemCount: docsOpState.documents.length,
+                  itemBuilder: (_, index) {
+                    final document = docsOpState.documents[index];
+                    return GestureDetector(
+                      onTap: () async {
+                        String fileUrl =
+                            '${Environment.urlPublic}${document.oadjRutalRelativa}';
+                        String fileName = document.oadjNombreOriginal;
+                        await _requestStoragePermission(
+                          context,
+                          fileUrl,
+                          fileName,
+                        );
+                      },
+                      child: OPDocumentCard(
+                        document: document,
+                        callback: () {
+                          showLoadingMessage(context);
+                          ref
+                              .read(docOpportunitieProvider.notifier)
+                              .deleteDocument(document.oadjIdOportunidadAdjunto)
+                              .then(
+                            (OPDeleteDocumentResponse value) {
+                              if (value.message != '') {
+                                showSnackbar(context, value.message);
+                                if (value.response) {}
+                              }
+                            },
+                          );
+                          Navigator.pop(context);
+                        },
+                      ),
+                    );
                   },
                 ),
-              );
-            },
-          ),
-        ),
-      ),
+              ),
+            ),
     );
   }
 }
@@ -605,8 +760,181 @@ Future<void> _requestStoragePermission(context, fileUrl, fileName) async {
   }
 }
 
+Future<void> downloadFile(
+    String fileUrl, String fileName, BuildContext context) async {
+  final dio = Dio();
 
+  try {
+    final dir = await getExternalStorageDirectory();
+    final filePath = '${dir!.path}/$fileName';
 
+    final response = await dio.download(fileUrl, filePath);
+
+    if (response.statusCode == 200) {
+      await showNotification(filePath, fileName);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Archivo descargado en: $filePath'),
+          action: SnackBarAction(
+            label: 'Abrir',
+            onPressed: () {
+              openFile(filePath);
+            },
+          ),
+        ),
+      );
+    } else {
+      print('Error al descargar el archivo: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error al descargar el archivo: $e');
+  }
+}
+
+String agregarPrefijoPeru(String numero) {
+  // Verificar si el número ya tiene el prefijo de país "+51"
+  if (!numero.startsWith('+51')) {
+    // Si no tiene el prefijo, agregarlo al principio
+    return '+51$numero';
+  }
+  // Si ya tiene el prefijo, devolver el número sin cambios
+  return numero;
+}
+
+Future<dynamic> showModalAdd(
+  BuildContext context,
+  WidgetRef ref,
+  TabController tabController,
+  TypeFileOp typeFileOp,
+) {
+  // Agrega el controlador como parámetro
+  return showModalBottomSheet(
+    context: context,
+    builder: (BuildContext modalContext) {
+      return Container(
+        padding: const EdgeInsets.all(14.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Text(
+              typeFileOp == TypeFileOp.archive ? 'Documentos' : "Fotos",
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 6),
+            const Divider(),
+            Visibility(
+              visible: typeFileOp == TypeFileOp.archive,
+              child: ListTile(
+                title: const Row(
+                  children: [
+                    FaIcon(FontAwesomeIcons.file),
+                    SizedBox(width: 10),
+                    Center(child: Text('Subir Archivo')),
+                  ],
+                ),
+                // minTileHeight: 12,
+                onTap: () async {
+                  Navigator.pop(modalContext);
+                  FilePickerResult? result =
+                      await FilePicker.platform.pickFiles();
+
+                  String? fileName;
+                  String? filePath;
+
+                  if (result != null) {
+                    fileName = result.files.single.name;
+                    filePath = result.files.single.path;
+
+                    showLoadingMessage(context);
+                    await ref
+                        .read(docOpportunitieProvider.notifier)
+                        .createDocument(filePath!, fileName, typeFileOp)
+                        .then((OPCreateDocumentResponse value) {
+                      if (value.message != '') {
+                        // showSnackbar(context, value.message);
+                        // if (value.response) {}
+                      }
+                      Navigator.pop(context);
+                    });
+                  } else {
+                    // El usuario canceló la selección del archivo
+                  }
+                },
+              ),
+            ),
+            const Divider(),
+            Visibility(
+              visible: typeFileOp == TypeFileOp.photo,
+              child: ListTile(
+                title: const Row(
+                  children: [
+                    FaIcon(FontAwesomeIcons.plus),
+                    SizedBox(width: 10),
+                    Center(child: Text('Agregar Foto')),
+                  ],
+                ),
+                // minTileHeight: 14,
+                onTap: () async {
+                  // Navigator.pop(modalContext);
+
+                  // tabController.index = 1;
+
+                  // context.push('/text_enlace');
+                  // Navigator.pop(modalContext);
+
+                  // tabController.index = 0;
+
+                  FilePickerResult? result =
+                      await FilePicker.platform.pickFiles();
+
+                  String? fileName;
+                  String? filePath;
+
+                  if (result != null) {
+                    fileName = result.files.single.name;
+                    filePath = result.files.single.path;
+                    showLoadingMessage(context);
+                    await ref
+                        .read(docOpportunitieProvider.notifier)
+                        .createDocument(filePath!, fileName, typeFileOp)
+                        .then((OPCreateDocumentResponse value) {
+                      // if (value.message != '') {
+                      //   showSnackbar(context, value.message);
+                      //   if (value.response) {}
+                      // }
+                      Navigator.pop(context);
+                      Navigator.pop(context);
+                    });
+                  } else {
+                    // El usuario canceló la selección del archivo
+                  }
+                },
+              ),
+            ),
+            const Divider(),
+            const SizedBox(height: 6),
+            ListTile(
+              // minTileHeight: 12,
+              title: const Center(
+                child: Text(
+                  'CANCELAR',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+              onTap: () {
+                Navigator.pop(modalContext);
+              },
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
 
 
 

@@ -1,24 +1,26 @@
-import 'package:crm_app/features/opportunities/domain/entities/doc_opportunitie.dart';
-import 'package:crm_app/features/opportunities/domain/entities/doc_opportunitie_response.dart';
+import 'package:crm_app/features/opportunities/domain/entities/op_document.dart';
+import 'package:crm_app/features/opportunities/domain/entities/op_document_response.dart';
 
 abstract class DocOpportunitiesDatasource {
-  Future<List<DocumentOpportunitie>> getDocuments({
-    String idUsuario,
+  Future<List<OpDocument>> getDocuments({
+    required String idOportunidad,
+    required String idTypeAdjunto,
   });
 
-  Future<DocumentOpportunitie> getDocumentById(
+  Future<OpDocument> getDocumentById(
     String id,
   );
 
-  Future<DocOpportunitieResponse> createDocument(
+  Future<OPDocumentResponse> createDocument(
     Map<dynamic, dynamic> documentLike,
   );
 
-  Future<DocOpportunitieResponse> createEnlace(
+  Future<OPDocumentResponse> createEnlace(
     Map<dynamic, dynamic> enlaceLike,
   );
 
-  Future<DocOpportunitieResponse> deleteDocumentLink(
+  Future<OPDocumentResponse> deleteDocumentLink(
     String idAdjunto,
+    String idUserRegister,
   );
 }

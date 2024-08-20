@@ -1,15 +1,15 @@
 import 'package:crm_app/config/config.dart';
-import 'package:crm_app/features/documents/domain/domain.dart';
+import 'package:crm_app/features/opportunities/domain/entities/op_document.dart';
 import 'package:crm_app/features/shared/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class DocumentCard extends ConsumerWidget {
-  final Document document;
+class OPDocumentCard extends ConsumerWidget {
+  final OpDocument document;
   final Function callback;
 
-  const DocumentCard({
+  const OPDocumentCard({
     super.key,
     required this.document,
     required this.callback,
@@ -46,16 +46,14 @@ class DocumentCard extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
-                      document.adjtIdTipoRegistro == '01'
-                          ? 'Documento'
-                          : 'Enlace',
+                      document.oadjIdTipoAdjunto == '03' ? 'Foto' : 'Documento',
                       style: const TextStyle(fontWeight: FontWeight.w700)),
                   SizedBox(
                     width: 200,
                     child: Text(
-                      document.adjtIdTipoRegistro == '01'
-                          ? document.adjtNombreOriginal
-                          : document.adjtEnlace ?? '',
+                      document.oadjIdTipoAdjunto == '03'
+                          ? document.oadjNombreOriginal
+                          : document.oadjEnlace ?? '',
                       textAlign: TextAlign.start,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
@@ -77,7 +75,7 @@ class DocumentCard extends ConsumerWidget {
                 builder: (BuildContext context) {
                   return ConfirmDeleteDialog(
                     message:
-                        "¿Estás seguro de que quieres eliminar este ${document.adjtIdTipoRegistro == '01' ? 'documento' : 'enlace'}?",
+                        "¿Estás seguro de que quieres eliminar este ${document.oadjIdTipoAdjunto == '03' ? 'Foto' : 'Documento'}?",
                     onConfirm: callback,
                   );
                 },
@@ -95,7 +93,7 @@ class DocumentCard extends ConsumerWidget {
 }
 
 class _IconViewer extends StatelessWidget {
-  final Document document;
+  final OpDocument document;
 
   const _IconViewer({required this.document});
 
@@ -105,7 +103,7 @@ class _IconViewer extends StatelessWidget {
     Color? color;
     bool swImage = false;
 
-    switch (document.adjtTipoArchivo) {
+    switch (document.oadjTipoArchivo) {
       case 'pdf':
         icono = FontAwesomeIcons.filePdf;
         color = Colors.red[400];
@@ -175,32 +173,7 @@ class _IconViewer extends StatelessWidget {
         break;
     }
 
-    // return document.adjtIdTipoRegistro == '01'
-    //     ? (swImage
-    //         ? SizedBox(
-    //             width: 60,
-    //             height: 60,
-    //             child: _ImageViewer(
-    //                 image:
-    //                     '${Environment.urlPublic}${document.adjtRutalRelativa}'))
-    //         : Padding(
-    //             padding: const EdgeInsets.only(left: 14, right: 14),
-    //             child: FaIcon(
-    //               icono,
-    //               color: color,
-    //               size: 40,
-    //             ),
-    //           ))
-    //     : const Padding(
-    //         padding: EdgeInsets.only(left: 14, right: 14),
-    //         child: FaIcon(
-    //           FontAwesomeIcons.globe,
-    //           color: Colors.black54,
-    //           size: 30,
-    //         ),
-    //       );
-
-    if (document.adjtIdTipoRegistro == '01') {
+    if (document.oadjIdTipoAdjunto == '03') {
       if (!swImage) {
         return Padding(
           padding: const EdgeInsets.only(left: 14, right: 14),
@@ -215,19 +188,19 @@ class _IconViewer extends StatelessWidget {
         width: 60,
         height: 60,
         child: _ImageViewer(
-          image: '${Environment.urlPublic}${document.adjtRutalRelativa}',
+          image: '${Environment.urlPublic}${document.oadjRutalRelativa}',
         ),
       );
     }
-    if (document.adjtIdTipoRegistro == '03') {
-      return SizedBox(
-        width: 60,
-        height: 60,
-        child: _ImageViewer(
-          image: '${Environment.urlPublic}${document.adjtRutalRelativa}',
-        ),
-      );
-    }
+    // if (document.oadjIdTipoAdjunto == '03') {
+    //   return SizedBox(
+    //     width: 60,
+    //     height: 60,
+    //     child: _ImageViewer(
+    //       image: '${Environment.urlPublic}${document.oadjRutalRelativa}',
+    //     ),
+    //   );
+    // }
     return const Padding(
       padding: EdgeInsets.only(left: 14, right: 14),
       child: FaIcon(

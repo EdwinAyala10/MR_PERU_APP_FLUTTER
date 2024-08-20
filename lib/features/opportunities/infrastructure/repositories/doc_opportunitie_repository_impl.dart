@@ -1,8 +1,7 @@
 import 'package:crm_app/features/opportunities/domain/datasources/doc_opportunities_datasource.dart';
-import 'package:crm_app/features/opportunities/domain/entities/doc_opportunitie.dart';
-import 'package:crm_app/features/opportunities/domain/entities/doc_opportunitie_response.dart';
+import 'package:crm_app/features/opportunities/domain/entities/op_document.dart';
+import 'package:crm_app/features/opportunities/domain/entities/op_document_response.dart';
 import 'package:crm_app/features/opportunities/domain/repositories/doc_opportunitie_repository.dart';
-
 
 class DocOpportunitieRepositoryImpl extends DocOpportunitieRepository {
   final DocOpportunitiesDatasource datasource;
@@ -10,27 +9,37 @@ class DocOpportunitieRepositoryImpl extends DocOpportunitieRepository {
   DocOpportunitieRepositoryImpl(this.datasource);
 
   @override
-  Future<DocOpportunitieResponse> createDocument(Map<dynamic, dynamic> documentLike) {
+  Future<OPDocumentResponse> createDocument(
+      Map<dynamic, dynamic> documentLike) {
     return datasource.createDocument(documentLike);
   }
 
   @override
-  Future<DocOpportunitieResponse> createEnlace(Map<dynamic, dynamic> enlaceLike) {
+  Future<OPDocumentResponse> createEnlace(Map<dynamic, dynamic> enlaceLike) {
     return datasource.createEnlace(enlaceLike);
   }
 
   @override
-  Future<DocumentOpportunitie> getDocumentById(String id) {
+  Future<OpDocument> getDocumentById(String id) {
     return datasource.getDocumentById(id);
   }
 
   @override
-  Future<List<DocumentOpportunitie>> getDocuments({String idUsuario = ''}) {
-    return datasource.getDocuments(idUsuario: idUsuario);
+  Future<OPDocumentResponse> deleteDocumentLink(
+    String idAdjunto,
+    String idUserRegister,
+  ) {
+    return datasource.deleteDocumentLink(idAdjunto, idUserRegister);
   }
 
   @override
-  Future<DocOpportunitieResponse> deleteDocumentLink(String idAdjunto) {
-    return datasource.deleteDocumentLink(idAdjunto);
+  Future<List<OpDocument>> getDocuments({
+    required String idOportunidad,
+    required String idTypeAdjunto,
+  }) {
+    return datasource.getDocuments(
+      idOportunidad: idOportunidad,
+      idTypeAdjunto: idTypeAdjunto,
+    );
   }
 }

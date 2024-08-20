@@ -41,8 +41,8 @@ class OpportunityScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-              '${opportunityState.opportunity!.id == 'new' ? 'Crear' : 'Editar'} oportunidad',
-              style: TextStyle(fontWeight: FontWeight.w500)),
+              '${opportunityState.opportunity?.id == 'new' ? 'Crear' : 'Editar'} oportunidad',
+              style: const TextStyle(fontWeight: FontWeight.w500)),
           //title: const Text('Crear Oportunidad', style: TextStyle(fontWeight: FontWeight.w500)),
           leading: IconButton(
             icon: const Icon(Icons.close),

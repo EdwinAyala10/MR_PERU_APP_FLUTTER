@@ -1,6 +1,10 @@
+import 'dart:developer';
+
 import 'package:crm_app/features/opportunities/domain/datasources/doc_opportunities_datasource.dart';
-import 'package:crm_app/features/opportunities/domain/entities/doc_opportunitie.dart';
-import 'package:crm_app/features/opportunities/domain/entities/doc_opportunitie_response.dart';
+import 'package:crm_app/features/opportunities/domain/entities/op_document.dart';
+import 'package:crm_app/features/opportunities/domain/entities/op_document_response.dart';
+import 'package:crm_app/features/opportunities/infrastructure/mappers/op_document_mapper.dart';
+import 'package:crm_app/features/opportunities/infrastructure/mappers/op_document_response_mapper.dart';
 import 'package:dio/dio.dart';
 import 'package:crm_app/features/documents/infrastructure/infrastructure.dart';
 
@@ -21,30 +25,31 @@ class DocOpportunitieDatasourceImpl extends DocOpportunitiesDatasource {
         );
 
   @override
-  Future<DocOpportunitieResponse> createDocument(
+  Future<OPDocumentResponse> createDocument(
     Map<dynamic, dynamic> documentLike,
   ) async {
     try {
-      const String url = '/archivos/request-file';
-
+      const String url = '/oportunidad/guardar-oportunidad-adjunto';
       FormData formData = FormData.fromMap({
         'files': await MultipartFile.fromFile(
           documentLike['path']!,
           filename: documentLike['filename'],
         ),
-        'ID_USUARIO_REGISTRO': documentLike['id_usuario_registro']
+        'ID_USUARIO_REGISTRO': documentLike['ID_USUARIO_REGISTRO'],
+        'OADJ_ID_OPORTUNIDAD': documentLike['OADJ_ID_OPORTUNIDAD'],
+        'OADJ_ID_TIPO_ADJUNTO': documentLike['OADJ_ID_TIPO_ADJUNTO'],
       });
 
       final response = await dio.post(url, data: formData);
-
-      final DocOpportunitieResponse documentResponse =
-          DocumentResponseMapper.jsonToEntity(response.data);
+      final OPDocumentResponse documentResponse =
+          OPDocumentResponseMapper.jsonToEntity(response.data);
 
       if (documentResponse.status == true) {
-        documentResponse.document =
-            DocumentMapper.jsonToEntity(response.data['data'][0]);
+        documentResponse.document = OPDocumentMapper.jsonToEntity(
+          response.data['data'][0],
+        );
       }
-
+      
       return documentResponse;
     } on DioException catch (e) {
       if (e.response!.statusCode == 404) throw DocumentNotFound();
@@ -55,10 +60,13 @@ class DocOpportunitieDatasourceImpl extends DocOpportunitiesDatasource {
   }
 
   @override
-  Future<DocOpportunitieResponse> createEnlace(
+  Future<OPDocumentResponse> createEnlace(
       Map<dynamic, dynamic> enlaceLike) async {
+    print("e.toString()");
+
     try {
       const String url = '/archivos/guardar-enlace';
+      print("e.toString()");
 
       final data = {
         'ADJT_ENLACE': enlaceLike['ADJT_ENLACE'],
@@ -67,8 +75,8 @@ class DocOpportunitieDatasourceImpl extends DocOpportunitiesDatasource {
 
       final response = await dio.post(url, data: data);
 
-      final DocOpportunitieResponse documentResponse =
-          DocumentResponseMapper.jsonToEntity(response.data);
+      final OPDocumentResponse documentResponse =
+          OPDocumentResponseMapper.jsonToEntity(response.data);
 
       if (documentResponse.status == true) {
         documentResponse.document =
@@ -77,26 +85,33 @@ class DocOpportunitieDatasourceImpl extends DocOpportunitiesDatasource {
 
       return documentResponse;
     } on DioException catch (e) {
+      print(e.toString());
+
       if (e.response!.statusCode == 404) throw DocumentNotFound();
       throw Exception();
     } catch (e) {
+      print(e.toString());
       throw Exception();
     }
   }
 
   @override
-  Future<DocOpportunitieResponse> deleteDocumentLink(String idAdjunto) async {
+  Future<OPDocumentResponse> deleteDocumentLink(
+    String idAdjunto,
+    String idUserRegister,
+  ) async {
     try {
-      const String url = '/archivos/eliminar-adjunto';
+      const String url = '/oportunidad/eliminar-oportunidad-adjunto-por-id';
 
       final data = {
-        'ADJT_ID_ADJUNTO': idAdjunto,
+        'ID_USUARIO_REGISTRO': idUserRegister,
+        'OADJ_ID_OPORTUNIDAD_ADJUNTO': idAdjunto,
       };
 
       final response = await dio.post(url, data: data);
 
-      final DocOpportunitieResponse documentResponse =
-          DocumentResponseMapper.jsonToEntity(response.data);
+      final OPDocumentResponse documentResponse =
+          OPDocumentResponseMapper.jsonToEntity(response.data);
 
       return documentResponse;
     } on DioException catch (e) {
@@ -108,11 +123,11 @@ class DocOpportunitieDatasourceImpl extends DocOpportunitiesDatasource {
   }
 
   @override
-  Future<DocumentOpportunitie> getDocumentById(String id) async {
+  Future<OpDocument> getDocumentById(String id) async {
     try {
       final response = await dio.get('/archivos/listar-adjunto-by-id/$id');
-      final DocumentOpportunitie document =
-          DocumentMapper.jsonToEntity(response.data['data']);
+      final OpDocument document =
+          OPDocumentMapper.jsonToEntity(response.data['data']);
 
       return document;
     } on DioException catch (e) {
@@ -124,16 +139,26 @@ class DocOpportunitieDatasourceImpl extends DocOpportunitiesDatasource {
   }
 
   @override
-  Future<List<DocumentOpportunitie>> getDocuments(
-      {String idUsuario = ''}) async {
-    final data = {"ID_USUARIO_REGISTRO": idUsuario};
+  Future<List<OpDocument>> getDocuments({
+    required String idOportunidad,
+    required String idTypeAdjunto,
+  }) async {
+    final data = {
+      "OADJ_ID_OPORTUNIDAD": idOportunidad,
+      "OADJ_ID_TIPO_ADJUNTO": idTypeAdjunto
+    };
+    try {
+      final response =
+          await dio.post('/oportunidad/listar-oportunidad-adjunto', data: data);
 
-    final response = await dio.post('/archivos/listar-adjuntos', data: data);
-    final List<DocumentOpportunitie> documents = [];
-    for (final document in response.data['data'] ?? []) {
-      documents.add(DocumentMapper.jsonToEntity(document));
+      final List<OpDocument> documents = [];
+      for (final document in response.data['data'] ?? []) {
+        documents.add(OPDocumentMapper.jsonToEntity(document));
+      }
+
+      return documents;
+    } catch (e) {
+      return [];
     }
-
-    return documents;
   }
 }

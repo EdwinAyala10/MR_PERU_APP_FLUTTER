@@ -16,6 +16,13 @@ flutter pub run flutter_native_splash:create
 Android AAB
 ````
 flutter build appbundle
+
+
+
+key.propierties
+pass 123456789
+pass 123456789
+alias key
 ````
 
 

@@ -24,7 +24,9 @@ class OpportunitiesScreen extends ConsumerWidget {
       drawer: SideMenu(scaffoldKey: scaffoldKey),
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Oportunidades', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20), textAlign: TextAlign.center) ,
+        title: const Text('Oportunidades',
+            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
+            textAlign: TextAlign.center),
         /*actions: [
           if (isActiveSearch) const SizedBox(width: 58),
           if (isActiveSearch)
@@ -73,10 +75,10 @@ class OpportunitiesScreen extends ConsumerWidget {
         ],
       ),
       floatingActionButton: FloatingActionButtonCustom(
-        iconData: Icons.add,
-        callOnPressed: () {
-        context.push('/opportunity/new');
-      }),
+          iconData: Icons.add,
+          callOnPressed: () {
+            context.push('/opportunity/new');
+          }),
     );
   }
 }
@@ -100,11 +102,12 @@ class _OpportunitiesViewState extends ConsumerState {
           scrollController.position.maxScrollExtent) {
         ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: true);
       }
-      
     });
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      ref.read(opportunitiesProvider.notifier).onChangeNotIsActiveSearchSinRefresh();
+      ref
+          .read(opportunitiesProvider.notifier)
+          .onChangeNotIsActiveSearchSinRefresh();
       ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: true);
     });
   }
@@ -130,15 +133,14 @@ class _OpportunitiesViewState extends ConsumerState {
 
     return opportunitiesState.opportunities.isNotEmpty
         ? _ListOpportunities(
-          opportunities: opportunitiesState.opportunities, 
-          onRefreshCallback: _refresh,
-          scrollController: scrollController,
+            opportunities: opportunitiesState.opportunities,
+            onRefreshCallback: _refresh,
+            scrollController: scrollController,
           )
         : NoExistData(
-          textCenter: 'No hay actividades registradas',
-          onRefreshCallback: _refresh,
-          icon: Icons.graphic_eq
-        );
+            textCenter: 'No hay actividades registradas',
+            onRefreshCallback: _refresh,
+            icon: Icons.graphic_eq);
   }
 }
 
@@ -150,10 +152,9 @@ class _SearchComponent extends ConsumerStatefulWidget {
 }
 
 class __SearchComponentState extends ConsumerState<_SearchComponent> {
-   TextEditingController searchController = TextEditingController(
+  TextEditingController searchController = TextEditingController(
       //text: ref.read(routePlannerProvider).textSearch
-    );
-
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -174,7 +175,9 @@ class __SearchComponentState extends ConsumerState<_SearchComponent> {
               if (debounce?.isActive ?? false) debounce?.cancel();
               debounce = Timer(const Duration(milliseconds: 500), () {
                 //ref.read(companiesProvider.notifier).loadNextPage(value);
-                ref.read(opportunitiesProvider.notifier).onChangeTextSearch(value);
+                ref
+                    .read(opportunitiesProvider.notifier)
+                    .onChangeTextSearch(value);
               });
             },
             decoration: InputDecoration(
@@ -213,8 +216,6 @@ class __SearchComponentState extends ConsumerState<_SearchComponent> {
     );
   }
 }
-
-
 
 /*
 
@@ -280,14 +281,15 @@ class _SearchComponent extends ConsumerWidget {
 
 */
 
-
-
 class _ListOpportunities extends ConsumerStatefulWidget {
   final List<Opportunity> opportunities;
   final Future<void> Function() onRefreshCallback;
   final ScrollController scrollController;
 
-  const _ListOpportunities({required this.opportunities, required this.onRefreshCallback, required this.scrollController});
+  const _ListOpportunities(
+      {required this.opportunities,
+      required this.onRefreshCallback,
+      required this.scrollController});
 
   @override
   _ListOpportunitiesState createState() => _ListOpportunitiesState();
@@ -299,50 +301,56 @@ class _ListOpportunitiesState extends ConsumerState<_ListOpportunities> {
     final GlobalKey<RefreshIndicatorState> refreshIndicatorKey =
         GlobalKey<RefreshIndicatorState>();
 
-    return widget.opportunities.isEmpty 
-    ? Center(
-        child: RefreshIndicator(
-          onRefresh: widget.onRefreshCallback,
-          key: refreshIndicatorKey,
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Column(
-              children: [
-                ElevatedButton(
-                  onPressed: widget.onRefreshCallback,
-                  child: const Text('Recargar'),
-                ),
-                const Center(
-                  child: Text('No hay registros'),
-                ),
-              ],
-            ),
-          )),
-    ) 
-    : NotificationListener(
-      onNotification: (ScrollNotification scrollInfo) {
-        if (scrollInfo.metrics.pixels + 400 == scrollInfo.metrics.maxScrollExtent) {
-          ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: false);
-        }
-        return false;
-      },
-      child: RefreshIndicator(
+    return widget.opportunities.isEmpty
+        ? Center(
+            child: RefreshIndicator(
+                onRefresh: widget.onRefreshCallback,
+                key: refreshIndicatorKey,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Column(
+                    children: [
+                      ElevatedButton(
+                        onPressed: widget.onRefreshCallback,
+                        child: const Text('Recargar'),
+                      ),
+                      const Center(
+                        child: Text('No hay registros'),
+                      ),
+                    ],
+                  ),
+                )),
+          )
+        : NotificationListener(
+            onNotification: (ScrollNotification scrollInfo) {
+              if (scrollInfo.metrics.pixels + 400 ==
+                  scrollInfo.metrics.maxScrollExtent) {
+                ref
+                    .read(opportunitiesProvider.notifier)
+                    .loadNextPage(isRefresh: false);
+              }
+              return false;
+            },
+            child: RefreshIndicator(
               notificationPredicate: defaultScrollNotificationPredicate,
               onRefresh: widget.onRefreshCallback,
               key: refreshIndicatorKey,
               child: ListView.separated(
                 itemCount: widget.opportunities.length,
-                separatorBuilder: (BuildContext context, int index) => const Divider(),
+                separatorBuilder: (BuildContext context, int index) =>
+                    const Divider(),
                 itemBuilder: (context, index) {
                   final opportunity = widget.opportunities[index];
                   return ItemOpportunity(
-                      opportunity: opportunity, callbackOnTap: () {
-                        context.push('/opportunity_detail/${opportunity.id}');
-                      });
+                    opportunity: opportunity,
+                    callbackOnTap: () {
+                      ref.read(selectedOp.notifier).state = opportunity;
+                      context.push('/opportunity_detail/${opportunity.id}');
+                    },
+                  );
                 },
-              )
-        ),
-    );
+              ),
+            ),
+          );
   }
 }
-
