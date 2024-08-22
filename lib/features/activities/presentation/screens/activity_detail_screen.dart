@@ -35,24 +35,9 @@ class ActivityDetailScreen extends ConsumerWidget {
   }
 }
 
-// ActivityDetailScreen
 class _ActivityDetailScreen extends ConsumerStatefulWidget {
   final String opportunityId;
-  // final Company company;
-  /*final List<Contact> contacts;
-  final List<Opportunity> opportunities;
-  final List<Activity> activities;
-  final List<Event> events;
-  final List<CompanyLocal> companyLocales;*/
-
-  const _ActivityDetailScreen(this.opportunityId
-      // required this.company,
-      /*required this.contacts,
-      required this.opportunities,
-      required this.activities,
-      required this.events,
-      required this.companyLocales*/
-      );
+  const _ActivityDetailScreen(this.opportunityId);
 
   @override
   _ActivityDetailScreenState createState() => _ActivityDetailScreenState();

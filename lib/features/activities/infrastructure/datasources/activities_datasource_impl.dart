@@ -65,7 +65,8 @@ class ActivitiesDatasourceImpl extends ActivitiesDatasource {
   }
 
   @override
-  Future<List<Activity>> getActivities({String search = '', int limit = 10, int offset = 0}) async {
+  Future<List<Activity>> getActivities(
+      {String search = '', int limit = 10, int offset = 0}) async {
     try {
       final response = await dio.post(
           '/actividad/listar-actividad-by-id-tipo-gestion',
@@ -83,7 +84,6 @@ class ActivitiesDatasourceImpl extends ActivitiesDatasource {
 
   @override
   Future<List<Activity>> getActivitiesByRuc(String ruc) async {
-
     final data = {
       "RUC": ruc,
     };
@@ -96,5 +96,31 @@ class ActivitiesDatasourceImpl extends ActivitiesDatasource {
     }
 
     return activities;
+  }
+
+  @override
+  Future<List<Activity>> getActivitiesByOpportunitie({
+    String opportunityId = '',
+    String search = '',
+    int limit = 10,
+    int offset = 0,
+  }) async {
+    try {
+      final response =
+          await dio.post('/actividad/listar-actividad-by-oportunidad', data: {
+        'SEARCH': '',
+        'OFFSET': offset,
+        'TOP': limit,
+        'ACTI_ID_OPORTUNIDAD': opportunityId
+      });
+      final List<Activity> activities = [];
+      for (final activity in response.data['data'] ?? []) {
+        activities.add(ActivityMapper.jsonToEntity(activity));
+      }
+
+      return activities;
+    } catch (e) {
+      throw Exception();
+    }
   }
 }

@@ -1,10 +1,17 @@
+import 'dart:developer';
+
 import 'package:crm_app/config/constants/environment.dart';
+import 'package:crm_app/features/activities/domain/domain.dart';
+import 'package:crm_app/features/activities/presentation/providers/activities_provider.dart';
+import 'package:crm_app/features/activities/presentation/widgets/item_activity.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/documents/presentation/screens/documents_screen.dart';
 import 'package:crm_app/features/opportunities/infrastructure/mappers/op_create_document_response.dart';
 import 'package:crm_app/features/opportunities/infrastructure/mappers/op_delete_document_mapper.dart';
 import 'package:crm_app/features/opportunities/presentation/widgets/op_document_card.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
+import 'package:crm_app/features/shared/widgets/loading_modal.dart';
+import 'package:crm_app/features/shared/widgets/no_exist_listview.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
@@ -66,21 +73,8 @@ class OpportunityDetailScreen extends ConsumerWidget {
 
 class _CompanyDetailView extends ConsumerStatefulWidget {
   final String opportunityId;
-  // final Company company;
-  /*final List<Contact> contacts;
-  final List<Opportunity> opportunities;
-  final List<Activity> activities;
-  final List<Event> events;
-  final List<CompanyLocal> companyLocales;*/
 
-  const _CompanyDetailView(this.opportunityId
-      // required this.company,
-      /*required this.contacts,
-      required this.opportunities,
-      required this.activities,
-      required this.events,
-      required this.companyLocales*/
-      );
+  const _CompanyDetailView(this.opportunityId);
 
   @override
   _CompanyDetailViewState createState() => _CompanyDetailViewState();
@@ -118,18 +112,12 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
 
   @override
   Widget build(BuildContext context) {
-    // TextStyle styleTitle =
-    //     const TextStyle(fontWeight: FontWeight.w600, fontSize: 16);
-    // TextStyle styleLabel = const TextStyle(
-    //     fontWeight: FontWeight.w500, fontSize: 16, color: Colors.black87);
-    // TextStyle styleContent =
-    //     const TextStyle(fontWeight: FontWeight.w400, fontSize: 16);
-    // SizedBox spacingHeight = const SizedBox(height: 14);
-
     return DefaultTabController(
-      length: 4, // Ahora tenemos 6 pestañas
+      length: 4,
       child: Scaffold(
         appBar: AppBar(
+          toolbarHeight: 100,
+          centerTitle: true,
           title: const Text(
             "Oportunidades - Detalle",
             style: TextStyle(
@@ -187,17 +175,17 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
           physics: const NeverScrollableScrollPhysics(), // Desactiva el scroll
           children: [
             buildInformation(),
-            const SizedBox(
-              child: Center(
-                child: Text('Actividad'),
-              ),
-            ),
+            buildActivity(),
             buildPhotos(),
             buildDocuments()
           ],
         ),
       ),
     );
+  }
+
+  Widget buildActivity() {
+    return const _ActivitiesView();
   }
 
   Widget buildInformation() {
@@ -563,11 +551,13 @@ class _PhotoViewState extends ConsumerState<_PhotoView> {
                   itemCount: docsOpState.documents.length,
                   itemBuilder: (_, index) {
                     final document = docsOpState.documents[index];
-                    return GestureDetector(
+                    return InkWell(
                       onTap: () async {
                         String fileUrl =
                             '${Environment.urlPublic}${document.oadjRutalRelativa}';
+                        log(fileUrl.toString());
                         String fileName = document.oadjNombreOriginal;
+                        log(fileName.toString());
                         await _requestStoragePermission(
                           context,
                           fileUrl,
@@ -731,16 +721,18 @@ class _DocumentsViewState extends ConsumerState<_DocumentsView> {
 }
 
 Future<void> _requestStoragePermission(context, fileUrl, fileName) async {
-  var status = await Permission.manageExternalStorage.status;
-  if (!status.isGranted) {
-    // Solicita permiso
-    status = await Permission.manageExternalStorage.request();
+  var extStorageStatus = await Permission.manageExternalStorage.status;
+  var storageStatus = await Permission.storage.request();
+  if (!storageStatus.isGranted) {
+    await Permission.storage.request();
   }
-
-  if (status.isGranted) {
-    // Permiso concedido
+  if (!extStorageStatus.isGranted) {
+    await Permission.manageExternalStorage.request();
+  }
+  if (extStorageStatus.isGranted || storageStatus.isGranted) {
     await downloadFile(fileUrl, fileName, context);
-  } else if (status.isPermanentlyDenied) {
+  } else if (extStorageStatus.isPermanentlyDenied ||
+      storageStatus.isPermanentlyDenied) {
     // Permiso denegado permanentemente, mostrar diálogo para abrir la configuración
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -936,9 +928,154 @@ Future<dynamic> showModalAdd(
   );
 }
 
+class _ActivitiesView extends ConsumerStatefulWidget {
+  const _ActivitiesView();
 
+  @override
+  _ActivitiesViewState createState() => _ActivitiesViewState();
+}
 
+class _ActivitiesViewState extends ConsumerState {
+  final ScrollController scrollController = ScrollController();
 
+  @override
+  void initState() {
+    super.initState();
+
+    scrollController.addListener(() {
+      if ((scrollController.position.pixels + 400) >=
+          scrollController.position.maxScrollExtent) {
+        ref
+            .read(activitiesProvider.notifier)
+            .loadNextPageActivitiesByOpportunities(
+              isRefresh: false,
+              opportunityId: ref.read(selectedOp.notifier).state?.id ?? '',
+            );
+      }
+    });
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      ref
+          .read(activitiesProvider.notifier)
+          .loadNextPageActivitiesByOpportunities(
+            isRefresh: true,
+            opportunityId: ref.read(selectedOp.notifier).state?.id ?? '',
+          );
+      // ref.read(activitiesProvider.notifier).onChangeNotIsActiveSearch();
+    });
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _refresh() async {
+    String text = ref.watch(activitiesProvider).textSearch;
+    ref.read(activitiesProvider.notifier).loadNextPageActivitiesByOpportunities(
+          isRefresh: true,
+          opportunityId: ref.read(selectedOp.notifier).state?.id ?? '',
+        );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final activitiesState = ref.watch(activitiesProvider);
+
+    if (activitiesState.isLoading) {
+      return const LoadingModal();
+    }
+
+    return activitiesState.activities.isNotEmpty
+        ? _ListActivities(
+            activities: activitiesState.activities,
+            onRefreshCallback: _refresh,
+            scrollController: scrollController,
+          )
+        : NoExistData(
+            textCenter: 'No hay actividades registradas',
+            onRefreshCallback: _refresh,
+            icon: Icons.graphic_eq,
+          );
+  }
+}
+
+class _ListActivities extends ConsumerStatefulWidget {
+  final List<Activity> activities;
+  final Future<void> Function() onRefreshCallback;
+  final ScrollController scrollController;
+
+  const _ListActivities(
+      {required this.activities,
+      required this.onRefreshCallback,
+      required this.scrollController});
+
+  @override
+  _ListActivitiesState createState() => _ListActivitiesState();
+}
+
+class _ListActivitiesState extends ConsumerState<_ListActivities> {
+  @override
+  Widget build(BuildContext context) {
+    final GlobalKey<RefreshIndicatorState> refreshIndicatorKey =
+        GlobalKey<RefreshIndicatorState>();
+
+    return widget.activities.isEmpty
+        ? Center(
+            child: RefreshIndicator(
+                onRefresh: widget.onRefreshCallback,
+                key: refreshIndicatorKey,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Column(
+                    children: [
+                      ElevatedButton(
+                        onPressed: widget.onRefreshCallback,
+                        child: const Text('Recargar'),
+                      ),
+                      const Center(
+                        child: Text('No hay registros'),
+                      ),
+                    ],
+                  ),
+                )),
+          )
+        : NotificationListener(
+            onNotification: (ScrollNotification scrollInfo) {
+              if (scrollInfo.metrics.pixels + 400 ==
+                  scrollInfo.metrics.maxScrollExtent) {
+                ref
+                    .read(activitiesProvider.notifier)
+                    .loadNextPageActivitiesByOpportunities(
+                        isRefresh: false,
+                        opportunityId:
+                            ref.read(selectedOp.notifier).state?.id ?? '');
+              }
+              return false;
+            },
+            child: RefreshIndicator(
+              notificationPredicate: defaultScrollNotificationPredicate,
+              onRefresh: widget.onRefreshCallback,
+              key: refreshIndicatorKey,
+              child: ListView.separated(
+                itemCount: widget.activities.length,
+                separatorBuilder: (BuildContext context, int index) =>
+                    const Divider(),
+                itemBuilder: (context, index) {
+                  final activity = widget.activities[index];
+
+                  return ItemActivity(
+                      activity: activity,
+                      callbackOnTap: () {
+                        // context.push('/activity_detail/${activity.id}');
+                      });
+                },
+              ),
+            ),
+          );
+  }
+}
 
 
 

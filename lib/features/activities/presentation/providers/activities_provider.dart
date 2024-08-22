@@ -13,7 +13,9 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
   final ActivitiesRepository activitiesRepository;
 
   ActivitiesNotifier({required this.activitiesRepository})
-      : super(ActivitiesState()) {
+      : super(
+          ActivitiesState(),
+        ) {
     loadNextPage(isRefresh: true);
   }
 
@@ -43,12 +45,14 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
                 )
                 .toList());*/
 
-        return CreateUpdateActivityResponse(response: true, message: message, id: activity.actiRuc);
+        return CreateUpdateActivityResponse(
+            response: true, message: message, id: activity.actiRuc);
       }
 
       return CreateUpdateActivityResponse(response: false, message: message);
     } catch (e) {
-      return CreateUpdateActivityResponse(response: false, message: 'Error, revisar con su administrador.');
+      return CreateUpdateActivityResponse(
+          response: false, message: 'Error, revisar con su administrador.');
     }
   }
 
@@ -66,7 +70,7 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
   void onChangeNotIsActiveSearch() {
     state = state.copyWith(isActiveSearch: false, textSearch: '');
     //if (state.textSearch != "") {
-      loadNextPage(isRefresh: true);
+    loadNextPage(isRefresh: true);
     //}
   }
 
@@ -78,7 +82,7 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
 
     state = state.copyWith(isLoading: true);
 
-     int sLimit = state.limit;
+    int sLimit = state.limit;
     int sOffset = state.offset;
 
     if (isRefresh) {
@@ -87,9 +91,62 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
     }
 
     final activities = await activitiesRepository.getActivities(
+        search: search, limit: sLimit, offset: sOffset);
+
+    if (activities.isEmpty) {
+      //state = state.copyWith(isLoading: false, isLastPage: true);
+      state = state.copyWith(isLoading: false);
+      return;
+    }
+
+    int newOffset;
+    List<Activity> newActivities;
+
+    if (isRefresh) {
+      newOffset = 0;
+      newActivities = activities;
+    } else {
+      newOffset = state.offset + 10;
+      newActivities = [...state.activities, ...activities];
+    }
+
+    state = state.copyWith(
+        //isLastPage: false,
+        isLoading: false,
+        offset: newOffset,
+        //activities: [...state.activities, ...activities]
+        activities: newActivities);
+  }
+
+  Future loadNextPageActivitiesByOpportunities({
+    bool isRefresh = false,
+    required String opportunityId,
+  }) async {
+    final search = state.textSearch;
+    state = state.copyWith(
+      isActiveSearch: false,
+      textSearch: '',
+      offset: 0,
+      activities: [],
+    );
+    //if (state.isLoading || state.isLastPage) return;
+    if (state.isLoading) return;
+
+    state = state.copyWith(isLoading: true);
+
+    int sLimit = state.limit;
+    int sOffset = state.offset;
+
+    if (isRefresh) {
+      sLimit = 10;
+      sOffset = 0;
+    }
+
+    final activities = await activitiesRepository.getActivitiesByOpportunitie(
       search: search,
       limit: sLimit,
-      offset: sOffset
+      offset: sOffset,
+      opportunityId: opportunityId,
     );
 
     if (activities.isEmpty) {
@@ -109,14 +166,12 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
       newActivities = [...state.activities, ...activities];
     }
 
-
     state = state.copyWith(
         //isLastPage: false,
         isLoading: false,
         offset: newOffset,
         //activities: [...state.activities, ...activities]
-        activities: newActivities
-    );
+        activities: newActivities);
   }
 }
 

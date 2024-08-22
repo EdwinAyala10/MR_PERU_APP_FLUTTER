@@ -53,7 +53,7 @@ class OPDocumentCard extends ConsumerWidget {
                     child: Text(
                       document.oadjIdTipoAdjunto == '03'
                           ? document.oadjNombreOriginal
-                          : document.oadjEnlace ?? '',
+                          : document.oadjNombreOriginal,
                       textAlign: TextAlign.start,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
@@ -192,15 +192,16 @@ class _IconViewer extends StatelessWidget {
         ),
       );
     }
-    // if (document.oadjIdTipoAdjunto == '03') {
-    //   return SizedBox(
-    //     width: 60,
-    //     height: 60,
-    //     child: _ImageViewer(
-    //       image: '${Environment.urlPublic}${document.oadjRutalRelativa}',
-    //     ),
-    //   );
-    // }
+    if (document.oadjIdTipoAdjunto == '01') {
+      return Padding(
+        padding: const EdgeInsets.only(left: 14, right: 14),
+        child: FaIcon(
+          icono,
+          color: color,
+          size: 30,
+        ),
+      );
+    }
     return const Padding(
       padding: EdgeInsets.only(left: 14, right: 14),
       child: FaIcon(
