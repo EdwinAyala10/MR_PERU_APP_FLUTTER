@@ -1,20 +1,17 @@
-import 'dart:developer';
-
-import 'package:crm_app/features/opportunities/domain/datasources/doc_opportunities_datasource.dart';
-import 'package:crm_app/features/opportunities/domain/entities/op_document.dart';
-import 'package:crm_app/features/opportunities/domain/entities/op_document_response.dart';
-import 'package:crm_app/features/opportunities/infrastructure/mappers/op_document_mapper.dart';
-import 'package:crm_app/features/opportunities/infrastructure/mappers/op_document_response_mapper.dart';
+import 'package:crm_app/features/activities/domain/datasources/doc_activities_datasource.dart';
+import 'package:crm_app/features/activities/domain/entities/activitie_document.dart';
+import 'package:crm_app/features/activities/domain/entities/activitie_document_response.dart';
+import 'package:crm_app/features/activities/infrastructure/mappers/activitie_document_mapper.dart';
+import 'package:crm_app/features/activities/infrastructure/mappers/activitie_document_response_mapper.dart';
 import 'package:dio/dio.dart';
 import 'package:crm_app/features/documents/infrastructure/infrastructure.dart';
-
 import '../../../../config/config.dart';
 
-class DocOpportunitieDatasourceImpl extends DocOpportunitiesDatasource {
+class DocActivitieDatasourceImpl extends DocActivitieDatasource {
   late final Dio dio;
   final String accessToken;
 
-  DocOpportunitieDatasourceImpl({required this.accessToken})
+  DocActivitieDatasourceImpl({required this.accessToken})
       : dio = Dio(
           BaseOptions(
             baseUrl: Environment.apiUrl,
@@ -25,31 +22,31 @@ class DocOpportunitieDatasourceImpl extends DocOpportunitiesDatasource {
         );
 
   @override
-  Future<OPDocumentResponse> createDocument(
+  Future<ACDocumentResponse> createDocument(
     Map<dynamic, dynamic> documentLike,
   ) async {
     try {
-      const String url = '/oportunidad/guardar-oportunidad-adjunto';
+      const String url = '/actividad/guardar-actividad-adjunto';
       FormData formData = FormData.fromMap({
         'files': await MultipartFile.fromFile(
           documentLike['path']!,
           filename: documentLike['filename'],
         ),
         'ID_USUARIO_REGISTRO': documentLike['ID_USUARIO_REGISTRO'],
-        'OADJ_ID_OPORTUNIDAD': documentLike['OADJ_ID_OPORTUNIDAD'],
-        'OADJ_ID_TIPO_ADJUNTO': documentLike['OADJ_ID_TIPO_ADJUNTO'],
+        'ACDJ_ID_ACTIVIDAD': documentLike['ACDJ_ID_ACTIVIDAD'],
+        'ACDJ_ID_TIPO_ADJUNTO': documentLike['ACDJ_ID_TIPO_ADJUNTO'],
       });
 
       final response = await dio.post(url, data: formData);
-      final OPDocumentResponse documentResponse =
-          OPDocumentResponseMapper.jsonToEntity(response.data);
+      final ACDocumentResponse documentResponse =
+          ACDocumentResponseMapper.jsonToEntity(response.data);
 
       if (documentResponse.status == true) {
-        documentResponse.document = OPDocumentMapper.jsonToEntity(
+        documentResponse.document = ACDocumentMapper.jsonToEntity(
           response.data['data'][0],
         );
       }
-      
+
       return documentResponse;
     } on DioException catch (e) {
       if (e.response!.statusCode == 404) throw DocumentNotFound();
@@ -60,7 +57,7 @@ class DocOpportunitieDatasourceImpl extends DocOpportunitiesDatasource {
   }
 
   @override
-  Future<OPDocumentResponse> createEnlace(
+  Future<ACDocumentResponse> createEnlace(
       Map<dynamic, dynamic> enlaceLike) async {
     print("e.toString()");
 
@@ -75,12 +72,12 @@ class DocOpportunitieDatasourceImpl extends DocOpportunitiesDatasource {
 
       final response = await dio.post(url, data: data);
 
-      final OPDocumentResponse documentResponse =
-          OPDocumentResponseMapper.jsonToEntity(response.data);
+      final ACDocumentResponse documentResponse =
+          ACDocumentResponseMapper.jsonToEntity(response.data);
 
       if (documentResponse.status == true) {
         documentResponse.document =
-            DocumentMapper.jsonToEntity(response.data['data'][0]);
+            ACDocumentMapper.jsonToEntity(response.data['data'][0]);
       }
 
       return documentResponse;
@@ -96,22 +93,22 @@ class DocOpportunitieDatasourceImpl extends DocOpportunitiesDatasource {
   }
 
   @override
-  Future<OPDocumentResponse> deleteDocumentLink(
+  Future<ACDocumentResponse> deleteDocumentLink(
     String idAdjunto,
     String idUserRegister,
   ) async {
     try {
-      const String url = '/oportunidad/eliminar-oportunidad-adjunto-por-id';
+      const String url = '/actividad/eliminar-actividad-adjunto-por-id';
 
       final data = {
         'ID_USUARIO_REGISTRO': idUserRegister,
-        'OADJ_ID_OPORTUNIDAD_ADJUNTO': idAdjunto,
+        'ACDJ_ID_ACTIVIDAD_ADJUNTO': idAdjunto,
       };
 
       final response = await dio.post(url, data: data);
 
-      final OPDocumentResponse documentResponse =
-          OPDocumentResponseMapper.jsonToEntity(response.data);
+      final ACDocumentResponse documentResponse =
+          ACDocumentResponseMapper.jsonToEntity(response.data);
 
       return documentResponse;
     } on DioException catch (e) {
@@ -123,11 +120,11 @@ class DocOpportunitieDatasourceImpl extends DocOpportunitiesDatasource {
   }
 
   @override
-  Future<OpDocument> getDocumentById(String id) async {
+  Future<ACDocument> getDocumentById(String id) async {
     try {
       final response = await dio.get('/archivos/listar-adjunto-by-id/$id');
-      final OpDocument document =
-          OPDocumentMapper.jsonToEntity(response.data['data']);
+      final ACDocument document =
+          ACDocumentMapper.jsonToEntity(response.data['data']);
 
       return document;
     } on DioException catch (e) {
@@ -139,25 +136,33 @@ class DocOpportunitieDatasourceImpl extends DocOpportunitiesDatasource {
   }
 
   @override
-  Future<List<OpDocument>> getDocuments({
+  Future<List<ACDocument>> getDocuments({
     required String idOportunidad,
     required String idTypeAdjunto,
   }) async {
     final data = {
-      "OADJ_ID_OPORTUNIDAD": idOportunidad,
-      "OADJ_ID_TIPO_ADJUNTO": idTypeAdjunto
+      "ACDJ_ID_ACTIVIDAD": idOportunidad,
+      "ACDJ_ID_TIPO_ADJUNTO": idTypeAdjunto
     };
     try {
-      final response =
-          await dio.post('/oportunidad/listar-oportunidad-adjunto', data: data);
+      final response = await dio.post(
+        '/actividad/listar-actividad-adjunto',
+        data: data,
+      );
 
-      final List<OpDocument> documents = [];
+      print(response.data);
+      final List<ACDocument> documents = [];
       for (final document in response.data['data'] ?? []) {
-        documents.add(OPDocumentMapper.jsonToEntity(document));
+        documents.add(ACDocumentMapper.jsonToEntity(document));
       }
 
       return documents;
+    } on Exception catch (e) {
+      print(e.toString());
+
+      return [];
     } catch (e) {
+      print(e.toString());
       return [];
     }
   }

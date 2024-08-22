@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:crm_app/features/activities/presentation/providers/docs_activitie_provider.dart';
+
 import '../../domain/domain.dart';
 import '../providers/providers.dart';
 import '../widgets/item_activity.dart';
@@ -389,6 +391,8 @@ class _ListActivitiesState extends ConsumerState<_ListActivities> {
                   return ItemActivity(
                       activity: activity,
                       callbackOnTap: () {
+                        print('aqui envia');
+                        ref.read(selectedAC.notifier).state = activity;
                         context.push('/activity_detail/${activity.id}');
                       });
                 },

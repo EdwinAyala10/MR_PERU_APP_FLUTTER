@@ -1,35 +1,34 @@
+import 'package:crm_app/features/activities/domain/domain.dart';
+import 'package:crm_app/features/activities/domain/entities/activitie_document.dart';
+import 'package:crm_app/features/activities/domain/repositories/doc_activitie_repository.dart';
+import 'package:crm_app/features/activities/infrastructure/mappers/activitie_create_document_response.dart';
+import 'package:crm_app/features/activities/infrastructure/mappers/activitie_delete_document_mapper.dart';
+import 'package:crm_app/features/activities/presentation/providers/doc_activitie_repository_provider.dart';
 import 'package:crm_app/features/auth/domain/domain.dart';
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
-import 'package:crm_app/features/opportunities/domain/entities/op_document.dart';
-import 'package:crm_app/features/opportunities/domain/entities/opportunity.dart';
-import 'package:crm_app/features/opportunities/domain/repositories/doc_opportunitie_repository.dart';
-import 'package:crm_app/features/opportunities/infrastructure/mappers/op_create_document_response.dart';
-import 'package:crm_app/features/opportunities/infrastructure/mappers/op_delete_document_mapper.dart';
-
-import 'package:crm_app/features/opportunities/presentation/providers/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum TypeFileOp { photo, archive }
 
-final selectedOp = StateProvider<Opportunity?>((ref) => null);
+final selectedAC = StateProvider<Activity?>((ref) => null);
 
-final docOpportunitieProvider =
+final docActivitieProvider =
     StateNotifierProvider<DocumentsNotifier, DocumentsState>(
   (ref) {
-    final docOpRepository = ref.watch(docOpportunitieRepositoryProvider);
+    final docAcRepository = ref.watch(docActivitieRepositoryProvider);
     final user = ref.watch(authProvider).user;
-    final opportunity = ref.watch(selectedOp);
+    final activitie = ref.watch(selectedAC);
     return DocumentsNotifier(
-      docOpRepository: docOpRepository,
+      docOpRepository: docAcRepository,
       user: user!,
-      opportunity: opportunity,
+      opportunity: activitie,
     );
   },
 );
 
 class DocumentsNotifier extends StateNotifier<DocumentsState> {
-  final DocOpportunitieRepository docOpRepository;
-  final Opportunity? opportunity;
+  final DocActivitieRepository docOpRepository;
+  final Activity? opportunity;
   User user;
 
   DocumentsNotifier({
@@ -43,7 +42,7 @@ class DocumentsNotifier extends StateNotifier<DocumentsState> {
   Future loadNextPage({required TypeFileOp type}) async {
     print('Se esta ejecutando');
     if (state.isLoading || state.isLastPage) return;
-    state = state.copyWith(isLoading: true);
+    state = state.copyWith(isLoading: true, documents: []);
     final documents = await docOpRepository.getDocuments(
       idOportunidad: (opportunity?.id) ?? '',
       idTypeAdjunto: type == TypeFileOp.photo ? "03" : "01",
@@ -73,23 +72,25 @@ class DocumentsNotifier extends StateNotifier<DocumentsState> {
     );
   }
 
-  Future<OPCreateDocumentResponse> createDocument(
+  Future<ACCreateDocumentResponse> createDocument(
       String path, String filename, TypeFileOp typeFileOp) async {
     try {
       Map<String, dynamic> documentLike = {
         'path': path,
         'filename': filename,
         'ID_USUARIO_REGISTRO': user.code,
-        'OADJ_ID_OPORTUNIDAD': (opportunity?.id) ?? '',
-        'OADJ_ID_TIPO_ADJUNTO': typeFileOp == TypeFileOp.photo ? '03' : '01',
+        'ACDJ_ID_ACTIVIDAD': (opportunity?.id) ?? '',
+        'ACDJ_ID_TIPO_ADJUNTO': typeFileOp == TypeFileOp.photo ? '03' : '01',
       };
+      print(documentLike.toString());
 
       final documentResponse = await docOpRepository.createDocument(
         documentLike,
       );
       final message = documentResponse.message;
+
       if (documentResponse.status) {
-        final document = documentResponse.document as OpDocument;
+        final document = documentResponse.document as ACDocument;
         state = state.copyWith(
           documents: [
             document,
@@ -102,19 +103,20 @@ class DocumentsNotifier extends StateNotifier<DocumentsState> {
           //     ? [document, ...state.listLinks]
           //     : state.listLinks,
         );
-        return OPCreateDocumentResponse(response: true, message: message);
+        return ACCreateDocumentResponse(response: true, message: message);
       }
 
-      return OPCreateDocumentResponse(response: false, message: message);
+      return ACCreateDocumentResponse(response: false, message: message);
     } catch (e) {
-      return OPCreateDocumentResponse(
+      print(e.toString());
+      return ACCreateDocumentResponse(
         response: false,
         message: 'Error, revisar con su administrador.',
       );
     }
   }
 
-  Future<OPDeleteDocumentResponse> deleteDocument(String idAdjunto) async {
+  Future<ACDeleteDocumentResponse> deleteDocument(String idAdjunto) async {
     try {
       final documentResponse = await docOpRepository.deleteDocumentLink(
         idAdjunto,
@@ -136,12 +138,12 @@ class DocumentsNotifier extends StateNotifier<DocumentsState> {
           //     .toList()
           // );
         );
-        return OPDeleteDocumentResponse(response: true, message: message);
+        return ACDeleteDocumentResponse(response: true, message: message);
       }
 
-      return OPDeleteDocumentResponse(response: false, message: message);
+      return ACDeleteDocumentResponse(response: false, message: message);
     } catch (e) {
-      return OPDeleteDocumentResponse(
+      return ACDeleteDocumentResponse(
           response: false, message: 'Error, revisar con su administrador.');
     }
   }
@@ -152,9 +154,9 @@ class DocumentsState {
   final int limit;
   final int offset;
   final bool isLoading;
-  final List<OpDocument> documents;
-  final List<OpDocument> listDocuments;
-  final List<OpDocument> listLinks;
+  final List<ACDocument> documents;
+  final List<ACDocument> listDocuments;
+  final List<ACDocument> listLinks;
 
   DocumentsState({
     this.isLastPage = false,
@@ -171,9 +173,9 @@ class DocumentsState {
     int? limit,
     int? offset,
     bool? isLoading,
-    List<OpDocument>? documents,
-    List<OpDocument>? listDocuments,
-    List<OpDocument>? listLinks,
+    List<ACDocument>? documents,
+    List<ACDocument>? listDocuments,
+    List<ACDocument>? listLinks,
   }) =>
       DocumentsState(
         isLastPage: isLastPage ?? this.isLastPage,

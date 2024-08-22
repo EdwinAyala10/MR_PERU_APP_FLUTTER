@@ -1,10 +1,14 @@
 import 'package:crm_app/config/constants/environment.dart';
+import 'package:crm_app/features/activities/infrastructure/mappers/activitie_create_document_response.dart';
+import 'package:crm_app/features/activities/infrastructure/mappers/activitie_delete_document_mapper.dart';
+import 'package:crm_app/features/activities/presentation/providers/docs_activitie_provider.dart';
+import 'package:crm_app/features/activities/presentation/widgets/activitie_document_card.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/documents/presentation/screens/documents_screen.dart';
-import 'package:crm_app/features/opportunities/infrastructure/mappers/op_create_document_response.dart';
-import 'package:crm_app/features/opportunities/infrastructure/mappers/op_delete_document_mapper.dart';
-import 'package:crm_app/features/opportunities/presentation/providers/docs_opportunitie_provider.dart';
-import 'package:crm_app/features/opportunities/presentation/widgets/op_document_card.dart';
+// import 'package:crm_app/features/opportunities/infrastructure/mappers/op_create_document_response.dart';
+// import 'package:crm_app/features/opportunities/infrastructure/mappers/op_delete_document_mapper.dart';
+// import 'package:crm_app/features/opportunities/presentation/providers/docs_opportunitie_provider.dart';
+// import 'package:crm_app/features/opportunities/presentation/widgets/op_document_card.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 import 'package:dio/dio.dart';
@@ -387,7 +391,7 @@ class _PhotoViewState extends ConsumerState<_PhotoView> {
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
-          .watch(docOpportunitieProvider.notifier)
+          .watch(docActivitieProvider.notifier)
           .loadNextPage(type: TypeFileOp.photo);
     });
     super.initState();
@@ -401,7 +405,7 @@ class _PhotoViewState extends ConsumerState<_PhotoView> {
 
   @override
   Widget build(BuildContext context) {
-    final docsOpState = ref.watch(docOpportunitieProvider);
+    final docsOpState = ref.watch(docActivitieProvider);
     return Scaffold(
       floatingActionButton: FloatingActionButtonCustom(
         callOnPressed: () async {
@@ -419,7 +423,7 @@ class _PhotoViewState extends ConsumerState<_PhotoView> {
               child: RefreshIndicator(
                   onRefresh: () async {
                     ref
-                        .watch(docOpportunitieProvider.notifier)
+                        .watch(docActivitieProvider.notifier)
                         .loadNextPage(type: TypeFileOp.photo);
                   },
                   child: SingleChildScrollView(
@@ -429,7 +433,7 @@ class _PhotoViewState extends ConsumerState<_PhotoView> {
                         ElevatedButton(
                           onPressed: () {
                             ref
-                                .watch(docOpportunitieProvider.notifier)
+                                .watch(docActivitieProvider.notifier)
                                 .loadNextPage(type: TypeFileOp.photo);
                           },
                           child: const Icon(Icons.refresh),
@@ -443,7 +447,7 @@ class _PhotoViewState extends ConsumerState<_PhotoView> {
             )
           : RefreshIndicator(
               onRefresh: () async {
-                ref.read(docOpportunitieProvider.notifier).loadNextPage(
+                ref.read(docActivitieProvider.notifier).loadNextPage(
                       type: TypeFileOp.photo,
                     );
               },
@@ -472,15 +476,15 @@ class _PhotoViewState extends ConsumerState<_PhotoView> {
                           fileName,
                         );
                       },
-                      child: OPDocumentCard(
+                      child: ACDocumentCard(
                         document: document,
                         callback: () {
                           showLoadingMessage(context);
                           ref
-                              .read(docOpportunitieProvider.notifier)
+                              .read(docActivitieProvider.notifier)
                               .deleteDocument(document.oadjIdOportunidadAdjunto)
                               .then(
-                            (OPDeleteDocumentResponse value) {
+                            (ACDeleteDocumentResponse value) {
                               if (value.message != '') {
                                 showSnackbar(context, value.message);
                                 if (value.response) {}
@@ -514,7 +518,7 @@ class _DocumentsViewState extends ConsumerState<_DocumentsView> {
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
-          .watch(docOpportunitieProvider.notifier)
+          .watch(docActivitieProvider.notifier)
           .loadNextPage(type: TypeFileOp.archive);
     });
     super.initState();
@@ -528,7 +532,7 @@ class _DocumentsViewState extends ConsumerState<_DocumentsView> {
 
   @override
   Widget build(BuildContext context) {
-    final docsOpState = ref.watch(docOpportunitieProvider);
+    final docsOpState = ref.watch(docActivitieProvider);
     return Scaffold(
       floatingActionButton: FloatingActionButtonCustom(
         callOnPressed: () async {
@@ -546,7 +550,7 @@ class _DocumentsViewState extends ConsumerState<_DocumentsView> {
               child: RefreshIndicator(
                   onRefresh: () async {
                     ref
-                        .watch(docOpportunitieProvider.notifier)
+                        .watch(docActivitieProvider.notifier)
                         .loadNextPage(type: TypeFileOp.archive);
                   },
                   child: SingleChildScrollView(
@@ -556,7 +560,7 @@ class _DocumentsViewState extends ConsumerState<_DocumentsView> {
                         ElevatedButton(
                           onPressed: () {
                             ref
-                                .watch(docOpportunitieProvider.notifier)
+                                .watch(docActivitieProvider.notifier)
                                 .loadNextPage(
                                   type: TypeFileOp.archive,
                                 );
@@ -572,7 +576,7 @@ class _DocumentsViewState extends ConsumerState<_DocumentsView> {
             )
           : RefreshIndicator(
               onRefresh: () async {
-                ref.read(docOpportunitieProvider.notifier).loadNextPage(
+                ref.read(docActivitieProvider.notifier).loadNextPage(
                       type: TypeFileOp.archive,
                     );
               },
@@ -601,15 +605,15 @@ class _DocumentsViewState extends ConsumerState<_DocumentsView> {
                           fileName,
                         );
                       },
-                      child: OPDocumentCard(
+                      child: ACDocumentCard(
                         document: document,
                         callback: () {
                           showLoadingMessage(context);
                           ref
-                              .read(docOpportunitieProvider.notifier)
+                              .read(docActivitieProvider.notifier)
                               .deleteDocument(document.oadjIdOportunidadAdjunto)
                               .then(
-                            (OPDeleteDocumentResponse value) {
+                            (ACDeleteDocumentResponse value) {
                               if (value.message != '') {
                                 showSnackbar(context, value.message);
                                 if (value.response) {}
@@ -629,16 +633,18 @@ class _DocumentsViewState extends ConsumerState<_DocumentsView> {
 }
 
 Future<void> _requestStoragePermission(context, fileUrl, fileName) async {
-  var status = await Permission.manageExternalStorage.status;
-  if (!status.isGranted) {
-    // Solicita permiso
-    status = await Permission.manageExternalStorage.request();
+  var extStorageStatus = await Permission.manageExternalStorage.status;
+  var storageStatus = await Permission.storage.request();
+  if (!storageStatus.isGranted) {
+    await Permission.storage.request();
   }
-
-  if (status.isGranted) {
-    // Permiso concedido
+  if (!extStorageStatus.isGranted) {
+    await Permission.manageExternalStorage.request();
+  }
+  if (extStorageStatus.isGranted || storageStatus.isGranted) {
     await downloadFile(fileUrl, fileName, context);
-  } else if (status.isPermanentlyDenied) {
+  } else if (extStorageStatus.isPermanentlyDenied ||
+      storageStatus.isPermanentlyDenied) {
     // Permiso denegado permanentemente, mostrar diálogo para abrir la configuración
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -749,9 +755,9 @@ Future<dynamic> showModalAdd(
 
                     showLoadingMessage(context);
                     await ref
-                        .read(docOpportunitieProvider.notifier)
+                        .read(docActivitieProvider.notifier)
                         .createDocument(filePath!, fileName, typeFileOp)
-                        .then((OPCreateDocumentResponse value) {
+                        .then((ACCreateDocumentResponse value) {
                       if (value.message != '') {
                         // showSnackbar(context, value.message);
                         // if (value.response) {}
@@ -797,9 +803,9 @@ Future<dynamic> showModalAdd(
                     filePath = result.files.single.path;
                     showLoadingMessage(context);
                     await ref
-                        .read(docOpportunitieProvider.notifier)
+                        .read(docActivitieProvider.notifier)
                         .createDocument(filePath!, fileName, typeFileOp)
-                        .then((OPCreateDocumentResponse value) {
+                        .then((ACCreateDocumentResponse value) {
                       // if (value.message != '') {
                       //   showSnackbar(context, value.message);
                       //   if (value.response) {}
