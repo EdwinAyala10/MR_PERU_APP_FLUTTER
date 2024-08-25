@@ -1,4 +1,4 @@
-import 'package:crm_app/features/kpis/domain/entities/objetive_by_category.dart';
+import 'package:crm_app/features/kpis/domain/entities/objetive_by_category_response.dart';
 
 import '../domain.dart';
 import '../entities/periodicidad.dart';
@@ -11,7 +11,7 @@ abstract class KpisDatasource {
 
   Future<List<Periodicidad>> getPeriodicidades();
 
-  Future<List<ObjetiveByCategory>> listObjetiveByCategory(
+  Future<ObjetiveByCategoryResponse> listObjetiveByCategory(
     Map<dynamic, dynamic> kpiForm,
   );
 

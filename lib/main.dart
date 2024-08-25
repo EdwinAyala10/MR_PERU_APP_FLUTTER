@@ -7,23 +7,25 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   // await NotificationsNotifier.initialFCM();
-
   // TODO: DESCOMENTAR NOTIFICACIONES PUSH
   // await LocalNotifications.initializeLocalNotifications();
-
   await Environment.initEnvironment();
-
-  initializeDateFormatting('es_ES', null)
-      .then((_) => {runApp(const ProviderScope(child: MainApp()))});
+  initializeDateFormatting('es_ES', null).then(
+    (_) => {
+      runApp(
+        const ProviderScope(
+          child: MainApp(),
+        ),
+      ),
+    },
+  );
 }
 
 class MainApp extends ConsumerWidget {
   const MainApp({super.key});
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final appRouter = ref.watch(goRouterProvider);
-
     return MaterialApp.router(
       theme: AppTheme().getTheme(),
       routerConfig: appRouter,

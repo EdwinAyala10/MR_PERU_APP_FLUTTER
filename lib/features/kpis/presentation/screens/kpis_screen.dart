@@ -1,3 +1,7 @@
+import 'dart:developer';
+
+import 'package:crm_app/features/kpis/presentation/providers/kpis_by_cat_provider.dart';
+
 import '../../domain/domain.dart';
 import '../providers/providers.dart';
 import 'package:flutter/material.dart';
@@ -195,9 +199,9 @@ class _ListKpis extends ConsumerWidget {
                     ],
                   ),
                   onTap: () {
-                    print(kpi.objrIdCategoria);
-                    print(kpi.id);
                     ref.read(goalsModelProvider.notifier).state = kpi;
+                    ref.read(selectKpiProvider.notifier).state = kpi;
+                    // log(ref.read(selectKpiProvider.notifier).state!.objrIdCategoria.toString());
                     context.push('/kpi_detail/${kpi.id}');
                   },
                 );

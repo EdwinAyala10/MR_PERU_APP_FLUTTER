@@ -1,6 +1,11 @@
+import 'package:crm_app/features/activities/presentation/widgets/item_activity.dart';
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:crm_app/features/companies/presentation/widgets/item_company.dart';
+import 'package:crm_app/features/contacts/presentation/widgets/item_contact.dart';
+import 'package:crm_app/features/kpis/presentation/providers/kpis_by_cat_provider.dart';
 import 'package:crm_app/features/kpis/presentation/widgets/custom_switch.dart';
 import 'package:crm_app/features/kpis/presentation/widgets/item_objetive_by_category.dart';
+import 'package:crm_app/features/opportunities/presentation/widgets/item_opportunity.dart';
 
 import '../providers/providers.dart';
 import '../../../shared/shared.dart';
@@ -27,7 +32,6 @@ class KpiDetailScreen extends ConsumerWidget {
     if (kpiState.isLoading) {
       return const FullScreenLoader();
     }
-
     if (kpi == null) {
       return Scaffold(
         appBar: AppBar(),
@@ -92,12 +96,6 @@ class KpiDetailScreen extends ConsumerWidget {
                         onChanged: (index) {
                           ref.read(selecIndexViewProvider.notifier).state =
                               index;
-
-                          index == 2
-                              ? ref
-                                  .read(goalsByCatProvider.notifier)
-                                  .listgoalsByCategories()
-                              : () {};
                         },
                       ),
                       const SizedBox(
@@ -139,11 +137,6 @@ class KpiDetailScreen extends ConsumerWidget {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Text(kpi.objrNombrePeriodicidad ?? '',
-          // style:
-          // const TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
-          // Text(kpi.objrNombreAsignacion ?? '',
-          // style: const TextStyle(fontWeight: FontWeight.w600)),
           Text(
             '${kpi.totalRegistro}/${convertTypeCategory(kpi)}',
             style: const TextStyle(
@@ -151,24 +144,6 @@ class KpiDetailScreen extends ConsumerWidget {
           )
         ],
       ),
-      // trailing: Column(
-      //   crossAxisAlignment: CrossAxisAlignment.end,
-      //   mainAxisAlignment: MainAxisAlignment.start,
-      //   children: [
-      //     /*Text(kpi.objrNombreAsignacion ?? '',
-      //                     textAlign: TextAlign.right,
-      //                     style: const TextStyle(
-      //                       fontSize: 12,
-      //                     )),*/
-      //     //for (var user in kpi.usuariosAsignados ?? [])
-      //     for (var i = 0; i < 2 && i < kpi.usuariosAsignados!.length; i++)
-      //       Text(
-      //         kpi.usuariosAsignados![i].userreportName ?? '',
-      //         overflow: TextOverflow.ellipsis,
-      //         style: const TextStyle(fontSize: 10),
-      //       )
-      //   ],
-      // ),
       leading: Stack(
         alignment: Alignment.center,
         children: [
@@ -199,33 +174,69 @@ class KpiDetailScreen extends ConsumerWidget {
   }
 
   Widget perfomceSection(BuildContext context, WidgetRef ref) {
-    final listGoals = ref.watch(goalsByCatProvider);
-    if (listGoals.isLoading == true) {
+    final response = ref.watch(kpisByCatNotifierProvider);
+
+    if (response.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (response.items.isEmpty) {
       return const Center(
-        child: CircularProgressIndicator(),
+        child: Text('No se encontraron registros'),
       );
     }
     return RefreshIndicator(
       // notificationPredicate: defaultScrollNotificationPredicate,
-      onRefresh: () async {}, //widget.onRefreshCallback,
+      onRefresh: () async {
+        ref.read(kpisByCatNotifierProvider.notifier).listKpiByCategory();
+      },
       //key: _refreshIndicatorKey,
-      child: SizedBox(
+      child: Container(
         width: double.infinity,
+        color: Colors.transparent,
         child: ListView.separated(
-          itemCount:
-              listGoals.goalsbycat?.length ?? 0, // widget.companies.length,
+          itemCount: response.items.length, // widget.companies.length,
           //controller: widget.scrollController,
-          physics: const BouncingScrollPhysics(),
-          separatorBuilder: (BuildContext context, int index) =>
+          padding: EdgeInsets.zero,
+          physics: const AlwaysScrollableScrollPhysics(),
+          separatorBuilder: (
+            BuildContext context,
+            int index,
+          ) =>
               const Divider(),
           itemBuilder: (context, index) {
-            // final company = widget.companies[index];
-            return ItemObjetiveByCategory(
-              callbackOnTap: () {
-                // context.push('/company_detail/${company.ruc}',);
-              },
-              model: listGoals.goalsbycat?[index],
-            );
+            final type =
+                ref.read(kpisByCatNotifierProvider.notifier).kpiProviders;
+            if (type?.objrIdCategoria == TypeCategory.chekIns) {
+              return ItemActivity(
+                activity: response.items[index],
+                callbackOnTap: () {},
+              );
+            }
+            if (type?.objrIdCategoria == TypeCategory.nuevaEmpresa) {
+              return ItemCompany(
+                company: response.items[index],
+                callbackOnTap: () {},
+              );
+            }
+            if (type?.objrIdCategoria == TypeCategory.nuevoContacto) {
+              return ItemContact(
+                contact: response.items[index],
+                callbackOnTap: () {},
+              );
+            }
+            if (type?.objrIdCategoria == TypeCategory.nuevaOportunidad) {
+              return ItemOpportunity(
+                opportunity: response.items[index],
+                callbackOnTap: () {},
+              );
+            }
+            if (type?.objrIdCategoria == TypeCategory.oportunidadesGanadas) {
+              return ItemOpportunity(
+                opportunity: response.items[index],
+                callbackOnTap: () {},
+              );
+            }
+            return Container();
           },
         ),
       ),

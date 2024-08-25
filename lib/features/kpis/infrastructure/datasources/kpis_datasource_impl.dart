@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:crm_app/features/kpis/domain/entities/objetive_by_category.dart';
+import 'package:crm_app/features/kpis/domain/entities/objetive_by_category_response.dart';
 import 'package:crm_app/features/kpis/infrastructure/mappers/objetive_by_category_mapper.dart';
 
 import '../../domain/entities/periodicidad.dart';
@@ -96,7 +97,7 @@ class KpisDatasourceImpl extends KpisDatasource {
   }
 
   @override
-  Future<List<ObjetiveByCategory>> listObjetiveByCategory(
+  Future<ObjetiveByCategoryResponse> listObjetiveByCategory(
     Map<dynamic, dynamic> kpiForm,
   ) async {
     final kpiFormData = kpiForm;
@@ -110,18 +111,17 @@ class KpisDatasourceImpl extends KpisDatasource {
       log(response.statusCode.toString());
       log(response.realUri.path.toString());
       log(response.data.toString());
-
-      final List<ObjetiveByCategory> listObjetiveCategory = [];
-      final listData = response.data['data'] as List;
-      log(response.data.toString());
-      for (final item in listData) {
-        final tempItem = ObjetiveByCategoryMapper.jsonToEntity(item);
-        listObjetiveCategory.add(tempItem);
-      }
-      return listObjetiveCategory;
+      final model = ObjetiveByCategoryResponse.fromJson(response.data);
+      return model;
     } catch (e) {
       log(e.toString());
-      return [];
+      return ObjetiveByCategoryResponse(
+        type: '',
+        icon: '',
+        status: false,
+        message: '',
+        items: [],
+      );
     }
   }
 }
