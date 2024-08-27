@@ -33,14 +33,14 @@ class OpportunityNotifier extends StateNotifier<OpportunityState> {
 
     List<ArrayUser>? arrayResponsables = [];
 
-    if (!user.isAdmin) {
+    //if (!user.isAdmin) {
       ArrayUser array = ArrayUser();
       array.idResponsable = user.id;
       array.cresIdUsuarioResponsable = user.code;
       array.userreportName = user.name;
       array.nombreResponsable = user.name;
       arrayResponsables.add(array);
-    }
+    //}
     
     return Opportunity(
       id: 'new',

@@ -7,3 +7,4 @@ export 'mappers/filter_responsable_mapper.dart';
 export 'mappers/filter_codigo_postal_mapper.dart';
 export 'mappers/filter_distrito_mapper.dart';
 export 'mappers/filter_ruc_razon_social_mapper.dart';
+export 'mappers/filter_horario_trabajo_mapper.dart';

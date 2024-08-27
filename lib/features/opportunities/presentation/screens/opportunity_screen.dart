@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:crm_app/features/auth/domain/domain.dart';
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crm_app/features/companies/presentation/delegates/search_company_local_active_delegate.dart';
 import 'package:crm_app/features/companies/presentation/providers/company_provider.dart';
@@ -40,7 +41,7 @@ class OpportunityScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text('${ opportunityState.opportunity!.id == 'new' ? 'Crear': 'Editar' } oportunidad'
-          , style: TextStyle(
+          , style: const TextStyle(
             fontWeight: FontWeight.w500
           )),
           //title: const Text('Crear Oportunidad', style: TextStyle(fontWeight: FontWeight.w500)),
@@ -140,7 +141,8 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
       DropdownOption(id: '01', name: 'USB'),
     ];
 
-    bool isAdmin = ref.watch(authProvider).user!.isAdmin;
+    User authUser = ref.watch(authProvider).user!;
+    bool isAdmin = authUser.isAdmin;
 
     final opportunityForm = ref.watch(opportunityFormProvider(widget.opportunity));
 
@@ -484,7 +486,9 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
                                         label: Text(item.userreportName ?? '',
                                             style:
                                                 const TextStyle(fontSize: 12)),
-                                        onDeleted: isAdmin ?  () {
+                                        onDeleted: !isAdmin ? null 
+                                          : item.cresIdUsuarioResponsable != authUser.code
+                                         ?  () {
                                           ref
                                               .read(opportunityFormProvider(
                                                       widget.opportunity)
@@ -597,12 +601,16 @@ class _OpportunityInformationv2State extends ConsumerState<_OpportunityInformati
     final searchQuery = ref.read(searchQueryUsersProvider);
     final user = ref.watch(authProvider).user;
 
+    final swIsCreate = widget.opportunity.id == 'new';
+
     showSearch<UserMaster?>(
             query: searchQuery,
             context: context,
             delegate: SearchUserDelegate(
                 initialUsers: searchedUsers,
-                userCurrent: user!,
+                //userCurrent: user!,
+                //idItemDelete: user!.code,
+                idItemDelete: swIsCreate ? user!.code : null,
                 searchUsers: ref
                     .read(searchedUsersProvider.notifier)
                     .searchUsersByQuery,

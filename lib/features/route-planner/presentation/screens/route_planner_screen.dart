@@ -24,6 +24,15 @@ import '../widgets/tags_filter.dart';
 class RoutePlannerScreen extends ConsumerWidget {
   const RoutePlannerScreen({super.key});
 
+  bool existeHorarioTrabajo(List<FilterOption> options) {
+
+    if (options.length > 0) {
+      return options.any((option) => option.type == "HRTR_ID_HORARIO_TRABAJO");
+    } else {
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -80,6 +89,17 @@ class RoutePlannerScreen extends ConsumerWidget {
                   return;
                 }
 
+                var filterSuccess =ref.read(routePlannerProvider).filtersSuccess;
+
+                bool existFilter = existeHorarioTrabajo(filterSuccess);
+
+                print('EXISTE: ${existFilter}');
+
+                if (!existFilter) {
+                  mostrarModalMensaje(context, 'AVISO', 'Debes seleccionar el filtro de Horario de trabajo.');
+                  return;
+                }
+
                 showLoadingMessage(context);
 
                 LatLng location = await ref.watch(locationProvider.notifier).currentPosition();
@@ -94,7 +114,7 @@ class RoutePlannerScreen extends ConsumerWidget {
 
                 ref.read(mapProvider.notifier).setLocation(location);
 
-                final mapState = ref.watch(mapProvider.notifier);
+                //final mapState = ref.watch(mapProvider.notifier);
                 
                 ref.watch(mapProvider.notifier).addMarkersAndLocation(listSelectedItems, location);
                 

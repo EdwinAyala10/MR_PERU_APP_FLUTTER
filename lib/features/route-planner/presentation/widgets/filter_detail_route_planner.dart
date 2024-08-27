@@ -33,6 +33,14 @@ class _FilterDetailRoutePlannerState extends ConsumerState<FilterDetailRoutePlan
       final List<FilterOption> listFilters = ref.watch(routePlannerProvider).filters;
 
       switch (widget.type) {
+        case 'HRTR_ID_HORARIO_TRABAJO':
+          await ref.read(routePlannerProvider.notifier).loadFilterHorarioTrabajo().then((value) => {
+            setState(() {
+              optionsMaster = getOptionProcess(value, listFilters);
+            })
+          });
+          break;
+
         case 'ESTADO':
           await ref.read(resourceDetailsProvider.notifier).loadCatalogById('18').then((value) => {
             setState(() {

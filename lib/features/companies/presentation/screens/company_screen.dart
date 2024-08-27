@@ -189,7 +189,8 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
 
     final swIsCreate = widget.company.rucId == 'new';
 
-    bool isAdmin = ref.watch(authProvider).user!.isAdmin;
+    User authUser = ref.watch(authProvider).user!;
+    bool isAdmin = authUser.isAdmin;
 
     final companyForm = ref.watch(companyFormProvider(widget.company));
     //final selectMapState = ref.watch(selectedMapProvider.notifier).state;
@@ -354,53 +355,51 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
           ),
           const SizedBox(height: 15),
           //Text('rucId: ${companyForm.rucId}'),
-          if (companyForm.visibleTodos != '1')
-            const Text('Responsable ', style: TextStyle(
-              fontWeight: FontWeight.w600
-            ),),
-          if (companyForm.visibleTodos != '1')
-            Row(
-              children: [
-                Expanded(
-                    child: Column(
-                  children: [
-                    companyForm.arrayresponsables!.isNotEmpty
-                        ? Wrap(
-                            spacing: 6.0,
-                            children: companyForm.arrayresponsables != null
-                                ? List<Widget>.from(companyForm.arrayresponsables!
-                                    .map((item) => Chip(
-                                          label: Text(item.userreportName ?? '',
-                                              style:
-                                                  const TextStyle(fontSize: 12)),
-                                          onDeleted: isAdmin ? () {
+          const Text('Responsable ', style: TextStyle(
+            fontWeight: FontWeight.w600
+           )),
+          Row(
+            children: [
+              Expanded(
+                  child: Column(
+                children: [
+                  companyForm.arrayresponsables!.isNotEmpty
+                      ? Wrap(
+                          spacing: 6.0,
+                          children: companyForm.arrayresponsables != null
+                              ? List<Widget>.from(companyForm.arrayresponsables!
+                                  .map((item) => Chip(
+                                        label: Text(item.userreportName ?? '',
+                                            style:
+                                                const TextStyle(fontSize: 12)),
+                                        onDeleted: !isAdmin ? null 
+                                          : item.cresIdUsuarioResponsable != authUser.code ? () {
                                             ref
                                                 .read(companyFormProvider(
                                                         widget.company)
                                                     .notifier)
                                                 .onDeleteUserChanged(item);
                                           } : null,
-                                        )))
-                                : [],
-                          )
-                        : const Text('Seleccione usuario(s)',
-                            style: TextStyle(color: Colors.black45)),
+                                      )))
+                              : [],
+                        )
+                      : const Text('Seleccione usuario(s)',
+                          style: TextStyle(color: Colors.black45)),
+                ],
+              )),
+              ElevatedButton(
+                onPressed: isAdmin ?  () {
+                  _openSearchUsers(context, ref);
+                } : null,
+                child: const Row(
+                  children: [
+                    Icon(Icons.add),
                   ],
-                )),
-                ElevatedButton(
-                  onPressed: isAdmin ?  () {
-                    _openSearchUsers(context, ref);
-                  } : null,
-                  child: const Row(
-                    children: [
-                      Icon(Icons.add),
-                    ],
-                  ),
                 ),
-              ],
-            ),
-          if (companyForm.visibleTodos != '1')
-            const SizedBox(height: 24),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
           CustomCompanyField(
             maxLines: 2,
             label: 'Comentarios',
@@ -724,19 +723,21 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
     final searchedUsers = ref.read(searchedUsersProvider);
     final searchQuery = ref.read(searchQueryUsersProvider);
     final user = ref.watch(authProvider).user;
+
+    final swIsCreate = widget.company.rucId == 'new';
     
     showSearch<UserMaster?>(
             query: searchQuery,
             context: context,
             delegate: SearchUserDelegate(
-              userCurrent: user!,
-                initialUsers: searchedUsers,
-                searchUsers: ref
-                    .read(searchedUsersProvider.notifier)
-                    .searchUsersByQuery,
-                resetSearchQuery: () {
-                  ref.read(searchQueryUsersProvider.notifier).update((state) => '');
-                },
+              idItemDelete: swIsCreate ? user!.code : null,
+              initialUsers: searchedUsers,
+              searchUsers: ref
+                  .read(searchedUsersProvider.notifier)
+                  .searchUsersByQuery,
+              resetSearchQuery: () {
+                ref.read(searchQueryUsersProvider.notifier).update((state) => '');
+              },
             ))
         .then((user) {
       

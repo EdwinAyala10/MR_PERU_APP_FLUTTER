@@ -23,6 +23,8 @@ export 'state_local.dart';
 export 'state_opportunity.dart';
 export 'empresa_principal.dart';
 export 'empresa_intermediario.dart';
+export 'hora_trabajo.dart';
+export 'hora_entre_visitas.dart';
 
 export 'type.dart';
 export 'type_local.dart';

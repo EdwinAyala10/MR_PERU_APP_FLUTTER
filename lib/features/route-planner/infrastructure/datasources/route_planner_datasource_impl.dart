@@ -149,4 +149,20 @@ class RoutePlannerDatasourceImpl extends RoutePlannerDatasource {
     }
   }
 
+  @override
+  Future<List<FilterHorarioTrabajo>> getFilterHorarioTrabajo({ String search = '' }) async {
+    final response =
+      await dio.post('/horario-trabajo/listar-horario-trabajo', data: {
+        'SEARCH': search
+      });
+
+    final List<FilterHorarioTrabajo> filters = [];
+
+    for (final filter in response.data['data'] ?? []) {
+      filters.add(FilterHorarioTrabajoMapper.jsonToEntity(filter));
+    }
+
+    return filters;
+  }
+
 }

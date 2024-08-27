@@ -11,7 +11,8 @@ typedef ResetSearchQueryCallback = void Function();
 
 class SearchUserDelegate extends SearchDelegate<UserMaster?> {
   final SearchUsersCallback searchUsers;
-  final User userCurrent;
+  //final User userCurrent;
+  final String? idItemDelete;
   final ResetSearchQueryCallback resetSearchQuery;
   List<UserMaster> initialUsers;
   
@@ -22,7 +23,8 @@ class SearchUserDelegate extends SearchDelegate<UserMaster?> {
 
   SearchUserDelegate({
     required this.searchUsers,
-    required this.userCurrent,
+    //required this.userCurrent,
+    this.idItemDelete = '',
     required this.resetSearchQuery,
     required this.initialUsers,
   }) : super(
@@ -112,7 +114,10 @@ class SearchUserDelegate extends SearchDelegate<UserMaster?> {
           final users = snapshot.data!;
 
           // Eliminar usuario con el código especificado
-          users.removeWhere((usuario) => usuario.code == userCurrent.code);
+          //users.removeWhere((usuario) => usuario.code == userCurrent.code);
+          if (idItemDelete != "") { 
+            users.removeWhere((usuario) => usuario.code == idItemDelete);
+          }
 
           return ListView.separated(
             separatorBuilder: (BuildContext context, int index) => const Divider(),

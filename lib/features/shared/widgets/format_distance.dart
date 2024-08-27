@@ -6,3 +6,12 @@ String formatDistance(double metros) {
     return '${kilometros.toStringAsFixed(2)} km';
   }
 }
+
+String formatDistanceV2(int distanceInMeters) {
+  if (distanceInMeters >= 1000) {
+    final distanceInKilometers = distanceInMeters / 1000;
+    return '${distanceInKilometers.toStringAsFixed(1)} km';
+  } else {
+    return '$distanceInMeters m';
+  }
+}

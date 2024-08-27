@@ -59,14 +59,14 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
 
     List<ArrayUser>? arrayResponsables = [];
 
-    if (!user.isAdmin) {
+    //if (!user.isAdmin) {
       ArrayUser array = ArrayUser();
       array.idResponsable = user.id;
       array.cresIdUsuarioResponsable = user.code;
       array.userreportName = user.name;
       array.nombreResponsable = user.name;
       arrayResponsables.add(array);
-    }
+    //}
 
     return Company(
       rucId: 'new',

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/domain.dart';
 
@@ -167,8 +168,8 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
   Future loadNextPage({bool isRefresh = false}) async {
     final search = state.textSearch;
 
-   //if (state.isLoading || state.isLastPage) return;
-    if (state.isLoading) return;
+    if (state.isLoading || state.isLastPage) return;
+    //if (state.isLoading) return;
 
     state = state.copyWith(isLoading: true);
 
@@ -185,7 +186,8 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
 
     if (companies.isEmpty) {
       //state = state.copyWith(isLoading: false, isLastPage: true);
-      state = state.copyWith(isLoading: false, companies: []);
+      //state = state.copyWith(isLoading: false, companies: []);
+      state = state.copyWith(isLoading: false, isLastPage: true);
       return;
     } else {
       int newOffset;
@@ -199,14 +201,14 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
         newCompanies = [...state.companies, ...companies];
       }
 
+      print('Offset: ${newOffset}');
+
       state = state.copyWith(
-          //isLastPage: false,
+          isLastPage: false,
           isLoading: false,
           offset: newOffset,
           companies: newCompanies);
     }
-
-   
 
     /*state = state.copyWith(
         isLastPage: false,

@@ -4,6 +4,8 @@ import 'package:crm_app/features/location/presentation/providers/providers.dart'
 import 'package:crm_app/features/route-planner/domain/domain.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/forms/event_planner_form_provider.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
+import 'package:crm_app/features/shared/widgets/format_distance.dart';
+import 'package:crm_app/features/shared/widgets/format_duration.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -275,6 +277,9 @@ class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
     LatLng lastKnownLocation = locationState.lastKnownLocation ?? const LatLng(-12.046736441022516, -77.0440978949104);
     final markers = ref.watch(mapProvider).markers;
     final polylines = ref.watch(mapProvider).polylines;
+
+    final int totalDistance = ref.watch(mapProvider).totalDistance;
+    final int totalDuration = ref.watch(mapProvider).totalDuration;
     
     CameraPosition initialCameraPosition =
         CameraPosition(target: lastKnownLocation, zoom: 11.5);
@@ -361,22 +366,22 @@ class _RouteDayScreenState extends ConsumerState<RouteDayScreen> {
                           Text('${listSelectedItems.length} Check-ins'),
                         ],
                       ),
-                      const Column(
+                      Column(
                         children: [
-                          Text(
+                          const Text(
                             'Distancia',
                             style: TextStyle(fontWeight: FontWeight.w600),
                           ),
-                          Text('0 km'),
+                          Text(formatDistanceV2(totalDistance)),
                         ],
                       ),
-                      const Column(
+                      Column(
                         children: [
-                          Text(
+                          const Text(
                             'Tiempo',
                             style: TextStyle(fontWeight: FontWeight.w600),
                           ),
-                          Text('0 min'),
+                          Text(formatDuration(totalDuration)),
                         ],
                       ),
                       //Text('Distancia Total: ${totalDistance.toStringAsFixed(2)} km'),

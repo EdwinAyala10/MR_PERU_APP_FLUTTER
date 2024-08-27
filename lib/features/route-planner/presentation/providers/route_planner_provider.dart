@@ -157,6 +157,24 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     return options;
   }
 
+   Future<List<DropdownOption>> loadFilterHorarioTrabajo() async {
+    //state = state.copyWith(isLoading: true);
+
+    List<FilterHorarioTrabajo> filters =
+        await routePlannerRepository.getFilterHorarioTrabajo();
+
+    List<DropdownOption> options = [];
+
+    options.add(DropdownOption(id: '', name: 'Selecciona'));
+
+    for (final filter in filters) {
+        options.add(
+          DropdownOption(id: filter.hrtrIdHorarioTrabajo!, name: filter.hrtrDescricion!));
+    }
+
+    return options;
+  }
+
   Future<List<DropdownOption>> loadFilterResponsable() async {
     //state = state.copyWith(isLoading: true);
 

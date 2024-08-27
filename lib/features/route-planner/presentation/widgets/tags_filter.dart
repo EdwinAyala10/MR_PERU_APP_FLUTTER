@@ -11,13 +11,6 @@ class TagRowRoutePlanner extends ConsumerStatefulWidget {
 
 class _TagRowState extends ConsumerState<TagRowRoutePlanner> {
   bool showAllTags = false;
-  List<String> tags = [
-    'Muestra sólo en seguimiento: Todos',
-    'Actividad: Más de 30 días',
-    'Tipo: Posible cliente',
-    'Estado: Prospecto',
-    'Calificación:  6 valores',
-  ];
 
   @override
   Widget build(BuildContext context) {
