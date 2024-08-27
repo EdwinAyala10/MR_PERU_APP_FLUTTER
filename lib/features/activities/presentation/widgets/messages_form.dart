@@ -144,7 +144,10 @@ class _ConsumerMessageFormState extends ConsumerState<MessageForm> {
     log(personaSeleccionada.toString());
     ref.read(usersMarkedProvider).getAllUsersMarked();
     if (activarBusqueda && personaSeleccionada == false) {
-      return const ListMarkedUsers();
+      return ListMarkedUsers(
+        onChanged: (bool? value, int index) =>
+            seleccionarPersona(value ?? false, index),
+      );
     } else {
       return Container();
     }
@@ -152,7 +155,11 @@ class _ConsumerMessageFormState extends ConsumerState<MessageForm> {
 }
 
 class ListMarkedUsers extends ConsumerWidget {
-  const ListMarkedUsers({super.key});
+  final Function(bool?, int) onChanged;
+  const ListMarkedUsers({
+    super.key,
+    required this.onChanged,
+  });
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userMarkedProvider = ref.watch(usersMarkedProvider);
@@ -165,12 +172,20 @@ class ListMarkedUsers extends ConsumerWidget {
             final model = userMarkedProvider.allUsersMar[index];
             return ListTile(
               title: Text(model.userreportName),
-              subtitle: Text(model.userreportCodigo),
-              onTap: () {},
+              // subtitle: Text(model.userreportCodigo),
+              trailing: Checkbox(
+                value: model.selected,
+                onChanged: (v) {
+                  onChanged(v, index);
+                },
+              ),
+              leading: CircleAvatar(
+                child: Text(model.userreportName[0]),
+              ),
             );
           },
           separatorBuilder: (BuildContext context, int index) {
-            return  Container();
+            return Container();
           },
           itemCount: userMarkedProvider.allUsersMar.length,
         ),

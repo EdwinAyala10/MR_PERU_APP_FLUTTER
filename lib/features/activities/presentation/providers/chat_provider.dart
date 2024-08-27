@@ -166,7 +166,7 @@ class UserMarked {
     required this.userreportName,
     required this.userreportType,
     required this.userreportAbbrt,
-    this.selected,
+    this.selected = false,
   });
 
   factory UserMarked.fromJson(Map<String, dynamic> json) => UserMarked(
