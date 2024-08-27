@@ -147,7 +147,7 @@ class _ActivitiesViewState extends ConsumerState {
     scrollController.addListener(() {
       if ((scrollController.position.pixels + 400) >=
           scrollController.position.maxScrollExtent) {
-          ref.read(activitiesProvider.notifier).loadNextPage(isRefresh: false);
+        ref.read(activitiesProvider.notifier).loadNextPage(isRefresh: false);
       }
     });
 
@@ -178,15 +178,14 @@ class _ActivitiesViewState extends ConsumerState {
 
     return activitiesState.activities.isNotEmpty
         ? _ListActivities(
-            activities: activitiesState.activities, 
+            activities: activitiesState.activities,
             onRefreshCallback: _refresh,
             scrollController: scrollController,
           )
         : NoExistData(
-          textCenter: 'No hay actividades registradas',
-          onRefreshCallback: _refresh,
-          icon: Icons.graphic_eq
-        );
+            textCenter: 'No hay actividades registradas',
+            onRefreshCallback: _refresh,
+            icon: Icons.graphic_eq);
   }
 }
 
@@ -198,10 +197,9 @@ class _SearchComponent extends ConsumerStatefulWidget {
 }
 
 class __SearchComponentState extends ConsumerState<_SearchComponent> {
-   TextEditingController searchController = TextEditingController(
+  TextEditingController searchController = TextEditingController(
       //text: ref.read(routePlannerProvider).textSearch
-    );
-
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -261,7 +259,6 @@ class __SearchComponentState extends ConsumerState<_SearchComponent> {
     );
   }
 }
-
 
 /*class _SearchComponent extends ConsumerStatefulWidget {
   const _SearchComponent();
@@ -338,7 +335,9 @@ class _ListActivities extends ConsumerStatefulWidget {
   final ScrollController scrollController;
 
   const _ListActivities(
-      {required this.activities, required this.onRefreshCallback, required this.scrollController});
+      {required this.activities,
+      required this.onRefreshCallback,
+      required this.scrollController});
 
   @override
   _ListActivitiesState createState() => _ListActivitiesState();
@@ -371,13 +370,16 @@ class _ListActivitiesState extends ConsumerState<_ListActivities> {
                 )),
           )
         : NotificationListener(
-          onNotification: (ScrollNotification scrollInfo) {
-            if (scrollInfo.metrics.pixels + 400 == scrollInfo.metrics.maxScrollExtent) {
-              ref.read(activitiesProvider.notifier).loadNextPage(isRefresh: false);
-            }
-            return false;
-          },
-          child: RefreshIndicator(
+            onNotification: (ScrollNotification scrollInfo) {
+              if (scrollInfo.metrics.pixels + 400 ==
+                  scrollInfo.metrics.maxScrollExtent) {
+                ref
+                    .read(activitiesProvider.notifier)
+                    .loadNextPage(isRefresh: false);
+              }
+              return false;
+            },
+            child: RefreshIndicator(
               notificationPredicate: defaultScrollNotificationPredicate,
               onRefresh: widget.onRefreshCallback,
               key: refreshIndicatorKey,
@@ -387,17 +389,16 @@ class _ListActivitiesState extends ConsumerState<_ListActivities> {
                     const Divider(),
                 itemBuilder: (context, index) {
                   final activity = widget.activities[index];
-          
+
                   return ItemActivity(
                       activity: activity,
                       callbackOnTap: () {
-                        print('aqui envia');
                         ref.read(selectedAC.notifier).state = activity;
                         context.push('/activity_detail/${activity.id}');
                       });
                 },
               ),
             ),
-        );
+          );
   }
 }

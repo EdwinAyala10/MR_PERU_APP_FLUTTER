@@ -12,8 +12,7 @@ enum TypeFileOp { photo, archive }
 
 final selectedAC = StateProvider<Activity?>((ref) => null);
 
-final docActivitieProvider =
-    StateNotifierProvider<DocumentsNotifier, DocumentsState>(
+final docActivitieProvider = StateNotifierProvider<DocumentsNotifier, DocumentsState>(
   (ref) {
     final docAcRepository = ref.watch(docActivitieRepositoryProvider);
     final user = ref.watch(authProvider).user;

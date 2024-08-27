@@ -1,14 +1,13 @@
 import 'package:crm_app/config/constants/environment.dart';
 import 'package:crm_app/features/activities/infrastructure/mappers/activitie_create_document_response.dart';
 import 'package:crm_app/features/activities/infrastructure/mappers/activitie_delete_document_mapper.dart';
+import 'package:crm_app/features/activities/presentation/providers/chat_provider.dart';
 import 'package:crm_app/features/activities/presentation/providers/docs_activitie_provider.dart';
+import 'package:crm_app/features/activities/presentation/screens/chat_screen.dart';
 import 'package:crm_app/features/activities/presentation/widgets/activitie_document_card.dart';
+import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/documents/presentation/screens/documents_screen.dart';
-// import 'package:crm_app/features/opportunities/infrastructure/mappers/op_create_document_response.dart';
-// import 'package:crm_app/features/opportunities/infrastructure/mappers/op_delete_document_mapper.dart';
-// import 'package:crm_app/features/opportunities/presentation/providers/docs_opportunitie_provider.dart';
-// import 'package:crm_app/features/opportunities/presentation/widgets/op_document_card.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 import 'package:dio/dio.dart';
@@ -58,10 +57,8 @@ class _ActivityDetailScreenState extends ConsumerState<_ActivityDetailScreen>
     _tabController = TabController(length: 4, vsync: this);
     _tabController.addListener(_handleTabChange);
 
-    // WidgetsBinding.instance?.addPostFrameCallback((_) {
-    //   ref
-    //       .watch(companyProvider(widget.company.ruc).notifier)
-    //       .loadSecundaryDetails();
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   ref.read(chatProvider).disconnect();
     // });
   }
 
@@ -71,28 +68,25 @@ class _ActivityDetailScreenState extends ConsumerState<_ActivityDetailScreen>
     super.dispose();
   }
 
-  void _handleTabChange() {
-    setState(() {
-      currentIndex = _tabController.index;
-    });
-  }
+  void _handleTabChange() {}
 
   @override
   Widget build(BuildContext context) {
-    // TextStyle styleTitle =
-    //     const TextStyle(fontWeight: FontWeight.w600, fontSize: 16);
-    // TextStyle styleLabel = const TextStyle(
-    //     fontWeight: FontWeight.w500, fontSize: 16, color: Colors.black87);
-    // TextStyle styleContent =
-    //     const TextStyle(fontWeight: FontWeight.w400, fontSize: 16);
-    // SizedBox spacingHeight = const SizedBox(height: 14);
-
     return DefaultTabController(
       length: 4, // Ahora tenemos 6 pestañas
       child: Scaffold(
         appBar: AppBar(
           toolbarHeight: 100,
           centerTitle: true,
+          leading: IconButton(
+            onPressed: () {
+              ref.read(chatProvider).disconnect();
+              context.pop();
+            },
+            icon: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+            ),
+          ),
           title: const Text(
             "Actividad - Detalle",
             style: TextStyle(
@@ -166,7 +160,8 @@ class _ActivityDetailScreenState extends ConsumerState<_ActivityDetailScreen>
   }
 
   Widget buildComents() {
-    return Container();
+    final user = ref.read(authProvider).user;
+    return ChatScreen(user?.name ?? '');
   }
 
   Widget buildDocuments() {
