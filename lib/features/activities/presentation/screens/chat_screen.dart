@@ -106,10 +106,9 @@ class _ConsumerChatScreenState extends ConsumerState<ChatScreen> {
           ),
           const SizedBox(
             height: 20,
-          )
+          ),
         ],
       ),
     );
   }
 }
-

@@ -13,7 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 // Definimos un ChangeNotifier para manejar el estado del chat
 class ChatNotifier extends ChangeNotifier {
   IO.Socket? socket;
-  List<Message> messages = [];
+  List<MessageModel> messages = [];
   String userName = '';
   User? user;
   Activity? activity;
@@ -41,8 +41,12 @@ class ChatNotifier extends ChangeNotifier {
     });
 
     socket?.on('message', (data) {
-      messages.add(Message.fromJson(data));
-      notifyListeners();
+      // messages.add(MessageModel.fromJson(data));
+      // notifyListeners();
+      if (data['userID'] == user?.id) {
+        final messageModel = MessageModel.fromJson(data);
+        registerComentActivity(destinoID: [], model: messageModel);
+      }
     });
 
     socket?.onDisconnect((_) {
@@ -55,7 +59,7 @@ class ChatNotifier extends ChangeNotifier {
     if (messages.contains('@') == true) {
       socket?.emit(
         'mentionUser',
-        Message(
+        MessageModel(
           content: message,
           date: DateTime.now(),
           senderName: user?.name ?? '',
@@ -64,10 +68,9 @@ class ChatNotifier extends ChangeNotifier {
       );
       return;
     }
-
     socket?.emit(
       'sendMessage',
-      Message(
+      MessageModel(
         content: message,
         date: DateTime.now(),
         senderName: user?.name ?? '',
@@ -90,6 +93,34 @@ class ChatNotifier extends ChangeNotifier {
     //     ).toJson(),
     //   );
     // }
+  }
+
+  Future<void> registerComentActivity({
+    required List<String> destinoID,
+    required MessageModel model,
+  }) async {
+    final client = Dio(
+      BaseOptions(
+        headers: {'Authorization': 'Bearer ${user?.token}'},
+      ),
+    );
+    const path = "http://92.118.56.131/back-mrpe-develop/public/api";
+    const url = "$path/user/listar-usuarios-by-tipo";
+    final formData = {
+      "ACCM_ID_ACTIVIDAD": activity?.id,
+      "ACCM_COMENTARIO": model.content,
+      "ACCM_ID_USUARIO_REGISTRO": user?.code,
+      "ACTIVIDAD_COMENTARIO_DESTINO": destinoID
+          .map(
+            (v) => {"ACCM_ID_USUARIO_DESTINO": v},
+          )
+          .toList()
+    };
+    final response = await client.post(url, data: formData);
+    if (response.data['status'] == true) {
+      messages.add(model);
+      notifyListeners();
+    }
   }
 
   @override
@@ -128,9 +159,11 @@ class UsersMarkedNotifier extends ChangeNotifier {
   UsersMarkedNotifier({this.token});
 
   Future<void> getAllUsersMarked() async {
-    final client =
-        Dio(BaseOptions(headers: {'Authorization': 'Bearer $token'}));
-    ;
+    final client = Dio(
+      BaseOptions(
+        headers: {'Authorization': 'Bearer $token'},
+      ),
+    );
     const path = "http://92.118.56.131/back-mrpe-develop/public/api";
     const url = "$path/user/listar-usuarios-by-tipo";
     try {

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show DateFormat;
 
 class MessagesItem extends StatelessWidget {
-  final Message _message;
+  final MessageModel _message;
 
   final bool isUserMassage;
 

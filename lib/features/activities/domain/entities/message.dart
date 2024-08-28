@@ -1,13 +1,13 @@
 import 'dart:convert';
 
-class Message {
+class MessageModel {
   final String senderName;
   final String content;
   final List<String>? markedsID;
   final String userID;
   final DateTime date;
 
-  const Message({
+  const MessageModel({
     required this.senderName,
     required this.content,
     required this.date,
@@ -27,8 +27,8 @@ class Message {
         },
       );
 
-  static Message fromJson(Map<String, dynamic> data) {
-    return Message(
+  static MessageModel fromJson(Map<String, dynamic> data) {
+    return MessageModel(
       senderName: data['senderName'],
       content: data['content'],
       date: DateTime.parse(
