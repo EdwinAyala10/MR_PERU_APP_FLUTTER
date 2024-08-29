@@ -10,3 +10,4 @@ export 'placeholder.dart';
 export 'placeholder_section.dart';
 export 'confirm_delete_dialog.dart';
 export 'icons_activity.dart';
+export 'mostrar_modal_mensaje.dart';

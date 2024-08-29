@@ -50,4 +50,9 @@ class RoutePlannerRepositoryImpl extends RoutePlannerRepository {
     return datasource.createEventPlanner(eventLike);
   }
 
+  @override
+  Future<List<FilterHorarioTrabajo>> getFilterHorarioTrabajo({String search = ''}) {
+    return datasource.getFilterHorarioTrabajo(search: search);
+  }
+
 }

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:crm_app/config/config.dart';
+import 'package:crm_app/features/location/presentation/providers/places_repository_provider.dart';
 import 'package:crm_app/features/location/presentation/widgets/widgets_to_marker.dart';
 import 'package:crm_app/features/route-planner/domain/domain.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -17,11 +18,15 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 final mapProvider = StateNotifierProvider<MapNotifier, MapState>((ref) {
   //final authRepository = AuthRepositoryImpl();
   final keyValueStorageService = KeyValueStorageServiceImpl();
+  final placeRepository = ref.read(placesRepositoryProvider);
 
   return MapNotifier(
       //authRepository: authRepository,
+      searchDistanceAndDuration: placeRepository.getDistanceAndDuration,
       keyValueStorageService: keyValueStorageService);
 });
+
+typedef SearchDistanceAndDurationCallback = Future<DistanceMatrix> Function({double originLat, double originLng, double destLat, double destLng});
 
 class MapNotifier extends StateNotifier<MapState> {
   //final AuthRepository authRepository;
@@ -29,10 +34,13 @@ class MapNotifier extends StateNotifier<MapState> {
   StreamSubscription<Position>? positionStream;
   GoogleMapController? _mapController;
   StreamSubscription<LocationState>? locationStateSubscription;
+  final SearchDistanceAndDurationCallback searchDistanceAndDuration;
+  
 
   MapNotifier({
     //required this.authRepository,
     required this.keyValueStorageService,
+    required this.searchDistanceAndDuration,
   }) : super(MapState());
 
   void onInitMap(GoogleMapController controller) {
@@ -119,6 +127,9 @@ class MapNotifier extends StateNotifier<MapState> {
 
     currentMarkers['location'] = startMarker;
 
+    int totalDistanceLocal = 0; // En metros
+    int totalDurationLocal = 0; // En segundos
+
     //List<CompanyLocalRoutePlanner> localesOrderMarkers = await _sortLocalesByDistance(position, locales);
 
     //MARKERS
@@ -159,6 +170,20 @@ class MapNotifier extends StateNotifier<MapState> {
           positionOrigin = positionOrig;
         }
 
+        //Calcular distancia
+        //final resultDistanceAndDuration = await getDistanceAndDuration(apiKey, originLat, originLng, destLat, destLng);
+        final distanceAndDuration = await searchDistanceAndDuration(
+          originLat: positionOrigin.latitude, 
+          originLng: positionOrigin.longitude, 
+          destLat: positionDestination.latitude, 
+          destLng: positionDestination.longitude
+        );
+
+        totalDistanceLocal += distanceAndDuration.distanceValue;
+        totalDurationLocal += distanceAndDuration.durationValue;
+
+        print('LOG FLUTTER - Distancia: ${distanceAndDuration.distanceText}');
+        print('LOG FLUTTER - Duración: ${distanceAndDuration.durationText}');
 
         PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
           googleApiKey: Environment.apiKeyGoogleMaps,
@@ -191,6 +216,8 @@ class MapNotifier extends StateNotifier<MapState> {
     state = state.copyWith(
       markers: currentMarkers,
       polylines: currentPolylines,
+      totalDistance: totalDistanceLocal,
+      totalDuration: totalDurationLocal
     );
   }
 
@@ -279,6 +306,8 @@ class MapState {
   final Place? selectedPlace;
   final Map<String, Marker> markers;
   final Map<String, Polyline> polylines;
+  final int totalDistance;
+  final int totalDuration;
 
   MapState({
     this.isMapInitialized = false, 
@@ -286,7 +315,9 @@ class MapState {
     this.locationCurrent, 
     this.selectedPlace,
     this.markers = const {},
-    this.polylines = const {}
+    this.polylines = const {},
+    this.totalDistance = 0,
+    this.totalDuration = 0
   });
 
   MapState copyWith({
@@ -296,6 +327,8 @@ class MapState {
     Place? selectedPlace,
     Map<String, Marker>? markers,
     Map<String, Polyline>? polylines,
+    int? totalDistance,
+    int? totalDuration
   }) =>
       MapState(
         isMapInitialized: isMapInitialized ?? this.isMapInitialized,
@@ -304,5 +337,7 @@ class MapState {
         selectedPlace: selectedPlace ?? this.selectedPlace,
         markers: markers ?? this.markers,
         polylines: polylines ?? this.polylines,
+        totalDistance: totalDistance ?? this.totalDistance,
+        totalDuration: totalDuration ?? this.totalDuration,
       );
 }

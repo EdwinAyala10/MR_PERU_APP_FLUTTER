@@ -5,8 +5,14 @@ class EventPlanner {
   //String? evntAsunto;
   DateTime evntFechaInicioEvento;
   String evntHoraInicioEvento;
+  DateTime evntFechaTerminoEvento;
   String evntIdTipoGestion;
   String? evntNombreTipoGestion;
+  String? horarioTrabajoNombre;
+  String? horarioTrabajoId;
+
+  String? tiempoEntreVisitasId;
+  String? tiempoEntreVisitasNombre;
   //int evntIdRecordatorio;
   String evntIdIntervaloReunion;
   String evntNombreIntervaloReunion;
@@ -19,9 +25,16 @@ class EventPlanner {
     required this.id,
     //this.evntAsunto,
     required this.evntFechaInicioEvento,
+    required this.evntFechaTerminoEvento,
     required this.evntHoraInicioEvento,
     required this.evntIdTipoGestion,
     this.evntNombreTipoGestion,
+
+    this.horarioTrabajoNombre,
+    this.horarioTrabajoId,
+    this.tiempoEntreVisitasId,
+    this.tiempoEntreVisitasNombre,
+
     //required this.evntIdRecordatorio,
     required this.evntIdIntervaloReunion,
     required this.evntNombreIntervaloReunion,

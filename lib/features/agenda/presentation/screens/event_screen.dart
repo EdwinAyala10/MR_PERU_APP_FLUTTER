@@ -900,14 +900,15 @@ class _EventInformation extends ConsumerWidget {
             query: searchQuery,
             context: context,
             delegate: SearchUserDelegate(
-              userCurrent: user!,
-                initialUsers: searchedUsers,
-                searchUsers: ref
-                    .read(searchedUsersProvider.notifier)
-                    .searchUsersByQuery,
-                resetSearchQuery: () {
-                  ref.read(searchQueryUsersProvider.notifier).update((state) => '');
-                },
+              //userCurrent: user!,
+              idItemDelete: user!.code,
+              initialUsers: searchedUsers,
+              searchUsers: ref
+                  .read(searchedUsersProvider.notifier)
+                  .searchUsersByQuery,
+              resetSearchQuery: () {
+                ref.read(searchQueryUsersProvider.notifier).update((state) => '');
+              },
             ))
         .then((user) {
       if (user == null) return;

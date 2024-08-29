@@ -66,6 +66,7 @@ class _FilterBottomRouterPlannerSheetState extends ConsumerState<FilterBottomRou
             child: ListView.separated(
               itemBuilder: ( context, index) {
                 final options = [
+                  FilterOptionContainerFil(title: 'Horario de trabajo', trailing: 'Selecciona', type: 'HRTR_ID_HORARIO_TRABAJO'),
                   FilterOptionContainerFil(title: 'Muestra sólo en seguimiento', trailing: 'Selecciona', type: 'ESTADO'),
                   FilterOptionContainerFil(title: 'Actividad', trailing: 'Selecciona', type: 'ULTIMAS_VISITAS'),
                   FilterOptionContainerFil(title: 'Tipo', trailing: 'Selecciona', type: 'TIPOCLIENTE'),

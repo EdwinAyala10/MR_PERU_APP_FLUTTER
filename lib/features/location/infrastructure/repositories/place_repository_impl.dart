@@ -22,4 +22,18 @@ class PlacesRepositoryImpl extends PlacesRepository {
     return datasource.getSearchPlaceIdByCoors(coors);
   }
 
+  @override
+  Future<DistanceMatrix> getDistanceAndDuration({ 
+    double originLat = 0, 
+    double originLng = 0, 
+    double destLat = 0, 
+    double destLng = 0 }) {
+    return datasource.getDistanceAndDuration(
+      originLat: originLat,
+      originLng: originLng,
+      destLat: destLat,
+      destLng: destLng
+    );
+  }
+
 }

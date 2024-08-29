@@ -57,8 +57,8 @@ class _CompaniesViewState extends ConsumerState {
     super.initState();
 
     scrollController.addListener(() {
-      if ((scrollController.position.pixels + 400) >=
-          scrollController.position.maxScrollExtent) {
+      if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 200) {
+        print('CARGANDO MAS');
         ref.read(companiesProvider.notifier).loadNextPage(isRefresh: false);
       }
     });
@@ -86,9 +86,9 @@ class _CompaniesViewState extends ConsumerState {
   Widget build(BuildContext context) {
     final companiesState = ref.watch(companiesProvider);
 
-    if (companiesState.isLoading) {
+    /*if (companiesState.isLoading) {
       return const LoadingModal();
-    }
+    }*/
 
     return companiesState.companies.isNotEmpty
         ? _ListCompanies(
@@ -159,7 +159,7 @@ class _ListCompaniesState extends ConsumerState<_ListCompanies> {
               //key: _refreshIndicatorKey,
               child: ListView.separated(
                 itemCount: widget.companies.length,
-                //controller: widget.scrollController,
+                controller: widget.scrollController,
                 //physics: const BouncingScrollPhysics(),
                 separatorBuilder: (BuildContext context, int index) =>
                     const Divider(),
@@ -167,11 +167,11 @@ class _ListCompaniesState extends ConsumerState<_ListCompanies> {
                   final company = widget.companies[index];
 
                   return ItemCompany(
-                    company: company,
-                    callbackOnTap: () {
-                      context.push('/company_detail/${company.ruc}');
-                    },
-                  );
+                      company: company,
+                      index: index,
+                      callbackOnTap: () {
+                        context.push('/company_detail/${company.ruc}');
+                      });
                 },
               ),
             ),

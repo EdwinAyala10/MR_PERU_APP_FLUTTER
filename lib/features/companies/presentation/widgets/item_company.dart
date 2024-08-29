@@ -5,9 +5,10 @@ import 'package:flutter/material.dart';
 
 class ItemCompany extends StatelessWidget {
   Company company;
+  int index;
   final Function()? callbackOnTap;
 
-  ItemCompany({super.key, required this.company, required this.callbackOnTap});
+  ItemCompany({super.key, required this.company, required this.callbackOnTap, required this.index});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +16,7 @@ class ItemCompany extends StatelessWidget {
     numCantidadLocal = numCantidadLocal ?? 0;
 
     return ListTile(
-      title: Text(company.razon,
+      title: Text('${index} - ${company.razon}',
           style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,12 +1,11 @@
-import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/location/presentation/providers/providers.dart';
 import 'package:crm_app/features/route-planner/domain/domain.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
-import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
+import 'package:crm_app/features/shared/widgets/format_distance.dart';
+import 'package:crm_app/features/shared/widgets/format_duration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class RouteCard extends ConsumerStatefulWidget {
   @override
@@ -18,6 +17,8 @@ class _RouteCardState extends ConsumerState<RouteCard> {
   Widget build(BuildContext context) {
 
     final List<CompanyLocalRoutePlanner> listSelectedItems = ref.watch(routePlannerProvider).selectedItems;
+    final int totalDistance = ref.watch(mapProvider).totalDistance;
+    final int totalDuration = ref.watch(mapProvider).totalDuration;
 
     return GestureDetector(
       onTap: () async {
@@ -59,9 +60,9 @@ class _RouteCardState extends ConsumerState<RouteCard> {
                     ),
                 ),
                 const SizedBox(height: 5),
-                const Text(
-                  '0km · 0h en coche',
-                  style: TextStyle(
+                Text(
+                  '${formatDistanceV2(totalDistance)} · ${formatDuration(totalDuration)} en coche',
+                  style: const TextStyle(
                     fontSize: 16,
                     color: Colors.black54,
                   ),

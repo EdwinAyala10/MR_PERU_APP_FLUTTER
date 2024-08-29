@@ -8,5 +8,6 @@ export 'entities/filter_responsable.dart';
 export 'entities/filter_codigo_postal.dart';
 export 'entities/filter_distrito.dart';
 export 'entities/filter_ruc_razon_social.dart';
+export 'entities/filter_horario_trabajo.dart';
 
 export 'repositories/route_planner_repository.dart';

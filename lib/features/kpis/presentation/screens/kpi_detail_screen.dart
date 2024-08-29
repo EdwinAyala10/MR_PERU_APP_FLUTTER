@@ -215,6 +215,7 @@ class KpiDetailScreen extends ConsumerWidget {
             if (type?.objrIdCategoria == TypeCategory.nuevaEmpresa) {
               return ItemCompany(
                 company: response.items[index],
+                index: index,
                 callbackOnTap: () {},
               );
             }

@@ -441,7 +441,8 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
             query: searchQuery,
             context: context,
             delegate: SearchUserDelegate(
-                userCurrent: user!,
+                //userCurrent: user!,
+                //idItemDelete: user!.code,
                 initialUsers: searchedUsers,
                 searchUsers: ref
                     .read(searchedUsersProvider.notifier)

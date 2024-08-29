@@ -17,6 +17,7 @@ abstract class RoutePlannerRepository {
   Future<List<FilterCodigoPostal>> getFilterCodigoPostal({ String search });
   Future<List<FilterDistrito>> getFilterDistrito({ String search });
   Future<List<FilterRucRazonSocial>> getFilterRucRazonSocial({ String search });
+  Future<List<FilterHorarioTrabajo>> getFilterHorarioTrabajo({ String search });
 
   Future<EventPlannerResponse> createEventPlanner( Map<dynamic,dynamic> eventLike );
 }

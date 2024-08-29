@@ -1,3 +1,4 @@
+
 import '../../domain/domain.dart';
 import '../../domain/entities/geocode_response.dart';
 import '../mappers/geocode_response_mapper.dart';
@@ -82,5 +83,42 @@ class PlacesDatasourceImpl extends PlacesDatasource {
     }
 
     return "";
+  }
+
+  @override
+  Future<DistanceMatrix> getDistanceAndDuration({ 
+    double originLat = 0, 
+    double originLng = 0, 
+    double destLat = 0, 
+    double destLng = 0 }) async {
+    final dio = Dio();
+
+    print('originLat: ${originLat}');
+    print('originLng: ${originLng}');
+    print('destLat: ${destLat}');
+    print('destLng: ${destLng}');
+
+    final url =  'https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=$originLat,$originLng&destinations=$destLat,$destLng&mode=driving&key=${Environment.apiKeyGoogleMaps}';
+
+    print('URL: ${url}');
+
+    try {
+      final response = await dio.get(url);
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+
+        if ((data['rows'] as List).isNotEmpty) {
+          return DistanceMatrix.fromJson(data);
+        } else {
+          throw Exception('No se encontró ninguna ruta.');
+        }
+      } else {
+        throw Exception('Error en la solicitud: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error en la solicitud: $e');
+    }
+    
   }
 }
