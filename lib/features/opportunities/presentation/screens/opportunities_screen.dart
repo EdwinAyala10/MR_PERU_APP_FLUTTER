@@ -98,9 +98,9 @@ class _OpportunitiesViewState extends ConsumerState {
     super.initState();
 
     scrollController.addListener(() {
-      if ((scrollController.position.pixels + 400) >=
-          scrollController.position.maxScrollExtent) {
-        ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: true);
+      if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 200) {
+        print('CARGANDO MAS');
+        ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: false);
       }
     });
 
@@ -126,6 +126,7 @@ class _OpportunitiesViewState extends ConsumerState {
   @override
   Widget build(BuildContext context) {
     final opportunitiesState = ref.watch(opportunitiesProvider);
+    final isReload = opportunitiesState.isReload;
 
     if (opportunitiesState.isLoading) {
       return const LoadingModal();
@@ -135,6 +136,7 @@ class _OpportunitiesViewState extends ConsumerState {
         ? _ListOpportunities(
             opportunities: opportunitiesState.opportunities,
             onRefreshCallback: _refresh,
+            isReload: isReload,
             scrollController: scrollController,
           )
         : NoExistData(
@@ -285,10 +287,12 @@ class _ListOpportunities extends ConsumerStatefulWidget {
   final List<Opportunity> opportunities;
   final Future<void> Function() onRefreshCallback;
   final ScrollController scrollController;
+  final bool isReload;
 
   const _ListOpportunities(
       {required this.opportunities,
       required this.onRefreshCallback,
+      required this.isReload,
       required this.scrollController});
 
   @override
@@ -341,6 +345,13 @@ class _ListOpportunitiesState extends ConsumerState<_ListOpportunities> {
                     const Divider(),
                 itemBuilder: (context, index) {
                   final opportunity = widget.opportunities[index];
+
+                  if (index + 1 == widget.opportunities.length) {
+                    if (widget.isReload) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                  }
+
                   return ItemOpportunity(
                     opportunity: opportunity,
                     callbackOnTap: () {

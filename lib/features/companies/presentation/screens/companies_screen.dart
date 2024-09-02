@@ -85,20 +85,22 @@ class _CompaniesViewState extends ConsumerState {
   @override
   Widget build(BuildContext context) {
     final companiesState = ref.watch(companiesProvider);
+    final isReload = companiesState.isReload;
 
-    /*if (companiesState.isLoading) {
+    if (companiesState.isLoading) {
       return const LoadingModal();
-    }*/
+    }
 
     return companiesState.companies.isNotEmpty
-        ? _ListCompanies(
-            companies: companiesState.companies,
-            onRefreshCallback: _refresh,
-            scrollController: scrollController,
-          )
-        : NoExistData(
-            textCenter: 'No hay empresas registradas',
-            onRefreshCallback: _refresh,
+      ? _ListCompanies(
+          companies: companiesState.companies, 
+          onRefreshCallback: _refresh,
+          isReload: isReload,
+          scrollController: scrollController,
+      )
+      : NoExistData(
+        textCenter: 'No hay empresas registradas',
+        onRefreshCallback: _refresh, 
             icon: Icons.business);
   }
 }
@@ -107,10 +109,12 @@ class _ListCompanies extends ConsumerStatefulWidget {
   final List<Company> companies;
   final Future<void> Function() onRefreshCallback;
   final ScrollController scrollController;
+  final bool isReload;
 
   const _ListCompanies(
       {required this.companies,
       required this.onRefreshCallback,
+      required this.isReload,
       required this.scrollController});
 
   @override
@@ -144,16 +148,16 @@ class _ListCompaniesState extends ConsumerState<_ListCompanies> {
                 )),
           )
         : NotificationListener(
-            onNotification: (ScrollNotification scrollInfo) {
+          onNotification: (ScrollNotification scrollInfo) {
               if (scrollInfo.metrics.pixels + 400 ==
                   scrollInfo.metrics.maxScrollExtent) {
                 ref
                     .read(companiesProvider.notifier)
                     .loadNextPage(isRefresh: false);
-              }
-              return false;
-            },
-            child: RefreshIndicator(
+            }
+            return false;
+          },
+          child: RefreshIndicator(
               notificationPredicate: defaultScrollNotificationPredicate,
               onRefresh: widget.onRefreshCallback,
               //key: _refreshIndicatorKey,
@@ -166,18 +170,24 @@ class _ListCompaniesState extends ConsumerState<_ListCompanies> {
                 itemBuilder: (context, index) {
                   final company = widget.companies[index];
 
+                  if (index + 1 == widget.companies.length) {
+                    if (widget.isReload) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                  }
+          
                   return ItemCompany(
                       company: company,
-                      index: index,
                       callbackOnTap: () {
                         context.push('/company_detail/${company.ruc}');
                       });
                 },
               ),
             ),
-          );
+        );
   }
 }
+
 
 class _SearchComponent extends ConsumerStatefulWidget {
   const _SearchComponent({super.key});
@@ -187,9 +197,10 @@ class _SearchComponent extends ConsumerStatefulWidget {
 }
 
 class __SearchComponentState extends ConsumerState<_SearchComponent> {
-  TextEditingController searchController = TextEditingController(
+   TextEditingController searchController = TextEditingController(
       //text: ref.read(routePlannerProvider).textSearch
-      );
+    );
+
 
   @override
   Widget build(BuildContext context) {
@@ -249,3 +260,5 @@ class __SearchComponentState extends ConsumerState<_SearchComponent> {
     );
   }
 }
+
+

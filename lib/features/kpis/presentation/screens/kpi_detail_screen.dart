@@ -4,7 +4,6 @@ import 'package:crm_app/features/companies/presentation/widgets/item_company.dar
 import 'package:crm_app/features/contacts/presentation/widgets/item_contact.dart';
 import 'package:crm_app/features/kpis/presentation/providers/kpis_by_cat_provider.dart';
 import 'package:crm_app/features/kpis/presentation/widgets/custom_switch.dart';
-import 'package:crm_app/features/kpis/presentation/widgets/item_objetive_by_category.dart';
 import 'package:crm_app/features/opportunities/presentation/widgets/item_opportunity.dart';
 
 import '../providers/providers.dart';
@@ -215,7 +214,6 @@ class KpiDetailScreen extends ConsumerWidget {
             if (type?.objrIdCategoria == TypeCategory.nuevaEmpresa) {
               return ItemCompany(
                 company: response.items[index],
-                index: index,
                 callbackOnTap: () {},
               );
             }

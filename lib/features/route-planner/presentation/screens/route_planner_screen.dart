@@ -172,8 +172,8 @@ class _RoutePlannerViewState extends ConsumerState {
     super.initState();
 
     scrollController.addListener(() {
-      if ((scrollController.position.pixels + 400) >=
-          scrollController.position.maxScrollExtent) {
+      if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 200) {
+        print('CARGANDO MAS');
         ref.read(routePlannerProvider.notifier).loadNextPage(isRefresh: false);
       }
     });
@@ -197,6 +197,7 @@ class _RoutePlannerViewState extends ConsumerState {
   @override
   Widget build(BuildContext context) {
     final routePlannerState = ref.watch(routePlannerProvider);
+    final isReload = routePlannerState.isReload;
 
     if (routePlannerState.isLoading) {
       return const LoadingModal();
@@ -206,6 +207,7 @@ class _RoutePlannerViewState extends ConsumerState {
       ? _ListLocales(
           locales: routePlannerState.locales, 
           onRefreshCallback: _refresh,
+          isReload: isReload,
           scrollController: scrollController,
       )
       : NoExistData(
@@ -220,9 +222,10 @@ class _ListLocales extends ConsumerStatefulWidget {
   final List<CompanyLocalRoutePlanner> locales;
   final Future<void> Function() onRefreshCallback;
   final ScrollController scrollController;
+  final bool isReload;
 
   const _ListLocales(
-      {required this.locales, required this.onRefreshCallback, required this.scrollController});
+      {required this.locales, required this.onRefreshCallback, required this.scrollController, required this.isReload});
 
   @override
   _ListLocalesState createState() => _ListLocalesState();
@@ -267,11 +270,17 @@ class _ListLocalesState extends ConsumerState<_ListLocales> {
               //key: _refreshIndicatorKey,
               child: ListView.separated(
                 itemCount: widget.locales.length,
-                //controller: widget.scrollController,
+                controller: widget.scrollController,
                 //physics: const BouncingScrollPhysics(),
                 separatorBuilder: (BuildContext context, int index) =>   const Divider(),
                 itemBuilder: (context, index) {
                   final local = widget.locales[index];
+
+                  if (index + 1 == widget.locales.length) {
+                    if (widget.isReload) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                  }
           
                   return ItemRoutePlannerLocal(
                       local: local,

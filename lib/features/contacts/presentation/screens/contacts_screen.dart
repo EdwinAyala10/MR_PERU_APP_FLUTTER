@@ -58,9 +58,9 @@ class _ContactsViewState extends ConsumerState {
     super.initState();
 
     scrollController.addListener(() {
-      if ((scrollController.position.pixels + 400) >=
-          scrollController.position.maxScrollExtent) {
-        //ref.read(productsProvider.notifier).loadNextPage();
+      if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 200) {
+        print('CARGANDO MAS');
+        ref.read(contactsProvider.notifier).loadNextPage(isRefresh: false);
       }
     });
 
@@ -83,6 +83,7 @@ class _ContactsViewState extends ConsumerState {
   @override
   Widget build(BuildContext context) {
     final contactsState = ref.watch(contactsProvider);
+    final isReload = contactsState.isReload;
 
     if (contactsState.isLoading) {
       return const LoadingModal();
@@ -92,6 +93,7 @@ class _ContactsViewState extends ConsumerState {
         ? _ListContacts(
             contacts: contactsState.contacts, 
             onRefreshCallback: _refresh,
+            isReload: isReload,
             scrollController: scrollController,
           )
       : NoExistData(
@@ -243,9 +245,10 @@ class _ListContacts extends ConsumerStatefulWidget {
   final List<Contact> contacts;
   final Future<void> Function() onRefreshCallback;
   final ScrollController scrollController;
+  final bool isReload;
 
   const _ListContacts(
-      {required this.contacts, required this.onRefreshCallback, required this.scrollController});
+      {required this.contacts, required this.onRefreshCallback, required this.scrollController, required this.isReload});
 
   @override
   _ListContactsState createState() => _ListContactsState();
@@ -294,7 +297,13 @@ class _ListContactsState extends ConsumerState<_ListContacts> {
                     const Divider(),
                 itemBuilder: (context, index) {
                   final contact = widget.contacts[index];
-          
+
+                  if (index + 1 == widget.contacts.length) {
+                    if (widget.isReload) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                  }
+
                   return ItemContact(
                       contact: contact,
                       callbackOnTap: () {

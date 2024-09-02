@@ -77,10 +77,13 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
   Future loadNextPage({bool isRefresh = false}) async {
     final search = state.textSearch;
 
-    //if (state.isLoading || state.isLastPage) return;
-    if (state.isLoading) return;
-
-    state = state.copyWith(isLoading: true);
+    if (isRefresh) {
+      if (state.isLoading) return;
+      state = state.copyWith(isLoading: true);
+    } else {
+      if (state.isReload || state.isLastPage) return;  
+      state = state.copyWith(isReload: true);
+    }
 
     int sLimit = state.limit;
     int sOffset = state.offset;
@@ -88,6 +91,8 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
     if (isRefresh) {
       sLimit = 10;
       sOffset = 0;
+    } else {
+      sOffset = state.offset + 10;
     }
 
     final activities = await activitiesRepository.getActivities(
@@ -95,27 +100,43 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
 
     if (activities.isEmpty) {
       //state = state.copyWith(isLoading: false, isLastPage: true);
-      state = state.copyWith(isLoading: false);
+      if (isRefresh) {
+        state = state.copyWith(isLoading: false, isLastPage: true);    
+      } else {
+        state = state.copyWith(isReload: false, isLastPage: true);
+      }
       return;
-    }
-
-    int newOffset;
-    List<Activity> newActivities;
-
-    if (isRefresh) {
-      newOffset = 0;
-      newActivities = activities;
     } else {
-      newOffset = state.offset + 10;
-      newActivities = [...state.activities, ...activities];
+      int newOffset;
+      List<Activity> newActivities;
+
+      if (isRefresh) {
+        newOffset = 0;
+        newActivities = activities;
+      } else {
+        newOffset = sOffset;
+        newActivities = [...state.activities, ...activities];
+      }
+
+      if (isRefresh) {
+        state = state.copyWith(
+          isLastPage: false,
+          isLoading: false,
+          offset: newOffset,
+          //activities: [...state.activities, ...activities]
+          activities: newActivities);
+      } else {
+        state = state.copyWith(
+          isLastPage: false,
+          isReload: false,
+          offset: newOffset,
+          //activities: [...state.activities, ...activities]
+          activities: newActivities);
+      }
+
+      
     }
 
-    state = state.copyWith(
-        //isLastPage: false,
-        isLoading: false,
-        offset: newOffset,
-        //activities: [...state.activities, ...activities]
-        activities: newActivities);
   }
 
   Future loadNextPageActivitiesByOpportunities({
@@ -177,6 +198,7 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
 
 class ActivitiesState {
   final bool isLastPage;
+  final bool isReload;
   final int limit;
   final int offset;
   final bool isLoading;
@@ -186,6 +208,7 @@ class ActivitiesState {
 
   ActivitiesState(
       {this.isLastPage = false,
+      this.isReload = false,
       this.limit = 10,
       this.offset = 0,
       this.isLoading = false,
@@ -195,6 +218,7 @@ class ActivitiesState {
 
   ActivitiesState copyWith({
     bool? isLastPage,
+    bool? isReload,
     int? limit,
     int? offset,
     bool? isLoading,
@@ -204,6 +228,7 @@ class ActivitiesState {
   }) =>
       ActivitiesState(
         isLastPage: isLastPage ?? this.isLastPage,
+        isReload: isReload ?? this.isReload,
         limit: limit ?? this.limit,
         offset: offset ?? this.offset,
         isLoading: isLoading ?? this.isLoading,
