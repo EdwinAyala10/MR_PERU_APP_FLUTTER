@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:developer';
 
+import 'package:crm_app/config/constants/environment.dart';
 import 'package:crm_app/features/activities/domain/domain.dart';
 import 'package:crm_app/features/activities/domain/entities/message.dart';
 import 'package:crm_app/features/activities/presentation/providers/docs_activitie_provider.dart';
@@ -14,11 +16,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class ChatNotifier extends ChangeNotifier {
   IO.Socket? socket;
   List<MessageModel> messages = [];
+  List<UsersActivitiChat> listUsersInChat = [];
   String userName = '';
   User? user;
   Activity? activity;
   bool isConnected = false;
-  ChatNotifier({this.user, this.activity});
+
+  ChatNotifier({
+    this.user,
+    this.activity,
+  });
 
   void connectToServer() {
     if (isConnected) return;
@@ -43,10 +50,20 @@ class ChatNotifier extends ChangeNotifier {
     socket?.on('message', (data) {
       // messages.add(MessageModel.fromJson(data));
       // notifyListeners();
-      if (data['userID'] == user?.id) {
-        final messageModel = MessageModel.fromJson(data);
-        registerComentActivity(destinoID: [], model: messageModel);
+      final messageModel = MessageModel.fromJson(data);
+      final destinosID = (data['LIST_MARKEDS'] as List)
+          .map((v) => UserMarked.fromJson(v))
+          .toList();
+      if (data['ACCM_ID_USUARIO_REGISTRO'] == user?.code) {
+        log('Entrooooo!!!!');
+        registerComentActivity(
+          destinoID: destinosID,
+          model: messageModel,
+        );
+        return;
       }
+      messages.add(messageModel);
+      notifyListeners();
     });
 
     socket?.onDisconnect((_) {
@@ -55,27 +72,31 @@ class ChatNotifier extends ChangeNotifier {
     });
   }
 
-  void sendMessage(String message) {
+  void sendMessage(String message, List<UserMarked> listUsersMarked) {
     if (messages.contains('@') == true) {
       socket?.emit(
         'mentionUser',
         MessageModel(
-          content: message,
-          date: DateTime.now(),
-          senderName: user?.name ?? '',
-          userID: user?.id ?? '',
-        ).toJson(),
+          accmComentario: message,
+          accmFechaRegistro: DateTime.now(),
+          accmIdUsuarioRegistro: user?.id ?? '',
+        ),
       );
       return;
     }
+
+    final payload = MessageModel(
+      accmComentario: message,
+      accmFechaRegistro: DateTime.now(),
+      accmIdUsuarioRegistro: user?.code ?? '',
+    ).toJson();
+
     socket?.emit(
       'sendMessage',
-      MessageModel(
-        content: message,
-        date: DateTime.now(),
-        senderName: user?.name ?? '',
-        userID: user?.id ?? '',
-      ).toJson(),
+      jsonEncode({
+        ...payload,
+        "LIST_MARKEDS": listUsersMarked.map((value) => value.toJson()).toList()
+      }),
     );
 
     // // Manejando menciones con @
@@ -96,7 +117,7 @@ class ChatNotifier extends ChangeNotifier {
   }
 
   Future<void> registerComentActivity({
-    required List<String> destinoID,
+    required List<UserMarked> destinoID,
     required MessageModel model,
   }) async {
     final client = Dio(
@@ -104,21 +125,90 @@ class ChatNotifier extends ChangeNotifier {
         headers: {'Authorization': 'Bearer ${user?.token}'},
       ),
     );
-    const path = "http://92.118.56.131/back-mrpe-develop/public/api";
-    const url = "$path/user/listar-usuarios-by-tipo";
+    final path = Environment.apiUrl;
+    final url = "$path/actividad/crear-actividad-comentario";
+
+    log(url);
     final formData = {
       "ACCM_ID_ACTIVIDAD": activity?.id,
-      "ACCM_COMENTARIO": model.content,
+      "ACCM_COMENTARIO": model.accmComentario,
       "ACCM_ID_USUARIO_REGISTRO": user?.code,
       "ACTIVIDAD_COMENTARIO_DESTINO": destinoID
           .map(
-            (v) => {"ACCM_ID_USUARIO_DESTINO": v},
+            (v) => {"ACCM_ID_USUARIO_DESTINO": v.userreportCodigo},
           )
           .toList()
     };
+    log(formData.toString());
     final response = await client.post(url, data: formData);
+    log(response.data.toString());
     if (response.data['status'] == true) {
       messages.add(model);
+      notifyListeners();
+    }
+  }
+
+  Future<void> listAllComents() async {
+    final client = Dio(
+      BaseOptions(
+        headers: {'Authorization': 'Bearer ${user?.token}'},
+      ),
+    );
+    final path = Environment.apiUrl;
+    final url = "$path/actividad/listar-actividad-comentario";
+    final formData = {'ACCM_ID_ACTIVIDAD': activity?.id};
+    try {
+      final response = await client.post(
+        url,
+        data: formData,
+      );
+      if (response.data['status'] == true) {
+        for (var item in response.data['data']) {
+          final model = MessageModel.fromJson(item);
+          messages.add(model);
+        }
+        notifyListeners();
+        return;
+      }
+      messages = [];
+      log(response.data.toString());
+      log(response.data.toString());
+    } catch (e) {
+      messages.clear();
+    }
+  }
+
+  Future<void> listUsersComentActivity() async {
+    final client = Dio(
+      BaseOptions(
+        headers: {'Authorization': 'Bearer ${user?.token}'},
+      ),
+    );
+    final path = Environment.apiUrl;
+    final url = "$path/actividad/listar-actividad-comentario-participantes";
+    final formData = {'ACCM_ID_ACTIVIDAD': activity?.id};
+    try {
+      final response = await client.post(
+        url,
+        data: formData,
+      );
+      log(response.data.toString());
+      if (response.data['status']) {
+        final listUsers = response.data['data'] as List;
+        final listModel = listUsers
+            .map(
+              (v) => UsersActivitiChat.fromJson(v),
+            )
+            .toList();
+        listUsersInChat = [...listModel];
+        notifyListeners();
+        return;
+      }
+      listUsersInChat = [];
+      notifyListeners();
+    } catch (e) {
+      log(e.toString());
+      listUsersInChat = [];
       notifyListeners();
     }
   }
@@ -139,12 +229,19 @@ class ChatNotifier extends ChangeNotifier {
 final chatProvider = ChangeNotifierProvider<ChatNotifier>((ref) {
   final user = ref.read(authProvider).user;
   final activity = ref.watch(selectedAC);
-  final notifier = ChatNotifier(user: user, activity: activity);
+  final notifier = ChatNotifier(
+    user: user,
+    activity: activity,
+  );
   ref.onDispose(() {
     notifier.disconnect();
   });
   return notifier;
 });
+
+final selectedUsersMarkedProvider = StateProvider<List<UserMarked>?>(
+  (ref) => null,
+);
 
 final usersMarkedProvider = ChangeNotifierProvider<UsersMarkedNotifier>((ref) {
   final token = ref.read(authProvider).user?.token;
@@ -164,10 +261,11 @@ class UsersMarkedNotifier extends ChangeNotifier {
         headers: {'Authorization': 'Bearer $token'},
       ),
     );
-    const path = "http://92.118.56.131/back-mrpe-develop/public/api";
-    const url = "$path/user/listar-usuarios-by-tipo";
+    String path = Environment.apiUrl;
+    String url = "$path/user/listar-usuarios-by-tipo";
     try {
       final response = await client.get(url);
+
       log(response.toString());
       if (response.data['status'] == true) {
         for (var item in response.data['data']) {
@@ -178,6 +276,7 @@ class UsersMarkedNotifier extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
+      log(e.toString());
       _usersMarked = [];
     }
   }
@@ -218,5 +317,38 @@ class UserMarked {
         "USERREPORT_NAME": userreportName,
         "USERREPORT_TYPE": userreportType,
         "USERREPORT_ABBRT": userreportAbbrt
+      };
+}
+
+class UsersActivitiChat {
+  String? accmIdActividad;
+  String? userreportCodigo;
+  String? userreportEmail;
+  String? userreportName;
+  String? userreportAbbrt;
+
+  UsersActivitiChat({
+    this.accmIdActividad,
+    this.userreportCodigo,
+    this.userreportEmail,
+    this.userreportName,
+    this.userreportAbbrt,
+  });
+
+  factory UsersActivitiChat.fromJson(Map<String, dynamic> json) =>
+      UsersActivitiChat(
+        accmIdActividad: json["ACCM_ID_ACTIVIDAD"],
+        userreportCodigo: json["USERREPORT_CODIGO"],
+        userreportEmail: json["USERREPORT_EMAIL"],
+        userreportName: json["USERREPORT_NAME"],
+        userreportAbbrt: json["USERREPORT_ABBRT"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "ACCM_ID_ACTIVIDAD": accmIdActividad,
+        "USERREPORT_CODIGO": userreportCodigo,
+        "USERREPORT_EMAIL": userreportEmail,
+        "USERREPORT_NAME": userreportName,
+        "USERREPORT_ABBRT": userreportAbbrt,
       };
 }

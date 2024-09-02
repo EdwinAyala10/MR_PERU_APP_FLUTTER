@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:crm_app/config/constants/environment.dart';
 import 'package:crm_app/features/activities/infrastructure/mappers/activitie_create_document_response.dart';
 import 'package:crm_app/features/activities/infrastructure/mappers/activitie_delete_document_mapper.dart';
@@ -161,7 +163,7 @@ class _ActivityDetailScreenState extends ConsumerState<_ActivityDetailScreen>
 
   Widget buildComents() {
     final user = ref.read(authProvider).user;
-    return ChatScreen(user?.name ?? '');
+    return ChatScreen(user?.code ?? '');
   }
 
   Widget buildDocuments() {

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:crm_app/features/activities/presentation/providers/chat_provider.dart';
 import 'package:flutter/material.dart';
@@ -8,9 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class MessageForm extends ConsumerStatefulWidget {
   final Function(String) onSendMessage;
-
   final Function onTyping;
-
   final Function onStopTyping;
 
   const MessageForm({
@@ -27,18 +24,23 @@ class MessageForm extends ConsumerStatefulWidget {
 class _ConsumerMessageFormState extends ConsumerState<MessageForm> {
   final _textEditingController = TextEditingController();
   bool activarBusqueda = false;
+  String currentMention = "";
   bool personaSeleccionada = false;
+  // List<UserMarked> listSelectedUsers = [];
 
   Timer? _typingTimer;
-
   bool _isTyping = false;
 
   void _sendMessage() {
     if (_textEditingController.text.isEmpty) return;
 
-    widget.onSendMessage(_textEditingController.text);
+    widget.onSendMessage(
+      _textEditingController.text,
+    );
     setState(() {
       _textEditingController.text = "";
+      activarBusqueda = false;
+      currentMention = "";
     });
   }
 
@@ -55,16 +57,46 @@ class _ConsumerMessageFormState extends ConsumerState<MessageForm> {
     widget.onTyping();
   }
 
-  @override
-  void initState() {
-    super.initState();
-    // _textEditingController = TextEditingController();
+  void _handleTextChange(String text) {
+    _runTimer();
+
+    // Encontrar la última mención en progreso
+    final mentionRegex = RegExp(r'@(\w*)$');
+    final match = mentionRegex.firstMatch(text);
+
+    if (match != null) {
+      // Si hay una mención en progreso
+      currentMention = match.group(1)!;
+      activarBusqueda = true;
+      ref.read(usersMarkedProvider).getAllUsersMarked();
+      setState(() {});
+    } else {
+      // No hay mención en progreso o se escribió un espacio
+      activarBusqueda = false;
+      setState(() {});
+    }
   }
 
-  @override
-  void dispose() {
-    _textEditingController.dispose();
-    super.dispose();
+  void seleccionarPersona(UserMarked username) {
+    // Reemplazar la mención parcial con el nombre completo del usuario seleccionado
+    final mentionRegex = RegExp(r'@(\w*)$');
+    _textEditingController.text = _textEditingController.text
+        .replaceFirst(mentionRegex, '@${username.userreportName} ');
+    _textEditingController.selection = TextSelection.fromPosition(
+      TextPosition(
+        offset: _textEditingController.text.length,
+      ),
+    );
+    
+    final currentList = ref.read(selectedUsersMarkedProvider) ?? [];
+    final updatedList = [...currentList, username];
+    ref.read(selectedUsersMarkedProvider.notifier).state = updatedList;
+
+    setState(() {
+      activarBusqueda = false;
+      currentMention = "";
+    });
+    
   }
 
   @override
@@ -86,17 +118,9 @@ class _ConsumerMessageFormState extends ConsumerState<MessageForm> {
                       color: Colors.white,
                     ),
                     child: TextField(
-                      onChanged: (v) {
-                        _runTimer();
-                        if (v.contains('@')) {
-                          setState(() {});
-                          log(v);
-                          activarBusqueda = true;
-                        } else {
-                          setState(() {});
-                          activarBusqueda = false;
-                        }
-                      },
+                      minLines: 1,
+                      maxLines: 3,
+                      onChanged: _handleTextChange,
                       onSubmitted: (_) {
                         _sendMessage();
                       },
@@ -123,30 +147,13 @@ class _ConsumerMessageFormState extends ConsumerState<MessageForm> {
     );
   }
 
-  void seleccionarPersona(bool value, int index) {
-    final userMarkedProvider = ref.read(usersMarkedProvider);
-    final model = userMarkedProvider.allUsersMar;
-    if (value) {
-      _textEditingController.text += model[index].userreportName;
-      personaSeleccionada = true;
-    } else {
-      _textEditingController.text = _textEditingController.text
-          .replaceAll(model[index].userreportName, '');
-    }
-    setState(() {
-      model[index].selected = value;
-    });
-  }
-
-  void enviarNotificacion() => print('Enviado: ${_textEditingController.text}');
   Widget showModal() {
-    log(activarBusqueda.toString());
-    log(personaSeleccionada.toString());
-    ref.read(usersMarkedProvider).getAllUsersMarked();
-    if (activarBusqueda && personaSeleccionada == false) {
+    if (activarBusqueda) {
+      // Mostrar la lista de sugerencias
       return ListMarkedUsers(
-        onChanged: (bool? value, int index) =>
-            seleccionarPersona(value ?? false, index),
+        onUserSelected: (UserMarked username) {
+          seleccionarPersona(username);
+        },
       );
     } else {
       return Container();
@@ -155,39 +162,34 @@ class _ConsumerMessageFormState extends ConsumerState<MessageForm> {
 }
 
 class ListMarkedUsers extends ConsumerWidget {
-  final Function(bool?, int) onChanged;
+  final Function(UserMarked) onUserSelected;
+
   const ListMarkedUsers({
     super.key,
-    required this.onChanged,
+    required this.onUserSelected,
   });
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userMarkedProvider = ref.watch(usersMarkedProvider);
     return SizedBox(
-      height: 300,
+      height: 200, // Altura ajustada para lista de sugerencias
       width: MediaQuery.of(context).size.width * 0.9,
       child: Card(
-        child: ListView.separated(
-          itemBuilder: (BuildContext context, int index) {
+        child: ListView.builder(
+          itemCount: userMarkedProvider.allUsersMar.length,
+          itemBuilder: (context, index) {
             final model = userMarkedProvider.allUsersMar[index];
             return ListTile(
               title: Text(model.userreportName),
-              // subtitle: Text(model.userreportCodigo),
-              trailing: Checkbox(
-                value: model.selected,
-                onChanged: (v) {
-                  onChanged(v, index);
-                },
-              ),
+              onTap: () {
+                onUserSelected(model);
+              },
               leading: CircleAvatar(
                 child: Text(model.userreportName[0]),
               ),
             );
           },
-          separatorBuilder: (BuildContext context, int index) {
-            return Container();
-          },
-          itemCount: userMarkedProvider.allUsersMar.length,
         ),
       ),
     );

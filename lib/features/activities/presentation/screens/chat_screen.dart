@@ -5,9 +5,9 @@ import '../widgets/messages_item.dart';
 import '../widgets/messages_form.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
-  final String senderName;
+  final String userID;
 
-  const ChatScreen(this.senderName, {super.key});
+  const ChatScreen(this.userID, {super.key});
 
   @override
   ConsumerState<ChatScreen> createState() => _ConsumerChatScreenState();
@@ -27,12 +27,18 @@ class _ConsumerChatScreenState extends ConsumerState<ChatScreen> {
   void _onStopTyping() {}
 
   void _sendMessage(String messageContent) {
-    ref.read(chatProvider).sendMessage(messageContent);
+    ref.read(chatProvider).sendMessage(
+          messageContent,
+          ref.read(selectedUsersMarkedProvider) ?? [],
+        );
     WidgetsBinding.instance.addPostFrameCallback(
-      (timeStamp) {
+      (timeStamp) async {
+        await Future.delayed(const Duration(milliseconds: 200));
         _scrollController.animateTo(
-          -1.0,
-          duration: const Duration(milliseconds: 200),
+          _scrollController.position.maxScrollExtent + 100,
+          duration: const Duration(
+            milliseconds: 200,
+          ),
           curve: Curves.bounceInOut,
         );
       },
@@ -42,8 +48,19 @@ class _ConsumerChatScreenState extends ConsumerState<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      ref.read(chatProvider).listAllComents();
       ref.read(chatProvider).connectToServer();
+      await Future.delayed(
+        const Duration(milliseconds: 500),
+      );
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(
+          milliseconds: 200,
+        ),
+        curve: Curves.bounceInOut,
+      );
     });
   }
 
@@ -61,16 +78,68 @@ class _ConsumerChatScreenState extends ConsumerState<ChatScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Container(),
+          Container(
+            height: 50,
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            decoration: const BoxDecoration(
+              border: Border.symmetric(
+                horizontal: BorderSide(
+                  color: Colors.grey,
+                ),
+              ),
+            ),
+            child: Row(
+              children: [
+                const SizedBox(
+                  width: 15,
+                ),
+                const Text('Participantes'),
+                const Expanded(child: SizedBox()),
+                MaterialButton(
+                  elevation: 0,
+                  color: Colors.blueAccent.shade100.withOpacity(0.5),
+                  onPressed: () {
+                    ref.read(chatProvider.notifier).listUsersComentActivity();
+                    showModalParcipantes();
+                  },
+                  child: const Row(
+                    children: [
+                      Icon(
+                        Icons.person_4_outlined,
+                        color: Colors.blueAccent,
+                      ),
+                      Text(
+                        'Usuarios',
+                        style: TextStyle(
+                          color: Colors.blueAccent,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(left: 10, right: 10),
+                  child: Icon(
+                    Icons.arrow_forward_ios_sharp,
+                    color: Colors.grey,
+                  ),
+                )
+              ],
+            ),
+          ),
           Expanded(
             child: ListView.builder(
+              padding: const EdgeInsets.symmetric(vertical: 0),
               reverse: false,
               controller: _scrollController,
               itemCount: messagesProvider.messages.length,
-              itemBuilder: (ctx, index) => MessagesItem(
-                messagesProvider.messages[index],
-                messagesProvider.messages[index].isUserMessage(
-                  widget.senderName,
+              itemBuilder: (ctx, index) => SizedBox(
+                // color: Colors.red,
+                child: MessagesItem(
+                  messagesProvider.messages[index],
+                  messagesProvider.messages[index].isUserMessage(
+                    widget.userID,
+                  ),
                 ),
               ),
             ),
@@ -110,5 +179,106 @@ class _ConsumerChatScreenState extends ConsumerState<ChatScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> showModalParcipantes() async {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          final size = MediaQuery.of(context).size;
+          return Dialog(
+            insetPadding: EdgeInsets.zero,
+            child: Consumer(
+              builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                final chatProv = ref.watch(chatProvider);
+                return SizedBox(
+                  height: size.height * 0.6,
+                  width: size.width * 0.90,
+                  child: Column(
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.all(20.0),
+                        child: Center(
+                          child: Text(
+                            'PARTICIPANTES',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ),
+                      ),
+                      chatProv.listUsersInChat.isEmpty
+                          ? const Expanded(
+                              child: Center(
+                                child: Text('Aun no hay participantes'),
+                              ),
+                            )
+                          : Expanded(
+                              child: NotificationListener(
+                                onNotification:
+                                    (ScrollNotification scrollInfo) {
+                                  if (scrollInfo.metrics.pixels + 400 ==
+                                      scrollInfo.metrics.maxScrollExtent) {
+                                    ref
+                                        .read(chatProvider.notifier)
+                                        .listUsersComentActivity();
+                                  }
+                                  return false;
+                                },
+                                child: RefreshIndicator(
+                                  notificationPredicate:
+                                      defaultScrollNotificationPredicate,
+                                  onRefresh: () async {
+                                    ref
+                                        .read(chatProvider.notifier)
+                                        .listUsersComentActivity();
+                                  },
+                                  // key: refreshIndicatorKey,
+                                  child: ListView.separated(
+                                    itemCount: chatProv.listUsersInChat.length,
+                                    separatorBuilder:
+                                        (BuildContext context, int index) =>
+                                            const Divider(),
+                                    itemBuilder: (context, index) {
+                                      final model = chatProv
+                                          .listUsersInChat[index]; //     });
+                                      return ListTile(
+                                        title: Text(model.userreportName ?? ''),
+                                        subtitle: Text(
+                                          model.userreportEmail ?? '',
+                                          style: const TextStyle(
+                                              color: Colors.grey, fontSize: 13),
+                                        ),
+                                        leading: CircleAvatar(
+                                          child:
+                                              Text(model.userreportAbbrt ?? ''),
+                                        ),
+                                        trailing: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          children: [
+                                            Text(
+                                              model.userreportCodigo ?? '',
+                                              style: const TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 13),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                            )
+                    ],
+                  ),
+                );
+              },
+            ),
+          );
+        });
   }
 }

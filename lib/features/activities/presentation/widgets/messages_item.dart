@@ -40,7 +40,7 @@ class MessagesItem extends StatelessWidget {
                         height: 30,
                         alignment: Alignment.center,
                         child: Text(
-                          _message.senderName.substring(0, 1).toUpperCase(),
+                          _message.userreportAbbrt ?? '',
                           style: const TextStyle(color: Colors.white),
                         ),
                       ),
@@ -58,7 +58,7 @@ class MessagesItem extends StatelessWidget {
                               : const EdgeInsets.only(left: 15),
                           child: FittedBox(
                             child: Text(
-                              _message.senderName,
+                              _message.userreportName ?? '',
                               style: TextStyle(
                                 color: Colors.black.withOpacity(.6),
                                 fontSize: 12,
@@ -100,7 +100,7 @@ class MessagesItem extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               Text(
-                                _message.content,
+                                _message.accmComentario ?? '',
                                 style: TextStyle(
                                   color: isUserMassage
                                       ? Colors.white
@@ -114,7 +114,8 @@ class MessagesItem extends StatelessWidget {
                               ),
                               Text(
                                 DateFormat('HH:mm')
-                                    .format(_message.date)
+                                    .format(_message.accmFechaRegistro ??
+                                        DateTime.now(),)
                                     .toString(),
                                 textAlign: TextAlign.start,
                                 style: TextStyle(

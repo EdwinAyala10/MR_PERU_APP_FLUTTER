@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_is_empty
 
 import 'package:crm_app/config/config.dart';
+import 'package:crm_app/features/dashboard/presentation/screens/notification_screen.dart';
 
 import '../../../activities/domain/domain.dart';
 import '../../../activities/presentation/providers/activities_provider.dart';
@@ -10,11 +11,9 @@ import '../../../agenda/presentation/providers/events_provider.dart';
 import '../../../agenda/presentation/widgets/item_event_small.dart';
 import '../../../kpis/domain/domain.dart';
 import '../../../kpis/presentation/providers/kpis_provider.dart';
-import '../../../location/presentation/providers/gps_provider.dart';
 import '../../../opportunities/domain/domain.dart';
 import '../../../opportunities/presentation/providers/providers.dart';
 import '../../../opportunities/presentation/widgets/item_opportunity_small.dart';
-import '../../../shared/presentation/providers/notifications_provider.dart';
 import '../../../shared/shared.dart';
 import 'package:floating_action_bubble_custom/floating_action_bubble_custom.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +25,7 @@ class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  _DashboardScreenState createState() => _DashboardScreenState();
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
 }
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen>
@@ -53,18 +52,26 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   @override
   Widget build(BuildContext context) {
     final scaffoldKey = GlobalKey<ScaffoldState>();
-
     return Scaffold(
       drawer: SideMenu(scaffoldKey: scaffoldKey),
       appBar: AppBar(
-        title: const Text('Dashboard', style: TextStyle(
-          fontWeight: FontWeight.w500
-        ),),
+        actions: [
+          IconButton(
+            onPressed: () {
+              context.push(NofiticationScreen.name);
+            },
+            icon: const Icon(Icons.notifications_none_outlined),
+          )
+        ],
+        title: const Text(
+          'Dashboard',
+          style: TextStyle(fontWeight: FontWeight.w500),
+        ),
       ),
       body: RefreshIndicator(
         key: _refreshIndicatorKey,
         onRefresh: _refreshData,
-        child: const _DashboardView()
+        child: const _DashboardView(),
       ),
       floatingActionButton: FloatingActionBubble(
         animation: _animation,
@@ -158,7 +165,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
       //ref.read(opportunitiesProvider.notifier).loadStatusOpportunity(),
     ]);
   }
-  
 }
 
 class _DashboardView extends ConsumerStatefulWidget {
@@ -220,17 +226,25 @@ class _DashboardViewState extends ConsumerState {
             const SizedBox(
               height: 4,
             ),
-            kpisState.isLoading ? const PlaceholderSection() : _ContainerDashboardKpis(kpis: kpisState.kpis),
-            opportunitiesState.isLoading ? const PlaceholderSection() : _ContainerDashboardOpportunities(
-                opportunities: opportunitiesState.opportunities),
-            activitiesState.isLoading ? const PlaceholderSection() : _ContainerDashboardActivities(
-                activities: activitiesState.activities),
-            eventsState.isLoading ? const PlaceholderSection() : _ContainerDashboardEvents(
-                linkedEventsList: eventsState.linkedEventsList),
-            
+            kpisState.isLoading
+                ? const PlaceholderSection()
+                : _ContainerDashboardKpis(kpis: kpisState.kpis),
+            opportunitiesState.isLoading
+                ? const PlaceholderSection()
+                : _ContainerDashboardOpportunities(
+                    opportunities: opportunitiesState.opportunities),
+            activitiesState.isLoading
+                ? const PlaceholderSection()
+                : _ContainerDashboardActivities(
+                    activities: activitiesState.activities),
+            eventsState.isLoading
+                ? const PlaceholderSection()
+                : _ContainerDashboardEvents(
+                    linkedEventsList: eventsState.linkedEventsList),
+
             /*_ContainerDashboardOpportunities(
                 statusOpportunities: opportunitiesState.statusOpportunity),*/
-            
+
             const SizedBox(
               height: 68,
             )
@@ -239,7 +253,6 @@ class _DashboardViewState extends ConsumerState {
       ),
     );
   }
-
 }
 
 /*
@@ -328,7 +341,6 @@ class _ContainerDashboardOpportunitiesStatus extends StatelessWidget {
 }
 */
 
-
 class _ContainerDashboardKpis extends StatelessWidget {
   List<Kpi> kpis;
 
@@ -337,98 +349,86 @@ class _ContainerDashboardKpis extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return kpis.isNotEmpty
-      ? Center(
-          child: Container(
-              margin: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 8),
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(6),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.3),
-                    spreadRadius: 3,
-                    blurRadius: 5,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      //for (var kpi in kpisState.kpis)
-                      for (var i = 0;
-                          i < 3 && i < kpis.length;
-                          i++)
-                        progressKpi(
-                            percentage:
-                                (kpis[i].porcentaje ?? 0)
-                                    .toDouble(),
-                            title: kpis[i].objrNombreCategoria ??
-                                '',
-                            subTitle: kpis[i].objrNombrePeriodicidad ??
-                                '',
-                            subSubTitle: kpis[i].objrNombreAsignacion ??
-                                '',
-                            advance: kpis[i].totalRegistro
-                                    .toString(),
-                            total: convertTypeCategory(
-                                    kpis[i]) ??
-                                '0'),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color:
-                          Colors.black12, // Color de fondo del botón
-                      borderRadius: BorderRadius.circular(
-                          4), // Bordes redondeados del botón
+        ? Center(
+            child: Container(
+                margin: const EdgeInsets.only(
+                    left: 20, right: 20, top: 10, bottom: 8),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(6),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3),
+                      spreadRadius: 3,
+                      blurRadius: 5,
+                      offset: const Offset(0, 3),
                     ),
-                    child: TextButton(
-                      onPressed: () {
-                        context.go('/kpis');
-                        // Aquí puedes implementar la lógica para "Mostrar Todo"
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'Mostrar Todo',
-                            style: TextStyle(
-                              color: Colors
-                                  .blue, // Color del texto del botón
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Container(
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color:
-                                  primaryColor, // Color del círculo
-                            ),
-                            padding: const EdgeInsets.all(
-                                8), // Espacio interior alrededor del número
-                            child: Text(
-                              (kpis.length).toString(),
-                              style: const TextStyle(
-                                color: Colors.white, // Color del número
-                                fontWeight: FontWeight.bold,
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        //for (var kpi in kpisState.kpis)
+                        for (var i = 0; i < 3 && i < kpis.length; i++)
+                          progressKpi(
+                              percentage: (kpis[i].porcentaje ?? 0).toDouble(),
+                              title: kpis[i].objrNombreCategoria ?? '',
+                              subTitle: kpis[i].objrNombrePeriodicidad ?? '',
+                              subSubTitle: kpis[i].objrNombreAsignacion ?? '',
+                              advance: kpis[i].totalRegistro.toString(),
+                              total: convertTypeCategory(kpis[i]) ?? '0'),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black12, // Color de fondo del botón
+                        borderRadius: BorderRadius.circular(
+                            4), // Bordes redondeados del botón
+                      ),
+                      child: TextButton(
+                        onPressed: () {
+                          context.go('/kpis');
+                          // Aquí puedes implementar la lógica para "Mostrar Todo"
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'Mostrar Todo',
+                              style: TextStyle(
+                                color: Colors.blue, // Color del texto del botón
                               ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 8),
+                            Container(
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: primaryColor, // Color del círculo
+                              ),
+                              padding: const EdgeInsets.all(
+                                  8), // Espacio interior alrededor del número
+                              child: Text(
+                                (kpis.length).toString(),
+                                style: const TextStyle(
+                                  color: Colors.white, // Color del número
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              )),
-        )
-      : Container();
+                  ],
+                )),
+          )
+        : Container();
   }
 
   convertTypeCategory(Kpi kpi) {
@@ -441,7 +441,6 @@ class _ContainerDashboardKpis extends StatelessWidget {
     return res;
   }
 }
-
 
 class _ContainerDashboardActivities extends StatelessWidget {
   List<Activity> activities;
@@ -524,7 +523,6 @@ class _ContainerDashboardActivities extends StatelessWidget {
   }
 }
 
-
 class _ContainerDashboardOpportunities extends StatelessWidget {
   List<Opportunity> opportunities;
 
@@ -587,7 +585,8 @@ class _ContainerDashboardOpportunities extends StatelessWidget {
               child: ListView.separated(
                   separatorBuilder: (BuildContext context, int index) =>
                       const Divider(height: 2),
-                  itemCount: opportunities.length > 5 ? 5 : opportunities.length,
+                  itemCount:
+                      opportunities.length > 5 ? 5 : opportunities.length,
                   itemBuilder: (context, index) {
                     final opportunity = opportunities[index];
 

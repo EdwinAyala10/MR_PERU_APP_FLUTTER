@@ -1,4 +1,5 @@
 import 'package:crm_app/features/agenda/presentation/screens/event_detail_screen.dart';
+import 'package:crm_app/features/dashboard/presentation/screens/notification_screen.dart';
 import 'package:crm_app/features/documents/presentation/screens/enlace_screen.dart';
 import 'package:crm_app/features/kpis/presentation/screens/kpi_detail_screen.dart';
 import 'package:crm_app/features/opportunities/presentation/screens/opportunity_detail_screen.dart';
@@ -31,7 +32,6 @@ import '../../features/auth/presentation/providers/auth_provider.dart';
 import 'app_router_notifier.dart';
 
 final goRouterProvider = Provider((ref) {
-
   final goRouterNotifier = ref.read(goRouterNotifierProvider);
 
   return GoRouter(
@@ -56,6 +56,11 @@ final goRouterProvider = Provider((ref) {
         builder: (context, state) => const DashboardScreen(),
       ),
       GoRoute(
+        path: NofiticationScreen.name,
+        builder: (context, state) => const NofiticationScreen(),
+      ),
+
+      GoRoute(
         path: '/dashboard',
         builder: (context, state) => const DashboardScreen(),
       ),
@@ -67,35 +72,35 @@ final goRouterProvider = Provider((ref) {
       ),
       GoRoute(
         path: '/activity/:id', // /activity/new
-        builder: (context,GoRouterState state) => ActivityScreen(
+        builder: (context, GoRouterState state) => ActivityScreen(
           activityId: state.pathParameters['id'] ?? 'no-id',
         ),
       ),
       GoRoute(
         path: '/activity_detail/:id', // /activity/new
-        builder: (context,GoRouterState state) => ActivityDetailScreen(
+        builder: (context, GoRouterState state) => ActivityDetailScreen(
           activityId: state.pathParameters['id'] ?? 'no-id',
         ),
       ),
 
       GoRoute(
         path: '/text', // /activity/new
-        builder: (context,GoRouterState state) => const TextScreen(),
+        builder: (context, GoRouterState state) => const TextScreen(),
       ),
 
       GoRoute(
         path: '/send_whatsapp', // /activity/new
-        builder: (context,GoRouterState state) => const SendWhatsappScreen(),
+        builder: (context, GoRouterState state) => const SendWhatsappScreen(),
       ),
 
       GoRoute(
         path: '/text_enlace', // /activity/new
-        builder: (context,GoRouterState state) => const EnlaceScreen(),
+        builder: (context, GoRouterState state) => const EnlaceScreen(),
       ),
 
       GoRoute(
         path: '/activity_post_call/:id/:phone', // /activity/new
-        builder: (context,GoRouterState state) => ActivityPostCallScreen(
+        builder: (context, GoRouterState state) => ActivityPostCallScreen(
           contactId: state.pathParameters['id'] ?? 'no-id',
           phone: state.pathParameters['phone'] ?? 'no-phone',
         ),
@@ -253,28 +258,25 @@ final goRouterProvider = Provider((ref) {
         path: '/indicators',
         builder: (context, state) => const IndicatorsScreen(),
       ),
-
     ],
-
     redirect: (context, state) {
-      
       final isGoingTo = state.matchedLocation;
       final authStatus = goRouterNotifier.authStatus;
 
-      if ( isGoingTo == '/splash' && authStatus == AuthStatus.checking ) return null;
+      if (isGoingTo == '/splash' && authStatus == AuthStatus.checking)
+        return null;
 
-      if ( authStatus == AuthStatus.notAuthenticated ) {
-        if ( isGoingTo == '/login' ) return null;
+      if (authStatus == AuthStatus.notAuthenticated) {
+        if (isGoingTo == '/login') return null;
 
         return '/login';
       }
 
-      if ( authStatus == AuthStatus.authenticated ) {
-        if ( isGoingTo == '/login' || isGoingTo == '/splash' ){
-           return '/';
+      if (authStatus == AuthStatus.authenticated) {
+        if (isGoingTo == '/login' || isGoingTo == '/splash') {
+          return '/';
         }
       }
-
 
       return null;
     },

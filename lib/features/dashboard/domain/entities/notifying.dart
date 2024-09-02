@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-MessageModel messageModelFromJson(String str) => MessageModel.fromJson(json.decode(str));
+Notifying notifyingFromJson(String str) => Notifying.fromJson(json.decode(str));
 
-String messageModelToJson(MessageModel data) => json.encode(data.toJson());
+String notifyingToJson(Notifying data) => json.encode(data.toJson());
 
-class MessageModel {
+class Notifying {
   String? accmIdActividadComentario;
   String? accmIdActividad;
   String? accmComentario;
@@ -14,10 +14,9 @@ class MessageModel {
   String? accmIdUsuarioRegistro;
   String? userreportName;
   String? userreportAbbrt;
-  String? accmEstadoReg;
   String? accmTiempoGestion;
 
-  MessageModel({
+  Notifying({
     this.accmIdActividadComentario,
     this.accmIdActividad,
     this.accmComentario,
@@ -27,16 +26,10 @@ class MessageModel {
     this.accmIdUsuarioRegistro,
     this.userreportName,
     this.userreportAbbrt,
-    this.accmEstadoReg,
     this.accmTiempoGestion,
   });
 
-  bool isUserMessage(
-    String userID,
-  ) =>
-      userID == accmIdUsuarioRegistro;
-
-  factory MessageModel.fromJson(Map<String, dynamic> json) => MessageModel(
+  factory Notifying.fromJson(Map<String, dynamic> json) => Notifying(
         accmIdActividadComentario: json["ACCM_ID_ACTIVIDAD_COMENTARIO"],
         accmIdActividad: json["ACCM_ID_ACTIVIDAD"],
         accmComentario: json["ACCM_COMENTARIO"],
@@ -48,7 +41,6 @@ class MessageModel {
         accmIdUsuarioRegistro: json["ACCM_ID_USUARIO_REGISTRO"],
         userreportName: json["USERREPORT_NAME"],
         userreportAbbrt: json["USERREPORT_ABBRT"],
-        accmEstadoReg: json["ACCM_ESTADO_REG"],
         accmTiempoGestion: json["ACCM_TIEMPO_GESTION"],
       );
 
@@ -62,7 +54,6 @@ class MessageModel {
         "ACCM_ID_USUARIO_REGISTRO": accmIdUsuarioRegistro,
         "USERREPORT_NAME": userreportName,
         "USERREPORT_ABBRT": userreportAbbrt,
-        "ACCM_ESTADO_REG": accmEstadoReg,
         "ACCM_TIEMPO_GESTION": accmTiempoGestion,
       };
 }
