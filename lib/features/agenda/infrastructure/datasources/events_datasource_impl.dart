@@ -24,9 +24,8 @@ class EventsDatasourceImpl extends EventsDatasource {
       final String? id = eventLike['EVNT_ID_EVENTO'];
       const String method = 'POST';
       //final String url = '/evento/create-evento';
-      final String url = (id == null)
-          ? '/evento/create-evento'
-          : '/evento/edit-evento';
+      final String url =
+          (id == null) ? '/evento/create-evento' : '/evento/edit-evento';
 
       if (id == null) {
         eventLike.remove('EVNT_ID_EVENTO');
@@ -69,24 +68,26 @@ class EventsDatasourceImpl extends EventsDatasource {
   @override
   Future<LinkedHashMap<DateTime, List<Event>>> getEvents() async {
     try {
-    final response = await dio.post('/evento/listar-evento-by-id-tipo-gestion');
-    //final List<Event> events = [];
-    LinkedHashMap<DateTime, List<Event>> linkedEvents = LinkedHashMap();
+      final response =
+          await dio.post('/evento/listar-evento-by-id-tipo-gestion');
+      //final List<Event> events = [];
+      LinkedHashMap<DateTime, List<Event>> linkedEvents = LinkedHashMap();
 
-    for (final event in response.data['data'] ?? []) {
-      final eventModal = EventMapper.jsonToEntity(event) as Event;
-      DateTime fechaInicio = eventModal.evntFechaInicioEvento ?? DateTime.now();
+      for (final event in response.data['data'] ?? []) {
+        final eventModal = EventMapper.jsonToEntity(event) as Event;
+        DateTime fechaInicio =
+            eventModal.evntFechaInicioEvento ?? DateTime.now();
 
-      if (linkedEvents.containsKey(fechaInicio)) {
-        linkedEvents[fechaInicio]!.add(eventModal);
-      } else {
-        linkedEvents[fechaInicio] = [eventModal];
+        if (linkedEvents.containsKey(fechaInicio)) {
+          linkedEvents[fechaInicio]!.add(eventModal);
+        } else {
+          linkedEvents[fechaInicio] = [eventModal];
+        }
+        //events.add(EventMapper.jsonToEntity(event));
+        //linkedEvents.addAll(other)
       }
-      //events.add(EventMapper.jsonToEntity(event));
-      //linkedEvents.addAll(other)
-    }
 
-    return linkedEvents;
+      return linkedEvents;
     } catch (e) {
       throw Exception();
     }
@@ -95,7 +96,8 @@ class EventsDatasourceImpl extends EventsDatasource {
   @override
   Future<List<Event>> getEventsList() async {
     try {
-      final response = await dio.post('/evento/listar-evento-by-id-tipo-gestion');
+      final response =
+          await dio.post('/evento/listar-evento-by-id-tipo-gestion');
       final List<Event> events = [];
       for (final event in response.data['data'] ?? []) {
         events.add(EventMapper.jsonToEntity(event));
@@ -120,5 +122,22 @@ class EventsDatasourceImpl extends EventsDatasource {
     }
 
     return events;
+  }
+
+  @override
+  Future<List<Event>> getEventsListByObjetive(String id) async {
+    try {
+      final response = await dio.post(
+        '/evento/listar-evento-by-oportunidad',
+        data: {'ID_OPORTUNIDAD': id},
+      );
+      final List<Event> events = [];
+      for (final event in response.data['data'] ?? []) {
+        events.add(EventMapper.jsonToEntity(event));
+      }
+      return events;
+    } catch (e) {
+      throw Exception();
+    }
   }
 }

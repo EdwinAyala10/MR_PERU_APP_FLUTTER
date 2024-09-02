@@ -60,7 +60,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
             onPressed: () {
               context.push(NofiticationScreen.name);
             },
-            icon: const Icon(Icons.notifications_none_outlined),
+            icon: const Icon(Icons.notifications_none_outlined,color: Colors.red,),
           )
         ],
         title: const Text(

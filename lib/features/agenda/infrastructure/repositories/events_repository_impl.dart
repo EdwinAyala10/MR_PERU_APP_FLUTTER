@@ -32,6 +32,11 @@ class EventsRepositoryImpl extends EventsRepository {
   Future<List<Event>> getEventsListByRuc(String ruc) {
     return datasource.getEventsListByRuc(ruc);
   }
+  
+  @override
+  Future<List<Event>> getEventsListByObjetive(String id) {
+    return datasource.getEventsListByObjetive(id);
+  }
 
 
 }

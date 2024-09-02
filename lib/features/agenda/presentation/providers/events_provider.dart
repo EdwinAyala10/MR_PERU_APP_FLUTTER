@@ -40,7 +40,7 @@ class EventsNotifier extends StateNotifier<EventsState> {
         final linkedEvents = replaceEventExist(state.linkedEvents, event);
         state = state.copyWith(linkedEvents: linkedEvents, focusedDay: event.evntFechaInicioEvento);
 */
-    
+
         /*
         final isEventInList = state.events.any((element) => element.id == event.id);
 
@@ -57,7 +57,8 @@ class EventsNotifier extends StateNotifier<EventsState> {
                 )
                 .toList());*/
 
-        return CreateUpdateEventResponse(response: true, message: message, id: event.evntRuc);
+        return CreateUpdateEventResponse(
+            response: true, message: message, id: event.evntRuc);
       }
 
       return CreateUpdateEventResponse(response: false, message: message);
@@ -101,13 +102,41 @@ class EventsNotifier extends StateNotifier<EventsState> {
         //isLastPage: false,
         isLoading: false,
         offset: state.offset + 10,
-        linkedEventsList:  linkedEventsList,
-        selectedEvents:
-            linkedEvents[DateTime(state.selectedDay.year, state.selectedDay.month, state.selectedDay.day)] ??
-                [],
+        linkedEventsList: linkedEventsList,
+        selectedEvents: linkedEvents[DateTime(state.selectedDay.year,
+                state.selectedDay.month, state.selectedDay.day)] ??
+            [],
         //linkedEvents: [...state.linkedEvents, ...linkedEvents]
         linkedEvents: LinkedHashMap.from(state.linkedEvents)
           ..addAll(linkedEvents));
+  }
+
+  Future loadNextPageByObtetivo(String id) async {
+    //if (state.isLoading || state.isLastPage) return;
+    if (state.isLoading) return;
+
+    state = state.copyWith(isLoading: true);
+
+    final eventsList = await eventsRepository.getEventsListByObjetive(id);
+
+    if (eventsList.isEmpty) {
+      //state = state.copyWith(isLoading: false, isLastPage: true);
+      state = state.copyWith(isLoading: false);
+      return;
+    }
+
+    state = state.copyWith(
+      //isLastPage: false,
+      isLoading: false,
+      offset: state.offset + 10,
+      events: eventsList,
+      // selectedEvents: linkedEvents[DateTime(state.selectedDay.year,
+      //         state.selectedDay.month, state.selectedDay.day)] ??
+      //     [],
+      //linkedEvents: [...state.linkedEvents, ...linkedEvents]
+      // linkedEvents: LinkedHashMap.from(state.linkedEvents)
+      //   ..addAll(linkedEvents),
+    );
   }
 }
 

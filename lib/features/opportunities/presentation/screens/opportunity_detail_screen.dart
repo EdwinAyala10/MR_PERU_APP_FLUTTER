@@ -4,6 +4,9 @@ import 'package:crm_app/config/constants/environment.dart';
 import 'package:crm_app/features/activities/domain/domain.dart';
 import 'package:crm_app/features/activities/presentation/providers/activities_provider.dart';
 import 'package:crm_app/features/activities/presentation/widgets/item_activity.dart';
+import 'package:crm_app/features/agenda/domain/entities/event.dart';
+import 'package:crm_app/features/agenda/presentation/providers/events_provider.dart';
+import 'package:crm_app/features/agenda/presentation/widgets/item_event.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/documents/presentation/screens/documents_screen.dart';
 import 'package:crm_app/features/opportunities/infrastructure/mappers/op_create_document_response.dart';
@@ -138,6 +141,13 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
               ),
               Tab(
                 icon: Icon(
+                  Icons.event,
+                  size: 30,
+                ),
+                text: 'Eventos',
+              ),
+              Tab(
+                icon: Icon(
                   Icons.local_activity,
                   size: 30,
                 ),
@@ -175,12 +185,19 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
           physics: const NeverScrollableScrollPhysics(), // Desactiva el scroll
           children: [
             buildInformation(),
+            buildEventsOportunity(),
             buildActivity(),
             buildPhotos(),
             buildDocuments()
           ],
         ),
       ),
+    );
+  }
+
+  Widget buildEventsOportunity() {
+    return EventsDetailView(
+      opportunityId: widget.opportunityId,
     );
   }
 
@@ -458,6 +475,132 @@ class ContainerCustom extends StatelessWidget {
         ),
         const SizedBox(height: 16),
       ],
+    );
+  }
+}
+
+class EventsDetailView extends ConsumerWidget {
+  final String opportunityId;
+
+  const EventsDetailView({
+    super.key,
+    required this.opportunityId,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final eventsState = ref.watch(eventsProvider);
+
+    if (eventsState.isLoading) {
+      return const FullScreenLoader();
+    }
+
+    if (eventsState.events.isEmpty) {
+      return Scaffold(
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: double.infinity, // Ocupa todo el ancho disponible
+              alignment: Alignment.center,
+              child: const Text(
+                'No se encontro información del evento.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 18,
+                ),
+              ),
+            ),
+            IconButton(
+              onPressed: () async {
+                await ref
+                    .read(eventsProvider.notifier)
+                    .loadNextPageByObtetivo(opportunityId);
+              },
+              icon: const Icon(
+                Icons.refresh,
+              ),
+            )
+          ],
+        ),
+      );
+    }
+
+    return Scaffold(
+      // appBar: AppBar(
+      //   // title: const Text('Detalles de oportunidad'),
+      //   // actions: [
+      //   //   IconButton(
+      //   //     icon: const Icon(Icons.edit),
+      //   //     onPressed: () {
+      //   //       context.push('/opportunity/${opportunity.id}');
+      //   //     },
+      //   //   ),
+      //   // ],
+      // ),
+      // floatingActionButton: FloatingActionButton(
+      //   elevation: 0,
+      //   backgroundColor: Colors.blueGrey,
+      //   onPressed: () {},
+      //   child: IconButton(
+      //     icon: const Icon(
+      //       Icons.edit,
+      //       color: Colors.white,
+      //     ),
+      //     onPressed: () {
+      //       context.push('/opportunity/${opportunity.id}');
+      //     },
+      //   ),
+      // ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ValueListenableBuilder<List<Event>>(
+              //valueListenable: _selectedEvents,
+              valueListenable: ValueNotifier(eventsState.events),
+              builder: (context, value, _) {
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    await ref
+                        .read(eventsProvider.notifier)
+                        .loadNextPageByObtetivo(opportunityId);
+                  },
+                  child: value.isNotEmpty
+                      ? ListView.builder(
+                          itemCount: value.length,
+                          itemBuilder: (context, index) {
+                            final event = value[index];
+
+                            return ItemEvent(
+                                event: event,
+                                callbackOnTap: () {
+                                  //context.push('/event/${value[index].id}');
+                                  context
+                                      .push('/event_detail/${value[index].id}');
+                                });
+                          },
+                        )
+                      : ListView(
+                          children: const [
+                            Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: Text('Sin eventos',
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500)),
+                              ),
+                            ),
+                          ],
+                        ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
