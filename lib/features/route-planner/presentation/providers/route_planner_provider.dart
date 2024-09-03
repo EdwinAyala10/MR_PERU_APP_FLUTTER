@@ -319,10 +319,18 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
   Future loadNextPage({bool isRefresh = false}) async {
     final search = state.textSearch;
 
-    //if (state.isLoading || state.isLastPage) return;
-    if (state.isLoading) return;
+    if (isRefresh) {
+      if (state.isLoading) return;
+      state = state.copyWith(isLoading: true);
+    } else {
+      if (state.isReload || state.isLastPage) return;  
+      state = state.copyWith(isReload: true);
+    }
 
-    state = state.copyWith(isLoading: true);
+    //if (state.isLoading || state.isLastPage) return;
+    //if (state.isLoading) return;
+
+    //state = state.copyWith(isLoading: true);
 
     int sLimit = state.limit;
     int sOffset = state.offset;
@@ -330,7 +338,12 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     if (isRefresh) {
       sLimit = 10;
       sOffset = 0;
+    } else {
+      sOffset = state.offset + 10;
     }
+
+    print('sLimit x: ${sLimit}');
+    print('sOffset x: ${sOffset}');
 
     final locales = await routePlannerRepository.getCompanyLocals(
       search: search, 
@@ -341,8 +354,13 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
 
     if (locales.isEmpty) {
       //state = state.copyWith(isLoading: false, isLastPage: true, locales: []);
-      state = state.copyWith(isLoading: false, locales: []);
-      //return;
+      if (isRefresh) {
+        state = state.copyWith(isLoading: false, isLastPage: true);    
+      } else {
+        state = state.copyWith(isReload: false, isLastPage: true);
+      }
+      //state = state.copyWith(isLoading: false, locales: []);
+      return;
     } else {
       int newOffset;
       List<CompanyLocalRoutePlanner> newLocales;
@@ -351,15 +369,27 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
         newOffset = 0;
         newLocales = locales;
       } else {
-        newOffset = state.offset + 10;
+        //newOffset = state.offset + 10;
+        newOffset = sOffset;
         newLocales = [...state.locales, ...locales];
       }
-      
-      state = state.copyWith(
-          //isLastPage: false,
+
+      print('Offset: ${newOffset}');
+
+      if (isRefresh) {
+        state = state.copyWith(
+          isLastPage: false,
           isLoading: false,
           offset: newOffset,
           locales: newLocales);
+      } else {
+        state = state.copyWith(
+          isLastPage: false,
+          isReload: false,
+          offset: newOffset,
+          locales: newLocales);
+      }
+      
     }
    
   }
@@ -368,6 +398,7 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
 class RoutePlannerState {
   final bool isLastPage;
   final int limit;
+  final bool isReload;
   final int offset;
   final bool isLoading;
   final List<CompanyLocalRoutePlanner> locales;
@@ -380,6 +411,7 @@ class RoutePlannerState {
 
   RoutePlannerState(
       {this.isLastPage = false,
+      this.isReload = false,
       this.limit = 10,
       this.offset = 0,
       this.isLoading = false,
@@ -393,6 +425,7 @@ class RoutePlannerState {
 
   RoutePlannerState copyWith({
     bool? isLastPage,
+    bool? isReload,
     int? limit,
     int? offset,
     bool? isLoading,
@@ -406,6 +439,7 @@ class RoutePlannerState {
   }) =>
       RoutePlannerState(
         isLastPage: isLastPage ?? this.isLastPage,
+        isReload: isReload ?? this.isReload,
         limit: limit ?? this.limit,
         offset: offset ?? this.offset,
         isLoading: isLoading ?? this.isLoading,

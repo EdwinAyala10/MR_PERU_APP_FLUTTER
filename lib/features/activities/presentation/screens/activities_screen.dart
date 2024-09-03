@@ -145,8 +145,8 @@ class _ActivitiesViewState extends ConsumerState {
     super.initState();
 
     scrollController.addListener(() {
-      if ((scrollController.position.pixels + 400) >=
-          scrollController.position.maxScrollExtent) {
+      if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 200) {
+        print('CARGANDO MAS');
         ref.read(activitiesProvider.notifier).loadNextPage(isRefresh: false);
       }
     });
@@ -171,6 +171,7 @@ class _ActivitiesViewState extends ConsumerState {
   @override
   Widget build(BuildContext context) {
     final activitiesState = ref.watch(activitiesProvider);
+    final isReload = activitiesState.isReload;
 
     if (activitiesState.isLoading) {
       return const LoadingModal();
@@ -180,6 +181,7 @@ class _ActivitiesViewState extends ConsumerState {
         ? _ListActivities(
             activities: activitiesState.activities,
             onRefreshCallback: _refresh,
+            isReload: isReload,
             scrollController: scrollController,
           )
         : NoExistData(
@@ -333,9 +335,11 @@ class _ListActivities extends ConsumerStatefulWidget {
   final List<Activity> activities;
   final Future<void> Function() onRefreshCallback;
   final ScrollController scrollController;
+  final bool isReload;
 
   const _ListActivities(
       {required this.activities,
+      required this.isReload,
       required this.onRefreshCallback,
       required this.scrollController});
 
@@ -389,6 +393,12 @@ class _ListActivitiesState extends ConsumerState<_ListActivities> {
                     const Divider(),
                 itemBuilder: (context, index) {
                   final activity = widget.activities[index];
+
+                  if (index + 1 == widget.activities.length) {
+                    if (widget.isReload) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                  }
 
                   return ItemActivity(
                       activity: activity,

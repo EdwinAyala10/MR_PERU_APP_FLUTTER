@@ -88,10 +88,13 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
   Future loadNextPage({bool isRefresh = false}) async {
     final search = state.textSearch;
 
-    //if (state.isLoading || state.isLastPage) return;
-    if (state.isLoading) return;
-
-    state = state.copyWith(isLoading: true);
+    if (isRefresh) {
+      if (state.isLoading) return;
+      state = state.copyWith(isLoading: true);
+    } else {
+      if (state.isReload || state.isLastPage) return;  
+      state = state.copyWith(isReload: true);
+    }
 
     int sLimit = state.limit;
     int sOffset = state.offset;
@@ -99,6 +102,8 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
     if (isRefresh) {
       sLimit = 10;
       sOffset = 0;
+    } else {
+      sOffset = state.offset + 10;
     }
 
     final opportunities =
@@ -111,28 +116,49 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
 
     if (opportunities.isEmpty) {
       //state = state.copyWith(isLoading: false, isLastPage: true);
-      state = state.copyWith(isLoading: false);
+      //state = state.copyWith(isLoading: false);
+
+      if (isRefresh) {
+        state = state.copyWith(isLoading: false, isLastPage: true);    
+      } else {
+        state = state.copyWith(isReload: false, isLastPage: true);
+      }
+
       return;
-    }
-
-    int newOffset;
-    List<Opportunity> newOpportunities;
-
-    if (isRefresh) {
-      newOffset = 0;
-      newOpportunities = opportunities;
     } else {
-      newOffset = state.offset + 10;
-      newOpportunities = [...state.opportunities, ...opportunities];
+
+      int newOffset;
+      List<Opportunity> newOpportunities;
+
+      if (isRefresh) {
+        newOffset = 0;
+        newOpportunities = opportunities;
+      } else {
+        newOffset = sOffset;
+        newOpportunities = [...state.opportunities, ...opportunities];
+      }
+
+      if (isRefresh) {
+        state = state.copyWith(
+          isLastPage: false,
+          isLoading: false,
+          offset: newOffset,
+          //opportunities: [...state.opportunities, ...opportunities]);
+          opportunities: newOpportunities
+        );
+      } else {
+        state = state.copyWith(
+          isLastPage: false,
+          isReload: false,
+          offset: newOffset,
+          //opportunities: [...state.opportunities, ...opportunities]);
+          opportunities: newOpportunities
+        );
+      }
+     
     }
 
-    state = state.copyWith(
-        //isLastPage: false,
-        isLoading: false,
-        offset: newOffset,
-        //opportunities: [...state.opportunities, ...opportunities]);
-        opportunities: newOpportunities
-    );
+    
   }
 
   Future loadStatusOpportunity() async {
@@ -157,6 +183,7 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
 
 class OpportunitiesState {
   final bool isLastPage;
+  final bool isReload;
   final int limit;
   final int offset;
   final bool isLoading;
@@ -168,6 +195,7 @@ class OpportunitiesState {
 
   OpportunitiesState(
       {this.isLastPage = false,
+      this.isReload = false,
       this.limit = 10,
       this.offset = 0,
       this.isLoading = false,
@@ -179,6 +207,7 @@ class OpportunitiesState {
 
   OpportunitiesState copyWith({
     bool? isLastPage,
+    bool? isReload,
     int? limit,
     int? offset,
     bool? isLoading,
@@ -190,6 +219,7 @@ class OpportunitiesState {
   }) =>
       OpportunitiesState(
         isLastPage: isLastPage ?? this.isLastPage,
+        isReload: isReload ?? this.isReload,
         limit: limit ?? this.limit,
         offset: offset ?? this.offset,
         isLoading: isLoading ?? this.isLoading,

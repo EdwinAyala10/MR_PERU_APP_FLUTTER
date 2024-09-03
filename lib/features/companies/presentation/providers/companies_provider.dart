@@ -168,10 +168,16 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
   Future loadNextPage({bool isRefresh = false}) async {
     final search = state.textSearch;
 
-    if (state.isLoading || state.isLastPage) return;
-    //if (state.isLoading) return;
+    if (isRefresh) {
+      if (state.isLoading) return;
+      state = state.copyWith(isLoading: true);
+    } else {
+      if (state.isReload || state.isLastPage) return;  
+      state = state.copyWith(isReload: true);
+    }
 
-    state = state.copyWith(isLoading: true);
+    //if (state.isLoading) return;
+    //state = state.copyWith(isLoading: true);
 
     int sLimit = state.limit;
     int sOffset = state.offset;
@@ -179,7 +185,12 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
     if (isRefresh) {
       sLimit = 10;
       sOffset = 0;
+    } else {
+      sOffset = state.offset + 10;
     }
+
+    print('sLimit x: ${sLimit}');
+    print('sOffset x: ${sOffset}');
 
     final companies = await companiesRepository.getCompanies(
         search: search, limit: sLimit, offset: sOffset);
@@ -187,7 +198,11 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
     if (companies.isEmpty) {
       //state = state.copyWith(isLoading: false, isLastPage: true);
       //state = state.copyWith(isLoading: false, companies: []);
-      state = state.copyWith(isLoading: false, isLastPage: true);
+      if (isRefresh) {
+        state = state.copyWith(isLoading: false, isLastPage: true);    
+      } else {
+        state = state.copyWith(isReload: false, isLastPage: true);
+      }
       return;
     } else {
       int newOffset;
@@ -197,17 +212,27 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
         newOffset = 0;
         newCompanies = companies;
       } else {
-        newOffset = state.offset + 10;
+        //newOffset = state.offset + 10;
+        newOffset = sOffset;
         newCompanies = [...state.companies, ...companies];
       }
 
       print('Offset: ${newOffset}');
-
-      state = state.copyWith(
+      
+      if (isRefresh) {
+        state = state.copyWith(
           isLastPage: false,
           isLoading: false,
           offset: newOffset,
           companies: newCompanies);
+      } else {
+        state = state.copyWith(
+          isLastPage: false,
+          isReload: false,
+          offset: newOffset,
+          companies: newCompanies);
+      }
+      
     }
 
     /*state = state.copyWith(
@@ -261,6 +286,7 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
 
 class CompaniesState {
   final bool isLastPage;
+  final bool isReload;
   final int limit;
   final int offset;
   final bool isLoading;
@@ -270,6 +296,7 @@ class CompaniesState {
 
   CompaniesState(
       {this.isLastPage = false,
+      this.isReload = false,
       this.limit = 10,
       this.offset = 0,
       this.isLoading = false,
@@ -279,6 +306,7 @@ class CompaniesState {
 
   CompaniesState copyWith({
     bool? isLastPage,
+    bool? isReload,
     int? limit,
     int? offset,
     bool? isLoading,
@@ -288,6 +316,7 @@ class CompaniesState {
   }) =>
       CompaniesState(
         isLastPage: isLastPage ?? this.isLastPage,
+        isReload: isReload ?? this.isReload,
         limit: limit ?? this.limit,
         offset: offset ?? this.offset,
         isLoading: isLoading ?? this.isLoading,

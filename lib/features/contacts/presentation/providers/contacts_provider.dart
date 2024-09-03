@@ -84,17 +84,22 @@ class ContactsNotifier extends StateNotifier<ContactsState> {
   Future loadNextPage({bool isRefresh = false}) async {
     final search = state.textSearch;
 
-    //if (state.isLoading || state.isLastPage) return;
-    if (state.isLoading) return;
+    if (isRefresh) {
+      if (state.isLoading) return;
+      state = state.copyWith(isLoading: true);
+    } else {
+      if (state.isReload || state.isLastPage) return;  
+      state = state.copyWith(isReload: true);
+    }
 
-    state = state.copyWith(isLoading: true);
-
-     int sLimit = state.limit;
+    int sLimit = state.limit;
     int sOffset = state.offset;
 
     if (isRefresh) {
       sLimit = 10;
       sOffset = 0;
+    } else {
+      sOffset = state.offset + 10;
     }
 
     final contacts = await contactsRepository.getContacts(
@@ -106,7 +111,11 @@ class ContactsNotifier extends StateNotifier<ContactsState> {
 
     if (contacts.isEmpty) {
       //state = state.copyWith(isLoading: false, isLastPage: true);
-      state = state.copyWith(isLoading: false);
+      if (isRefresh) {
+        state = state.copyWith(isLoading: false, isLastPage: true);    
+      } else {
+        state = state.copyWith(isReload: false, isLastPage: true);
+      }
       return;
     }
 
@@ -117,16 +126,25 @@ class ContactsNotifier extends StateNotifier<ContactsState> {
       newOffset = 0;
       newContacts = contacts;
     } else {
-      newOffset = state.offset + 10;
+      newOffset = sOffset;
       newContacts = [...state.contacts, ...contacts];
     }
 
-    state = state.copyWith(
-      //isLastPage: false,
-      isLoading: false,
-      contacts: newContacts,
-      offset: newOffset
-    );
+    if (isRefresh) {
+      state = state.copyWith(
+        isLastPage: false,
+        isLoading: false,
+        contacts: newContacts,
+        offset: newOffset
+      );
+    } else {
+      state = state.copyWith(
+        isLastPage: false,
+        isReload: false,
+        contacts: newContacts,
+        offset: newOffset
+      );
+    }
 
     /*state = state.copyWith(
         isLastPage: false,
@@ -159,6 +177,7 @@ class ContactsNotifier extends StateNotifier<ContactsState> {
 
 class ContactsState {
   final bool isLastPage;
+  final bool isReload;
   final int limit;
   final int offset;
   final bool isLoading;
@@ -168,6 +187,7 @@ class ContactsState {
 
   ContactsState(
       {this.isLastPage = false,
+      this.isReload = false,
       this.limit = 10,
       this.offset = 0,
       this.isLoading = false,
@@ -177,6 +197,7 @@ class ContactsState {
 
   ContactsState copyWith({
     bool? isLastPage,
+    bool? isReload,
     int? limit,
     int? offset,
     bool? isLoading,
@@ -186,6 +207,7 @@ class ContactsState {
   }) =>
       ContactsState(
         isLastPage: isLastPage ?? this.isLastPage,
+        isReload: isReload ?? this.isReload,
         limit: limit ?? this.limit,
         offset: offset ?? this.offset,
         isLoading: isLoading ?? this.isLoading,
