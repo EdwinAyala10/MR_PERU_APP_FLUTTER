@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import '../../domain/entities/status_opportunity.dart';
 import '../mappers/opportunity_response_mapper.dart';
 import '../mappers/status_opportunity_mapper.dart';
@@ -31,6 +33,7 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
         opportunityLike.remove('OPRT_ID_OPORTUNIDAD');
       }
 
+      log(opportunityLike.toString());
       final response = await dio.request(url,
           data: opportunityLike, options: Options(method: method));
 

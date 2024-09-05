@@ -5,10 +5,12 @@ import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
   // FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   // await NotificationsNotifier.initialFCM();
   // TODO: DESCOMENTAR NOTIFICACIONES PUSH
   // await LocalNotifications.initializeLocalNotifications();
+
   await Environment.initEnvironment();
   initializeDateFormatting('es_ES', null).then(
     (_) => {
@@ -19,6 +21,8 @@ void main() async {
       ),
     },
   );
+
+
 }
 
 class MainApp extends ConsumerWidget {

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:crm_app/features/auth/domain/domain.dart';
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
@@ -43,10 +44,9 @@ class OpportunityScreen extends ConsumerWidget {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: Text('${ opportunityState.opportunity!.id == 'new' ? 'Crear': 'Editar' } oportunidad'
-          , style: const TextStyle(
-            fontWeight: FontWeight.w500
-          )),
+          title: Text(
+              '${opportunityState.opportunity?.id == 'new' ? 'Crear' : 'Editar'} oportunidad',
+              style: const TextStyle(fontWeight: FontWeight.w500)),
           //title: const Text('Crear Oportunidad', style: TextStyle(fontWeight: FontWeight.w500)),
           leading: IconButton(
             icon: const Icon(Icons.close),
@@ -130,6 +130,11 @@ class _OpportunityInformationv2State
   List<DropdownOption> optionsEstado = [
     DropdownOption(id: '', name: 'Cargando...')
   ];
+  List<DropdownOption> opionMotivo = [
+    DropdownOption(id: '', name: 'Cargando...')
+  ];
+
+  bool activeMotivo = false;
 
   @override
   void initState() {
@@ -183,12 +188,51 @@ class _OpportunityInformationv2State
                         .read(opportunityFormProvider(widget.opportunity)
                             .notifier)
                         .onIdEstadoChanged(newValue!);
+                    if (newValue == '07') {
+                      ref
+                          .read(resourceDetailsProvider.notifier)
+                          .loadCatalogById('22')
+                          .then(
+                            (value) => {
+                              setState(
+                                () {
+                                  opionMotivo = value;
+                                  activeMotivo = true;
+                                },
+                              )
+                            },
+                          );
+                      return;
+                    }
+                    setState(() {
+                      activeMotivo = false;
+                    });
                   },
                   items: optionsEstado,
                   errorMessage:
                       opportunityForm.oprtIdEstadoOportunidad.errorMessage,
                 )
               : PlaceholderInput(text: 'Cargando Estado...'),
+          Visibility(
+            visible: activeMotivo,
+            child: SelectCustomForm(
+              label: 'Motivo',
+              value: opportunityForm.oprtIdPerdidaMotivo,
+              callbackChange: (String? newValue) {
+                // ref
+                //     .read(opportunityFormProvider(widget.opportunity).notifier)
+                //     .onIdEstadoChanged(newValue!);
+                ref
+                    .read(opportunityFormProvider(widget.opportunity).notifier)
+                    .onIdPerdidaMotivoChanged(
+                      newValue ?? '',
+                    );
+              },
+              items: opionMotivo,
+              // errorMessage:
+              //     opportunityForm.oprtIdEstadoOportunidad.errorMessage,
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.all(2.0),
             child: Row(
@@ -584,15 +628,20 @@ class _OpportunityInformationv2State
                                         label: Text(item.userreportName ?? '',
                                             style:
                                                 const TextStyle(fontSize: 12)),
-                                        onDeleted: !isAdmin ? null 
-                                          : item.cresIdUsuarioResponsable != authUser.code
-                                         ?  () {
-                                          ref
-                                              .read(opportunityFormProvider(
-                                                      widget.opportunity)
-                                                  .notifier)
-                                              .onDeleteUserChanged(item);
-                                        } : null,
+                                        onDeleted: !isAdmin
+                                            ? null
+                                            : item.cresIdUsuarioResponsable !=
+                                                    authUser.code
+                                                ? () {
+                                                    ref
+                                                        .read(opportunityFormProvider(
+                                                                widget
+                                                                    .opportunity)
+                                                            .notifier)
+                                                        .onDeleteUserChanged(
+                                                            item);
+                                                  }
+                                                : null,
                                       )))
                               : [],
                         )
@@ -706,21 +755,19 @@ class _OpportunityInformationv2State
     final swIsCreate = widget.opportunity.id == 'new';
 
     showSearch<UserMaster?>(
-            query: searchQuery,
-            context: context,
-            delegate: SearchUserDelegate(
-                initialUsers: searchedUsers,
-                //userCurrent: user!,
-                //idItemDelete: user!.code,
-                idItemDelete: swIsCreate ? user!.code : null,
-                searchUsers: ref
-                    .read(searchedUsersProvider.notifier)
-                    .searchUsersByQuery,
-                resetSearchQuery: () {
-                  ref.read(searchQueryUsersProvider.notifier).update((state) => '');
-                },
-            ))
-        .then((user) {
+        query: searchQuery,
+        context: context,
+        delegate: SearchUserDelegate(
+          initialUsers: searchedUsers,
+          //userCurrent: user!,
+          //idItemDelete: user!.code,
+          idItemDelete: swIsCreate ? user!.code : null,
+          searchUsers:
+              ref.read(searchedUsersProvider.notifier).searchUsersByQuery,
+          resetSearchQuery: () {
+            ref.read(searchQueryUsersProvider.notifier).update((state) => '');
+          },
+        )).then((user) {
       if (user == null) return;
 
       ref

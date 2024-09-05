@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:crm_app/features/shared/infrastructure/inputs/state_local.dart';
 
 import '../../../../kpis/domain/entities/array_user.dart';
@@ -38,7 +40,8 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
           oprtComentario: opportunity.oprtComentario ?? '',
           oprtFechaPrevistaVenta:
               opportunity.oprtFechaPrevistaVenta ?? DateTime.now(),
-          oprtIdEstadoOportunidad: StateOpportunity.dirty(opportunity.oprtIdEstadoOportunidad ?? ''),
+          oprtIdEstadoOportunidad:
+              StateOpportunity.dirty(opportunity.oprtIdEstadoOportunidad ?? ''),
           oprtIdUsuarioRegistro: opportunity.oprtIdUsuarioRegistro ?? '',
           oprtIdValor: opportunity.oprtIdValor ?? '',
           oprtNobbreEstadoOportunidad:
@@ -56,7 +59,8 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
           opt: opportunity.opt ?? '',
           optrValor: opportunity.oprtValor ?? '0',
           arrayresponsables: opportunity.arrayresponsables ?? [],
-          arrayresponsablesEliminar: opportunity.arrayresponsablesEliminar ?? [],
+          arrayresponsablesEliminar:
+              opportunity.arrayresponsablesEliminar ?? [],
         ));
 
   Future<CreateUpdateOpportunityResponse> onFormSubmit() async {
@@ -92,14 +96,16 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
       'OPRT_ID_CONTACTO': state.oprtIdContacto.value,
       'OPRT_NOBBRE_ESTADO_OPORTUNIDAD': state.oprtNobbreEstadoOportunidad,
       'OPRT_NOMBRE_VALOR': state.oprtNombreValor,
+      'OPRT_ID_PERDIDA_MOTIVO': state.oprtIdPerdidaMotivo,
       'OPT': (state.id == 'new') ? 'INSERT' : 'UPDATE',
       'OPORTUNIDAD_RESPONSABLE': state.arrayresponsables != null
           ? List<dynamic>.from(state.arrayresponsables!.map((x) => x.toJson()))
           : [],
-      'OPORTUNIDAD_RESPONSABLE_ELIMINAR': state.arrayresponsablesEliminar != null
-          ? List<dynamic>.from(
-              state.arrayresponsablesEliminar!.map((x) => x.toJson()))
-          : [],
+      'OPORTUNIDAD_RESPONSABLE_ELIMINAR':
+          state.arrayresponsablesEliminar != null
+              ? List<dynamic>.from(
+                  state.arrayresponsablesEliminar!.map((x) => x.toJson()))
+              : [],
     };
 
     try {
@@ -124,19 +130,21 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
 
   void onNameChanged(String value) {
     state = state.copyWith(
-      oprtNombre: Name.dirty(value),
-      isFormValid: Formz.validate([
-        Name.dirty(value),
-        StateOpportunity.dirty(state.oprtIdEstadoOportunidad.value),
-        EmpresaPrincipal.dirty(state.oprtRuc.value),
-        StateLocal.dirty(state.oprtLocalCodigo.value),
-        //EmpresaIntermediario.dirty(state.oprtRucIntermediario01.value),
-        StateContact.dirty(state.oprtIdContacto.value)
+        oprtNombre: Name.dirty(value),
+        isFormValid: Formz.validate([
+          Name.dirty(value),
+          StateOpportunity.dirty(state.oprtIdEstadoOportunidad.value),
+          EmpresaPrincipal.dirty(state.oprtRuc.value),
+          StateLocal.dirty(state.oprtLocalCodigo.value),
+          //EmpresaIntermediario.dirty(state.oprtRucIntermediario01.value),
+          StateContact.dirty(state.oprtIdContacto.value)
       ]));
   }
 
   void onIdEstadoChanged(String idEstado) {
     //state = state.copyWith(oprtIdEstadoOportunidad: idEstado);
+    log(idEstado);
+
     state = state.copyWith(
       oprtIdEstadoOportunidad: StateOpportunity.dirty(idEstado),
       isFormValid: Formz.validate([
@@ -245,8 +253,8 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
   }
 
   void onUsuarioChanged(UserMaster usuario) {
-    bool objExist = state.arrayresponsables!.any(
-        (objeto) => objeto.cresIdUsuarioResponsable == usuario.code);
+    bool objExist = state.arrayresponsables!
+        .any((objeto) => objeto.cresIdUsuarioResponsable == usuario.code);
 
     if (!objExist) {
       ArrayUser array = ArrayUser();
@@ -268,8 +276,8 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
     List<ArrayUser> arrayUsuariosEliminar = [];
 
     if (state.id != "new") {
-      bool objExist = state.arrayresponsablesEliminar!
-          .any((objeto) => objeto.oresIdOportunidadResp == item.oresIdOportunidadResp);
+      bool objExist = state.arrayresponsablesEliminar!.any((objeto) =>
+          objeto.oresIdOportunidadResp == item.oresIdOportunidadResp);
 
       if (!objExist) {
         ArrayUser array = ArrayUser();
@@ -286,12 +294,14 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
 
     if (state.id == "new") {
       arrayUsuarios = state.arrayresponsables!
-        .where((user) => user.cresIdUsuarioResponsable != item.cresIdUsuarioResponsable)
-        .toList();
+          .where((user) =>
+              user.cresIdUsuarioResponsable != item.cresIdUsuarioResponsable)
+          .toList();
     } else {
       arrayUsuarios = state.arrayresponsables!
-        .where((user) => user.oresIdOportunidadResp != item.oresIdOportunidadResp)
-        .toList();
+          .where((user) =>
+              user.oresIdOportunidadResp != item.oresIdOportunidadResp)
+          .toList();
     }
 
     state = state.copyWith(
@@ -323,6 +333,7 @@ class OpportunityFormState {
   final String oprtNombreValor;
   final String opt;
   final String optrIdOportunidadIn;
+  final String oprtIdPerdidaMotivo;
   final List<ArrayUser>? arrayresponsables;
   final List<ArrayUser>? arrayresponsablesEliminar;
   final String optrValor;
@@ -350,6 +361,7 @@ class OpportunityFormState {
       this.oprtComentario = '',
       this.oprtIdUsuarioRegistro = '',
       this.oprtNobbreEstadoOportunidad = '',
+      this.oprtIdPerdidaMotivo = '',
       this.oprtNombreValor = '',
       this.opt = '',
       this.arrayresponsables,
@@ -383,6 +395,7 @@ class OpportunityFormState {
     String? optrIdOportunidadIn,
     List<ArrayUser>? arrayresponsables,
     List<ArrayUser>? arrayresponsablesEliminar,
+    String? oprtIdPerdidaMotivo,
     String? optrValor,
     StateContact? oprtIdContacto,
     String? oprtNombreContacto,
@@ -394,6 +407,7 @@ class OpportunityFormState {
         oprtEntorno: oprtEntorno ?? this.oprtEntorno,
         oprtLocalCodigo: oprtLocalCodigo ?? this.oprtLocalCodigo,
         oprtLocalNombre: oprtLocalNombre ?? this.oprtLocalNombre,
+        oprtIdPerdidaMotivo: oprtIdPerdidaMotivo ?? this.oprtIdPerdidaMotivo,
         oprtIdEstadoOportunidad:
             oprtIdEstadoOportunidad ?? this.oprtIdEstadoOportunidad,
         oprtProbabilidad: oprtProbabilidad ?? this.oprtProbabilidad,
