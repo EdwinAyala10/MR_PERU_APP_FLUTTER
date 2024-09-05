@@ -68,13 +68,15 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
       'ACTI_NOMBRE_RESPONSABLE': state.actiNombreResponsable,
       'ACTI_ID_USUARIO_RESPONSABLE': state.actiIdUsuarioResponsable,
       'ACTI_ID_TIPO_GESTION': state.actiIdTipoGestion.value,
+      'ACTI_ID_TIPO_REGISTRO': '02',
+
       //'ACTI_FECHA_ACTIVIDAD': state.actiFechaActividad,
       "ACTI_FECHA_ACTIVIDAD":
           "${state.actiFechaActividad?.year.toString().padLeft(4, '0')}-${state.actiFechaActividad?.month.toString().padLeft(2, '0')}-${state.actiFechaActividad?.day.toString().padLeft(2, '0')}",
       'ACTI_HORA_ACTIVIDAD': state.actiHoraActividad,
       'ACTI_RUC': state.actiRuc.value,
       'ACTI_RAZON': state.actiRazon,
-      'ACTI_ID_TIPO_REGISTRO': state.actiIdTipoRegistro,
+      //'ACTI_ID_TIPO_REGISTRO': state.actiIdTipoRegistro,
       'ACTI_ID_OPORTUNIDAD': state.actiIdOportunidad.value,
       //'ACTI_ID_CONTACTO': state.actiIdContacto.value,
       'ACTI_ID_CONTACTO': state.actividadesContacto?[0].acntIdContacto ?? '',

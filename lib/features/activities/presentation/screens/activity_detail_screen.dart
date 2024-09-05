@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:crm_app/config/constants/environment.dart';
 import 'package:crm_app/features/activities/infrastructure/mappers/activitie_create_document_response.dart';
 import 'package:crm_app/features/activities/infrastructure/mappers/activitie_delete_document_mapper.dart';
@@ -284,6 +282,22 @@ class ActivityDetailView extends ConsumerWidget {
                 label: 'Comentario',
                 text: activity.actiComentario,
               ),
+              ContainerCustom(
+                label: 'Fecha Registro Check In',
+                text: activity.cchkFechaRegistroCheckIn ?? '',
+              ),
+              ContainerCustom(
+                label: 'Comentario Check In',
+                text: activity.cchkComentarioCheckIn ?? '',
+              ),
+              ContainerCustom(
+                label: 'Fecha Registro Check Out',
+                text: activity.cchkFechaRegistroCheckOut ?? '',
+              ),
+              ContainerCustom(
+                label: 'Comentario Check Out',
+                text: activity.cchkComentarioCheckOut ?? '',
+              ),
             ],
           ),
         ),
@@ -326,6 +340,7 @@ class ContainerCustom extends StatelessWidget {
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
+              overflow: TextOverflow.ellipsis
             ),
           ),
         ),
@@ -339,11 +354,14 @@ class ContainerCustom extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  text,
-                  maxLines: 10,
-                  style: const TextStyle(
-                    fontSize: 16,
+                Expanded(
+                  child: Text(
+                    text,
+                    maxLines: 10,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      overflow: TextOverflow.ellipsis 
+                    ),
                   ),
                 ),
                 const Expanded(child: SizedBox()),

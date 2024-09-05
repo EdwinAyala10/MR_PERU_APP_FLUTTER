@@ -27,6 +27,8 @@ class Activity {
   String? actiIdTipoRegistro;
   List<ContactArray>? actividadesContacto;
   List<ContactArray>? actividadesContactoEliminar;
+  String? cchkFechaRegistroCheckIn;
+  String? cchkFechaRegistroCheckOut;
 
   Activity(
       {required this.id,
@@ -54,5 +56,7 @@ class Activity {
       this.actiTiempoGestion,
       this.contactoDesc,
       this.actiIdTipoRegistro,
+      this.cchkFechaRegistroCheckIn,
+      this.cchkFechaRegistroCheckOut,
       this.actiNombreResponsable});
 }

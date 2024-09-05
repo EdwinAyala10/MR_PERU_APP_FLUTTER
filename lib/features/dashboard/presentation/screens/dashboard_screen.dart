@@ -835,6 +835,26 @@ class progressKpi extends StatelessWidget {
     required this.total,
   });
 
+  Color isColorIndicator(double porc) {
+
+    Color returnColors = Colors.blue;
+
+    if (porc >= 0 && porc <= 33) {
+      returnColors = Colors.red;
+    }
+
+    if (porc >= 34 && porc <= 66) {
+      returnColors = Colors.yellow;
+    }
+
+    if (porc >= 67 && porc <= 100) {
+      returnColors = Colors.green;
+    }
+    
+    print('PORCENTAJE: ${porc}');
+    return returnColors; 
+  }
+
   @override
   Widget build(BuildContext context) {
     return Expanded(
@@ -864,8 +884,8 @@ class progressKpi extends StatelessWidget {
                 child: CircularProgressIndicator(
                   strokeWidth: 5,
                   value: ((percentage) / 100).toDouble(),
-                  valueColor: const AlwaysStoppedAnimation<Color>(
-                      Colors.blue), // Color cuando está marcado
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                      isColorIndicator(percentage)), // Color cuando está marcado
                   backgroundColor: Colors.grey,
                 ),
               ),

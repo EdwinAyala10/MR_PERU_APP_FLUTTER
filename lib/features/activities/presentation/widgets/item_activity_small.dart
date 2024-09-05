@@ -2,7 +2,6 @@ import '../../domain/domain.dart';
 import '../../../shared/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ItemActivitySmall extends StatelessWidget {
   final Activity activity;
@@ -80,11 +79,11 @@ class ItemActivitySmall extends StatelessWidget {
           if (activity.contactoDesc != "") 
             Text(
               activity.contactoDesc ?? '',
-              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
             ),
           Text(
             activity.actiRazon ?? '',
-            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
+            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
           ),
         ],
       ),
@@ -98,7 +97,7 @@ class ItemActivitySmall extends StatelessWidget {
                 const Icon(Icons.mode_comment, size: 14),
                 const SizedBox(width: 4),
                 SizedBox(
-                  width: 140,
+                  width: 160,
                   child: Text(activity.actiComentario,
                     style: const TextStyle(
                       fontSize: 12,
@@ -114,7 +113,7 @@ class ItemActivitySmall extends StatelessWidget {
                 const Icon(Icons.keyboard_arrow_right_rounded, size: 14),
                 const SizedBox(width: 4),
                 SizedBox(
-                  width: 140,
+                  width: 160,
                   child: Text(activity.cchkComentarioCheckIn ?? '',
                       style: const TextStyle(
                         fontSize: 12,
@@ -129,10 +128,10 @@ class ItemActivitySmall extends StatelessWidget {
               children: [
                 const Icon(Icons.mode_comment, size: 14),
                 const Icon(Icons.keyboard_arrow_left_rounded, size: 14),
-            
+
                 const SizedBox(width: 4),
                 SizedBox(
-                  width: 140,
+                  width: 160,
                   child: Text(activity.cchkComentarioCheckOut ?? '',
                     style: const TextStyle(
                         fontSize: 12,
@@ -159,43 +158,26 @@ class ItemActivitySmall extends StatelessWidget {
       ),
       trailing: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Text(
             formattedDate,
-            style: const TextStyle(fontSize: 11, color: Colors.black45, overflow: TextOverflow.ellipsis),
+            style: const TextStyle(fontSize: 11, color: Colors.black45),
           ),
-          SizedBox(
-            height: 12,
-            child: Text(activity.actiNombreResponsable ?? '',
-                style: const TextStyle(
-                  fontSize: 10,
-                  overflow: TextOverflow.ellipsis
-                )),
-          ),
-          SizedBox(
-            height: 12,
-            child: Text(timeDifference,
-                maxLines: 1,
-                style: const TextStyle(
-                  fontSize: 10,
-                  overflow: TextOverflow.ellipsis,
-                )),
-          ),
+          Text(activity.actiNombreResponsable ?? '',
+              style: const TextStyle(
+                fontSize: 10,
+              )),
+          Text(timeDifference,
+              style: const TextStyle(
+                fontSize: 10,
+              )),
         ],
       ),
       leading: SizedBox(
-        width: 10,
         child: Column(
           children: [
-            activity.actiIdTipoGestion == '05' 
-            ? const FaIcon(FontAwesomeIcons.whatsapp, color: Colors.green, size: 32,) 
-            : Icon(
-              //Icons.airline_stops_sharp
-              icono, 
-              size: 30,
-              color: color,
-            ),
+            const SizedBox(height: 10),
+            IconsActivity(type: activity.actiIdTipoGestion),
           ],
         ),
       ),

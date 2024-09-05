@@ -215,11 +215,11 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     } 
   }
 
-  Future<List<DropdownOption>> loadFilterCodigoPostal() async {
+  Future<List<DropdownOption>> loadFilterCodigoPostal(String search) async {
     //state = state.copyWith(isLoading: true);
 
     List<FilterCodigoPostal> filters =
-        await routePlannerRepository.getFilterCodigoPostal(search: '');
+        await routePlannerRepository.getFilterCodigoPostal(search: search);
 
     List<DropdownOption> options = [];
 
@@ -232,11 +232,11 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     return options;
   }
 
-  Future<List<DropdownOption>> loadFilterDistrito() async {
+  Future<List<DropdownOption>> loadFilterDistrito(String search) async {
     //state = state.copyWith(isLoading: true);
 
     List<FilterDistrito> filters =
-        await routePlannerRepository.getFilterDistrito(search: '');
+        await routePlannerRepository.getFilterDistrito(search: search);
 
     List<DropdownOption> options = [];
 
@@ -256,11 +256,11 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     loadNextPage(isRefresh: true);
   }
 
-  Future<List<DropdownOption>> loadFilterRuc() async {
+  Future<List<DropdownOption>> loadFilterRuc(String search) async {
     //state = state.copyWith(isLoading: true);
 
     List<FilterRucRazonSocial> filters =
-        await routePlannerRepository.getFilterRucRazonSocial(search: '');
+        await routePlannerRepository.getFilterRucRazonSocial(search: search);
 
     List<DropdownOption> options = [];
 
@@ -268,17 +268,21 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
 
     for (final filter in filters) {
         options.add(
-          DropdownOption(id: filter.ruc, name: filter.ruc,  subTitle: filter.razon, secundary: filter.tipoCliente));
+          DropdownOption(
+            id: filter.ruc, 
+            name: filter.ruc,  
+            subTitle: filter.razon, 
+            secundary: filter.tipoCliente));
     }
 
     return options;
   }
 
-  Future<List<DropdownOption>> loadFiltecRazonComercial() async {
+  Future<List<DropdownOption>> loadFiltecRazonComercial(String search) async {
     //state = state.copyWith(isLoading: true);
 
     List<FilterRucRazonSocial> filters =
-        await routePlannerRepository.getFilterRucRazonSocial(search: '');
+        await routePlannerRepository.getFilterRucRazonSocial(search: search);
 
     List<DropdownOption> options = [];
 

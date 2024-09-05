@@ -2,7 +2,6 @@ import '../../domain/domain.dart';
 import '../../../shared/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ItemActivity extends StatelessWidget {
   final Activity activity;
@@ -14,8 +13,6 @@ class ItemActivity extends StatelessWidget {
   Widget build(BuildContext context) {
     final DateTime fechaActividad = activity.actiFechaActividad;
     String horaActividad = activity.actiHoraActividad;
-
-    print('ACTIVITY: ${ activity }');
 
     if (horaActividad.length == 8) {
       horaActividad = '$horaActividad.0000000';

@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:crm_app/call_duration_service.dart';
+import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:flutter/material.dart';
@@ -39,6 +39,8 @@ class ActivityPostCallScreen extends ConsumerWidget {
     final activityPostCallState = ref.watch(activityPostCallProvider(
         ActivityPostCallParams(contactId: contactId, phone: phone)));
 
+    final activityForm = ref.watch(activityFormProvider(activityPostCallState.activity!));
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -58,8 +60,13 @@ class ActivityPostCallScreen extends ConsumerWidget {
                 activity: activityPostCallState.activity!, phone: phone),
         floatingActionButton: FloatingActionButtonCustom(
             iconData: Icons.save,
-            callOnPressed: () {
+            //isDisabled: activityForm.actiComentario == '',
+            callOnPressed: activityForm.actiComentario == '' ? () {
+              showSnackbar(context, 'El comentario es requerido');
+            } 
+            : () {
               if (activityPostCallState.activity == null) return;
+              showLoadingMessage(context);
 
               ref
                   .read(activityFormProvider(activityPostCallState.activity!)
@@ -77,6 +84,8 @@ class ActivityPostCallScreen extends ConsumerWidget {
                     //});
                   }
                 }
+                Navigator.pop(context);
+
               });
             }),
       ),
@@ -320,7 +329,16 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
                     .read(activityFormProvider(activity).notifier)
                     .onComentarioChanged,
               ),
-              const SizedBox(height: 4),
+              activityForm.actiComentario == ''
+                  ? const Padding(
+                      padding: EdgeInsets.only(left: 4),
+                      child: Text(
+                        'El comentario es requerido',
+                        style: TextStyle(color: Colors.red, fontSize: 15),
+                      ),
+                    )
+                  : const SizedBox(),
+              const SizedBox(height: 10),
               const Text(
                 'Contacto',
                 style: TextStyle(fontWeight: FontWeight.w600),
@@ -471,6 +489,11 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
                             vertical: 14.0, horizontal: 10.0)),
                     onPressed: () {
                       Navigator.pop(context);
+                      /*Timer(Duration(seconds: 3), () {
+                        //Navigator.pop(context);
+                        context.pop();
+                      });*/
+                      //context.pop();
                     },
                     child: const Text('CANCELAR'),
                   ),

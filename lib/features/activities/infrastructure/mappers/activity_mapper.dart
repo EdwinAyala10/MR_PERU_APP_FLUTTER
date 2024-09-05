@@ -25,6 +25,8 @@ class ActivityMapper {
     actiRazon: json['ACTI_RAZON'] ?? '',
     contactoDesc: json['CONTACTO_DESC'] ?? '',
     actiNombreResponsable: json['ACTI_NOMBRE_RESPONSABLE'] ?? '',
+    cchkFechaRegistroCheckIn: json['CCHK_FECHA_REGISTRO_CHECK_IN'] ?? '',
+    cchkFechaRegistroCheckOut: json['CCHK_FECHA_REGISTRO_CHECK_OUT'] ?? '',
     actiIdUsuarioActualizacion: json['ACTI_ID_USUARIO_ACTUALIZACION'] ?? '',
     actiIdActividadIn: json['ACTI_ID_ACTIVIDAD_IN'] ?? '',
     actiIdTipoRegistro: json['ACTI_ID_TIPO_REGISTRO'] ?? '',
