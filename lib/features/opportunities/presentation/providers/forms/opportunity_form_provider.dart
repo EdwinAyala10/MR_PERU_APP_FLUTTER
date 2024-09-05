@@ -252,6 +252,12 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
         ]));
   }
 
+  void onIdPerdidaMotivoChanged(String id) {
+    state = state.copyWith(
+      oprtIdPerdidaMotivo: id
+    );
+  }
+
   void onUsuarioChanged(UserMaster usuario) {
     bool objExist = state.arrayresponsables!
         .any((objeto) => objeto.cresIdUsuarioResponsable == usuario.code);
