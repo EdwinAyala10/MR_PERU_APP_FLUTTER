@@ -50,6 +50,8 @@ dependencies:
   table_calendar: ^3.1.0
   url_launcher: ^6.2.6
   get_it: ^7.7.0
+  flutter_callkit_incoming: ^2.0.4+1
+  telephony: ^0.2.0
 
 dev_dependencies:
   change_app_package_name: ^1.1.0
@@ -63,7 +65,7 @@ flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
   image_path: "assets/icon/icon.png"
-  min_sdk_android: 21 # android min sdk min:16, default 21
+  min_sdk_android: 23 # android min sdk min:16, default 21
 
 flutter_native_splash:
   color: "#ffffff"

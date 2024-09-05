@@ -228,7 +228,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
                   ),
                 ],
               ),
-            const SizedBox(height: 20), // Espaciado adicional
+            const SizedBox(height: 10), // Espaciado adicional
             _buildInfoField(
                 'Empresa visible para todos',
                 widget.company.visibleTodos == "1" ? 'SI' : 'NO',

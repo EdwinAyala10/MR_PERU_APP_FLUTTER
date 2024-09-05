@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:crm_app/call_duration_service.dart';
+import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +43,8 @@ class ActivityPostCallScreen extends ConsumerWidget {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Informe post llamada'),
+          title: const Text('Informe post llamada', 
+          style: TextStyle(fontWeight: FontWeight.w500)),
           /*leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
@@ -95,6 +99,10 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
   PhoneState status = PhoneState.nothing();
   bool granted = false;
 
+  List<DropdownOption> optionsTipoGestion = [
+    DropdownOption(id: '', name: 'Cargando...')
+  ];
+
   Future<bool> requestPermission() async {
     var status = await Permission.phone.request();
 
@@ -108,9 +116,27 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
     };
   }
 
+  final CallDurationService _callDurationService = CallDurationService();
+  int _callDuration = 0;
+
   @override
   void initState() {
     super.initState();
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('01').then((value) => {
+        
+        setState(() {
+          optionsTipoGestion = value.where((o) => o.id == '02' || o.id == '').toList();
+        })
+      });
+    });
+    
+    _callDurationService.onCallEnded = (duration) {
+      setState(() {
+        _callDuration = duration;
+      });
+    };
 
     if (Platform.isIOS) setStream();
 
@@ -121,7 +147,9 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
     });
   }
 
+
   void setStream() {
+
     PhoneState.stream.listen((event) {
       String? number = event.number;
       PhoneStateStatus statusCall = event.status;
@@ -157,13 +185,13 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
   @override
   Widget build(BuildContext context) {
 
-    List<DropdownOption> optionsTipoGestion = [
+    /*List<DropdownOption> optionsTipoGestion = [
       DropdownOption(id: '', name: 'Selecciona'),
       //DropdownOption(id: '01', name: 'Comentario'),
       DropdownOption(id: '02', name: 'Llamada Telefónica'),
       //DropdownOption(id: '03', name: 'Reunión'),
       //DropdownOption(id: '04', name: 'Visita'),
-    ];
+    ];*/
 
     Activity activity = widget.activity;
 
@@ -178,21 +206,25 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 10),
-              SelectCustomForm(
-                label: 'Tipo de gestión *',
+              Text('Call Duration: $_callDuration seconds'),
+
+              optionsTipoGestion.length > 1 ? SelectCustomForm(
+                label: 'Tipo de gestión',
                 value: activityForm.actiIdTipoGestion.value,
                 callbackChange: (String? newValue) {
-                  DropdownOption searchTipoGestion = optionsTipoGestion
-                      .where((option) => option.id == newValue!)
-                      .first;
+                  DropdownOption searchTipoGestion =
+                      optionsTipoGestion.where((option) => option.id == newValue!).first;
+
                   ref
                       .read(activityFormProvider(activity).notifier)
                       .onTipoGestionChanged(
                           newValue ?? '', searchTipoGestion.name);
+          
                 },
                 items: optionsTipoGestion,
                 errorMessage: activityForm.actiIdTipoGestion.errorMessage,
-              ),
+              ): PlaceholderInput(text: 'Cargando Cargo...'),
+
               const SizedBox(height: 20),
               const Text(
                 'DATOS DE LA GESTIÓN',
@@ -212,11 +244,12 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Oportunidad',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 13,
                         fontWeight: FontWeight.bold,
+                        color: activityForm.actiIdOportunidad.value == '' ? Colors.red :  Colors.black
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -244,8 +277,9 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
                                 activityForm.actiIdOportunidad.value == ''
                                     ? 'Seleccione Oportunidad'
                                     : activityForm.actiNombreOportunidad,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 16,
+                                  color: activityForm.actiIdOportunidad.value == '' ? Colors.red : Colors.black
                                 ),
                               ),
                             ),
@@ -455,7 +489,7 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
     //granted = temp;
     if (temp) {
       await FlutterPhoneDirectCaller.callNumber(phone);
-
+      _callDurationService.makeCall(phone);
       setStream();
     } else {
       //bool? res = await FlutterPhoneDirectCaller.callNumber(phone);

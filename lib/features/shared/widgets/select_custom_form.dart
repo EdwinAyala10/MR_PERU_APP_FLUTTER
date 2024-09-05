@@ -38,10 +38,10 @@ class SelectCustomForm extends StatelessWidget {
               ),
               child: Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14.0,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: errorMessage == null ? Colors.black : Colors.red[400],
                 ),
               ),
             ),
@@ -80,7 +80,8 @@ class SelectCustomForm extends StatelessWidget {
                   value: option.id,
                   child: Text(
                     option.name,
-                    style: const TextStyle(fontSize: 15.0),
+                    style: TextStyle(fontSize: 15.0, 
+                    color: errorMessage == null ? Colors.black : Colors.red[400]),
                   ),
                 );
               }).toList(),

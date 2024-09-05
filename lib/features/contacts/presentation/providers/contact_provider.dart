@@ -36,6 +36,7 @@ class ContactNotifier extends StateNotifier<ContactState> {
       contactIdIn: '',
       contactoEmail: '',
       contactoFax: '',
+      contactoLocalCodigo: '',
       contactoIdCargo: '',
       contactoNombreCargo: '',
       contactoNotas: '',

@@ -6,6 +6,9 @@ import 'package:crm_app/features/companies/presentation/delegates/search_company
 import 'package:crm_app/features/companies/presentation/providers/company_provider.dart';
 import 'package:crm_app/features/companies/presentation/search/search_company_locales_active_provider.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
+import 'package:crm_app/features/contacts/domain/entities/contact.dart';
+import 'package:crm_app/features/contacts/presentation/delegates/search_contact_active_delegate.dart';
+import 'package:crm_app/features/contacts/presentation/search/search_contacts_active_provider.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 
 import '../../../companies/domain/domain.dart';
@@ -419,6 +422,87 @@ class _OpportunityInformationv2State
             ),
           const SizedBox(height: 10),
 
+          
+
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Contacto',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: opportunityForm.oprtIdContacto.errorMessage != null
+                        ? Colors.red[400]
+                        : null,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                GestureDetector(
+                  onTap: () {
+                    if (opportunityForm.oprtRuc.value == "") {
+                      showSnackbar(context, 'Debe seleccionar una empresa');
+                      return;
+                    }
+
+                    _openSearchContacts(
+                        context, ref, opportunityForm.oprtRuc.value);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                          color: opportunityForm.oprtIdContacto.errorMessage !=
+                                  null
+                              ? Colors.red
+                              : Colors.grey),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            opportunityForm.oprtIdContacto.value == ''
+                                ? 'Seleccione local'
+                                : opportunityForm.oprtNombreContacto ?? '',
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: opportunityForm
+                                            .oprtIdContacto.errorMessage !=
+                                        null
+                                    ? Colors.red
+                                    : null),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.search),
+                          onPressed: () {
+                            if (opportunityForm.oprtRuc.value == "") {
+                              showSnackbar(
+                                  context, 'Debe seleccionar una empresa');
+                              return;
+                            }
+
+                            _openSearchContacts(
+                                context, ref, opportunityForm.oprtRuc.value);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (opportunityForm.oprtIdContacto.errorMessage != null)
+            Text(
+              opportunityForm.oprtIdContacto.errorMessage ?? 'Requerido',
+              style: TextStyle(color: Colors.red[400], fontSize: 13),
+            ),
+          const SizedBox(height: 10),
+
           /*const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.all(4.0),
@@ -673,4 +757,34 @@ class _OpportunityInformationv2State
               '${companyLocal.localNombre} ${companyLocal.localDireccion}');
     });
   }
+
+  void _openSearchContacts(
+      BuildContext context, WidgetRef ref, String ruc) async {
+    final searchedContacts = ref.read(searchedContactsProvider);
+    final searchQuery = ref.read(searchQueryContactsProvider);
+
+    showSearch<Contact?>(
+        query: searchQuery,
+        context: context,
+        delegate: SearchContactDelegate(
+          ruc: ruc,
+          initialContacts: searchedContacts,
+          searchContacts: ref
+              .read(searchedContactsProvider.notifier)
+              .searchContactsByQuery,
+          resetSearchQuery: () {
+            ref
+                .read(searchQueryContactsProvider.notifier)
+                .update((state) => '');
+          },
+        )).then((contact) {
+      if (contact == null) return;
+
+      ref
+          .read(opportunityFormProvider(widget.opportunity).notifier)
+          .onContactChanged(contact.id,
+              '${contact.contactoDesc}');
+    });
+  }
+
 }

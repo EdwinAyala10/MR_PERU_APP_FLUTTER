@@ -25,6 +25,7 @@ export 'empresa_principal.dart';
 export 'empresa_intermediario.dart';
 export 'hora_trabajo.dart';
 export 'hora_entre_visitas.dart';
+export 'state_contact.dart';
 
 export 'type.dart';
 export 'type_local.dart';

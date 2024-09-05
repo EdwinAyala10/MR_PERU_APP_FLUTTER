@@ -15,6 +15,8 @@ class ContactMapper {
     contactoTelefonof: json['CONTACTO_TELEFONOF'] ?? '',
     contactoFax: json['CONTACTO_FAX'] ?? '',
     contactoNotas: json['CONTACTO_NOTAS'] ?? '',
+    contactoLocalCodigo: json['CONTACTO_LOCAL_CODIGO'] ?? '',
+    contactoLocalNombre: json['LOCAL_NOMBRE'] ?? '',
     contactoIdCargo: json['CONTACTO_ID_CARGO'] ?? '',
     contactoNombreCargo: json['CONTACTO_NOMBRE_CARGO'] ?? '',
     opt: json['OPT'] ?? '',

@@ -354,6 +354,10 @@ class OpportunityDetailView extends ConsumerWidget {
                 label: 'Local',
                 text: opportunity.oprtLocalNombre ?? '',
               ),
+              ContainerCustom(
+                label: 'Contacto',
+                text: opportunity.oprtNombreContacto ?? '',
+              ),
               if (opportunity.arrayresponsables != null &&
                   opportunity.arrayresponsables!.isNotEmpty)
                 Container(

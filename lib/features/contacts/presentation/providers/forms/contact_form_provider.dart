@@ -32,6 +32,8 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
           contactoDesc: Name.dirty(contact.contactoDesc),
           contactoEmail: contact.contactoEmail ?? '',
           contactoFax: contact.contactoFax ?? '',
+          contactoLocalCodigo: StateLocal.dirty(contact.contactoLocalCodigo ?? ''),
+          contactoLocalNombre: contact.contactoLocalNombre ?? '',
           contactoIdCargo: Cargo.dirty(contact.contactoIdCargo ?? ''),
           contactoNombreCargo: contact.contactoNombreCargo ?? '',
           contactoNotas: contact.contactoNotas ?? '',
@@ -66,6 +68,7 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
       'CONTACTO_TELEFONOC': state.contactoTelefonoc.value,
       'CONTACTO_FAX': state.contactoFax,
       'CONTACTO_NOTAS': state.contactoNotas,
+      'CONTACTO_LOCAL_CODIGO': state.contactoLocalCodigo.value,
       //'OPT': (state.id == 'new') ? 'INSERT' : 'UPDATE',
       'CONTACTO_ID_CARGO': state.contactoIdCargo.value,
       'CONTACTO_NOMBRE_CARGO': state.contactoNombreCargo,
@@ -86,6 +89,7 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
         Name.dirty(state.contactoDesc.value),
         Phone.dirty(state.contactoTelefonoc.value),
         Cargo.dirty(state.contactoIdCargo.value),
+        StateLocal.dirty(state.contactoLocalCodigo.value),
       ]),
     );
   }
@@ -93,11 +97,13 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
   void onRucChanged(String value) {
     state = state.copyWith(
         ruc: StateCompany.dirty(value),
+        contactoLocalCodigo: const StateLocal.dirty(''),
         isFormValid: Formz.validate([
           StateCompany.dirty(value),
           Name.dirty(state.contactoDesc.value),
           Phone.dirty(state.contactoTelefonoc.value),
           Cargo.dirty(state.contactoIdCargo.value),
+          StateLocal.dirty(state.contactoLocalCodigo.value),
         ]));
   }
 
@@ -113,6 +119,7 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
           Name.dirty(value),
           Phone.dirty(state.contactoTelefonoc.value),
           Cargo.dirty(state.contactoIdCargo.value),
+          StateLocal.dirty(state.contactoLocalCodigo.value),
         ]));
   }
 
@@ -125,6 +132,20 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
           Name.dirty(state.contactoDesc.value),
           Phone.dirty(state.contactoTelefonoc.value),
           Cargo.dirty(idCargo),
+          StateLocal.dirty(state.contactoLocalCodigo.value),
+        ]));
+  }
+
+  void onLocalChanged(String value, String name) {
+    state = state.copyWith(
+        contactoLocalCodigo: StateLocal.dirty(value),
+        contactoLocalNombre: name,
+        isFormValid: Formz.validate([
+          StateCompany.dirty(state.ruc.value),
+          Name.dirty(state.contactoDesc.value),
+          Phone.dirty(state.contactoTelefonoc.value),
+          Cargo.dirty(state.contactoIdCargo.value),
+          StateLocal.dirty(value),
         ]));
   }
 
@@ -145,6 +166,7 @@ class ContactFormNotifier extends StateNotifier<ContactFormState> {
           Name.dirty(state.contactoDesc.value),
           Phone.dirty(telefono),
           Cargo.dirty(state.contactoIdCargo.value),
+          StateLocal.dirty(state.contactoLocalCodigo.value),
         ]));
   }
 
@@ -177,6 +199,8 @@ class ContactFormState {
   final String contactoNombreCargo;
   final String contactoNotas;
   final String? contactoUsuarioRegistro;
+  final StateLocal contactoLocalCodigo;
+  final String? contactoLocalNombre;
 
   ContactFormState(
       {this.isFormValid = false,
@@ -196,6 +220,8 @@ class ContactFormState {
       this.contactoIdCargo = const Cargo.dirty(''),
       this.contactoNombreCargo = '',
       this.contactoUsuarioRegistro = '',
+      this.contactoLocalCodigo = const StateLocal.dirty(''),
+      this.contactoLocalNombre = '',
       this.contactoNotas = ''});
 
   ContactFormState copyWith({
@@ -216,6 +242,8 @@ class ContactFormState {
     Cargo? contactoIdCargo,
     String? contactoNombreCargo,
     String? contactoNotas,
+    StateLocal? contactoLocalCodigo,
+    String? contactoLocalNombre,
     String? contactoUsuarioRegistro,
   }) =>
       ContactFormState(
@@ -237,5 +265,7 @@ class ContactFormState {
         contactoIdCargo: contactoIdCargo ?? this.contactoIdCargo,
         contactoNombreCargo: contactoNombreCargo ?? this.contactoNombreCargo,
         contactoNotas: contactoNotas ?? this.contactoNotas,
+        contactoLocalCodigo: contactoLocalCodigo ?? this.contactoLocalCodigo,
+        contactoLocalNombre: contactoLocalNombre ?? this.contactoLocalNombre,
       );
 }

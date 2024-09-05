@@ -47,6 +47,7 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
           oprtLocalNombre: opportunity.oprtLocalNombre ?? '',
           oprtProbabilidad: opportunity.oprtProbabilidad ?? '',
           oprtRuc: EmpresaPrincipal.dirty(opportunity.oprtRuc ?? ''),
+          oprtIdContacto: StateContact.dirty(opportunity.oprtIdContacto ?? ''),
           oprtLocalCodigo: StateLocal.dirty(opportunity.oprtLocalCodigo ?? ''),
           //oprtLocalNombre: opportunity.oprtLocalNombre ?? '',
           oprtRazon: opportunity.oprtRazon ?? '',
@@ -88,6 +89,7 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
       'OPRT_RUC_INTERMEDIARIO_02': state.oprtRucIntermediario02,
       'OPRT_COMENTARIO': state.oprtComentario,
       'OPRT_ID_USUARIO_REGISTRO': state.oprtIdUsuarioRegistro,
+      'OPRT_ID_CONTACTO': state.oprtIdContacto.value,
       'OPRT_NOBBRE_ESTADO_OPORTUNIDAD': state.oprtNobbreEstadoOportunidad,
       'OPRT_NOMBRE_VALOR': state.oprtNombreValor,
       'OPT': (state.id == 'new') ? 'INSERT' : 'UPDATE',
@@ -115,6 +117,7 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
         EmpresaPrincipal.dirty(state.oprtRuc.value),
         StateLocal.dirty(state.oprtLocalCodigo.value),
         //EmpresaIntermediario.dirty(state.oprtRucIntermediario01.value),
+        StateContact.dirty(state.oprtIdContacto.value)
       ]),
     );
   }
@@ -128,6 +131,7 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
         EmpresaPrincipal.dirty(state.oprtRuc.value),
         StateLocal.dirty(state.oprtLocalCodigo.value),
         //EmpresaIntermediario.dirty(state.oprtRucIntermediario01.value),
+        StateContact.dirty(state.oprtIdContacto.value)
       ]));
   }
 
@@ -141,6 +145,7 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
         EmpresaPrincipal.dirty(state.oprtRuc.value),
         StateLocal.dirty(state.oprtLocalCodigo.value),
         //EmpresaIntermediario.dirty(state.oprtRucIntermediario01.value),
+        StateContact.dirty(state.oprtIdContacto.value)
       ]));
   }
 
@@ -175,11 +180,14 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
       oprtRazon: razon,
       oprtLocalCodigo: const StateLocal.dirty(''),
       oprtLocalNombre: '',
+      oprtIdContacto: const StateContact.dirty(''),
       isFormValid: Formz.validate([
         Name.dirty(state.oprtNombre.value),
         StateOpportunity.dirty(state.oprtIdEstadoOportunidad.value),
         EmpresaPrincipal.dirty(ruc),
         //EmpresaIntermediario.dirty(state.oprtRucIntermediario01.value),
+        StateLocal.dirty(state.oprtLocalCodigo.value),
+        StateContact.dirty(state.oprtIdContacto.value)
       ]));
   }
 
@@ -219,6 +227,20 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
           StateOpportunity.dirty(state.oprtIdEstadoOportunidad.value),
           EmpresaPrincipal.dirty(state.oprtRuc.value),
           StateLocal.dirty(value),
+          StateContact.dirty(state.oprtIdContacto.value)
+        ]));
+  }
+
+  void onContactChanged(String value, String name) {
+    state = state.copyWith(
+        oprtIdContacto: StateContact.dirty(value),
+        oprtNombreContacto: name,
+        isFormValid: Formz.validate([
+          Name.dirty(state.oprtNombre.value),
+          StateOpportunity.dirty(state.oprtIdEstadoOportunidad.value),
+          EmpresaPrincipal.dirty(state.oprtRuc.value),
+          StateLocal.dirty(state.oprtLocalCodigo.value),
+          StateContact.dirty(value)
         ]));
   }
 
@@ -304,6 +326,8 @@ class OpportunityFormState {
   final List<ArrayUser>? arrayresponsables;
   final List<ArrayUser>? arrayresponsablesEliminar;
   final String optrValor;
+  final StateContact oprtIdContacto;
+  final String? oprtNombreContacto;
 
   OpportunityFormState(
       {this.isFormValid = false,
@@ -330,6 +354,8 @@ class OpportunityFormState {
       this.opt = '',
       this.arrayresponsables,
       this.arrayresponsablesEliminar,
+      this.oprtIdContacto = const StateContact.dirty(''),
+      this.oprtNombreContacto = '',
       this.optrIdOportunidadIn = ''});
 
   OpportunityFormState copyWith({
@@ -358,6 +384,8 @@ class OpportunityFormState {
     List<ArrayUser>? arrayresponsables,
     List<ArrayUser>? arrayresponsablesEliminar,
     String? optrValor,
+    StateContact? oprtIdContacto,
+    String? oprtNombreContacto,
   }) =>
       OpportunityFormState(
         isFormValid: isFormValid ?? this.isFormValid,
@@ -394,5 +422,7 @@ class OpportunityFormState {
         arrayresponsables: arrayresponsables ?? this.arrayresponsables,
         arrayresponsablesEliminar:
             arrayresponsablesEliminar ?? this.arrayresponsablesEliminar,
+        oprtIdContacto: oprtIdContacto ?? this.oprtIdContacto,
+        oprtNombreContacto: oprtNombreContacto ?? this.oprtNombreContacto,
       );
 }

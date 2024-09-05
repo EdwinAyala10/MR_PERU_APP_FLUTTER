@@ -28,6 +28,8 @@ class Opportunity {
   String? localDistrito;
   String? contacTelefono;
   String? contactId;
+  String? oprtIdContacto;
+  String? oprtNombreContacto;
 
   Opportunity({
     required this.id,
@@ -57,5 +59,7 @@ class Opportunity {
     this.oprtLocalNombre,
     this.contacTelefono,
     this.contactId,
+    this.oprtIdContacto,
+    this.oprtNombreContacto
   });
 }
