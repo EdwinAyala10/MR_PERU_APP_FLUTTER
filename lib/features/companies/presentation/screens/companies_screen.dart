@@ -148,7 +148,7 @@ class _ListCompaniesState extends ConsumerState<_ListCompanies> {
                 )),
           )
         : NotificationListener(
-          onNotification: (ScrollNotification scrollInfo) {
+          /*onNotification: (ScrollNotification scrollInfo) {
               if (scrollInfo.metrics.pixels + 400 ==
                   scrollInfo.metrics.maxScrollExtent) {
                 ref
@@ -156,7 +156,7 @@ class _ListCompaniesState extends ConsumerState<_ListCompanies> {
                     .loadNextPage(isRefresh: false);
             }
             return false;
-          },
+          },*/
           child: RefreshIndicator(
               notificationPredicate: defaultScrollNotificationPredicate,
               onRefresh: widget.onRefreshCallback,

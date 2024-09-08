@@ -70,7 +70,7 @@ class ActivitiesDatasourceImpl extends ActivitiesDatasource {
     try {
       final response = await dio.post(
           '/actividad/listar-actividad-by-id-tipo-gestion',
-          data: {'SEARCH': '', 'OFFSET': offset, 'TOP': limit});
+          data: {'SEARCH': search, 'OFFSET': offset, 'TOP': limit});
       final List<Activity> activities = [];
       for (final activity in response.data['data'] ?? []) {
         activities.add(ActivityMapper.jsonToEntity(activity));

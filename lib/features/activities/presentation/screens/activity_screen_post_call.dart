@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:crm_app/call_duration_service.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
+import 'package:crm_app/features/shared/widgets/loading_modal.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
@@ -36,10 +37,19 @@ class ActivityPostCallScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    
     final activityPostCallState = ref.watch(activityPostCallProvider(
         ActivityPostCallParams(contactId: contactId, phone: phone)));
 
-    final activityForm = ref.watch(activityFormProvider(activityPostCallState.activity!));
+
+
+    //final activityForm = ref.watch(activityFormProvider(activityPostCallState.activity));
+
+    if (activityPostCallState.activity == null) {
+      return Scaffold(
+        body: LoadingModal(),
+      );
+    }
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -61,12 +71,14 @@ class ActivityPostCallScreen extends ConsumerWidget {
         floatingActionButton: FloatingActionButtonCustom(
             iconData: Icons.save,
             //isDisabled: activityForm.actiComentario == '',
-            callOnPressed: activityForm.actiComentario == '' ? () {
+            callOnPressed: ref.watch(activityFormProvider(activityPostCallState.activity!)).actiComentario == '' ? () {
               showSnackbar(context, 'El comentario es requerido');
             } 
             : () {
               if (activityPostCallState.activity == null) return;
               showLoadingMessage(context);
+
+              //activityPostCallState.activity?.actiIdTipoRegistro = '02';
 
               ref
                   .read(activityFormProvider(activityPostCallState.activity!)
@@ -442,63 +454,81 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
       BuildContext context, String phone, Activity activity) {
     showModalBottomSheet(
       context: context,
+      isDismissible: true, // Permitir cerrar al presionar en el fondo
+      enableDrag: true,
       backgroundColor: Colors.transparent,
-      builder: (BuildContext context) {
-        return SizedBox(
-          width: double.infinity,
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 14.0, horizontal: 10.0)),
-                    onPressed: () {
-                      Navigator.pop(context);
+      builder: (BuildContext contextInt) {
+        return PopScope(
+          //canPop: true,
+          onPopInvokedWithResult: (bool didPop, dynamic result) {
+            if (didPop) {
+              // Aquí puedes realizar alguna acción después de que el pop haya sido manejado
+              print('El modal fue cerrado');
+              Future.delayed(Duration(seconds: 1), () {
+                // Código que quieres ejecutar después de 3 segundos
+                print('Esto se ejecuta después de 3 segundos');
+                Navigator.pop(context);
 
-                      ref
-                          .read(activityFormProvider(activity).notifier)
-                          .onHoraChanged(
-                              DateFormat('HH:mm:ss').format(DateTime.now()));
-
-                      llamarTelefono(context, agregarPrefijoPeru(phone));
-                    },
-                    child: Text(
-                      'Llamar ${agregarPrefijoPeru(phone)}',
-                      style: const TextStyle(fontSize: 19, color: Colors.blue),
+              });
+              
+            }
+          },
+          child: SizedBox(
+            width: double.infinity,
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 14.0, horizontal: 10.0)),
+                      onPressed: () {
+                        Navigator.pop(context);
+          
+                        ref
+                            .read(activityFormProvider(activity).notifier)
+                            .onHoraChanged(
+                                DateFormat('HH:mm:ss').format(DateTime.now()));
+          
+                        llamarTelefono(context, agregarPrefijoPeru(phone));
+                      },
+                      child: Text(
+                        'Llamar ${agregarPrefijoPeru(phone)}',
+                        style: const TextStyle(fontSize: 19, color: Colors.blue),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 14.0, horizontal: 10.0)),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      /*Timer(Duration(seconds: 3), () {
-                        //Navigator.pop(context);
-                        context.pop();
-                      });*/
-                      //context.pop();
-                    },
-                    child: const Text('CANCELAR'),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 14.0, horizontal: 10.0)),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        /*Timer(Duration(seconds: 3), () {
+                          //Navigator.pop(context);
+                          context.pop();
+                        });*/
+                        //context.pop();
+                      },
+                      child: const Text('CANCELAR'),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );

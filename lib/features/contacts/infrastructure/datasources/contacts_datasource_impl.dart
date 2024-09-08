@@ -66,7 +66,12 @@ class ContactsDatasourceImpl extends ContactsDatasource {
 
   @override
   Future<List<Contact>> getContacts({String ruc = '', String search = '', int limit = 10, int offset = 0}) async {
-    final data = {"RUC": ruc, "SEARCH": search, "LIMIT": limit, "OFFSET": offset};
+    final data = {
+      "RUC": ruc, 
+      "SEARCH": search, 
+      "TOP": limit, 
+      "OFFSET": offset
+    };
 
     final response = await dio
         .post('/contacto/listar-contacto-by-ruc-cargo-responsable', data: data);

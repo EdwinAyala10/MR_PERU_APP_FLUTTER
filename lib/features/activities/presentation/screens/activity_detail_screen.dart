@@ -72,6 +72,9 @@ class _ActivityDetailScreenState extends ConsumerState<_ActivityDetailScreen>
 
   @override
   Widget build(BuildContext context) {
+
+    //final activityState = ref.watch(activityProvider(widget.));
+
     return DefaultTabController(
       length: 4, // Ahora tenemos 6 pestañas
       child: Scaffold(

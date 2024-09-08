@@ -281,18 +281,19 @@ class _ListContactsState extends ConsumerState<_ListContacts> {
                 )),
           )
         : NotificationListener(
-          onNotification: (ScrollNotification scrollInfo) {
+          /*onNotification: (ScrollNotification scrollInfo) {
             if (scrollInfo.metrics.pixels + 400 == scrollInfo.metrics.maxScrollExtent) {
               ref.read(contactsProvider.notifier).loadNextPage(isRefresh: false);
             }
             return false;
-          },
+          },*/
           child: RefreshIndicator(
               onRefresh: widget.onRefreshCallback,
               notificationPredicate: defaultScrollNotificationPredicate,
-              key: refreshIndicatorKey,
+              //key: refreshIndicatorKey,
               child: ListView.separated(
                 itemCount: widget.contacts.length,
+                controller: widget.scrollController,
                 separatorBuilder: (BuildContext context, int index) =>
                     const Divider(),
                 itemBuilder: (context, index) {

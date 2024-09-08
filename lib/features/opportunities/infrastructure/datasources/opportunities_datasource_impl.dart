@@ -32,7 +32,7 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
       if (id == null) {
         opportunityLike.remove('OPRT_ID_OPORTUNIDAD');
       }
-
+      //ORES_ID_USUARIO_RESPONSABLE
       log(opportunityLike.toString());
       final response = await dio.request(url,
           data: opportunityLike, options: Options(method: method));

@@ -76,7 +76,7 @@ class _FilterBottomRouterPlannerSheetState extends ConsumerState<FilterBottomRou
                   FilterOptionContainerFil(title: 'Código postal', trailing: 'Selecciona', type: 'CODIGO_POSTAL', search: true),
                   FilterOptionContainerFil(title: 'Distrito', trailing: 'Selecciona', type: 'DISTRITO', search: true),
                   
-                  FilterOptionContainerFil(title: 'RUC', trailing: 'Selecciona', type: 'RUC',),
+                  FilterOptionContainerFil(title: 'RUC', trailing: 'Selecciona', type: 'RUC', search: true),
                   FilterOptionContainerFil(title: 'RUBRO', trailing: 'Selecciona', type: 'ID_RUBRO'),
                   FilterOptionContainerFil(title: 'Razón comercial', trailing: 'Selecciona', type: 'RAZON_COMERCIAL', search: true),
                 ];

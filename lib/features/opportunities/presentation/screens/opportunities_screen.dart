@@ -338,9 +338,10 @@ class _ListOpportunitiesState extends ConsumerState<_ListOpportunities> {
             child: RefreshIndicator(
               notificationPredicate: defaultScrollNotificationPredicate,
               onRefresh: widget.onRefreshCallback,
-              key: refreshIndicatorKey,
+              //key: refreshIndicatorKey,
               child: ListView.separated(
                 itemCount: widget.opportunities.length,
+                controller: widget.scrollController,
                 separatorBuilder: (BuildContext context, int index) =>
                     const Divider(),
                 itemBuilder: (context, index) {

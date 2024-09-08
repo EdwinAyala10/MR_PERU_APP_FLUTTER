@@ -14,14 +14,14 @@ class TextScreen extends ConsumerWidget {
 
     return Scaffold(
         appBar: AppBar(
-          title: const Column(
+          title: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Enviar Whatsapp',
+              const Text('Enviar Whatsapp',
                   style: TextStyle(fontWeight: FontWeight.w500)),
-              Text('Para Pepito',
-                  style: TextStyle(fontWeight: FontWeight.w500)),
+              Text('Para ${params.contact?.contactoDesc ?? ''}',
+                  style: const TextStyle(fontWeight: FontWeight.w500)),
             ],
           ),
           leading: IconButton(
