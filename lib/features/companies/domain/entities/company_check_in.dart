@@ -18,6 +18,8 @@ class CompanyCheckIn {
     String cchkLocalCodigo;
     String? cchkLocalNombre;
     String? cchkVisitaFrioCaliente;
+    String? cchkIdTipoVista;
+    String? cchkNombreTipoVisita;
 
     CompanyCheckIn({
         required this.cchkIdClientesCheck,
@@ -39,6 +41,8 @@ class CompanyCheckIn {
         this.cchkIdUsuarioRegistro,
         this.cchkLocalNombre,
         this.cchkVisitaFrioCaliente,
+        this.cchkIdTipoVista,
+        this.cchkNombreTipoVisita
     });
 
 }

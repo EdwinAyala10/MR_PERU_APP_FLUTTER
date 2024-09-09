@@ -73,7 +73,9 @@ class CompanyCheckInScreen extends ConsumerWidget {
         body: companyCheckInState.isLoading
             ? const FullScreenLoader()
             : _CompanyCheckInView(
-                companyCheckIn: companyCheckInState.companyCheckIn!),
+              companyCheckIn: companyCheckInState.companyCheckIn!,
+              idCheck: idCheck,
+            ),
         floatingActionButton: FloatingActionButtonCustom(
           iconData: Icons.save,
           isDisabled: !isButtonAllowSave,
@@ -145,8 +147,9 @@ class CompanyCheckInScreen extends ConsumerWidget {
 
 class _CompanyCheckInView extends ConsumerStatefulWidget {
   final CompanyCheckIn companyCheckIn;
+  final String idCheck;
 
-  const _CompanyCheckInView({Key? key, required this.companyCheckIn})
+  const _CompanyCheckInView({Key? key, required this.companyCheckIn,required this.idCheck})
       : super(key: key);
 
   @override
@@ -185,7 +188,7 @@ class _CompanyCheckInViewState extends ConsumerState<_CompanyCheckInView> {
     return ListView(
       children: [
         const SizedBox(height: 10),
-        CompanyCheckInformation(companyCheckIn: companyCheckIn),
+        CompanyCheckInformation(companyCheckIn: companyCheckIn, idCheck: widget.idCheck),
       ],
     );
   }
@@ -193,8 +196,9 @@ class _CompanyCheckInViewState extends ConsumerState<_CompanyCheckInView> {
 
 class CompanyCheckInformation extends ConsumerStatefulWidget {
   final CompanyCheckIn companyCheckIn;
+  final String idCheck;
 
-  const CompanyCheckInformation({super.key, required this.companyCheckIn});
+  const CompanyCheckInformation({super.key, required this.companyCheckIn, required this.idCheck});
 
   @override
   ConsumerState<CompanyCheckInformation> createState() => _CompanyCheckInformationState();
@@ -370,10 +374,11 @@ class _CompanyCheckInformationState extends ConsumerState<CompanyCheckInformatio
               text: companyCheckInForm.cchkCoordenadaLongitud ?? '',
               placeholder: 'Longitud',
               label: 'Longitud Local'),
-          
+          Text('check: ${widget.idCheck}'),
           optionsTipo.length > 1 ? SelectCustomForm(
             label: 'Tipo',
-            value: companyCheckInForm.cchkVisitaFrioCaliente!,
+            isDisabled: widget.idCheck == '06',
+            value: companyCheckInForm.cchkIdTipoVista!,
             callbackChange: (String? newValue) {
               DropdownOption searchDropdown = optionsTipo
                   .where((option) => option.id == newValue!)
@@ -381,7 +386,7 @@ class _CompanyCheckInformationState extends ConsumerState<CompanyCheckInformatio
 
               ref
                   .read(companyCheckInFormProvider(widget.companyCheckIn).notifier)
-                  .onTipoChanged(searchDropdown.name, searchDropdown.name);
+                  .onTipoChanged(searchDropdown.id, searchDropdown.name);
 
             },
             items: optionsTipo,
@@ -406,7 +411,7 @@ class _CompanyCheckInformationState extends ConsumerState<CompanyCheckInformatio
                   ),
                   const SizedBox(height: 6),
                   GestureDetector(
-                    onTap: () {
+                    onTap: widget.idCheck == '06' ? null : () {
                       _openSearchOportunities(
                           context, ref, companyCheckInForm.cchkRuc.value);
                     },
@@ -441,7 +446,7 @@ class _CompanyCheckInformationState extends ConsumerState<CompanyCheckInformatio
                           ),
                           IconButton(
                             icon: const Icon(Icons.search),
-                            onPressed: () {
+                            onPressed: widget.idCheck == '06' ? null : () {
                               _openSearchOportunities(
                                   context, ref, companyCheckInForm.cchkRuc.value);
                             },
@@ -484,7 +489,7 @@ class _CompanyCheckInformationState extends ConsumerState<CompanyCheckInformatio
                 ),
                 const SizedBox(height: 6),
                 GestureDetector(
-                  onTap: () {
+                  onTap: widget.idCheck == '06' ? null : () {
                     _openSearchContacts(context, ref, companyCheckInForm.cchkRuc.value);
                   },
                   child: Container(
@@ -516,7 +521,7 @@ class _CompanyCheckInformationState extends ConsumerState<CompanyCheckInformatio
                         ),
                         IconButton(
                           icon: const Icon(Icons.search),
-                          onPressed: () {
+                          onPressed: widget.idCheck == '06' ? null : () {
                             _openSearchContacts(context, ref, companyCheckInForm.cchkRuc.value);
                           },
                         ),

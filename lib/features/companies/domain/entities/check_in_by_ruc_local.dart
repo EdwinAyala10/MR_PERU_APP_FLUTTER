@@ -15,6 +15,10 @@ class CheckInByRucLocal {
   String coordenadasLongitud;
   String coordenadasLatitud;
   String razon;
+  String? cchkIdTipoVista;
+  String? cchkNombreVisitaFrioCaliente;
+  String? cchkVisitaFrioCaliente;
+  String? cchkNombreTipoVisita;
 
   CheckInByRucLocal({
     required this.cchkIdClientesCheck,
@@ -33,5 +37,9 @@ class CheckInByRucLocal {
     required this.coordenadasLatitud,
     required this.coordenadasLongitud,
     required this.razon,
+    this.cchkIdTipoVista,
+    this.cchkNombreVisitaFrioCaliente,
+    this.cchkVisitaFrioCaliente,
+    this.cchkNombreTipoVisita
   });
 }
