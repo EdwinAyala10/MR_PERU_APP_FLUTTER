@@ -1,3 +1,5 @@
+import 'package:crm_app/local_notifications/local_notifications.dart';
+
 import 'config/config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,7 +11,7 @@ void main() async {
   // FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   // await NotificationsNotifier.initialFCM();
   // TODO: DESCOMENTAR NOTIFICACIONES PUSH
-  // await LocalNotifications.initializeLocalNotifications();
+  await LocalNotifications.initializeLocalNotifications();
 
   await Environment.initEnvironment();
   initializeDateFormatting('es_ES', null).then(

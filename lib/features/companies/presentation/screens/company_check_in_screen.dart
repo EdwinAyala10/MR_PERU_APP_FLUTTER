@@ -1,3 +1,4 @@
+import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
 import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
 import 'package:crm_app/features/shared/widgets/select_custom_form.dart';
@@ -100,6 +101,9 @@ class CompanyCheckInScreen extends ConsumerWidget {
               return;
             }*/
 
+            showLoadingMessage(context);
+
+
             ref
                 .read(companyCheckInFormProvider(
                         companyCheckInState.companyCheckIn!)
@@ -129,6 +133,8 @@ class CompanyCheckInScreen extends ConsumerWidget {
                   //});
                 }
               }
+              
+              Navigator.pop(context);
             });
           },
         ),
