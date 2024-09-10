@@ -23,6 +23,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../providers/providers.dart';
@@ -91,7 +92,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
     _tabController.addListener(_handleTabChange);
 
     // WidgetsBinding.instance?.addPostFrameCallback((_) {
@@ -116,13 +117,13 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 4,
+      length: 5,
       child: Scaffold(
         appBar: AppBar(
           toolbarHeight: 100,
           centerTitle: true,
           title: const Text(
-            "Oportunidades - Detalle",
+            "Detalle de la oportunidad",
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
@@ -500,35 +501,14 @@ class EventsDetailView extends ConsumerWidget {
     }
 
     if (eventsState.events.isEmpty) {
-      return Scaffold(
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: double.infinity, // Ocupa todo el ancho disponible
-              alignment: Alignment.center,
-              child: const Text(
-                'No se encontro información del evento.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 18,
-                ),
-              ),
-            ),
-            IconButton(
-              onPressed: () async {
-                await ref
-                    .read(eventsProvider.notifier)
-                    .loadNextPageByObtetivo(opportunityId);
-              },
-              icon: const Icon(
-                Icons.refresh,
-              ),
-            )
-          ],
-        ),
+      return NoExistData(
+        textCenter: 'No hay eventos registrados',
+        onRefreshCallback: () async {
+          await ref
+              .read(eventsProvider.notifier)
+              .loadNextPageByObtetivo(opportunityId);
+        },
+        icon: Icons.graphic_eq,
       );
     }
 
@@ -652,31 +632,14 @@ class _PhotoViewState extends ConsumerState<_PhotoView> {
         iconData: Icons.add,
       ),
       body: docsOpState.documents.isEmpty
-          ? Center(
-              child: RefreshIndicator(
-                  onRefresh: () async {
-                    ref
-                        .watch(docOpportunitieProvider.notifier)
-                        .loadNextPage(type: TypeFileOp.photo);
-                  },
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    child: Column(
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            ref
-                                .watch(docOpportunitieProvider.notifier)
-                                .loadNextPage(type: TypeFileOp.photo);
-                          },
-                          child: const Icon(Icons.refresh),
-                        ),
-                        const Center(
-                          child: Text('No hay registros'),
-                        ),
-                      ],
-                    ),
-                  )),
+          ? NoExistData(
+              textCenter: 'No hay fotos registrados',
+              onRefreshCallback: () async {
+                ref
+                    .watch(docOpportunitieProvider.notifier)
+                    .loadNextPage(type: TypeFileOp.photo);
+              },
+              icon: Icons.graphic_eq,
             )
           : RefreshIndicator(
               onRefresh: () async {
@@ -781,33 +744,14 @@ class _DocumentsViewState extends ConsumerState<_DocumentsView> {
         iconData: Icons.add,
       ),
       body: docsOpState.documents.isEmpty
-          ? Center(
-              child: RefreshIndicator(
-                  onRefresh: () async {
-                    ref
-                        .watch(docOpportunitieProvider.notifier)
-                        .loadNextPage(type: TypeFileOp.archive);
-                  },
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    child: Column(
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            ref
-                                .watch(docOpportunitieProvider.notifier)
-                                .loadNextPage(
-                                  type: TypeFileOp.archive,
-                                );
-                          },
-                          child: const Icon(Icons.refresh),
-                        ),
-                        const Center(
-                          child: Text('No hay registros'),
-                        ),
-                      ],
-                    ),
-                  )),
+          ? NoExistData(
+              textCenter: 'No hay documentos registrados',
+              onRefreshCallback: () async {
+                ref
+                    .watch(docOpportunitieProvider.notifier)
+                    .loadNextPage(type: TypeFileOp.archive);
+              },
+              icon: Icons.graphic_eq,
             )
           : RefreshIndicator(
               onRefresh: () async {
@@ -964,7 +908,6 @@ Future<dynamic> showModalAdd(
               ),
             ),
             const SizedBox(height: 6),
-            const Divider(),
             Visibility(
               visible: typeFileOp == TypeFileOp.archive,
               child: ListTile(
@@ -1005,7 +948,6 @@ Future<dynamic> showModalAdd(
                 },
               ),
             ),
-            const Divider(),
             Visibility(
               visible: typeFileOp == TypeFileOp.photo,
               child: ListTile(
@@ -1016,23 +958,12 @@ Future<dynamic> showModalAdd(
                     Center(child: Text('Agregar Foto')),
                   ],
                 ),
-                // minTileHeight: 14,
                 onTap: () async {
-                  // Navigator.pop(modalContext);
-
-                  // tabController.index = 1;
-
-                  // context.push('/text_enlace');
-                  // Navigator.pop(modalContext);
-
-                  // tabController.index = 0;
-
                   FilePickerResult? result =
                       await FilePicker.platform.pickFiles();
 
                   String? fileName;
                   String? filePath;
-
                   if (result != null) {
                     fileName = result.files.single.name;
                     filePath = result.files.single.path;
@@ -1055,6 +986,44 @@ Future<dynamic> showModalAdd(
               ),
             ),
             const Divider(),
+            Visibility(
+              visible: typeFileOp == TypeFileOp.photo,
+              child: ListTile(
+                title: const Row(
+                  children: [
+                    FaIcon(FontAwesomeIcons.camera) ,
+                    SizedBox(width: 10),
+                    Center(
+                      child: Text('Tomar Foto'),
+                    ),
+                  ],
+                ),
+                onTap: () async {
+                  final pickedFile =
+                      await ImagePicker().pickImage(source: ImageSource.camera);
+                  String? fileName;
+                  String? filePath;
+                  if (pickedFile != null) {
+                    fileName = pickedFile.name;
+                    filePath = pickedFile.path;
+                    showLoadingMessage(context);
+                    await ref
+                        .read(docOpportunitieProvider.notifier)
+                        .createDocument(filePath, fileName, typeFileOp)
+                        .then((OPCreateDocumentResponse value) {
+                      // if (value.message != '') {
+                      //   showSnackbar(context, value.message);
+                      //   if (value.response) {}
+                      // }
+                      Navigator.pop(context);
+                      Navigator.pop(context);
+                    });
+                  } else {
+                    // El usuario canceló la selección del archivo
+                  }
+                },
+              ),
+            ),
             const SizedBox(height: 6),
             ListTile(
               // minTileHeight: 12,

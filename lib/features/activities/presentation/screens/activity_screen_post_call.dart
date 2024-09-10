@@ -37,11 +37,8 @@ class ActivityPostCallScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    
     final activityPostCallState = ref.watch(activityPostCallProvider(
         ActivityPostCallParams(contactId: contactId, phone: phone)));
-
-
 
     //final activityForm = ref.watch(activityFormProvider(activityPostCallState.activity));
 
@@ -55,8 +52,8 @@ class ActivityPostCallScreen extends ConsumerWidget {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Informe post llamada', 
-          style: TextStyle(fontWeight: FontWeight.w500)),
+          title: const Text('Informe post llamada',
+              style: TextStyle(fontWeight: FontWeight.w500)),
           /*leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
@@ -71,35 +68,40 @@ class ActivityPostCallScreen extends ConsumerWidget {
         floatingActionButton: FloatingActionButtonCustom(
             iconData: Icons.save,
             //isDisabled: activityForm.actiComentario == '',
-            callOnPressed: ref.watch(activityFormProvider(activityPostCallState.activity!)).actiComentario == '' ? () {
-              showSnackbar(context, 'El comentario es requerido');
-            } 
-            : () {
-              if (activityPostCallState.activity == null) return;
-              showLoadingMessage(context);
-
-              //activityPostCallState.activity?.actiIdTipoRegistro = '02';
-
-              ref
-                  .read(activityFormProvider(activityPostCallState.activity!)
-                      .notifier)
-                  .onFormSubmit()
-                  .then((CreateUpdateActivityResponse value) {
-                //if ( !value.response ) return;
-                if (value.message != '') {
-                  showSnackbar(context, value.message);
-
-                  if (value.response) {
-                    context.pop();
-                    //Timer(const Duration(seconds: 3), () {
-                    //context.push('/activities');
-                    //});
+            callOnPressed: ref
+                        .watch(activityFormProvider(
+                            activityPostCallState.activity!))
+                        .actiComentario ==
+                    ''
+                ? () {
+                    showSnackbar(context, 'El comentario es requerido');
                   }
-                }
-                Navigator.pop(context);
+                : () {
+                    if (activityPostCallState.activity == null) return;
+                    showLoadingMessage(context);
 
-              });
-            }),
+                    //activityPostCallState.activity?.actiIdTipoRegistro = '02';
+
+                    ref
+                        .read(activityFormProvider(
+                                activityPostCallState.activity!)
+                            .notifier)
+                        .onFormSubmit()
+                        .then((CreateUpdateActivityResponse value) {
+                      //if ( !value.response ) return;
+                      if (value.message != '') {
+                        showSnackbar(context, value.message);
+
+                        if (value.response) {
+                          context.pop();
+                          //Timer(const Duration(seconds: 3), () {
+                          //context.push('/activities');
+                          //});
+                        }
+                      }
+                      Navigator.pop(context);
+                    });
+                  }),
       ),
     );
   }
@@ -145,14 +147,17 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
     super.initState();
 
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('01').then((value) => {
-        
-        setState(() {
-          optionsTipoGestion = value.where((o) => o.id == '02' || o.id == '').toList();
-        })
-      });
+      await ref
+          .read(resourceDetailsProvider.notifier)
+          .loadCatalogById('01')
+          .then((value) => {
+                setState(() {
+                  optionsTipoGestion =
+                      value.where((o) => o.id == '02' || o.id == '').toList();
+                })
+              });
     });
-    
+
     _callDurationService.onCallEnded = (duration) {
       setState(() {
         _callDuration = duration;
@@ -168,9 +173,7 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
     });
   }
 
-
   void setStream() {
-
     PhoneState.stream.listen((event) {
       String? number = event.number;
       PhoneStateStatus statusCall = event.status;
@@ -178,7 +181,6 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
       bool sendActivityCall = ref.read(activityCallProvider).sendActivityCall!;
 
       if (!sendActivityCall) {
-
         if (number == widget.phone &&
             statusCall == PhoneStateStatus.CALL_STARTED) {
           ref.read(activityCallProvider.notifier).onInitialCallChanged();
@@ -191,7 +193,6 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
 
         if (number == widget.phone &&
             statusCall == PhoneStateStatus.CALL_ENDED) {
-
           ref.read(activityCallProvider.notifier).onFinishCallChanged();
           //widget.activityPostCallState.onFinishCallChanged();
         }
@@ -205,7 +206,6 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
 
   @override
   Widget build(BuildContext context) {
-
     /*List<DropdownOption> optionsTipoGestion = [
       DropdownOption(id: '', name: 'Selecciona'),
       //DropdownOption(id: '01', name: 'Comentario'),
@@ -228,24 +228,24 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
             children: [
               const SizedBox(height: 10),
               Text('Call Duration: $_callDuration seconds'),
+              optionsTipoGestion.length > 1
+                  ? SelectCustomForm(
+                      label: 'Tipo de gestión',
+                      value: activityForm.actiIdTipoGestion.value,
+                      callbackChange: (String? newValue) {
+                        DropdownOption searchTipoGestion = optionsTipoGestion
+                            .where((option) => option.id == newValue!)
+                            .first;
 
-              optionsTipoGestion.length > 1 ? SelectCustomForm(
-                label: 'Tipo de gestión',
-                value: activityForm.actiIdTipoGestion.value,
-                callbackChange: (String? newValue) {
-                  DropdownOption searchTipoGestion =
-                      optionsTipoGestion.where((option) => option.id == newValue!).first;
-
-                  ref
-                      .read(activityFormProvider(activity).notifier)
-                      .onTipoGestionChanged(
-                          newValue ?? '', searchTipoGestion.name);
-          
-                },
-                items: optionsTipoGestion,
-                errorMessage: activityForm.actiIdTipoGestion.errorMessage,
-              ): PlaceholderInput(text: 'Cargando Cargo...'),
-
+                        ref
+                            .read(activityFormProvider(activity).notifier)
+                            .onTipoGestionChanged(
+                                newValue ?? '', searchTipoGestion.name);
+                      },
+                      items: optionsTipoGestion,
+                      errorMessage: activityForm.actiIdTipoGestion.errorMessage,
+                    )
+                  : PlaceholderInput(text: 'Cargando Cargo...'),
               const SizedBox(height: 20),
               const Text(
                 'DATOS DE LA GESTIÓN',
@@ -268,10 +268,11 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
                     Text(
                       'Oportunidad',
                       style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: activityForm.actiIdOportunidad.value == '' ? Colors.red :  Colors.black
-                      ),
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: activityForm.actiIdOportunidad.value == ''
+                              ? Colors.red
+                              : Colors.black),
                     ),
                     const SizedBox(height: 6),
                     GestureDetector(
@@ -299,9 +300,12 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
                                     ? 'Seleccione Oportunidad'
                                     : activityForm.actiNombreOportunidad,
                                 style: TextStyle(
-                                  fontSize: 16,
-                                  color: activityForm.actiIdOportunidad.value == '' ? Colors.red : Colors.black
-                                ),
+                                    fontSize: 16,
+                                    color:
+                                        activityForm.actiIdOportunidad.value ==
+                                                ''
+                                            ? Colors.red
+                                            : Colors.black),
                               ),
                             ),
                             IconButton(
@@ -429,19 +433,20 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
     final searchQuery = ref.read(searchQueryOpportunitiesProvider);
 
     showSearch<Opportunity?>(
-            query: searchQuery,
-            context: context,
-            delegate: SearchOpportunityDelegate(
-                ruc: ruc,
-                initialOpportunities: searchedOpportunities,
-                searchOpportunities: ref
-                    .read(searchedOpportunitiesProvider.notifier)
-                    .searchOpportunitiesByQuery,
-                resetSearchQuery: () {
-                    ref.read(searchQueryOpportunitiesProvider.notifier).update((state) => '');
-                },
-            ))
-        .then((opportunity) {
+        query: searchQuery,
+        context: context,
+        delegate: SearchOpportunityDelegate(
+          ruc: ruc,
+          initialOpportunities: searchedOpportunities,
+          searchOpportunities: ref
+              .read(searchedOpportunitiesProvider.notifier)
+              .searchOpportunitiesByQuery,
+          resetSearchQuery: () {
+            ref
+                .read(searchQueryOpportunitiesProvider.notifier)
+                .update((state) => '');
+          },
+        )).then((opportunity) {
       if (opportunity == null) return;
 
       ref
@@ -460,7 +465,9 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
       builder: (BuildContext contextInt) {
         return PopScope(
           //canPop: true,
-          onPopInvokedWithResult: (bool didPop, dynamic result) {
+          onPopInvoked: (
+            bool didPop,
+          ) {
             if (didPop) {
               // Aquí puedes realizar alguna acción después de que el pop haya sido manejado
               print('El modal fue cerrado');
@@ -468,9 +475,7 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
                 // Código que quieres ejecutar después de 3 segundos
                 print('Esto se ejecuta después de 3 segundos');
                 Navigator.pop(context);
-
               });
-              
             }
           },
           child: SizedBox(
@@ -492,17 +497,18 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
                               vertical: 14.0, horizontal: 10.0)),
                       onPressed: () {
                         Navigator.pop(context);
-          
+
                         ref
                             .read(activityFormProvider(activity).notifier)
                             .onHoraChanged(
                                 DateFormat('HH:mm:ss').format(DateTime.now()));
-          
+
                         llamarTelefono(context, agregarPrefijoPeru(phone));
                       },
                       child: Text(
                         'Llamar ${agregarPrefijoPeru(phone)}',
-                        style: const TextStyle(fontSize: 19, color: Colors.blue),
+                        style:
+                            const TextStyle(fontSize: 19, color: Colors.blue),
                       ),
                     ),
                   ),
@@ -564,4 +570,3 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
     return numero;
   }
 }
-
