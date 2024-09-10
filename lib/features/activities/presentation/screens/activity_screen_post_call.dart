@@ -454,8 +454,8 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
       BuildContext context, String phone, Activity activity) {
     showModalBottomSheet(
       context: context,
-      isDismissible: true, // Permitir cerrar al presionar en el fondo
-      enableDrag: true,
+      isDismissible: false, // Permitir cerrar al presionar en el fondo
+      enableDrag: false,
       backgroundColor: Colors.transparent,
       builder: (BuildContext contextInt) {
         return PopScope(
