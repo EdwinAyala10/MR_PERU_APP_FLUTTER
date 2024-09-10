@@ -1,4 +1,7 @@
 import 'package:crm_app/features/route-planner/domain/entities/create_event_planner_response.dart';
+import 'package:crm_app/features/route-planner/domain/entities/validate_event_planner.dart';
+import 'package:crm_app/features/route-planner/domain/entities/validate_event_planner_response.dart';
+import 'package:crm_app/features/route-planner/domain/entities/validate_response.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_repository_provider.dart';
 import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
 import 'package:flutter/material.dart';
@@ -247,6 +250,23 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     }
 
     return options;
+  }
+
+  Future<ValidateEventPlannerResponse> validatePlanner(String idHorario) async {
+    //state = state.copyWith(isLoading: true);
+
+    final event = {
+      'PLRT_ID_HORARIO_TRABAJO': idHorario,
+      'EVENTOS_PLANIFICADOR_RUTA': state.selectedItems != null
+          ? List<dynamic>.from(
+              state.selectedItems!.map((x) => x.toJson()))
+          : [],
+    };
+
+    ValidateEventPlannerResponse validate =
+        await routePlannerRepository.validateEventPlanner(event);
+
+    return validate;
   }
 
   void sendLoadFilter() {

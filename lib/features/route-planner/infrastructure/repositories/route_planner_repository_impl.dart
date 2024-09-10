@@ -1,5 +1,6 @@
 
 import 'package:crm_app/features/route-planner/domain/entities/event_planner_response.dart';
+import 'package:crm_app/features/route-planner/domain/entities/validate_event_planner_response.dart';
 
 import '../../domain/domain.dart';
 
@@ -53,6 +54,11 @@ class RoutePlannerRepositoryImpl extends RoutePlannerRepository {
   @override
   Future<List<FilterHorarioTrabajo>> getFilterHorarioTrabajo({String search = ''}) {
     return datasource.getFilterHorarioTrabajo(search: search);
+  }
+
+  @override
+  Future<ValidateEventPlannerResponse> validateEventPlanner(Map<dynamic, dynamic> event) {
+    return datasource.validateEventPlanner(event);
   }
 
 }

@@ -63,4 +63,20 @@ class CompanyLocalRoutePlanner {
       this.localCodigoPostal,
       this.key
       });
+
+  factory CompanyLocalRoutePlanner.fromJson(Map<String, dynamic> json) => CompanyLocalRoutePlanner(
+        ruc: json["EVNT_RUC"],
+        localCodigo: json["EVNT_LOCAL_CODIGO"], 
+        id: '', 
+        localNombre: '', 
+        localCoordenadasGeo: '', 
+        localCoordenadasLongitud: '', 
+        localCoordenadasLatitud: '',
+      );
+
+  Map<String, dynamic> toJson() => {
+        "EVNT_RUC": ruc,
+        "EVNT_LOCAL_CODIGO": localCodigo,
+      };
+
 }

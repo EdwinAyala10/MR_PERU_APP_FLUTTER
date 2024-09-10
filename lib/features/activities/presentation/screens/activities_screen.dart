@@ -386,9 +386,10 @@ class _ListActivitiesState extends ConsumerState<_ListActivities> {
             child: RefreshIndicator(
               notificationPredicate: defaultScrollNotificationPredicate,
               onRefresh: widget.onRefreshCallback,
-              key: refreshIndicatorKey,
+              //key: refreshIndicatorKey,
               child: ListView.separated(
                 itemCount: widget.activities.length,
+                controller: widget.scrollController,
                 separatorBuilder: (BuildContext context, int index) =>
                     const Divider(),
                 itemBuilder: (context, index) {

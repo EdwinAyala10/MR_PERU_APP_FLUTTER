@@ -1,5 +1,6 @@
 
 import 'package:crm_app/features/route-planner/domain/entities/event_planner_response.dart';
+import 'package:crm_app/features/route-planner/domain/entities/validate_event_planner_response.dart';
 
 import '../domain.dart';
 
@@ -20,5 +21,7 @@ abstract class RoutePlannerRepository {
   Future<List<FilterHorarioTrabajo>> getFilterHorarioTrabajo({ String search });
 
   Future<EventPlannerResponse> createEventPlanner( Map<dynamic,dynamic> eventLike );
+
+  Future<ValidateEventPlannerResponse> validateEventPlanner( Map<dynamic,dynamic> event );
 }
 

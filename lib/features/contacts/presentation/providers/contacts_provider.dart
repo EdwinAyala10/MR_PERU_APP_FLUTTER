@@ -102,12 +102,17 @@ class ContactsNotifier extends StateNotifier<ContactsState> {
       sOffset = state.offset + 10;
     }
 
+    print('sLimit CONTACTO x: ${sLimit}');
+    print('sOffset CONTACTO x: ${sOffset}');
+
     final contacts = await contactsRepository.getContacts(
       search: search,
       limit: sLimit,
       offset: sOffset,
       ruc: ''
     );
+
+    print('total contacts: ${contacts.length}');
 
     if (contacts.isEmpty) {
       //state = state.copyWith(isLoading: false, isLastPage: true);
@@ -129,6 +134,9 @@ class ContactsNotifier extends StateNotifier<ContactsState> {
       newOffset = sOffset;
       newContacts = [...state.contacts, ...contacts];
     }
+
+      print('Offset CONTACTO: ${newOffset}');
+
 
     if (isRefresh) {
       state = state.copyWith(

@@ -217,13 +217,13 @@ class _OpportunityItem extends StatelessWidget {
             children: [
               // Image
               SizedBox(
-                width: size.width * 0.17,
+                width: size.width * 0.12,
                 child: const Icon(Icons.adf_scanner_rounded),
               ),
               const SizedBox(width: 10),
               // Description
               SizedBox(
-                width: size.width * 0.7,
+                width: size.width * 0.3,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -231,7 +231,8 @@ class _OpportunityItem extends StatelessWidget {
                       opportunity.oprtNombre,
                       style: textStyles.titleMedium,
                     ),
-                    Text(opportunity.oprtRuc ?? ''),
+                    Text(opportunity.razon ?? '')
+                    //Text(opportunity.oprtRuc ?? ''),
                   ],
                 ),
               ),

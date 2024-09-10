@@ -1,6 +1,8 @@
 import 'package:crm_app/features/route-planner/domain/entities/event_planner_response.dart';
+import 'package:crm_app/features/route-planner/domain/entities/validate_event_planner_response.dart';
 import 'package:crm_app/features/route-planner/infrastructure/errors/route_planner_errors.dart';
 import 'package:crm_app/features/route-planner/infrastructure/mappers/event_planner_response_mapper.dart';
+import 'package:crm_app/features/route-planner/infrastructure/mappers/validate_event_planner_response_mapper.dart';
 import 'package:dio/dio.dart';
 
 import '../infrastructure.dart';
@@ -166,6 +168,28 @@ class RoutePlannerDatasourceImpl extends RoutePlannerDatasource {
     }
 
     return filters;
+  }
+
+  @override
+  Future<ValidateEventPlannerResponse> validateEventPlanner(
+      Map<dynamic, dynamic> event) async {
+    try {
+      const String method = 'POST';
+      const String url = '/evento/validar-planificador-evento';
+
+      final response = await dio.request(url,
+          data: event, options: Options(method: method));
+
+      final ValidateEventPlannerResponse eventResponse =
+          ValidateEventPlannerResponseMapper.jsonToEntity(response.data);
+
+      return eventResponse;
+    } on DioException catch (e) {
+      if (e.response!.statusCode == 404) throw RoutePlannerNotFound();
+      throw Exception();
+    } catch (e) {
+      throw Exception();
+    }
   }
 
 }

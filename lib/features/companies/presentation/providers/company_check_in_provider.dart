@@ -87,6 +87,7 @@ class CompanyCheckInNotifier extends StateNotifier<CompanyCheckInState> {
     try {
       CompanyCheckIn companyCheckInNew = newEmptyCompanyCheckIn(idCheck);
 
+      print('IDCHECK: ${idCheck} ');
       if (idCheck == '06') {
         // CHECKIN
         CheckInByRucLocalResponse checkInByRucLocalResponse =
@@ -113,6 +114,10 @@ class CompanyCheckInNotifier extends StateNotifier<CompanyCheckInState> {
               cchkCoordenadaLongitud: checkInByRucLocal.coordenadasLongitud,
               cchkRazon: checkInByRucLocal.razon,
               cchkDireccionMapa: checkInByRucLocal.localDireccion,
+              cchkVisitaFrioCaliente: checkInByRucLocal.cchkNombreTipoVisita,
+              cchkIdTipoVista: checkInByRucLocal.cchkIdTipoVista,
+              cchkNombreTipoVisita: checkInByRucLocal.cchkNombreTipoVisita,
+              //cchkVisitaFrioCaliente: checkInByRucLocal.
               );
         }
       }
