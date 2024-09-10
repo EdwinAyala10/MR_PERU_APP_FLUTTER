@@ -30,7 +30,7 @@ class ChatNotifier extends ChangeNotifier {
   void connectToServer() {
     if (isConnected) return;
     isConnected = true; // Marca como conectado
-    socket = IO.io('http://localhost:3000', <String, dynamic>{
+    socket = IO.io('http://157.245.242.236:3000', <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,
     });

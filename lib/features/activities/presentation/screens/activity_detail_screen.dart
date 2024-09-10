@@ -9,11 +9,13 @@ import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart'
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/documents/presentation/screens/documents_screen.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
+import 'package:crm_app/features/shared/widgets/no_exist_listview.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -39,8 +41,8 @@ class ActivityDetailScreen extends ConsumerWidget {
 }
 
 class _ActivityDetailScreen extends ConsumerStatefulWidget {
-  final String opportunityId;
-  const _ActivityDetailScreen(this.opportunityId);
+  final String activityId;
+  const _ActivityDetailScreen(this.activityId);
 
   @override
   _ActivityDetailScreenState createState() => _ActivityDetailScreenState();
@@ -72,6 +74,7 @@ class _ActivityDetailScreenState extends ConsumerState<_ActivityDetailScreen>
 
   @override
   Widget build(BuildContext context) {
+    final activity = ref.read(selectedAC);
     return DefaultTabController(
       length: 4, // Ahora tenemos 6 pestañas
       child: Scaffold(
@@ -88,7 +91,7 @@ class _ActivityDetailScreenState extends ConsumerState<_ActivityDetailScreen>
             ),
           ),
           title: const Text(
-            "Actividad - Detalle",
+            "Detalle de la actividad",
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
@@ -131,11 +134,11 @@ class _ActivityDetailScreenState extends ConsumerState<_ActivityDetailScreen>
           actions: [
             IconButton(
               icon: const Icon(Icons.edit),
-              onPressed: () {
-                context.push(
-                  '/opportunity/${widget.opportunityId}',
-                );
-              },
+              onPressed: activity?.actiIdTipoRegistro == '01'
+                  ? () {
+                      context.push('/activity/${activity?.id}');
+                    }
+                  : null,
             ),
           ],
         ),
@@ -155,7 +158,7 @@ class _ActivityDetailScreenState extends ConsumerState<_ActivityDetailScreen>
 
   Widget buildInformation() {
     return ActivityDetailView(
-      activityId: widget.opportunityId,
+      activityId: widget.activityId,
     );
   }
 
@@ -338,10 +341,9 @@ class ContainerCustom extends StatelessWidget {
           child: Text(
             label,
             style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              overflow: TextOverflow.ellipsis
-            ),
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                overflow: TextOverflow.ellipsis),
           ),
         ),
         const SizedBox(height: 8),
@@ -359,9 +361,7 @@ class ContainerCustom extends StatelessWidget {
                     text,
                     maxLines: 10,
                     style: const TextStyle(
-                      fontSize: 16,
-                      overflow: TextOverflow.ellipsis 
-                    ),
+                        fontSize: 16, overflow: TextOverflow.ellipsis),
                   ),
                 ),
                 const Expanded(child: SizedBox()),
@@ -434,31 +434,14 @@ class _PhotoViewState extends ConsumerState<_PhotoView> {
         iconData: Icons.add,
       ),
       body: docsOpState.documents.isEmpty
-          ? Center(
-              child: RefreshIndicator(
-                  onRefresh: () async {
-                    ref
-                        .watch(docActivitieProvider.notifier)
-                        .loadNextPage(type: TypeFileOp.photo);
-                  },
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    child: Column(
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            ref
-                                .watch(docActivitieProvider.notifier)
-                                .loadNextPage(type: TypeFileOp.photo);
-                          },
-                          child: const Icon(Icons.refresh),
-                        ),
-                        const Center(
-                          child: Text('No hay registros'),
-                        ),
-                      ],
-                    ),
-                  )),
+          ? NoExistData(
+              textCenter: 'No hay fotos registrados',
+              onRefreshCallback: () async {
+                ref
+                    .watch(docActivitieProvider.notifier)
+                    .loadNextPage(type: TypeFileOp.photo);
+              },
+              icon: Icons.graphic_eq,
             )
           : RefreshIndicator(
               onRefresh: () async {
@@ -561,33 +544,14 @@ class _DocumentsViewState extends ConsumerState<_DocumentsView> {
         iconData: Icons.add,
       ),
       body: docsOpState.documents.isEmpty
-          ? Center(
-              child: RefreshIndicator(
-                  onRefresh: () async {
-                    ref
-                        .watch(docActivitieProvider.notifier)
-                        .loadNextPage(type: TypeFileOp.archive);
-                  },
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    child: Column(
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            ref
-                                .watch(docActivitieProvider.notifier)
-                                .loadNextPage(
-                                  type: TypeFileOp.archive,
-                                );
-                          },
-                          child: const Icon(Icons.refresh),
-                        ),
-                        const Center(
-                          child: Text('No hay registros'),
-                        ),
-                      ],
-                    ),
-                  )),
+          ? NoExistData(
+              textCenter: 'No hay documentos registrados',
+              onRefreshCallback: () async {
+                ref
+                    .watch(docActivitieProvider.notifier)
+                    .loadNextPage(type: TypeFileOp.archive);
+              },
+              icon: Icons.graphic_eq,
             )
           : RefreshIndicator(
               onRefresh: () async {
@@ -744,7 +708,7 @@ Future<dynamic> showModalAdd(
               ),
             ),
             const SizedBox(height: 6),
-            const Divider(),
+            // const Divider(),
             Visibility(
               visible: typeFileOp == TypeFileOp.archive,
               child: ListTile(
@@ -785,7 +749,7 @@ Future<dynamic> showModalAdd(
                 },
               ),
             ),
-            const Divider(),
+            // const Divider(),
             Visibility(
               visible: typeFileOp == TypeFileOp.photo,
               child: ListTile(
@@ -835,6 +799,52 @@ Future<dynamic> showModalAdd(
               ),
             ),
             const Divider(),
+            Visibility(
+              visible: typeFileOp == TypeFileOp.photo,
+              child: ListTile(
+                title: const Row(
+                  children: [
+                    FaIcon(FontAwesomeIcons.camera),
+                    SizedBox(width: 10),
+                    Center(child: Text('Tomar Foto')),
+                  ],
+                ),
+                // minTileHeight: 14,
+                onTap: () async {
+                  // Navigator.pop(modalContext);
+
+                  // tabController.index = 1;
+
+                  // context.push('/text_enlace');
+                  // Navigator.pop(modalContext);
+
+                  // tabController.index = 0;
+
+                  final pickedFile =
+                      await ImagePicker().pickImage(source: ImageSource.camera);
+                  String? fileName;
+                  String? filePath;
+                  if (pickedFile != null) {
+                    fileName = pickedFile.name;
+                    filePath = pickedFile.path;
+                    showLoadingMessage(context);
+                    await ref
+                        .read(docActivitieProvider.notifier)
+                        .createDocument(filePath!, fileName, typeFileOp)
+                        .then((ACCreateDocumentResponse value) {
+                      // if (value.message != '') {
+                      //   showSnackbar(context, value.message);
+                      //   if (value.response) {}
+                      // }
+                      Navigator.pop(context);
+                      Navigator.pop(context);
+                    });
+                  } else {
+                    // El usuario canceló la selección del archivo
+                  }
+                },
+              ),
+            ),
             const SizedBox(height: 6),
             ListTile(
               // minTileHeight: 12,
