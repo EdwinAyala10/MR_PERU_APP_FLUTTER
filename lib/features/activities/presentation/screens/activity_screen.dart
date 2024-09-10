@@ -124,7 +124,7 @@ class _ActivityInformationv2State extends ConsumerState<_ActivityInformationv2> 
     super.initState();
 
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('10').then((value) => {
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('01').then((value) => {
         setState(() {
           optionsTipoGestion = value;
         })
