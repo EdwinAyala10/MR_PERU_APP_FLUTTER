@@ -460,7 +460,7 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
       builder: (BuildContext contextInt) {
         return PopScope(
           //canPop: true,
-          onPopInvokedWithResult: (bool didPop, dynamic result) {
+          onPopInvoked: (bool didPop) {
             if (didPop) {
               // Aquí puedes realizar alguna acción después de que el pop haya sido manejado
               print('El modal fue cerrado');

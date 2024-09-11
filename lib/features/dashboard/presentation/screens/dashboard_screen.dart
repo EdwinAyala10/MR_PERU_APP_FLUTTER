@@ -1,7 +1,9 @@
 // ignore_for_file: prefer_is_empty
 
 import 'package:crm_app/config/config.dart';
+import 'package:crm_app/features/dashboard/presentation/providers/home_notificaciones_provider.dart';
 import 'package:crm_app/features/dashboard/presentation/screens/notification_screen.dart';
+import 'package:crm_app/features/dashboard/presentation/widgets/widgets.dart';
 
 import '../../../activities/domain/domain.dart';
 import '../../../activities/presentation/providers/activities_provider.dart';
@@ -47,6 +49,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
       parent: _animationController,
     );
     _animation = Tween<double>(begin: 0, end: 1).animate(curvedAnimation);
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      ref.read(listNotifyProvider.notifier).readCounterNotification();
+    });
   }
 
   @override
@@ -55,12 +60,23 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     return Scaffold(
       drawer: SideMenu(scaffoldKey: scaffoldKey),
       appBar: AppBar(
+        toolbarHeight: 70,
+        // backgroundColor: Colors.red,
         actions: [
-          IconButton(
-            onPressed: () {
-              context.push(NofiticationScreen.name);
-            },
-            icon: const Icon(Icons.notifications_none_outlined,color: Colors.red,),
+          Center(
+            child: InkWell(
+              onTap: () {
+                context.push(
+                  NofiticationScreen.name,
+                );
+              },
+              child: NotificationBell(
+                notificationCount: int.parse(ref.watch(listNotifyProvider).counterNotification),
+              ),
+            ),
+          ),
+          const SizedBox(
+            width: 30,
           )
         ],
         title: const Text(
@@ -836,7 +852,6 @@ class progressKpi extends StatelessWidget {
   });
 
   Color isColorIndicator(double porc) {
-
     Color returnColors = Colors.blue;
 
     if (porc >= 0 && porc <= 33) {
@@ -850,9 +865,9 @@ class progressKpi extends StatelessWidget {
     if (porc >= 67 && porc <= 100) {
       returnColors = Colors.green;
     }
-    
+
     print('PORCENTAJE: ${porc}');
-    return returnColors; 
+    return returnColors;
   }
 
   @override
@@ -884,8 +899,8 @@ class progressKpi extends StatelessWidget {
                 child: CircularProgressIndicator(
                   strokeWidth: 5,
                   value: ((percentage) / 100).toDouble(),
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                      isColorIndicator(percentage)), // Color cuando está marcado
+                  valueColor: AlwaysStoppedAnimation<Color>(isColorIndicator(
+                      percentage)), // Color cuando está marcado
                   backgroundColor: Colors.grey,
                 ),
               ),

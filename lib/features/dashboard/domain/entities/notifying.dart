@@ -15,6 +15,7 @@ class Notifying {
   String? userreportName;
   String? userreportAbbrt;
   String? accmTiempoGestion;
+  String? acmdIdActividadComentarioDestino;
 
   Notifying({
     this.accmIdActividadComentario,
@@ -27,12 +28,14 @@ class Notifying {
     this.userreportName,
     this.userreportAbbrt,
     this.accmTiempoGestion,
+    this.acmdIdActividadComentarioDestino
   });
 
   factory Notifying.fromJson(Map<String, dynamic> json) => Notifying(
         accmIdActividadComentario: json["ACCM_ID_ACTIVIDAD_COMENTARIO"],
         accmIdActividad: json["ACCM_ID_ACTIVIDAD"],
         accmComentario: json["ACCM_COMENTARIO"],
+        acmdIdActividadComentarioDestino: json['ACMD_ID_ACTIVIDAD_COMENTARIO_DESTINO'],
         accmLeido: json["ACCM_LEIDO"],
         accmEliminado: json["ACCM_ELIMINADO"],
         accmFechaRegistro: json["ACCM_FECHA_REGISTRO"] == null
@@ -55,5 +58,6 @@ class Notifying {
         "USERREPORT_NAME": userreportName,
         "USERREPORT_ABBRT": userreportAbbrt,
         "ACCM_TIEMPO_GESTION": accmTiempoGestion,
+        "ACMD_ID_ACTIVIDAD_COMENTARIO_DESTINO":acmdIdActividadComentarioDestino
       };
 }

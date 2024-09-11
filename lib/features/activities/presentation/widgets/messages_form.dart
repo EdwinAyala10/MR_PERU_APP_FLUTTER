@@ -42,6 +42,7 @@ class _ConsumerMessageFormState extends ConsumerState<MessageForm> {
       activarBusqueda = false;
       currentMention = "";
     });
+    ref.read(selectedUsersMarkedProvider.notifier).state =[];
   }
 
   void _runTimer() {

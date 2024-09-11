@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:crm_app/features/activities/presentation/providers/docs_activitie_provider.dart';
+import 'package:crm_app/features/dashboard/presentation/providers/dashboard_provider.dart';
 
 import '../../domain/domain.dart';
 import '../providers/providers.dart';
@@ -405,6 +406,7 @@ class _ListActivitiesState extends ConsumerState<_ListActivities> {
                       activity: activity,
                       callbackOnTap: () {
                         ref.read(selectedAC.notifier).state = activity;
+                        ref.read(selectedNotifier.notifier).state = activity.id;
                         context.push('/activity_detail/${activity.id}');
                       });
                 },

@@ -7,6 +7,7 @@ import 'package:crm_app/features/activities/domain/entities/message.dart';
 import 'package:crm_app/features/activities/presentation/providers/docs_activitie_provider.dart';
 import 'package:crm_app/features/auth/domain/entities/user.dart';
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:crm_app/features/dashboard/presentation/providers/dashboard_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -21,10 +22,12 @@ class ChatNotifier extends ChangeNotifier {
   User? user;
   Activity? activity;
   bool isConnected = false;
+  String? idActivity;
 
   ChatNotifier({
     this.user,
     this.activity,
+    this.idActivity
   });
 
   void connectToServer() {
@@ -40,10 +43,10 @@ class ChatNotifier extends ChangeNotifier {
     socket?.onConnect((_) {
       log('Conectado al servidor');
       log('This is the name ${user?.name}');
-      log('This is the name ${activity?.id}');
+      log('This is the name ${idActivity}');
       socket?.emit('join', {
         'name': user?.name ?? '',
-        'room': activity?.id ?? '',
+        'room': idActivity ?? '',
       });
     });
 
@@ -130,7 +133,7 @@ class ChatNotifier extends ChangeNotifier {
 
     log(url);
     final formData = {
-      "ACCM_ID_ACTIVIDAD": activity?.id,
+      "ACCM_ID_ACTIVIDAD": idActivity,
       "ACCM_COMENTARIO": model.accmComentario,
       "ACCM_ID_USUARIO_REGISTRO": user?.code,
       "ACTIVIDAD_COMENTARIO_DESTINO": destinoID
@@ -156,12 +159,15 @@ class ChatNotifier extends ChangeNotifier {
     );
     final path = Environment.apiUrl;
     final url = "$path/actividad/listar-actividad-comentario";
-    final formData = {'ACCM_ID_ACTIVIDAD': activity?.id};
+    final formData = {'ACCM_ID_ACTIVIDAD': idActivity??''};
     try {
+      log('all chat response $formData');
+
       final response = await client.post(
         url,
         data: formData,
       );
+      log('all chat response $response');
       if (response.data['status'] == true) {
         for (var item in response.data['data']) {
           final model = MessageModel.fromJson(item);
@@ -174,6 +180,8 @@ class ChatNotifier extends ChangeNotifier {
       log(response.data.toString());
       log(response.data.toString());
     } catch (e) {
+      log('all chat response error $e');
+
       messages.clear();
     }
   }
@@ -186,7 +194,7 @@ class ChatNotifier extends ChangeNotifier {
     );
     final path = Environment.apiUrl;
     final url = "$path/actividad/listar-actividad-comentario-participantes";
-    final formData = {'ACCM_ID_ACTIVIDAD': activity?.id};
+    final formData = {'ACCM_ID_ACTIVIDAD': idActivity};
     try {
       final response = await client.post(
         url,
@@ -194,13 +202,15 @@ class ChatNotifier extends ChangeNotifier {
       );
       log(response.data.toString());
       if (response.data['status']) {
+        log('Esta entrando correctamente');
         final listUsers = response.data['data'] as List;
         final listModel = listUsers
             .map(
               (v) => UsersActivitiChat.fromJson(v),
             )
             .toList();
-        listUsersInChat = [...listModel];
+        listUsersInChat = listModel;
+        log('Chapo ${listUsersInChat.length}');
         notifyListeners();
         return;
       }
@@ -229,9 +239,11 @@ class ChatNotifier extends ChangeNotifier {
 final chatProvider = ChangeNotifierProvider<ChatNotifier>((ref) {
   final user = ref.read(authProvider).user;
   final activity = ref.watch(selectedAC);
+  final idActividad = ref.watch(selectedNotifier);
   final notifier = ChatNotifier(
     user: user,
     activity: activity,
+    idActivity: idActividad
   );
   ref.onDispose(() {
     notifier.disconnect();

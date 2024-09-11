@@ -1,4 +1,5 @@
 import 'package:crm_app/features/activities/presentation/providers/chat_provider.dart';
+import 'package:crm_app/features/dashboard/presentation/providers/dashboard_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/messages_item.dart';
@@ -26,7 +27,7 @@ class _ConsumerChatScreenState extends ConsumerState<ChatScreen> {
 
   void _onStopTyping() {}
 
-  void _sendMessage(String messageContent) {
+  void _sendMessage(String messageContent) async {
     ref.read(chatProvider).sendMessage(
           messageContent,
           ref.read(selectedUsersMarkedProvider) ?? [],
@@ -43,14 +44,19 @@ class _ConsumerChatScreenState extends ConsumerState<ChatScreen> {
         );
       },
     );
+    await Future.delayed(const Duration(seconds: 1));
+    ref.read(chatProvider.notifier).listUsersComentActivity();
   }
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      ref.read(chatProvider.notifier).messages.clear();
       ref.read(chatProvider).listAllComents();
       ref.read(chatProvider).connectToServer();
+      ref.read(chatProvider.notifier).listUsersComentActivity();
+
       await Future.delayed(
         const Duration(milliseconds: 500),
       );
@@ -73,6 +79,7 @@ class _ConsumerChatScreenState extends ConsumerState<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     final messagesProvider = ref.watch(chatProvider);
+    final counter = ref.watch(chatProvider);
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       body: Column(
@@ -99,18 +106,18 @@ class _ConsumerChatScreenState extends ConsumerState<ChatScreen> {
                   elevation: 0,
                   color: Colors.blueAccent.shade100.withOpacity(0.5),
                   onPressed: () {
-                    ref.read(chatProvider.notifier).listUsersComentActivity();
-                    showModalParcipantes();
+                    // ref.read(chatProvider.notifier).listUsersComentActivity();
+                    // showModalParcipantes();
                   },
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.person_4_outlined,
                         color: Colors.blueAccent,
                       ),
                       Text(
-                        'Usuarios',
-                        style: TextStyle(
+                        '  ${counter.listUsersInChat.length} Usuarios',
+                        style: const TextStyle(
                           color: Colors.blueAccent,
                         ),
                       ),
@@ -119,9 +126,12 @@ class _ConsumerChatScreenState extends ConsumerState<ChatScreen> {
                 ),
                 const Padding(
                   padding: EdgeInsets.only(left: 10, right: 10),
-                  child: Icon(
-                    Icons.arrow_forward_ios_sharp,
-                    color: Colors.grey,
+                  child: Visibility(
+                    visible: false,
+                    child: Icon(
+                      Icons.arrow_forward_ios_sharp,
+                      color: Colors.grey,
+                    ),
                   ),
                 )
               ],
