@@ -113,7 +113,7 @@ class _ActivityDetailScreenState extends ConsumerState<_ActivityDetailScreen>
                   Icons.comment_rounded,
                   size: 30,
                 ),
-                text: 'Comentario',
+                text: 'Chat',
               ),
               Tab(
                 icon: Icon(

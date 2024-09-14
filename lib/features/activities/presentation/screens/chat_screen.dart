@@ -1,5 +1,4 @@
 import 'package:crm_app/features/activities/presentation/providers/chat_provider.dart';
-import 'package:crm_app/features/dashboard/presentation/providers/dashboard_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/messages_item.dart';
@@ -106,8 +105,8 @@ class _ConsumerChatScreenState extends ConsumerState<ChatScreen> {
                   elevation: 0,
                   color: Colors.blueAccent.shade100.withOpacity(0.5),
                   onPressed: () {
-                    // ref.read(chatProvider.notifier).listUsersComentActivity();
-                    // showModalParcipantes();
+                    ref.read(chatProvider.notifier).listUsersComentActivity();
+                    showModalParcipantes();
                   },
                   child: Row(
                     children: [

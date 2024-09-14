@@ -135,9 +135,9 @@ PODS:
   - phone_state (1.0.4):
     - Flutter
   - PromisesObjC (2.4.0)
-  - SDWebImage (5.19.6):
-    - SDWebImage/Core (= 5.19.6)
-  - SDWebImage/Core (5.19.6)
+  - SDWebImage (5.19.7):
+    - SDWebImage/Core (= 5.19.7)
+  - SDWebImage/Core (5.19.7)
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -254,7 +254,7 @@ SPEC CHECKSUMS:
   permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
   phone_state: 699623cef1a83f28ea66bc1d33cf0a65bdb1ffb1
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
-  SDWebImage: a79252b60f4678812d94316c91da69ec83089c9f
+  SDWebImage: 8a6b7b160b4d710e2a22b6900e25301075c34cb3
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
   telephony: c41768fae9fb5495781b05a72004106ca33ec777
