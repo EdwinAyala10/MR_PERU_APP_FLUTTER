@@ -1,4 +1,5 @@
 
+import 'package:crm_app/features/route-planner/domain/entities/coordenada.dart';
 import 'package:crm_app/features/route-planner/domain/entities/event_planner_response.dart';
 import 'package:crm_app/features/route-planner/domain/entities/validate_event_planner_response.dart';
 
@@ -60,5 +61,12 @@ class RoutePlannerRepositoryImpl extends RoutePlannerRepository {
   Future<ValidateEventPlannerResponse> validateEventPlanner(Map<dynamic, dynamic> event) {
     return datasource.validateEventPlanner(event);
   }
+
+    @override
+  Future<Coordenada> getCoordenadas() {
+    return datasource.getCoordenadas();
+  }
+
+  
 
 }

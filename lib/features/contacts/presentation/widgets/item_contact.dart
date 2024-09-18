@@ -99,7 +99,21 @@ class ItemContact extends StatelessWidget {
                   
                 ],
               ),
-            )      
+            ) ,
+            SizedBox(
+              height: 3,
+            ),
+            Row(
+              children: [
+                const Icon(Icons.calendar_month, size: 14),
+                const SizedBox(
+                  width: 5,
+                ),
+                Expanded(
+                  child: Text(contact.actiFechaRegistro ?? '', overflow: TextOverflow.ellipsis)
+                ),
+              ],
+            )  
         ],
       ),
       //trailing: Text(contact.contactoCargo),

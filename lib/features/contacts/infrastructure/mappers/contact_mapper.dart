@@ -23,6 +23,7 @@ class ContactMapper {
     contactIdIn: json['CONTACTO_ID'] ?? '',
     actiIdTipoGestion: json['ACTI_ID_TIPO_GESTION'] ?? '',
     actiNombreTipoGestion: json['ACTI_NOMBRE_TIPO_GESTION'] ?? '',
+    actiFechaRegistro: json['ACTI_FECHA_REGISTRO']  ?? ''
   );
 
 }

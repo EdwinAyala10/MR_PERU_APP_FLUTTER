@@ -133,6 +133,10 @@ class _OpportunityInformationv2State
     DropdownOption(id: '', name: 'Cargando...')
   ];
 
+  List<DropdownOption> optionsMoneda = [
+    DropdownOption(id: '', name: 'Cargando...')
+  ];
+
   bool activeMotivo = false;
 
   @override
@@ -148,14 +152,23 @@ class _OpportunityInformationv2State
                   optionsEstado = value;
                 })
               });
+      
+      await ref
+          .read(resourceDetailsProvider.notifier)
+          .loadCatalogById('09')
+          .then((value) => {
+                setState(() {
+                  optionsMoneda = value;
+                })
+              });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    List<DropdownOption> optionsMoneda = [
+    /*List<DropdownOption> optionsMoneda = [
       DropdownOption(id: '01', name: 'USB'),
-    ];
+    ];*/
 
     User authUser = ref.watch(authProvider).user!;
     bool isAdmin = authUser.isAdmin;
@@ -260,22 +273,25 @@ class _OpportunityInformationv2State
               ],
             ),
           ),
-          SelectCustomForm(
-            label: 'Moneda',
-            value: opportunityForm.oprtIdValor,
-            callbackChange: (String? newValue) {
-              DropdownOption searchEstado =
-                  optionsEstado.where((option) => option.id == newValue!).first;
+          optionsEstado.length > 1
+              ? SelectCustomForm(
+                  label: 'Moneda',
+                  value: opportunityForm.oprtIdValor,
+                  callbackChange: (String? newValue) {
+                    DropdownOption searchEstado =
+                        optionsEstado.where((option) => option.id == newValue!).first;
 
-              ref
-                  .read(opportunityFormProvider(widget.opportunity).notifier)
-                  .onIdValorChanged(newValue!);
-              ref
-                  .read(opportunityFormProvider(widget.opportunity).notifier)
-                  .onValorChanged(searchEstado.name);
-            },
-            items: optionsMoneda,
-          ),
+                    ref
+                        .read(opportunityFormProvider(widget.opportunity).notifier)
+                        .onIdValorChanged(newValue!);
+                    ref
+                        .read(opportunityFormProvider(widget.opportunity).notifier)
+                        .onValorChanged(searchEstado.name);
+                  },
+                  items: optionsMoneda,
+                )
+              : PlaceholderInput(text: 'Cargando...'),
+
           const SizedBox(height: 10),
           CustomCompanyField(
             label: 'Importe Total',

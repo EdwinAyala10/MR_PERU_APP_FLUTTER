@@ -1,3 +1,4 @@
+import 'package:crm_app/features/route-planner/domain/entities/coordenada.dart';
 import 'package:crm_app/features/route-planner/domain/entities/create_event_planner_response.dart';
 import 'package:crm_app/features/route-planner/domain/entities/validate_event_planner.dart';
 import 'package:crm_app/features/route-planner/domain/entities/validate_event_planner_response.dart';
@@ -158,6 +159,13 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     }
 
     return options;
+  }
+
+  Future<Coordenada> cargarCoordena() async {
+
+    Coordenada coors =
+        await routePlannerRepository.getCoordenadas();
+    return coors;
   }
 
    Future<List<DropdownOption>> loadFilterHorarioTrabajo() async {

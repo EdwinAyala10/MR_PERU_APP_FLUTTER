@@ -1,6 +1,8 @@
+import 'package:crm_app/features/route-planner/domain/entities/coordenada.dart';
 import 'package:crm_app/features/route-planner/domain/entities/event_planner_response.dart';
 import 'package:crm_app/features/route-planner/domain/entities/validate_event_planner_response.dart';
 import 'package:crm_app/features/route-planner/infrastructure/errors/route_planner_errors.dart';
+import 'package:crm_app/features/route-planner/infrastructure/mappers/coordenada_mapper.dart';
 import 'package:crm_app/features/route-planner/infrastructure/mappers/event_planner_response_mapper.dart';
 import 'package:crm_app/features/route-planner/infrastructure/mappers/validate_event_planner_response_mapper.dart';
 import 'package:dio/dio.dart';
@@ -184,6 +186,22 @@ class RoutePlannerDatasourceImpl extends RoutePlannerDatasource {
           ValidateEventPlannerResponseMapper.jsonToEntity(response.data);
 
       return eventResponse;
+    } on DioException catch (e) {
+      if (e.response!.statusCode == 404) throw RoutePlannerNotFound();
+      throw Exception();
+    } catch (e) {
+      throw Exception();
+    }
+  }
+
+  @override
+  Future<Coordenada> getCoordenadas() async {
+    try {
+      final response = await dio.get('/planificador/obtener-coordenada-punto-partida');
+      final Coordenada coordenada = CoordenadaMapper.jsonToEntity(response.data['data']);
+
+     
+      return coordenada;
     } on DioException catch (e) {
       if (e.response!.statusCode == 404) throw RoutePlannerNotFound();
       throw Exception();

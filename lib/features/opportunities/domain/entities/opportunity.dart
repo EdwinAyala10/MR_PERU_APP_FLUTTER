@@ -30,6 +30,10 @@ class Opportunity {
   String? contactId;
   String? oprtIdContacto;
   String? oprtNombreContacto;
+  String? actiIdTipoGestion;
+  String? actiNombreTipoGestion;  
+  String? actiFechaRegistro;
+  String? nombreUsuarioResponsable;
 
   Opportunity({
     required this.id,
@@ -60,6 +64,10 @@ class Opportunity {
     this.contacTelefono,
     this.contactId,
     this.oprtIdContacto,
-    this.oprtNombreContacto
+    this.oprtNombreContacto,
+    this.actiIdTipoGestion,
+    this.actiNombreTipoGestion, 
+    this.actiFechaRegistro,
+    this.nombreUsuarioResponsable
   });
 }

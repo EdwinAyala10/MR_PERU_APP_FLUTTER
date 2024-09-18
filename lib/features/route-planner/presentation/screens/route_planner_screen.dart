@@ -4,6 +4,7 @@ import 'package:crm_app/config/config.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/location/presentation/providers/providers.dart';
 import 'package:crm_app/features/route-planner/domain/domain.dart';
+import 'package:crm_app/features/route-planner/domain/entities/coordenada.dart';
 import 'package:crm_app/features/route-planner/domain/entities/validate_event_planner.dart';
 import 'package:crm_app/features/route-planner/domain/entities/validate_event_planner_response.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/forms/event_planner_form_provider.dart';
@@ -110,7 +111,7 @@ class RoutePlannerScreen extends ConsumerWidget {
                   } else {
                     Navigator.pop(context);
 
-                    final gpsState = ref.read(gpsProvider.notifier).state;
+                    /*final gpsState = ref.read(gpsProvider.notifier).state;
 
                     if (!gpsState.isAllGranted) {
                       if (!gpsState.isGpsEnabled) {
@@ -122,11 +123,18 @@ class RoutePlannerScreen extends ConsumerWidget {
                       //Navigator.pop(context);
 
                       return;
-                    }
+                    }*/
 
                     showLoadingMessage(context);
 
-                    LatLng location = await ref.watch(locationProvider.notifier).currentPosition();
+                    Coordenada coorsLocal = await ref.read(routePlannerProvider.notifier).cargarCoordena();
+
+                    print('COORS1: ${coorsLocal.latitud} ');
+                    print('COORS2: ${coorsLocal.longitud} ');
+
+                    //LatLng location = await ref.watch(locationProvider.notifier).currentPosition();
+
+                    LatLng location = LatLng(double.parse(coorsLocal.latitud), double.parse(coorsLocal.longitud));
 
                     List<CompanyLocalRoutePlanner> orderSelectedItems = await ref.read(mapProvider.notifier).sortLocalesByDistance(location, listSelectedItems);
 

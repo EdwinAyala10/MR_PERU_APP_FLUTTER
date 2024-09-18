@@ -27,6 +27,7 @@ class OportunityEvent {
   String? evntNombreTipoGestion;
   String? evntNombreOportunidad;
 
+
   OportunityEvent({
     this.evntIdEvento,
     this.evntAsunto,
@@ -55,6 +56,7 @@ class OportunityEvent {
     this.evntEstadoReg,
     this.evntNombreTipoGestion,
     this.evntNombreOportunidad,
+    
   });
 
   factory OportunityEvent.fromJson(Map<String, dynamic> json) =>
@@ -92,6 +94,7 @@ class OportunityEvent {
         evntEstadoReg: json["EVNT_ESTADO_REG"],
         evntNombreTipoGestion: json["EVNT_NOMBRE_TIPO_GESTION"],
         evntNombreOportunidad: json["EVNT_NOMBRE_OPORTUNIDAD"],
+   
       );
 
   Map<String, dynamic> toJson() => {

@@ -244,19 +244,21 @@ class ActivityDetailView extends ConsumerWidget {
                 label: 'Tipo de gestión',
                 text: activity.actiNombreTipoGestion,
               ),
-              ContainerCustom(
-                label: 'Fecha',
-                text: DateFormat('dd-MM-yyyy')
-                    .format(activity.actiFechaActividad),
-              ),
+              if (activity.actiIdTipoGestion != '04')
+                ContainerCustom(
+                  label: 'Fecha',
+                  text: DateFormat('dd-MM-yyyy')
+                      .format(activity.actiFechaActividad),
+                ),
               const SizedBox(
                 height: 10,
               ),
-              ContainerCustom(
-                label: 'Hora',
-                text: DateFormat('hh:mm a').format(
-                    DateFormat('HH:mm:ss').parse(activity.actiHoraActividad)),
-              ),
+              if (activity.actiIdTipoGestion != '04')
+                ContainerCustom(
+                  label: 'Hora',
+                  text: DateFormat('hh:mm a').format(
+                      DateFormat('HH:mm:ss').parse(activity.actiHoraActividad)),
+                ),
               const Padding(
                 padding: EdgeInsets.only(left: 10),
                 child: Text(
@@ -281,10 +283,12 @@ class ActivityDetailView extends ConsumerWidget {
                 label: 'Responsable',
                 text: activity.actiNombreResponsable ?? '',
               ),
-              ContainerCustom(
-                label: 'Comentario',
-                text: activity.actiComentario,
-              ),
+              
+              if (activity.actiIdTipoGestion != '04')
+                ContainerCustom(
+                  label: 'Comentario',
+                  text: activity.actiComentario,
+                ),
               ContainerCustom(
                 label: 'Fecha Registro Check In',
                 text: activity.cchkFechaRegistroCheckIn ?? '',

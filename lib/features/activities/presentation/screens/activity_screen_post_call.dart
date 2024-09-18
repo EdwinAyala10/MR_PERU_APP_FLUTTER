@@ -458,77 +458,62 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
       enableDrag: false,
       backgroundColor: Colors.transparent,
       builder: (BuildContext contextInt) {
-        return PopScope(
-          //canPop: true,
-          onPopInvoked: (bool didPop) {
-            if (didPop) {
-              // Aquí puedes realizar alguna acción después de que el pop haya sido manejado
-              print('El modal fue cerrado');
-              Future.delayed(Duration(seconds: 1), () {
-                // Código que quieres ejecutar después de 3 segundos
-                print('Esto se ejecuta después de 3 segundos');
-                Navigator.pop(context);
-
-              });
-              
-            }
-          },
-          child: SizedBox(
-            width: double.infinity,
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 14.0, horizontal: 10.0)),
-                      onPressed: () {
-                        Navigator.pop(context);
-          
-                        ref
-                            .read(activityFormProvider(activity).notifier)
-                            .onHoraChanged(
-                                DateFormat('HH:mm:ss').format(DateTime.now()));
-          
-                        llamarTelefono(context, agregarPrefijoPeru(phone));
-                      },
-                      child: Text(
-                        'Llamar ${agregarPrefijoPeru(phone)}',
-                        style: const TextStyle(fontSize: 19, color: Colors.blue),
-                      ),
+        return SizedBox(
+          width: double.infinity,
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 14.0, horizontal: 10.0)),
+                    onPressed: () {
+                      Navigator.pop(context);
+        
+                      ref
+                          .read(activityFormProvider(activity).notifier)
+                          .onHoraChanged(
+                              DateFormat('HH:mm:ss').format(DateTime.now()));
+        
+                      llamarTelefono(context, agregarPrefijoPeru(phone));
+                    },
+                    child: Text(
+                      'Llamar ${agregarPrefijoPeru(phone)}',
+                      style: const TextStyle(fontSize: 19, color: Colors.blue),
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 14.0, horizontal: 10.0)),
-                      onPressed: () {
-                        Navigator.pop(context);
-                        /*Timer(Duration(seconds: 3), () {
-                          //Navigator.pop(context);
-                          context.pop();
-                        });*/
-                        //context.pop();
-                      },
-                      child: const Text('CANCELAR'),
-                    ),
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 14.0, horizontal: 10.0)),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.pop(context);
+                      /*Timer(Duration(seconds: 3), () {
+                        //Navigator.pop(context);
+                        context.pop();
+                      });*/
+                      //context.pop();
+                    },
+                    child: const Text('CANCELAR'),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         );
