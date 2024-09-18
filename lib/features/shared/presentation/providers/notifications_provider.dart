@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import '../../../auth/domain/domain.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../../firebase_options.dart';
@@ -87,7 +89,7 @@ class NotificationsNotifier extends StateNotifier<NotificationsState> {
     if (settings.authorizationStatus != AuthorizationStatus.authorized) return;
 
     final token = await messaging.getToken();
-
+    log('This is my token $token');
     //Guardar Token Device
     await onUpdateDeviceCallback!(token!);
   }

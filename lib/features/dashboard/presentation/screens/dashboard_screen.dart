@@ -4,6 +4,10 @@ import 'package:crm_app/config/config.dart';
 import 'package:crm_app/features/dashboard/presentation/providers/home_notificaciones_provider.dart';
 import 'package:crm_app/features/dashboard/presentation/screens/notification_screen.dart';
 import 'package:crm_app/features/dashboard/presentation/widgets/widgets.dart';
+import 'package:crm_app/features/location/presentation/providers/gps_provider.dart';
+import 'package:crm_app/features/shared/presentation/providers/notifications_provider.dart';
+import 'package:flutter_app_badge/flutter_app_badge.dart';
+import 'package:flutter_dynamic_icon/flutter_dynamic_icon.dart';
 
 import '../../../activities/domain/domain.dart';
 import '../../../activities/presentation/providers/activities_provider.dart';
@@ -65,13 +69,17 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
         actions: [
           Center(
             child: InkWell(
-              onTap: () {
+              onTap: () async {
+                final count = ref.read(listNotifyProvider);
+                FlutterAppBadge.count(int.parse(count.counterNotification));
                 context.push(
                   NofiticationScreen.name,
                 );
+                // await FlutterDynamicIcon.setApplicationIconBadgeNumber(int.parse(count.counterNotification));
               },
               child: NotificationBell(
-                notificationCount: int.parse(ref.watch(listNotifyProvider).counterNotification),
+                notificationCount: int.parse(
+                    ref.watch(listNotifyProvider).counterNotification),
               ),
             ),
           ),
@@ -177,8 +185,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
       ref.read(eventsProvider.notifier).loadNextPage(),
       ref.read(activitiesProvider.notifier).loadNextPage(isRefresh: true),
       ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: true),
-
-      //ref.read(opportunitiesProvider.notifier).loadStatusOpportunity(),
+      ref.read(opportunitiesProvider.notifier).loadStatusOpportunity(),
     ]);
   }
 }
@@ -199,16 +206,16 @@ class _DashboardViewState extends ConsumerState {
       ref.read(eventsProvider.notifier).loadNextPage();
       ref.read(activitiesProvider.notifier).loadNextPage(isRefresh: true);
       ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: true);
-      //ref.read(opportunitiesProvider.notifier).loadStatusOpportunity();
-      // ref.read(notificationsProvider.notifier).requestPermission();
+      ref.read(opportunitiesProvider.notifier).loadStatusOpportunity();
+      ref.read(notificationsProvider.notifier).requestPermission();
     });
 
-    // final isGpsPermissionGranted =
-    //     ref.read(gpsProvider.notifier).state.isGpsPermissionGranted;
+    final isGpsPermissionGranted =
+        ref.read(gpsProvider.notifier).state.isGpsPermissionGranted;
 
-    // if (!isGpsPermissionGranted) {
-    //   ref.read(gpsProvider.notifier).askGpsAccess();
-    // }
+    if (!isGpsPermissionGranted) {
+      ref.read(gpsProvider.notifier).askGpsAccess();
+    }
   }
 
   @override

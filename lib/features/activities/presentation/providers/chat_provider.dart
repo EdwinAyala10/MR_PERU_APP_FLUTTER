@@ -130,7 +130,7 @@ class ChatNotifier extends ChangeNotifier {
     );
     final path = Environment.apiUrl;
     final url = "$path/actividad/crear-actividad-comentario";
-
+    log("Actividad comentario"); 
     log(url);
     final formData = {
       "ACCM_ID_ACTIVIDAD": idActivity,
