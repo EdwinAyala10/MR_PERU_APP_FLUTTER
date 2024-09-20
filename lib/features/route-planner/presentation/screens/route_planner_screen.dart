@@ -107,6 +107,8 @@ class RoutePlannerScreen extends ConsumerWidget {
                     return;
                   } else {
                     Navigator.pop(context);
+                    
+                    ref.read(routePlannerProvider.notifier).updateFechasRegister(validatePlanner.data?.fechaIni ?? '', validatePlanner.data?.fechaFin ?? '');
 
                     /*final gpsState = ref.read(gpsProvider.notifier).state;
 

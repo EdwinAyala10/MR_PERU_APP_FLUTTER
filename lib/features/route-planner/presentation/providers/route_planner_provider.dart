@@ -336,6 +336,13 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     return options;
   }
 
+  void updateFechasRegister(String dateIni, String datetEnd) {
+    state = state.copyWith(
+      dateTimeInitial: dateIni,
+      dateTimeEnd: datetEnd
+    );
+  }
+
   Future<ValidateEventPlannerResponse> validatePlanner(String idHorario) async {
     //state = state.copyWith(isLoading: true);
 
@@ -516,6 +523,8 @@ class RoutePlannerState {
   final List<FilterOption> filters;
   final List<FilterOption> filtersSuccess;
   final List<CompanyLocalRoutePlanner> selectedItems;
+  final String? dateTimeInitial;
+  final String? dateTimeEnd;
 
   RoutePlannerState(
       {this.isLastPage = false,
@@ -529,7 +538,10 @@ class RoutePlannerState {
       this.filtersSuccess = const [],
       this.locales = const [],
       //this.localesOrderTemp = const [],
-      this.selectedItems = const []});
+      this.selectedItems = const [],
+      this.dateTimeInitial =  '',
+      this.dateTimeEnd =  '' 
+      });
 
   RoutePlannerState copyWith({
     bool? isLastPage,
@@ -544,6 +556,8 @@ class RoutePlannerState {
     List<FilterOption>? filters,
     List<FilterOption>? filtersSuccess,
     List<CompanyLocalRoutePlanner>? selectedItems,
+    String? dateTimeInitial,
+    String? dateTimeEnd
   }) =>
       RoutePlannerState(
         isLastPage: isLastPage ?? this.isLastPage,
@@ -558,5 +572,7 @@ class RoutePlannerState {
         filters: filters ?? this.filters,
         filtersSuccess: filtersSuccess ?? this.filtersSuccess,
         selectedItems: selectedItems ?? this.selectedItems,
+        dateTimeInitial: dateTimeInitial ?? this.dateTimeInitial,
+        dateTimeEnd: dateTimeEnd ?? this.dateTimeEnd,
       );
 }
