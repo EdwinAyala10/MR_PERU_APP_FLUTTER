@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:crm_app/config/config.dart';
 import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
 import 'package:crm_app/features/route-planner/domain/domain.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
@@ -12,8 +13,9 @@ class FilterDetailRoutePlanner extends ConsumerStatefulWidget {
   String title;
   String type;
   bool? isSearch = false;
+  bool? isMulti = false;
 
-  FilterDetailRoutePlanner({super.key, required this.title, required this.type, this.isSearch});
+  FilterDetailRoutePlanner({super.key, required this.title, required this.type, this.isSearch, this.isMulti});
 
   @override
   _FilterDetailRoutePlannerState createState() => _FilterDetailRoutePlannerState();
@@ -49,7 +51,7 @@ class _FilterDetailRoutePlannerState extends ConsumerState<FilterDetailRoutePlan
         case 'HRTR_ID_HORARIO_TRABAJO':
           await ref.read(routePlannerProvider.notifier).loadFilterHorarioTrabajo().then((value) => {
             setState(() {
-              optionsMaster = getOptionProcess(value, listFilters);
+              optionsMaster = getOptionProcess(value, listFilters, widget.isMulti);
               isLoading = false;
             })
           });
@@ -58,7 +60,7 @@ class _FilterDetailRoutePlannerState extends ConsumerState<FilterDetailRoutePlan
         case 'ESTADO':
           await ref.read(resourceDetailsProvider.notifier).loadCatalogById('18').then((value) => {
             setState(() {
-              optionsMaster = getOptionProcess(value, listFilters);
+              optionsMaster = getOptionProcess(value, listFilters, widget.isMulti);
               isLoading = false;
             })
           });
@@ -67,7 +69,7 @@ class _FilterDetailRoutePlannerState extends ConsumerState<FilterDetailRoutePlan
         case 'ULTIMAS_VISITAS':
           await ref.read(routePlannerProvider.notifier).loadFilterActivity().then((value) => {
             setState(() {
-              optionsMaster = getOptionProcess(value, listFilters);
+              optionsMaster = getOptionProcess(value, listFilters, widget.isMulti);
               isLoading = false;
             })
           });
@@ -76,7 +78,7 @@ class _FilterDetailRoutePlannerState extends ConsumerState<FilterDetailRoutePlan
         case 'TIPOCLIENTE':
           await ref.read(resourceDetailsProvider.notifier).loadCatalogById('02').then((value) => {
             setState(() {
-              optionsMaster = getOptionProcess(value, listFilters);
+              optionsMaster = getOptionProcess(value, listFilters, widget.isMulti);
               isLoading = false;
             })
           });
@@ -85,7 +87,7 @@ class _FilterDetailRoutePlannerState extends ConsumerState<FilterDetailRoutePlan
         case 'ESTADO_CRM':
           await ref.read(resourceDetailsProvider.notifier).loadCatalogById('03').then((value) => {
             setState(() {
-              optionsMaster = getOptionProcess(value, listFilters);
+              optionsMaster = getOptionProcess(value, listFilters, widget.isMulti);
               isLoading = false;
             })
           });
@@ -94,7 +96,7 @@ class _FilterDetailRoutePlannerState extends ConsumerState<FilterDetailRoutePlan
         case 'CALIFICACION':
           await ref.read(resourceDetailsProvider.notifier).loadCatalogById('04').then((value) => {
             setState(() {
-              optionsMaster = getOptionProcess(value, listFilters);
+              optionsMaster = getOptionProcess(value, listFilters, widget.isMulti);
               isLoading = false;
             })
           });
@@ -103,7 +105,7 @@ class _FilterDetailRoutePlannerState extends ConsumerState<FilterDetailRoutePlan
         case 'ID_USUARIO_RESPONSABLE':
           await ref.read(routePlannerProvider.notifier).loadFilterResponsable().then((value) => {
             setState(() {
-              optionsMaster = getOptionProcess(value, listFilters);
+              optionsMaster = getOptionProcess(value, listFilters, widget.isMulti);
               isLoading = false;
             })
           });
@@ -112,7 +114,7 @@ class _FilterDetailRoutePlannerState extends ConsumerState<FilterDetailRoutePlan
         case 'CODIGO_POSTAL':
           await ref.read(routePlannerProvider.notifier).loadFilterCodigoPostal(textSearch).then((value) => {
             setState(() {
-              optionsMaster = getOptionProcess(value, listFilters);
+              optionsMaster = getOptionProcess(value, listFilters, widget.isMulti);
               isLoading = false;
             })
           });
@@ -121,7 +123,7 @@ class _FilterDetailRoutePlannerState extends ConsumerState<FilterDetailRoutePlan
         case 'DISTRITO':
           await ref.read(routePlannerProvider.notifier).loadFilterDistrito(textSearch).then((value) => {
             setState(() {
-              optionsMaster = getOptionProcess(value, listFilters);
+              optionsMaster = getOptionProcess(value, listFilters, widget.isMulti);
               isLoading = false;
             })
           });
@@ -130,7 +132,7 @@ class _FilterDetailRoutePlannerState extends ConsumerState<FilterDetailRoutePlan
         case 'RUC':
           await ref.read(routePlannerProvider.notifier).loadFilterRuc(textSearch).then((value) => {
             setState(() {
-              optionsMaster = getOptionProcess(value, listFilters);
+              optionsMaster = getOptionProcess(value, listFilters, widget.isMulti);
               isLoading = false;
             })
           });
@@ -139,7 +141,7 @@ class _FilterDetailRoutePlannerState extends ConsumerState<FilterDetailRoutePlan
         case 'ID_RUBRO':
           await ref.read(resourceDetailsProvider.notifier).loadCatalogById('16').then((value) => {
             setState(() {
-              optionsMaster = getOptionProcess(value, listFilters);
+              optionsMaster = getOptionProcess(value, listFilters, widget.isMulti);
               isLoading = false;
             })
           });
@@ -148,7 +150,7 @@ class _FilterDetailRoutePlannerState extends ConsumerState<FilterDetailRoutePlan
         case 'RAZON_COMERCIAL':
           await ref.read(routePlannerProvider.notifier).loadFiltecRazonComercial(textSearch).then((value) => {
             setState(() {
-              optionsMaster = getOptionProcess(value, listFilters);
+              optionsMaster = getOptionProcess(value, listFilters, widget.isMulti);
               isLoading = false;
             })
           });
@@ -175,18 +177,39 @@ class _FilterDetailRoutePlannerState extends ConsumerState<FilterDetailRoutePlan
     });
   }
 
-  List<FilterOptionContainer> getOptionProcess(List<DropdownOption> value, List<FilterOption> listFilters) {
+  List<FilterOptionContainer> getOptionProcess(List<DropdownOption> value, List<FilterOption> listFilters, bool? isMulti) {
     List<DropdownOption> optionsList = value;
     List<FilterOptionContainer> optionsM = [];
-
     
     final String? idFilter = findFilterOptionByType(listFilters, widget.type, 'id', '');
+
+    print('aqui esta: ${idFilter}');
     
     optionsM = optionsList.asMap().entries.map((entry) {
       DropdownOption option = entry.value;
+
+      print('ESTO QUES ES: ${option.id}');
+
+      bool selectFilter = false;
+
     
-      final bool selectFilter = listFilters.isNotEmpty  
+      if (isMulti == true) {
+        
+        if (idFilter != "") {
+          List<String> lists = idFilter!.split(',');
+          if (lists.contains(option.id)) {
+            selectFilter = true;
+          }
+
+        }
+        
+
+      } else {
+        selectFilter = listFilters.isNotEmpty  
         ? idFilter == option.id: false;
+      }
+
+   
     
       return FilterOptionContainer(
         id: option.id, 
@@ -197,6 +220,7 @@ class _FilterDetailRoutePlannerState extends ConsumerState<FilterDetailRoutePlan
         type: widget.type,
         subTitle: option.subTitle,
         secundary: option.secundary,
+        isMulti: isMulti
       );
     }).toList();
 
@@ -204,10 +228,42 @@ class _FilterDetailRoutePlannerState extends ConsumerState<FilterDetailRoutePlan
     
   }
 
-  void handleSelect(String id, String name, String type ,String title) {
+  void handleSelect(String id, String name, String type ,String title, bool isMulti) {
+
     FilterOption anotherNewFilter = FilterOption(id: id, type: type, name: name, title: title);
   
-    ref.read(routePlannerProvider.notifier).onSelectedFilter(anotherNewFilter);
+    ref.read(routePlannerProvider.notifier).onSelectedFilter(anotherNewFilter, isMulti); 
+    
+    setState(() {
+      print('optionsMaster: ${optionsMaster.length}');
+
+        var optionsNew = [...optionsMaster];
+
+      var indexdelete;
+
+        print('imprimir.--------');
+      for (var i = 0; i < optionsMaster.length; i++) {
+        if (optionsMaster[i].id == id) {
+          optionsNew[i] = FilterOptionContainer(
+            id: optionsMaster[i].id, 
+            name: optionsMaster[i].name, 
+            title: optionsMaster[i].title, 
+            type: optionsMaster[i].type, 
+            isSelected: !optionsMaster[i].isSelected, 
+            onSelect: optionsMaster[i].onSelect,
+            isMulti: optionsMaster[i].isMulti,
+            key: optionsMaster[i].key,
+            secundary: optionsMaster[i].secundary,
+            subTitle: optionsMaster[i].subTitle,
+          );
+        //} else {
+          //optionsNew.removeAt(i);
+        }
+      }
+        print('imprimir end.--------');
+
+      optionsMaster = optionsNew;
+    });
   }
   
   @override
@@ -251,13 +307,14 @@ class _FilterDetailRoutePlannerState extends ConsumerState<FilterDetailRoutePlan
                     ),
                   ),
                 ),
-                /*TextButton(
-                  onPressed: () {
-                    // Acción para aplicar filtros
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Hecho'),
-                ),*/
+                /*if(widget.isMulti == true)
+                  TextButton(
+                    onPressed: () {
+                      // Acción para aplicar filtros
+                     // Navigator.pop(context);
+                    },
+                    child: const Text('Hecho'),
+                  ),*/
               ],
             ),
           ),
@@ -290,7 +347,7 @@ class _FilterDetailRoutePlannerState extends ConsumerState<FilterDetailRoutePlan
                 //separatorBuilder: (context, index) => const Divider(),
                 itemCount: optionsMaster.length,
               ) : Container(
-                padding: EdgeInsets.all(14),
+                padding: const EdgeInsets.all(14),
                 width: double.infinity,
                 child: const Text('Sin opciones', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18), textAlign: TextAlign.center, )
               ),
@@ -307,9 +364,10 @@ class FilterOptionContainer extends StatelessWidget {
   final String title;
   final String type;
   final bool isSelected;
-  final Function(String,String,String, String) onSelect;
+  final Function(String,String,String, String, bool) onSelect;
   final String? subTitle;
   final String? secundary;
+  final bool? isMulti;
 
   FilterOptionContainer({
     super.key,
@@ -320,18 +378,29 @@ class FilterOptionContainer extends StatelessWidget {
     required this.isSelected,
     required this.onSelect,
     this.subTitle,
-    this.secundary
+    this.secundary,
+    this.isMulti
     });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-         Navigator.pop(context);
-         onSelect(id, name, type, title);
+        if(isMulti == true) {
+
+          if (id != '') {
+            onSelect(id, name, type, title, true);
+          }
+
+        } else {
+          Navigator.pop(context);
+          onSelect(id, name, type, title, false);
+        }
+
+        
       },
       child: Container(
-        color: isSelected ? Colors.blue.withOpacity(0.2) : Colors.transparent,
+        color: isSelected ? primaryColor.withOpacity(0.1) : Colors.transparent,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 14),
           child: Row(
@@ -341,9 +410,23 @@ class FilterOptionContainer extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(name, style: const TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500 )),
-                  if (subTitle != null) Text(subTitle ?? '', style: const TextStyle(fontSize: 15.0, fontWeight: FontWeight.w400)),
-                  if (secundary != null) Text(secundary ?? '', style: const TextStyle(fontSize: 15.0)),
+                  Row(
+                    children: [
+                      if(isMulti == true && id != "")
+                      Icon(isSelected ? Icons.check_box : Icons.check_box_outline_blank_outlined, size: 26, color: primaryColor),
+                      if(isMulti == true && id != "")
+                      const SizedBox(
+                          width: 10,
+                        ),
+                      Column(
+                        children: [
+                          Text(name, style: const TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500 )),
+                          if (subTitle != null) Text(subTitle ?? '', style: const TextStyle(fontSize: 15.0, fontWeight: FontWeight.w400)),
+                          if (secundary != null) Text(secundary ?? '', style: const TextStyle(fontSize: 15.0)),
+                        ],
+                      )
+                    ],
+                  ),
                 ],
               )
             ],

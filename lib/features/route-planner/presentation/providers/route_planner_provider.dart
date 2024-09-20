@@ -49,23 +49,66 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     //}
   }
 
-  void onSelectedFilter(FilterOption opt) {
+  void onSelectedFilter(FilterOption opt, bool isMulti) {
     bool found = false;
+
+    print('options id: ${opt.id}');
+    print('options name: ${opt.name}');
+    print('options title: ${opt.title}');
+    print('options type: ${opt.type}');
 
     // Usando una lista mutable para actualizar los filtros.
     List<FilterOption> updatedFilters = List.from(state.filters);
 
     for (int i = 0; i < updatedFilters.length; i++) {
       if (updatedFilters[i].type == opt.type) {
-        updatedFilters[i] = opt;
+
+        if (isMulti) {
+
+          var stringIds = updatedFilters[i].id;
+
+          
+          List<String> lists = stringIds.split(',');
+
+          if (!lists.contains(opt.id)) {
+            lists.add(opt.id);
+          } else {
+            lists.remove(opt.id);
+          }
+
+          String joinList = lists.join(',');
+
+          print(joinList);
+
+          var optNew = FilterOption(id: joinList, type: opt.type, title: opt.title, name: joinList);
+          updatedFilters[i] = optNew;
+        }else {
+          updatedFilters[i] = opt;
+        }
+
         found = true;
         break;
       }
     }
 
     if (!found) {
-      updatedFilters.add(opt);
+      if (isMulti) {
+        List<String> lists = [];
+
+        lists.add(opt.id);
+
+        String joinList = lists.join(',');
+
+        var optNew = FilterOption(id: joinList, type: opt.type, title: opt.title, name: joinList);
+        updatedFilters.add(optNew);
+
+      }else {
+        updatedFilters.add(opt);
+      }
+
     }
+
+    print(updatedFilters);
 
     // Actualizar el estado con los filtros modificados.
     state = state.copyWith(filters: updatedFilters);
