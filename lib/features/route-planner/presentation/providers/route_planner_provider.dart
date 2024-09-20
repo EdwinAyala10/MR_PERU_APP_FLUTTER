@@ -1,8 +1,7 @@
 import 'package:crm_app/features/route-planner/domain/entities/coordenada.dart';
 import 'package:crm_app/features/route-planner/domain/entities/create_event_planner_response.dart';
-import 'package:crm_app/features/route-planner/domain/entities/validate_event_planner.dart';
 import 'package:crm_app/features/route-planner/domain/entities/validate_event_planner_response.dart';
-import 'package:crm_app/features/route-planner/domain/entities/validate_response.dart';
+import 'package:crm_app/features/route-planner/domain/entities/validate_horario_trabajo_response.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_repository_provider.dart';
 import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
 import 'package:flutter/material.dart';
@@ -224,6 +223,40 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
         selectedItems: newItems
       );
     } 
+  }
+
+   Future<void> loadFilterHorario() async {
+
+
+    ValidateHorarioTrabajoResponse validate =
+        await routePlannerRepository.getHorarioTrabajo();
+
+    if (validate.status) {
+
+      List<FilterOption> filtersA = [...state.filtersSuccess];
+
+      // Verifica si ya existe un filtro con el mismo id
+      bool exists = filtersA.any((filter) => filter.type == 'HRTR_ID_HORARIO_TRABAJO');
+      
+      print('EXIST: ${exists}' );
+      if (!exists) {
+
+        var nuevo = FilterOption(
+          id: validate.data?.idHorarioTrabajo ?? '', 
+          type: 'HRTR_ID_HORARIO_TRABAJO', 
+          title: 'Horario de trabajo', 
+          name: validate.data?.descripcion ?? '');
+      
+        List<FilterOption> filtersb = [nuevo, ...state.filtersSuccess];
+
+          state = state.copyWith(
+            filtersSuccess: filtersb,
+            filters: filtersb
+          );
+      }
+    } 
+
+  
   }
 
   Future<List<DropdownOption>> loadFilterCodigoPostal(String search) async {

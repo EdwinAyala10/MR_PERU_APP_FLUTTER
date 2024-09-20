@@ -29,6 +29,8 @@ class Activity {
   List<ContactArray>? actividadesContactoEliminar;
   String? cchkFechaRegistroCheckIn;
   String? cchkFechaRegistroCheckOut;
+  String? coordenadalatitud;
+  String? coordenadaLongitud;
 
   Activity(
       {required this.id,
@@ -58,5 +60,8 @@ class Activity {
       this.actiIdTipoRegistro,
       this.cchkFechaRegistroCheckIn,
       this.cchkFechaRegistroCheckOut,
-      this.actiNombreResponsable});
+      this.actiNombreResponsable,
+      this.coordenadalatitud,
+      this.coordenadaLongitud
+  });
 }

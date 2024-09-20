@@ -33,6 +33,8 @@ class ActivityMapper {
     actividadesContacto: json["ACTIVIDADES_CONTACTO"] != null ? List<ContactArray>.from(json["ACTIVIDADES_CONTACTO"].map((x) => ContactArray.fromJson(x))) : [],
     actividadesContactoEliminar: json["ACTIVIDADES_CONTACTO_ELIMINAR"] != null ? List<ContactArray>.from(json["ACTIVIDADES_CONTACTO_ELIMINAR"].map((x) => ContactArray.fromJson(x))) : [],
     opt: json['OPT'] ?? '',
+    coordenadaLongitud: json['COORDENADA_LONGITUD'] ?? '',
+    coordenadalatitud: json['COORDENADA_LATITUD'] ?? '',
   );
 
 }

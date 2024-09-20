@@ -5,13 +5,10 @@ import 'package:crm_app/features/companies/presentation/widgets/show_loading_mes
 import 'package:crm_app/features/location/presentation/providers/providers.dart';
 import 'package:crm_app/features/route-planner/domain/domain.dart';
 import 'package:crm_app/features/route-planner/domain/entities/coordenada.dart';
-import 'package:crm_app/features/route-planner/domain/entities/validate_event_planner.dart';
-import 'package:crm_app/features/route-planner/domain/entities/validate_event_planner_response.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/forms/event_planner_form_provider.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
 import 'package:crm_app/features/route-planner/presentation/widgets/filter_route_planner_bottom_sheet.dart';
 import 'package:crm_app/features/route-planner/presentation/widgets/item_route_planner_local.dart';
-import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../shared/widgets/loading_modal.dart';
@@ -213,6 +210,7 @@ class _RoutePlannerViewState extends ConsumerState {
     });
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
+      ref.read(routePlannerProvider.notifier).loadFilterHorario();
       ref.read(routePlannerProvider.notifier).onChangeNotIsActiveSearchSinRefresh();
       ref.read(routePlannerProvider.notifier).loadNextPage(isRefresh: true);
     });
