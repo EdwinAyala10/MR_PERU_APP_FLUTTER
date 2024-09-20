@@ -20,8 +20,8 @@ class KpisRepositoryImpl extends KpisRepository {
   }
 
   @override
-  Future<List<Kpi>> getKpis() {
-    return datasource.getKpis();
+  Future<List<Kpi>> getKpis(String idUsuario) {
+    return datasource.getKpis(idUsuario);
   }
 
   @override

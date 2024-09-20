@@ -105,17 +105,18 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
                 const SizedBox(
                   height: 3,
                 ),
-                Row(
-                  children: [
-                    const Icon(Icons.calendar_month, size: 14),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    Expanded(
-                      child: Text(widget.opportunity.actiFechaRegistro ?? '', overflow: TextOverflow.ellipsis)
-                    ),
-                  ],
-                )  
+                if (widget.opportunity.actiFechaRegistro != "")
+                  Row(
+                    children: [
+                      const Icon(Icons.calendar_month, size: 14),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Expanded(
+                        child: Text(widget.opportunity.actiFechaRegistro ?? '', overflow: TextOverflow.ellipsis)
+                      ),
+                    ],
+                  )  
             ],
           ),
           trailing: Column(

@@ -9,6 +9,7 @@ import 'package:crm_app/features/route-planner/infrastructure/mappers/event_plan
 import 'package:crm_app/features/route-planner/infrastructure/mappers/validar_horario_trabajo_mapper.dart';
 import 'package:crm_app/features/route-planner/infrastructure/mappers/validate_event_planner_response_mapper.dart';
 import 'package:crm_app/features/route-planner/infrastructure/mappers/validate_horario_trabajo_response_mapper.dart';
+import 'package:crm_app/features/route-planner/infrastructure/mappers/validate_variable_response_mapper.dart';
 import 'package:dio/dio.dart';
 
 import '../infrastructure.dart';
@@ -188,6 +189,12 @@ class RoutePlannerDatasourceImpl extends RoutePlannerDatasource {
 
       final ValidateEventPlannerResponse eventResponse =
           ValidateEventPlannerResponseMapper.jsonToEntity(response.data);
+
+      print('STATUS: ${eventResponse.status}');
+
+      if (eventResponse.status == true) {
+        eventResponse.data = ValidateVariableResponseMapper.jsonToEntity(response.data['data']);
+      }
 
       return eventResponse;
     } on DioException catch (e) {

@@ -1,3 +1,6 @@
+import 'package:crm_app/features/auth/domain/domain.dart';
+import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
+
 import '../../domain/entities/status_opportunity.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/domain.dart';
@@ -7,14 +10,22 @@ import 'opportunities_repository_provider.dart';
 final opportunitiesProvider =
     StateNotifierProvider<OpportunitiesNotifier, OpportunitiesState>((ref) {
   final opportunitiesRepository = ref.watch(opportunitiesRepositoryProvider);
+  final user = ref.watch(authProvider).user;
+
   return OpportunitiesNotifier(
-      opportunitiesRepository: opportunitiesRepository);
+      opportunitiesRepository: opportunitiesRepository,
+      user: user!,
+    );
 });
 
 class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
   final OpportunitiesRepository opportunitiesRepository;
+  final User user;
 
-  OpportunitiesNotifier({required this.opportunitiesRepository})
+  OpportunitiesNotifier({
+    required this.opportunitiesRepository,
+    required this.user,
+  })
       : super(OpportunitiesState()) {
     loadNextPage(isRefresh: true);
   }
@@ -111,7 +122,8 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
           ruc: '', 
           search: search, 
           limit: sLimit,
-          offset: sOffset
+          offset: sOffset,
+          idUsuario: user.code
         );
 
     if (opportunities.isEmpty) {

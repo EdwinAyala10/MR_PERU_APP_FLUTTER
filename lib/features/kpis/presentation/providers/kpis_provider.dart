@@ -1,3 +1,5 @@
+import 'package:crm_app/features/auth/domain/domain.dart';
+import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crm_app/features/kpis/domain/domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,13 +11,22 @@ final goalsModelProvider = StateProvider<Kpi?>((ref) => null);
 
 final kpisProvider = StateNotifierProvider<KpisNotifier, KpisState>((ref) {
   final kpisRepository = ref.watch(kpisRepositoryProvider);
-  return KpisNotifier(kpisRepository: kpisRepository);
+  final user = ref.watch(authProvider).user;
+
+  return KpisNotifier(
+    kpisRepository: kpisRepository,
+    user: user!,
+  );
 });
 
 class KpisNotifier extends StateNotifier<KpisState> {
   final KpisRepository kpisRepository;
+  final User user;
 
-  KpisNotifier({required this.kpisRepository}) : super(KpisState()) {
+  KpisNotifier({
+    required this.kpisRepository,
+    required this.user,
+  }) : super(KpisState()) {
     loadNextPage();
   }
 
@@ -59,7 +70,7 @@ class KpisNotifier extends StateNotifier<KpisState> {
 
     state = state.copyWith(isLoading: true);
 
-    final kpis = await kpisRepository.getKpis();
+    final kpis = await kpisRepository.getKpis(user.code);
 
     if (kpis.isEmpty) {
       //state = state.copyWith(isLoading: false, isLastPage: true);

@@ -289,7 +289,7 @@ class _EventPlannerInformationState extends ConsumerState<_EventPlannerInformati
           ),
 
           const SizedBox(height: 10),
-          const Text('Hora de Inicio',
+          const Text('Hora programación',
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
           const SizedBox(height: 6),
           GestureDetector(
