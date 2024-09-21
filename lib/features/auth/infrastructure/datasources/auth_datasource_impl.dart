@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import '../../../../config/config.dart';
 import '../../domain/domain.dart';
 import '../infrastructure.dart';
@@ -28,14 +30,16 @@ class AuthDataSourceImpl extends AuthDataSource {
 
   @override
   Future<User> login(String email, String password) async {
+    log(dio.options.baseUrl);
     try {
-      final response = await dio
-          .post('/login_crm', data: {'email': email, 'password': password});
-
+      final response = await dio.post('/login_crm', data: {'email': email, 'password': password});
+      log(response.realUri.path);
       final user = UserMapper.userJsonToEntity(response.data);
 
       return user;
     } on DioException catch (e) {
+            log('mesvsdvsdvsssage');
+      log(e.toString());
       if (e.response?.statusCode == 401) {
         throw CustomError(
             e.response?.data['message'] ?? 'Credenciales incorrectas');
@@ -45,6 +49,8 @@ class AuthDataSourceImpl extends AuthDataSource {
       }
       throw Exception();
     } catch (e) {
+      log('mesvsdvsdvsssage');
+      log(e.toString());
       throw Exception();
     }
   }

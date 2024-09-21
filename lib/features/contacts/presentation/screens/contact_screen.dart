@@ -253,13 +253,13 @@ class __ContactInformationv2State extends ConsumerState<_ContactInformationv2> {
             },
             errorMessage: contactForm.contactoTelefonoc.errorMessage,
           ),
-          CustomCompanyField(
-            label: 'Teléfono',
-            keyboardType: TextInputType.phone,
-            initialValue: contactForm.contactoTelefonof,
-            onChanged:
-                ref.read(contactFormProvider(widget.contact).notifier).onPhoneChanged,
-          ),
+          // CustomCompanyField(
+          //   label: 'Teléfono',
+          //   keyboardType: TextInputType.phone,
+          //   initialValue: contactForm.contactoTelefonof,
+          //   onChanged:
+          //       ref.read(contactFormProvider(widget.contact).notifier).onPhoneChanged,
+          // ),
           CustomCompanyField(
             label: 'Email *',
             keyboardType: TextInputType.emailAddress,
