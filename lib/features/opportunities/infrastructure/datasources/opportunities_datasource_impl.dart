@@ -82,6 +82,7 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
       "ID_USUARIO_RESPONSABLE": idUsuario
     };
 
+    log(data.toString());
     final response = await dio
         .post('/oportunidad/listar-oportunidades-by-ruc-est', data: data);
 

@@ -24,9 +24,11 @@ class OpportunitiesScreen extends ConsumerWidget {
       drawer: SideMenu(scaffoldKey: scaffoldKey),
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Oportunidades',
-            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
-            textAlign: TextAlign.center),
+        title: const Text(
+          'Oportunidades',
+          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
+          textAlign: TextAlign.center,
+        ),
         /*actions: [
           if (isActiveSearch) const SizedBox(width: 58),
           if (isActiveSearch)
@@ -98,7 +100,8 @@ class _OpportunitiesViewState extends ConsumerState {
     super.initState();
 
     scrollController.addListener(() {
-      if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 200) {
+      if (scrollController.position.pixels >=
+          scrollController.position.maxScrollExtent - 200) {
         print('CARGANDO MAS');
         ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: false);
       }

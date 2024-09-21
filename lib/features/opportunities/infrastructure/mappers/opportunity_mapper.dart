@@ -37,7 +37,7 @@ class OpportunityMapper {
     actiIdTipoGestion: json["ACTI_ID_TIPO_GESTION"],
     actiNombreTipoGestion: json["ACTI_NOMBRE_TIPO_GESTION"],
     actiFechaRegistro: json["ACTI_FECHA_REGISTRO"],
-    nombreUsuarioResponsable: json['NOMBRE_USUARIO_RESPONSABLES'] ?? ''
+    nombreUsuarioResponsable: json['NOMBRE_USUARIO_RESPONSABLE'] ?? ''
   );
 
 }

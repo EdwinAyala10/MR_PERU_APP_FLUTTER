@@ -139,6 +139,9 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
               Text(
                 widget.opportunity.nombreUsuarioResponsable ?? '',
                 style: const TextStyle(
+                  color: Colors.blue,
+                  overflow:TextOverflow.ellipsis,
+                  fontWeight: FontWeight.w800,
                   fontSize: 11
                 ),
               )

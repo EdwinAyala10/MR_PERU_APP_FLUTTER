@@ -494,7 +494,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
           label: widget.company.cchkIdEstadoCheck == '06'
               ? 'CHECK-IN'
               : (widget.company.cchkIdEstadoCheck == null
-                  ? 'CHECK-IN 44'
+                  ? 'CHECK-IN'
                   : 'CHECK-OUT'),
           callOnPressed: () {
             String idCheck = widget.company.cchkIdEstadoCheck == '06'
