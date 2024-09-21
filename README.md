@@ -26,4 +26,6 @@ alias key
 ````
 
 
-ventasyalquileres@mrperu.com.pe     41221817
+
+edwin.rccperu@gmail.com
+74047949

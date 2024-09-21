@@ -101,7 +101,10 @@ class _ViewContactDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Detalles del contacto'),
+        title: const Text('Detalles del contacto',
+        style: TextStyle(
+          fontWeight: FontWeight.w500
+        ),),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
@@ -160,6 +163,10 @@ class _ViewContactDetailScreen extends ConsumerWidget {
               ContainerCustom(
                 label: 'Empresa:',
                 text: contact.razon ?? '',
+              ),
+              ContainerCustom(
+                label: 'Local:',
+                text: contact.contactoLocalNombre ?? '',
               ),
               const SizedBox(
                 height: 10,

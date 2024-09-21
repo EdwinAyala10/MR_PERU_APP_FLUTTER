@@ -50,6 +50,7 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
           oprtLocalNombre: opportunity.oprtLocalNombre ?? '',
           oprtProbabilidad: opportunity.oprtProbabilidad ?? '',
           oprtRuc: EmpresaPrincipal.dirty(opportunity.oprtRuc ?? ''),
+          oprtIdContacto: StateContact.dirty(opportunity.oprtIdContacto ?? ''),
           oprtLocalCodigo: StateLocal.dirty(opportunity.oprtLocalCodigo ?? ''),
           //oprtLocalNombre: opportunity.oprtLocalNombre ?? '',
           oprtRazon: opportunity.oprtRazon ?? '',
@@ -92,6 +93,7 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
       'OPRT_RUC_INTERMEDIARIO_02': state.oprtRucIntermediario02,
       'OPRT_COMENTARIO': state.oprtComentario,
       'OPRT_ID_USUARIO_REGISTRO': state.oprtIdUsuarioRegistro,
+      'OPRT_ID_CONTACTO': state.oprtIdContacto.value,
       'OPRT_NOBBRE_ESTADO_OPORTUNIDAD': state.oprtNobbreEstadoOportunidad,
       'OPRT_NOMBRE_VALOR': state.oprtNombreValor,
       'OPRT_ID_PERDIDA_MOTIVO': state.oprtIdPerdidaMotivo,
@@ -121,6 +123,7 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
         EmpresaPrincipal.dirty(state.oprtRuc.value),
         StateLocal.dirty(state.oprtLocalCodigo.value),
         //EmpresaIntermediario.dirty(state.oprtRucIntermediario01.value),
+        StateContact.dirty(state.oprtIdContacto.value)
       ]),
     );
   }
@@ -134,7 +137,8 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
           EmpresaPrincipal.dirty(state.oprtRuc.value),
           StateLocal.dirty(state.oprtLocalCodigo.value),
           //EmpresaIntermediario.dirty(state.oprtRucIntermediario01.value),
-        ]));
+          StateContact.dirty(state.oprtIdContacto.value)
+      ]));
   }
 
   void onIdEstadoChanged(String idEstado) {
@@ -142,22 +146,15 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
     log(idEstado);
 
     state = state.copyWith(
-        oprtIdEstadoOportunidad: StateOpportunity.dirty(idEstado),
-        isFormValid: Formz.validate([
-          Name.dirty(state.oprtNombre.value),
-          StateOpportunity.dirty(idEstado),
-          EmpresaPrincipal.dirty(state.oprtRuc.value),
-          StateLocal.dirty(state.oprtLocalCodigo.value),
-          //EmpresaIntermediario.dirty(state.oprtRucIntermediario01.value),
-        ]));
-  }
-
-  void onIdPerdidaMotivoChanged(String value) {
-    //state = state.copyWith(oprtIdEstadoOportunidad: idEstado);
-
-    state = state.copyWith(
-      oprtIdPerdidaMotivo: value
-    );
+      oprtIdEstadoOportunidad: StateOpportunity.dirty(idEstado),
+      isFormValid: Formz.validate([
+        Name.dirty(state.oprtNombre.value),
+        StateOpportunity.dirty(idEstado),
+        EmpresaPrincipal.dirty(state.oprtRuc.value),
+        StateLocal.dirty(state.oprtLocalCodigo.value),
+        //EmpresaIntermediario.dirty(state.oprtRucIntermediario01.value),
+        StateContact.dirty(state.oprtIdContacto.value)
+      ]));
   }
 
   void onNameEstadoChanged(String nameEstado) {
@@ -187,16 +184,19 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
   void onRucChanged(String ruc, String razon) {
     //state = state.copyWith(oprtRuc: ruc, oprtRazon: razon);
     state = state.copyWith(
-        oprtRuc: EmpresaPrincipal.dirty(ruc),
-        oprtRazon: razon,
-        oprtLocalCodigo: const StateLocal.dirty(''),
-        oprtLocalNombre: '',
-        isFormValid: Formz.validate([
-          Name.dirty(state.oprtNombre.value),
-          StateOpportunity.dirty(state.oprtIdEstadoOportunidad.value),
-          EmpresaPrincipal.dirty(ruc),
-          //EmpresaIntermediario.dirty(state.oprtRucIntermediario01.value),
-        ]));
+      oprtRuc: EmpresaPrincipal.dirty(ruc),
+      oprtRazon: razon,
+      oprtLocalCodigo: const StateLocal.dirty(''),
+      oprtLocalNombre: '',
+      oprtIdContacto: const StateContact.dirty(''),
+      isFormValid: Formz.validate([
+        Name.dirty(state.oprtNombre.value),
+        StateOpportunity.dirty(state.oprtIdEstadoOportunidad.value),
+        EmpresaPrincipal.dirty(ruc),
+        //EmpresaIntermediario.dirty(state.oprtRucIntermediario01.value),
+        StateLocal.dirty(state.oprtLocalCodigo.value),
+        StateContact.dirty(state.oprtIdContacto.value)
+      ]));
   }
 
   /*void onRucIntermediario01Changed(String ruc, String razon) {
@@ -235,7 +235,27 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
           StateOpportunity.dirty(state.oprtIdEstadoOportunidad.value),
           EmpresaPrincipal.dirty(state.oprtRuc.value),
           StateLocal.dirty(value),
+          StateContact.dirty(state.oprtIdContacto.value)
         ]));
+  }
+
+  void onContactChanged(String value, String name) {
+    state = state.copyWith(
+        oprtIdContacto: StateContact.dirty(value),
+        oprtNombreContacto: name,
+        isFormValid: Formz.validate([
+          Name.dirty(state.oprtNombre.value),
+          StateOpportunity.dirty(state.oprtIdEstadoOportunidad.value),
+          EmpresaPrincipal.dirty(state.oprtRuc.value),
+          StateLocal.dirty(state.oprtLocalCodigo.value),
+          StateContact.dirty(value)
+        ]));
+  }
+
+  void onIdPerdidaMotivoChanged(String id) {
+    state = state.copyWith(
+      oprtIdPerdidaMotivo: id
+    );
   }
 
   void onUsuarioChanged(UserMaster usuario) {
@@ -323,35 +343,38 @@ class OpportunityFormState {
   final List<ArrayUser>? arrayresponsables;
   final List<ArrayUser>? arrayresponsablesEliminar;
   final String optrValor;
+  final StateContact oprtIdContacto;
+  final String? oprtNombreContacto;
 
-  OpportunityFormState({
-    this.isFormValid = false,
-    this.id,
-    this.oprtNombre = const Name.dirty(''),
-    this.oprtEntorno = 'MR PERU',
-    this.oprtIdEstadoOportunidad = const StateOpportunity.dirty(''),
-    this.oprtProbabilidad = '1',
-    this.oprtIdValor = '01',
-    this.oprtFechaPrevistaVenta,
-    this.oprtRuc = const EmpresaPrincipal.dirty(''),
-    this.optrValor = '0',
-    this.oprtRazon = '',
-    this.oprtLocalCodigo = const StateLocal.dirty(''),
-    this.oprtLocalNombre = '',
-    this.oprtRazonIntermediario01 = '',
-    //this.oprtRucIntermediario01 = const EmpresaIntermediario.dirty(''),
-    this.oprtRucIntermediario02 = '',
-    this.oprtRazonIntermediario02 = '',
-    this.oprtComentario = '',
-    this.oprtIdUsuarioRegistro = '',
-    this.oprtNobbreEstadoOportunidad = '',
-    this.oprtNombreValor = '',
-    this.opt = '',
-    this.arrayresponsables,
-    this.arrayresponsablesEliminar,
-    this.optrIdOportunidadIn = '',
-    this.oprtIdPerdidaMotivo = 'Cargando...',
-  });
+  OpportunityFormState(
+      {this.isFormValid = false,
+      this.id,
+      this.oprtNombre = const Name.dirty(''),
+      this.oprtEntorno = 'MR PERU',
+      this.oprtIdEstadoOportunidad = const StateOpportunity.dirty(''),
+      this.oprtProbabilidad = '1',
+      this.oprtIdValor = '01',
+      this.oprtFechaPrevistaVenta,
+      this.oprtRuc = const EmpresaPrincipal.dirty(''),
+      this.optrValor = '0',
+      this.oprtRazon = '',
+      this.oprtLocalCodigo = const StateLocal.dirty(''),
+      this.oprtLocalNombre = '',
+      this.oprtRazonIntermediario01 = '',
+      //this.oprtRucIntermediario01 = const EmpresaIntermediario.dirty(''),
+      this.oprtRucIntermediario02 = '',
+      this.oprtRazonIntermediario02 = '',
+      this.oprtComentario = '',
+      this.oprtIdUsuarioRegistro = '',
+      this.oprtNobbreEstadoOportunidad = '',
+      this.oprtIdPerdidaMotivo = '',
+      this.oprtNombreValor = '',
+      this.opt = '',
+      this.arrayresponsables,
+      this.arrayresponsablesEliminar,
+      this.oprtIdContacto = const StateContact.dirty(''),
+      this.oprtNombreContacto = '',
+      this.optrIdOportunidadIn = ''});
 
   OpportunityFormState copyWith({
     bool? isFormValid,
@@ -380,41 +403,46 @@ class OpportunityFormState {
     List<ArrayUser>? arrayresponsablesEliminar,
     String? oprtIdPerdidaMotivo,
     String? optrValor,
+    StateContact? oprtIdContacto,
+    String? oprtNombreContacto,
   }) =>
       OpportunityFormState(
-          isFormValid: isFormValid ?? this.isFormValid,
-          id: id ?? this.id,
-          oprtNombre: oprtNombre ?? this.oprtNombre,
-          oprtEntorno: oprtEntorno ?? this.oprtEntorno,
-          oprtLocalCodigo: oprtLocalCodigo ?? this.oprtLocalCodigo,
-          oprtLocalNombre: oprtLocalNombre ?? this.oprtLocalNombre,
-          oprtIdEstadoOportunidad:
-              oprtIdEstadoOportunidad ?? this.oprtIdEstadoOportunidad,
-          oprtProbabilidad: oprtProbabilidad ?? this.oprtProbabilidad,
-          oprtIdValor: oprtIdValor ?? this.oprtIdValor,
-          oprtFechaPrevistaVenta:
-              oprtFechaPrevistaVenta ?? this.oprtFechaPrevistaVenta,
-          oprtRuc: oprtRuc ?? this.oprtRuc,
-          optrValor: optrValor ?? this.optrValor,
-          oprtRazon: oprtRazon ?? this.oprtRazon,
-          //oprtRucIntermediario01:
-          //    oprtRucIntermediario01 ?? this.oprtRucIntermediario01,
-          oprtRazonIntermediario01:
-              oprtRazonIntermediario01 ?? this.oprtRazonIntermediario01,
-          oprtRucIntermediario02:
-              oprtRucIntermediario02 ?? this.oprtRucIntermediario02,
-          oprtRazonIntermediario02:
-              oprtRazonIntermediario02 ?? this.oprtRazonIntermediario02,
-          oprtComentario: oprtComentario ?? this.oprtComentario,
-          oprtIdUsuarioRegistro:
-              oprtIdUsuarioRegistro ?? this.oprtIdUsuarioRegistro,
-          oprtNobbreEstadoOportunidad:
-              oprtNobbreEstadoOportunidad ?? this.oprtNobbreEstadoOportunidad,
-          oprtNombreValor: oprtNombreValor ?? this.oprtNombreValor,
-          opt: opt ?? this.opt,
-          optrIdOportunidadIn: optrIdOportunidadIn ?? this.optrIdOportunidadIn,
-          arrayresponsables: arrayresponsables ?? this.arrayresponsables,
-          arrayresponsablesEliminar:
-              arrayresponsablesEliminar ?? this.arrayresponsablesEliminar,
-          oprtIdPerdidaMotivo: oprtIdPerdidaMotivo ?? this.oprtIdPerdidaMotivo);
+        isFormValid: isFormValid ?? this.isFormValid,
+        id: id ?? this.id,
+        oprtNombre: oprtNombre ?? this.oprtNombre,
+        oprtEntorno: oprtEntorno ?? this.oprtEntorno,
+        oprtLocalCodigo: oprtLocalCodigo ?? this.oprtLocalCodigo,
+        oprtLocalNombre: oprtLocalNombre ?? this.oprtLocalNombre,
+        oprtIdPerdidaMotivo: oprtIdPerdidaMotivo ?? this.oprtIdPerdidaMotivo,
+        oprtIdEstadoOportunidad:
+            oprtIdEstadoOportunidad ?? this.oprtIdEstadoOportunidad,
+        oprtProbabilidad: oprtProbabilidad ?? this.oprtProbabilidad,
+        oprtIdValor: oprtIdValor ?? this.oprtIdValor,
+        oprtFechaPrevistaVenta:
+            oprtFechaPrevistaVenta ?? this.oprtFechaPrevistaVenta,
+        oprtRuc: oprtRuc ?? this.oprtRuc,
+        optrValor: optrValor ?? this.optrValor,
+        oprtRazon: oprtRazon ?? this.oprtRazon,
+        //oprtRucIntermediario01:
+        //    oprtRucIntermediario01 ?? this.oprtRucIntermediario01,
+        oprtRazonIntermediario01:
+            oprtRazonIntermediario01 ?? this.oprtRazonIntermediario01,
+        oprtRucIntermediario02:
+            oprtRucIntermediario02 ?? this.oprtRucIntermediario02,
+        oprtRazonIntermediario02:
+            oprtRazonIntermediario02 ?? this.oprtRazonIntermediario02,
+        oprtComentario: oprtComentario ?? this.oprtComentario,
+        oprtIdUsuarioRegistro:
+            oprtIdUsuarioRegistro ?? this.oprtIdUsuarioRegistro,
+        oprtNobbreEstadoOportunidad:
+            oprtNobbreEstadoOportunidad ?? this.oprtNobbreEstadoOportunidad,
+        oprtNombreValor: oprtNombreValor ?? this.oprtNombreValor,
+        opt: opt ?? this.opt,
+        optrIdOportunidadIn: optrIdOportunidadIn ?? this.optrIdOportunidadIn,
+        arrayresponsables: arrayresponsables ?? this.arrayresponsables,
+        arrayresponsablesEliminar:
+            arrayresponsablesEliminar ?? this.arrayresponsablesEliminar,
+        oprtIdContacto: oprtIdContacto ?? this.oprtIdContacto,
+        oprtNombreContacto: oprtNombreContacto ?? this.oprtNombreContacto,
+      );
 }

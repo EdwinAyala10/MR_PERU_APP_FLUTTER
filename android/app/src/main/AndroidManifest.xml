@@ -17,8 +17,9 @@
 
     <!-- CALL -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
-
+    
     <!-- Provide required visibility configuration for API level 30 and above -->
     <queries>
     <!-- If your app checks for SMS support -->
@@ -42,6 +43,7 @@
         android:requestLegacyExternalStorage="true"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
+
         
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
@@ -57,7 +59,7 @@
             android:value="AIzaSyAjpuHF1NQQigzXXmP7cGV6bUzTO9tQ0nI"/>
 
         <meta-data android:name="flutterTextureView" android:value="true" />
-
+        
         <activity
             android:showWhenLocked="true"
             android:turnScreenOn="true"

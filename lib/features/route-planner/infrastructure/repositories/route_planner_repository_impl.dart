@@ -1,5 +1,8 @@
 
+import 'package:crm_app/features/route-planner/domain/entities/coordenada.dart';
 import 'package:crm_app/features/route-planner/domain/entities/event_planner_response.dart';
+import 'package:crm_app/features/route-planner/domain/entities/validate_event_planner_response.dart';
+import 'package:crm_app/features/route-planner/domain/entities/validate_horario_trabajo_response.dart';
 
 import '../../domain/domain.dart';
 
@@ -54,5 +57,22 @@ class RoutePlannerRepositoryImpl extends RoutePlannerRepository {
   Future<List<FilterHorarioTrabajo>> getFilterHorarioTrabajo({String search = ''}) {
     return datasource.getFilterHorarioTrabajo(search: search);
   }
+
+  @override
+  Future<ValidateEventPlannerResponse> validateEventPlanner(Map<dynamic, dynamic> event) {
+    return datasource.validateEventPlanner(event);
+  }
+
+  @override
+  Future<Coordenada> getCoordenadas() {
+    return datasource.getCoordenadas();
+  }
+
+   @override
+  Future<ValidateHorarioTrabajoResponse> getHorarioTrabajo() {
+    return datasource.getHorarioTrabajo();
+  }
+
+  
 
 }

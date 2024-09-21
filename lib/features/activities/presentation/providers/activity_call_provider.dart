@@ -137,6 +137,7 @@ class ActivityCallNotifier extends StateNotifier<ActivityCallState> {
         'ACTI_NOMBRE_RESPONSABLE': activityCall.actiNombreResponsable ?? '',
         'ACTI_ID_USUARIO_RESPONSABLE': activityCall.actiIdUsuarioResponsable,
         'ACTI_ID_TIPO_GESTION': activityCall.actiIdTipoGestion,
+        'ACTI_ID_TIPO_REGISTRO': '02',
         //'ACTI_FECHA_ACTIVIDAD': activityCall.actiFechaActividad,
         "ACTI_FECHA_ACTIVIDAD":
             "${activityCall.actiFechaActividad.year.toString().padLeft(4, '0')}-${activityCall.actiFechaActividad.month.toString().padLeft(2, '0')}-${activityCall.actiFechaActividad.day.toString().padLeft(2, '0')}",

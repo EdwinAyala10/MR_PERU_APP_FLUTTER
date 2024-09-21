@@ -18,8 +18,8 @@ class OpportunitiesRepositoryImpl extends OpportunitiesRepository {
   }
 
   @override
-  Future<List<Opportunity>> getOpportunities({String ruc = '', String search = '',  int limit = 10, int offset = 0}) {
-    return datasource.getOpportunities(ruc: ruc, search: search, offset: offset, limit: limit);
+  Future<List<Opportunity>> getOpportunities({String ruc = '', String search = '',  int limit = 10, int offset = 0, String idUsuario = ''}) {
+    return datasource.getOpportunities(ruc: ruc, search: search, offset: offset, limit: limit, idUsuario: idUsuario);
   }
 
   @override

@@ -1,7 +1,13 @@
 // ignore_for_file: prefer_is_empty
 
 import 'package:crm_app/config/config.dart';
+import 'package:crm_app/features/dashboard/presentation/providers/home_notificaciones_provider.dart';
 import 'package:crm_app/features/dashboard/presentation/screens/notification_screen.dart';
+import 'package:crm_app/features/dashboard/presentation/widgets/widgets.dart';
+import 'package:crm_app/features/location/presentation/providers/gps_provider.dart';
+import 'package:crm_app/features/opportunities/presentation/widgets/item_opportunity.dart';
+import 'package:crm_app/features/shared/presentation/providers/notifications_provider.dart';
+import 'package:flutter_app_badge/flutter_app_badge.dart';
 
 import '../../../activities/domain/domain.dart';
 import '../../../activities/presentation/providers/activities_provider.dart';
@@ -47,6 +53,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
       parent: _animationController,
     );
     _animation = Tween<double>(begin: 0, end: 1).animate(curvedAnimation);
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      ref.read(listNotifyProvider.notifier).readCounterNotification();
+    });
   }
 
   @override
@@ -55,12 +64,27 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     return Scaffold(
       drawer: SideMenu(scaffoldKey: scaffoldKey),
       appBar: AppBar(
+        toolbarHeight: 70,
+        // backgroundColor: Colors.red,
         actions: [
-          IconButton(
-            onPressed: () {
-              context.push(NofiticationScreen.name);
-            },
-            icon: const Icon(Icons.notifications_none_outlined,color: Colors.red,),
+          Center(
+            child: InkWell(
+              onTap: () async {
+                final count = ref.read(listNotifyProvider);
+                FlutterAppBadge.count(int.parse(count.counterNotification));
+                context.push(
+                  NofiticationScreen.name,
+                );
+                // await FlutterDynamicIcon.setApplicationIconBadgeNumber(int.parse(count.counterNotification));
+              },
+              child: NotificationBell(
+                notificationCount: int.parse(
+                    ref.watch(listNotifyProvider).counterNotification),
+              ),
+            ),
+          ),
+          const SizedBox(
+            width: 30,
           )
         ],
         title: const Text(
@@ -161,8 +185,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
       ref.read(eventsProvider.notifier).loadNextPage(),
       ref.read(activitiesProvider.notifier).loadNextPage(isRefresh: true),
       ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: true),
-
-      //ref.read(opportunitiesProvider.notifier).loadStatusOpportunity(),
+      ref.read(opportunitiesProvider.notifier).loadStatusOpportunity(),
     ]);
   }
 }
@@ -183,16 +206,16 @@ class _DashboardViewState extends ConsumerState {
       ref.read(eventsProvider.notifier).loadNextPage();
       ref.read(activitiesProvider.notifier).loadNextPage(isRefresh: true);
       ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: true);
-      //ref.read(opportunitiesProvider.notifier).loadStatusOpportunity();
-      // ref.read(notificationsProvider.notifier).requestPermission();
+      ref.read(opportunitiesProvider.notifier).loadStatusOpportunity();
+      ref.read(notificationsProvider.notifier).requestPermission();
     });
 
-    // final isGpsPermissionGranted =
-    //     ref.read(gpsProvider.notifier).state.isGpsPermissionGranted;
+    final isGpsPermissionGranted =
+        ref.read(gpsProvider.notifier).state.isGpsPermissionGranted;
 
-    // if (!isGpsPermissionGranted) {
-    //   ref.read(gpsProvider.notifier).askGpsAccess();
-    // }
+    if (!isGpsPermissionGranted) {
+      ref.read(gpsProvider.notifier).askGpsAccess();
+    }
   }
 
   @override
@@ -590,7 +613,7 @@ class _ContainerDashboardOpportunities extends StatelessWidget {
                   itemBuilder: (context, index) {
                     final opportunity = opportunities[index];
 
-                    return ItemOpportunitySmall(
+                    return ItemOpportunity(
                       opportunity: opportunity,
                       callbackOnTap: () {},
                     );
@@ -835,6 +858,25 @@ class progressKpi extends StatelessWidget {
     required this.total,
   });
 
+  Color isColorIndicator(double porc) {
+    Color returnColors = Colors.blue;
+
+    if (porc >= 0 && porc <= 33) {
+      returnColors = Colors.red;
+    }
+
+    if (porc >= 34 && porc <= 66) {
+      returnColors = Colors.yellow;
+    }
+
+    if (porc >= 67 && porc <= 100) {
+      returnColors = Colors.green;
+    }
+
+    print('PORCENTAJE: ${porc}');
+    return returnColors;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Expanded(
@@ -864,8 +906,8 @@ class progressKpi extends StatelessWidget {
                 child: CircularProgressIndicator(
                   strokeWidth: 5,
                   value: ((percentage) / 100).toDouble(),
-                  valueColor: const AlwaysStoppedAnimation<Color>(
-                      Colors.blue), // Color cuando está marcado
+                  valueColor: AlwaysStoppedAnimation<Color>(isColorIndicator(
+                      percentage)), // Color cuando está marcado
                   backgroundColor: Colors.grey,
                 ),
               ),

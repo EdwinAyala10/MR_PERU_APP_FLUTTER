@@ -37,6 +37,7 @@ class OpportunityNotifier extends StateNotifier<OpportunityState> {
       ArrayUser array = ArrayUser();
       array.idResponsable = user.id;
       array.cresIdUsuarioResponsable = user.code;
+      array.oresIdUsuarioResponsable = user.code;
       array.userreportName = user.name;
       array.nombreResponsable = user.name;
       arrayResponsables.add(array);
@@ -53,6 +54,7 @@ class OpportunityNotifier extends StateNotifier<OpportunityState> {
       oprtIdUsuarioRegistro: user.code,
       oprtIdValor: '01',
       oprtValor: '0',
+      oprtIdContacto: '',
       oprtNobbreEstadoOportunidad: '',
       oprtNombreValor: '',
       oprtProbabilidad: '0',

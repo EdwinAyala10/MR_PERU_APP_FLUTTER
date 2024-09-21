@@ -31,7 +31,13 @@ class OpportunityMapper {
     razonComercial: json['RAZON_COMERCIAL'] ?? '',
     localDistrito: json['LOCAL_DISTRITO'] ?? '',
     contacTelefono: json['CONTACTO_TELEFONOC'],
-    contactId: json['CONTACTO_ID']??'',
+    contactId: json['CONTACTO_ID'] ?? '',
+    oprtIdContacto: json['OPRT_ID_CONTACTO'] ?? '',
+    oprtNombreContacto: json['CONTACTO_DESC'] ?? '',
+    actiIdTipoGestion: json["ACTI_ID_TIPO_GESTION"],
+    actiNombreTipoGestion: json["ACTI_NOMBRE_TIPO_GESTION"],
+    actiFechaRegistro: json["ACTI_FECHA_REGISTRO"],
+    nombreUsuarioResponsable: json['NOMBRE_USUARIO_RESPONSABLES'] ?? ''
   );
 
 }

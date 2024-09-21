@@ -1,5 +1,9 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:crm_app/call_duration_service.dart';
+import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
+import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
+import 'package:crm_app/features/shared/widgets/loading_modal.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
@@ -33,14 +37,26 @@ class ActivityPostCallScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    
     final activityPostCallState = ref.watch(activityPostCallProvider(
         ActivityPostCallParams(contactId: contactId, phone: phone)));
+
+
+
+    //final activityForm = ref.watch(activityFormProvider(activityPostCallState.activity));
+
+    if (activityPostCallState.activity == null) {
+      return Scaffold(
+        body: LoadingModal(),
+      );
+    }
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Informe post llamada'),
+          title: const Text('Informe post llamada', 
+          style: TextStyle(fontWeight: FontWeight.w500)),
           /*leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
@@ -54,8 +70,15 @@ class ActivityPostCallScreen extends ConsumerWidget {
                 activity: activityPostCallState.activity!, phone: phone),
         floatingActionButton: FloatingActionButtonCustom(
             iconData: Icons.save,
-            callOnPressed: () {
+            //isDisabled: activityForm.actiComentario == '',
+            callOnPressed: ref.watch(activityFormProvider(activityPostCallState.activity!)).actiComentario == '' ? () {
+              showSnackbar(context, 'El comentario es requerido');
+            } 
+            : () {
               if (activityPostCallState.activity == null) return;
+              showLoadingMessage(context);
+
+              //activityPostCallState.activity?.actiIdTipoRegistro = '02';
 
               ref
                   .read(activityFormProvider(activityPostCallState.activity!)
@@ -73,6 +96,8 @@ class ActivityPostCallScreen extends ConsumerWidget {
                     //});
                   }
                 }
+                Navigator.pop(context);
+
               });
             }),
       ),
@@ -95,6 +120,10 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
   PhoneState status = PhoneState.nothing();
   bool granted = false;
 
+  List<DropdownOption> optionsTipoGestion = [
+    DropdownOption(id: '', name: 'Cargando...')
+  ];
+
   Future<bool> requestPermission() async {
     var status = await Permission.phone.request();
 
@@ -108,9 +137,27 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
     };
   }
 
+  final CallDurationService _callDurationService = CallDurationService();
+  int _callDuration = 0;
+
   @override
   void initState() {
     super.initState();
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('01').then((value) => {
+        
+        setState(() {
+          optionsTipoGestion = value.where((o) => o.id == '02' || o.id == '').toList();
+        })
+      });
+    });
+    
+    _callDurationService.onCallEnded = (duration) {
+      setState(() {
+        _callDuration = duration;
+      });
+    };
 
     if (Platform.isIOS) setStream();
 
@@ -121,7 +168,9 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
     });
   }
 
+
   void setStream() {
+
     PhoneState.stream.listen((event) {
       String? number = event.number;
       PhoneStateStatus statusCall = event.status;
@@ -157,13 +206,13 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
   @override
   Widget build(BuildContext context) {
 
-    List<DropdownOption> optionsTipoGestion = [
+    /*List<DropdownOption> optionsTipoGestion = [
       DropdownOption(id: '', name: 'Selecciona'),
       //DropdownOption(id: '01', name: 'Comentario'),
       DropdownOption(id: '02', name: 'Llamada Telefónica'),
       //DropdownOption(id: '03', name: 'Reunión'),
       //DropdownOption(id: '04', name: 'Visita'),
-    ];
+    ];*/
 
     Activity activity = widget.activity;
 
@@ -178,21 +227,25 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 10),
-              SelectCustomForm(
-                label: 'Tipo de gestión *',
+              Text('Call Duration: $_callDuration seconds'),
+
+              optionsTipoGestion.length > 1 ? SelectCustomForm(
+                label: 'Tipo de gestión',
                 value: activityForm.actiIdTipoGestion.value,
                 callbackChange: (String? newValue) {
-                  DropdownOption searchTipoGestion = optionsTipoGestion
-                      .where((option) => option.id == newValue!)
-                      .first;
+                  DropdownOption searchTipoGestion =
+                      optionsTipoGestion.where((option) => option.id == newValue!).first;
+
                   ref
                       .read(activityFormProvider(activity).notifier)
                       .onTipoGestionChanged(
                           newValue ?? '', searchTipoGestion.name);
+          
                 },
                 items: optionsTipoGestion,
                 errorMessage: activityForm.actiIdTipoGestion.errorMessage,
-              ),
+              ): PlaceholderInput(text: 'Cargando Cargo...'),
+
               const SizedBox(height: 20),
               const Text(
                 'DATOS DE LA GESTIÓN',
@@ -212,11 +265,12 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Oportunidad',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 13,
                         fontWeight: FontWeight.bold,
+                        color: activityForm.actiIdOportunidad.value == '' ? Colors.red :  Colors.black
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -244,8 +298,9 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
                                 activityForm.actiIdOportunidad.value == ''
                                     ? 'Seleccione Oportunidad'
                                     : activityForm.actiNombreOportunidad,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 16,
+                                  color: activityForm.actiIdOportunidad.value == '' ? Colors.red : Colors.black
                                 ),
                               ),
                             ),
@@ -286,7 +341,16 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
                     .read(activityFormProvider(activity).notifier)
                     .onComentarioChanged,
               ),
-              const SizedBox(height: 4),
+              activityForm.actiComentario == ''
+                  ? const Padding(
+                      padding: EdgeInsets.only(left: 4),
+                      child: Text(
+                        'El comentario es requerido',
+                        style: TextStyle(color: Colors.red, fontSize: 15),
+                      ),
+                    )
+                  : const SizedBox(),
+              const SizedBox(height: 10),
               const Text(
                 'Contacto',
                 style: TextStyle(fontWeight: FontWeight.w600),
@@ -390,8 +454,10 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
       BuildContext context, String phone, Activity activity) {
     showModalBottomSheet(
       context: context,
+      isDismissible: false, // Permitir cerrar al presionar en el fondo
+      enableDrag: false,
       backgroundColor: Colors.transparent,
-      builder: (BuildContext context) {
+      builder: (BuildContext contextInt) {
         return SizedBox(
           width: double.infinity,
           child: Padding(
@@ -411,12 +477,12 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
                             vertical: 14.0, horizontal: 10.0)),
                     onPressed: () {
                       Navigator.pop(context);
-
+        
                       ref
                           .read(activityFormProvider(activity).notifier)
                           .onHoraChanged(
                               DateFormat('HH:mm:ss').format(DateTime.now()));
-
+        
                       llamarTelefono(context, agregarPrefijoPeru(phone));
                     },
                     child: Text(
@@ -437,6 +503,12 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
                             vertical: 14.0, horizontal: 10.0)),
                     onPressed: () {
                       Navigator.pop(context);
+                      Navigator.pop(context);
+                      /*Timer(Duration(seconds: 3), () {
+                        //Navigator.pop(context);
+                        context.pop();
+                      });*/
+                      //context.pop();
                     },
                     child: const Text('CANCELAR'),
                   ),
@@ -455,7 +527,7 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
     //granted = temp;
     if (temp) {
       await FlutterPhoneDirectCaller.callNumber(phone);
-
+      _callDurationService.makeCall(phone);
       setStream();
     } else {
       //bool? res = await FlutterPhoneDirectCaller.callNumber(phone);

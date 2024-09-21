@@ -1,4 +1,6 @@
+import 'package:crm_app/features/companies/presentation/delegates/search_company_local_active_delegate.dart';
 import 'package:crm_app/features/companies/presentation/providers/company_provider.dart';
+import 'package:crm_app/features/companies/presentation/search/search_company_locales_active_provider.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 
@@ -215,6 +217,86 @@ class __ContactInformationv2State extends ConsumerState<_ContactInformationv2> {
               ],
             ),
           ),
+
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Local',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: contactForm.contactoLocalCodigo.errorMessage != null
+                        ? Colors.red
+                        : null,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                GestureDetector(
+                  onTap: () {
+                    if (contactForm.ruc.value == "") {
+                      showSnackbar(context, 'Debe seleccionar una empresa');
+                      return;
+                    }
+
+                    _openSearchCompanyLocales(
+                        context, ref, contactForm.ruc.value);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                          color: contactForm.contactoLocalCodigo.errorMessage !=
+                                  null
+                              ? Colors.red
+                              : Colors.grey),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            contactForm.contactoLocalCodigo.value == ''
+                                ? 'Seleccione local'
+                                : contactForm.contactoLocalNombre ?? '',
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: contactForm
+                                            .contactoLocalCodigo.errorMessage !=
+                                        null
+                                    ? Colors.red
+                                    : null),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.search),
+                          onPressed: () {
+                            if (contactForm.ruc.value == "") {
+                              showSnackbar(
+                                  context, 'Debe seleccionar una empresa');
+                              return;
+                            }
+
+                            _openSearchCompanyLocales(
+                                context, ref, contactForm.ruc.value);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (contactForm.contactoLocalCodigo.errorMessage != null)
+            Text(
+              contactForm.contactoLocalCodigo.errorMessage ?? 'Requerido',
+              style: const TextStyle(color: Colors.red, fontSize: 13),
+            ),
+          const SizedBox(height: 10),
+
           CustomCompanyField(
             isTopField: true,
             label: 'Nombre *',
@@ -310,6 +392,35 @@ class __ContactInformationv2State extends ConsumerState<_ContactInformationv2> {
       ref
           .read(contactFormProvider(widget.contact).notifier)
           .onRazonChanged(company.razon);
+    });
+  }
+
+  void _openSearchCompanyLocales(
+      BuildContext context, WidgetRef ref, String ruc) async {
+    final searchedCompanyLocales = ref.read(searchedCompanyLocalesProvider);
+    final searchQuery = ref.read(searchQueryCompanyLocalesProvider);
+
+    showSearch<CompanyLocal?>(
+        query: searchQuery,
+        context: context,
+        delegate: SearchCompanyLocalDelegate(
+          ruc: ruc,
+          initialCompanyLocales: searchedCompanyLocales,
+          searchCompanyLocales: ref
+              .read(searchedCompanyLocalesProvider.notifier)
+              .searchCompanyLocalesByQuery,
+          resetSearchQuery: () {
+            ref
+                .read(searchQueryCompanyLocalesProvider.notifier)
+                .update((state) => '');
+          },
+        )).then((companyLocal) {
+      if (companyLocal == null) return;
+
+      ref
+          .read(contactFormProvider(widget.contact).notifier)
+          .onLocalChanged(companyLocal.id,
+              '${companyLocal.localNombre} ${companyLocal.localDireccion}');
     });
   }
 }

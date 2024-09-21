@@ -4,11 +4,11 @@ import 'package:crm_app/config/config.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/location/presentation/providers/providers.dart';
 import 'package:crm_app/features/route-planner/domain/domain.dart';
+import 'package:crm_app/features/route-planner/domain/entities/coordenada.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/forms/event_planner_form_provider.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
 import 'package:crm_app/features/route-planner/presentation/widgets/filter_route_planner_bottom_sheet.dart';
 import 'package:crm_app/features/route-planner/presentation/widgets/item_route_planner_local.dart';
-import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../shared/widgets/loading_modal.dart';
@@ -33,6 +33,13 @@ class RoutePlannerScreen extends ConsumerWidget {
     }
   }
 
+  FilterOption searchHorarioTrabajo(List<FilterOption> options) {
+    var resultado = options.firstWhere(
+      (item) => item.type == "HRTR_ID_HORARIO_TRABAJO",
+    );
+    return resultado;
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -44,7 +51,7 @@ class RoutePlannerScreen extends ConsumerWidget {
       drawer: SideMenu(scaffoldKey: scaffoldKey),
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Planificador',
+        title: const Text('Planificador de rutas',
             style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
             textAlign: TextAlign.center),
         actions: [
@@ -75,52 +82,78 @@ class RoutePlannerScreen extends ConsumerWidget {
               backgroundColor: primaryColor,
               onPressed:  () async {
 
-                final gpsState = ref.read(gpsProvider.notifier).state;
 
-                if (!gpsState.isAllGranted) {
-                  if (!gpsState.isGpsEnabled) {
-                    showSnackbar(context, 'Debe de habilitar el GPS');
-                  } else {
-                    showSnackbar(context, 'Es necesario el acceso a GPS');
-                    ref.read(gpsProvider.notifier).askGpsAccess();
-                  }
-                  //Navigator.pop(context);
-
-                  return;
-                }
 
                 var filterSuccess =ref.read(routePlannerProvider).filtersSuccess;
-
                 bool existFilter = existeHorarioTrabajo(filterSuccess);
-
-                print('EXISTE: ${existFilter}');
 
                 if (!existFilter) {
                   mostrarModalMensaje(context, 'AVISO', 'Debes seleccionar el filtro de Horario de trabajo.');
                   return;
+                } else {
+
+                  var horario = searchHorarioTrabajo(filterSuccess);
+                  var idHorario = horario.id;
+
+                  showLoadingMessage(context);
+
+                  var validatePlanner = await ref.read(routePlannerProvider.notifier).validatePlanner(idHorario);
+
+                  if (validatePlanner.status == false) {
+                    Navigator.pop(context);
+
+                    mostrarModalMensaje(context, 'AVISO', validatePlanner.message);
+                    //Navigator.pop(context);
+                    return;
+                  } else {
+                    Navigator.pop(context);
+                    
+                    ref.read(routePlannerProvider.notifier).updateFechasRegister(validatePlanner.data?.fechaIni ?? '', validatePlanner.data?.fechaFin ?? '');
+
+                    /*final gpsState = ref.read(gpsProvider.notifier).state;
+
+                    if (!gpsState.isAllGranted) {
+                      if (!gpsState.isGpsEnabled) {
+                        showSnackbar(context, 'Debe de habilitar el GPS');
+                      } else {
+                        showSnackbar(context, 'Es necesario el acceso a GPS');
+                        ref.read(gpsProvider.notifier).askGpsAccess();
+                      }
+                      //Navigator.pop(context);
+
+                      return;
+                    }*/
+
+                    showLoadingMessage(context);
+
+                    Coordenada coorsLocal = await ref.read(routePlannerProvider.notifier).cargarCoordena();
+
+                    print('COORS1: ${coorsLocal.latitud} ');
+                    print('COORS2: ${coorsLocal.longitud} ');
+
+                    //LatLng location = await ref.watch(locationProvider.notifier).currentPosition();
+
+                    LatLng location = LatLng(double.parse(coorsLocal.latitud), double.parse(coorsLocal.longitud));
+
+                    List<CompanyLocalRoutePlanner> orderSelectedItems = await ref.read(mapProvider.notifier).sortLocalesByDistance(location, listSelectedItems);
+
+                    await ref.read(routePlannerProvider.notifier).setSelectedItemsOrder(orderSelectedItems);
+                    await ref.read(routePlannerProvider.notifier).initialOrderkey();
+
+                    ref.watch(eventPlannerFormProvider.notifier).setInitialForm();
+                    await ref.read(eventPlannerFormProvider.notifier).setLocalesArray(orderSelectedItems);
+
+                    ref.read(mapProvider.notifier).setLocation(location);
+
+                    //final mapState = ref.watch(mapProvider.notifier);
+                    
+                    ref.watch(mapProvider.notifier).addMarkersAndLocation(listSelectedItems, location);
+                    
+                    Navigator.pop(context);
+
+                    context.push('/register_route_planner');
+                  }
                 }
-
-                showLoadingMessage(context);
-
-                LatLng location = await ref.watch(locationProvider.notifier).currentPosition();
-
-                List<CompanyLocalRoutePlanner> orderSelectedItems = await ref.read(mapProvider.notifier).sortLocalesByDistance(location, listSelectedItems);
-
-                await ref.read(routePlannerProvider.notifier).setSelectedItemsOrder(orderSelectedItems);
-                await ref.read(routePlannerProvider.notifier).initialOrderkey();
-
-                ref.watch(eventPlannerFormProvider.notifier).setInitialForm();
-                await ref.read(eventPlannerFormProvider.notifier).setLocalesArray(orderSelectedItems);
-
-                ref.read(mapProvider.notifier).setLocation(location);
-
-                //final mapState = ref.watch(mapProvider.notifier);
-                
-                ref.watch(mapProvider.notifier).addMarkersAndLocation(listSelectedItems, location);
-                
-                Navigator.pop(context);
-
-                context.push('/register_route_planner');
               },
               shape: const CircleBorder(),
               child: const Icon(Icons.map, size: 32, color: Colors.white),
@@ -179,6 +212,7 @@ class _RoutePlannerViewState extends ConsumerState {
     });
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
+      ref.read(routePlannerProvider.notifier).loadFilterHorario();
       ref.read(routePlannerProvider.notifier).onChangeNotIsActiveSearchSinRefresh();
       ref.read(routePlannerProvider.notifier).loadNextPage(isRefresh: true);
     });

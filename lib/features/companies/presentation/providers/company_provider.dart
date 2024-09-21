@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:crm_app/features/kpis/domain/entities/array_user.dart';
 
 import '../../../activities/domain/domain.dart';
@@ -15,6 +17,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/domain.dart';
 
 import 'companies_repository_provider.dart';
+
+
+
+final stateRucProvider = StateProvider((ref) => '');
 
 final companyProvider = StateNotifierProvider.autoDispose
     .family<CompanyNotifier, CompanyState, String>((ref, rucId) {
@@ -243,21 +249,23 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
         );
         return;
       }
-
+      log('state ruc' + state.rucId);
       final company = await companiesRepository.getCompanyById(state.rucId, user.code);
+      log(company.toString());
       company.rucId = company.ruc;
-
+      
       /*final contacts = await contactsRepository.getContacts(ruc: company.ruc, search: '', limit: 100, offset: 0);
       final opportunities =
           await opportunitiesRepository.getOpportunities(ruc:company.ruc, search: '', limit: 100, offset: 0);
       final activities = await activitiesRepository.getActivitiesByRuc(company.ruc);
       final events = await eventsRepository.getEventsListByRuc(company.ruc);
-      final companyLocales =
-          await companiesRepository.getCompanyLocales(company.ruc);*/
+      */
+      final companyLocales =  await companiesRepository.getCompanyLocales(company.ruc);
 
       state = state.copyWith(
         isLoading: false,
         company: company,
+        companyLocales: companyLocales
         /*contacts: contacts,
         opportunities: opportunities,
         activities: activities,

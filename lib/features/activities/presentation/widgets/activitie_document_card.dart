@@ -1,6 +1,5 @@
 import 'package:crm_app/config/config.dart';
 import 'package:crm_app/features/activities/domain/entities/activitie_document.dart';
-import 'package:crm_app/features/opportunities/domain/entities/op_document.dart';
 import 'package:crm_app/features/shared/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

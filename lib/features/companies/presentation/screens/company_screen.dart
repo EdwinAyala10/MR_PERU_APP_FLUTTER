@@ -333,7 +333,7 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
             items: optionsCalificacion,
             errorMessage: companyForm.calificacion.errorMessage,
           ): PlaceholderInput(text: 'Cargando...'),
-          const SizedBox(height: 10),
+          const SizedBox(height: 5),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[

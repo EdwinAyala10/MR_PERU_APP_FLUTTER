@@ -7,6 +7,7 @@ class SelectCustomForm extends StatelessWidget {
   final Function(String?)? callbackChange;
   final List<DropdownOption> items;
   final String? errorMessage;
+  final bool isDisabled; // Parámetro opcional
 
   const SelectCustomForm({
     Key? key,
@@ -15,6 +16,7 @@ class SelectCustomForm extends StatelessWidget {
     required this.callbackChange,
     required this.items,
     this.errorMessage,
+    this.isDisabled = false, // Valor predeterminado es false
   }) : super(key: key);
 
   @override
@@ -38,10 +40,10 @@ class SelectCustomForm extends StatelessWidget {
               ),
               child: Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14.0,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: errorMessage == null ? Colors.black : Colors.red[400],
                 ),
               ),
             ),
@@ -52,7 +54,7 @@ class SelectCustomForm extends StatelessWidget {
             width: double.infinity,
             child: DropdownButtonFormField<String>(
               value: selectedValue,
-              onChanged: callbackChange,
+              onChanged: isDisabled ? null : callbackChange, // Deshabilitar si isDisabled es true
               isExpanded: true,
               icon: const Icon(Icons.arrow_drop_down),
               iconSize: 30.0,
@@ -74,13 +76,17 @@ class SelectCustomForm extends StatelessWidget {
                   borderSide: BorderSide(color: Colors.grey[400]!, width: 1.0),
                 ),
                 errorText: errorMessage,
+                enabled: !isDisabled, // Cambiar estado del InputDecoration si está deshabilitado
               ),
               items: items.map((option) {
                 return DropdownMenuItem<String>(
                   value: option.id,
                   child: Text(
                     option.name,
-                    style: const TextStyle(fontSize: 15.0),
+                    style: TextStyle(
+                      fontSize: 15.0, 
+                      color: errorMessage == null ? Colors.black : Colors.red[400]
+                    ),
                   ),
                 );
               }).toList(),

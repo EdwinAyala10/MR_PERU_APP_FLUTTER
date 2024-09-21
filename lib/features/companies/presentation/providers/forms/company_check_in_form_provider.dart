@@ -48,6 +48,7 @@ class CompanyCheckInFormNotifier
           cchkUbigeo: companyCheckIn.cchkUbigeo ?? '',
           cchkLocalCodigo: Select.dirty(companyCheckIn.cchkLocalCodigo),
           cchkLocalNombre: companyCheckIn.cchkLocalNombre ?? '',
+          cchkIdTipoVista: companyCheckIn.cchkIdTipoVista ?? '',
           cchkVisitaFrioCaliente: companyCheckIn.cchkVisitaFrioCaliente ?? '',
         ));
 
@@ -81,6 +82,7 @@ class CompanyCheckInFormNotifier
       'CCHK_LOCAL_NOMBRE': state.cchkLocalNombre,
       'CCHK_ID_USUARIO_REGISTRO': state.cchkIdUsuarioRegistro,
       'CCHK_VISITA_FRIO_CALIENTE': state.cchkVisitaFrioCaliente,
+      'CCHK_ID_TIPO_VISITA': state.cchkIdTipoVista
     };
 
     try {
@@ -121,8 +123,9 @@ class CompanyCheckInFormNotifier
 
     if (tipoId == '' || tipoId == 'Selecciona') {
       state = state.copyWith(
-        cchkVisitaFrioCaliente: tipoId,
+        cchkVisitaFrioCaliente: name,
         cchkNombreVisitaFrioCaliente: name,
+        cchkIdTipoVista: tipoId,
 
         cchkIdOportunidad: Select.dirty(''),
         cchkNombreOportunidad: 'Seleccione oportunidad',
@@ -132,8 +135,9 @@ class CompanyCheckInFormNotifier
       );
     } else {
       state = state.copyWith(
-        cchkVisitaFrioCaliente: tipoId,
+        cchkVisitaFrioCaliente: name,
         cchkNombreVisitaFrioCaliente: name,
+        cchkIdTipoVista: tipoId,
 
         cchkIdOportunidad: Select.dirty('0'),
         cchkNombreOportunidad: 'Seleccione oportunidad',
@@ -229,6 +233,7 @@ class CompanyCheckInFormState {
   final String? cchkLocalNombre;
   final String? cchkVisitaFrioCaliente;
   final String? cchkNombreVisitaFrioCaliente;
+  final String? cchkIdTipoVista;
 
   CompanyCheckInFormState(
       {this.isFormValid = false,
@@ -251,7 +256,8 @@ class CompanyCheckInFormState {
       this.cchkLocalCodigo = const Select.dirty(''),
       this.cchkUbigeo = '',
       this.cchkVisitaFrioCaliente = '',
-      this.cchkNombreVisitaFrioCaliente = ''
+      this.cchkNombreVisitaFrioCaliente = '',
+      this.cchkIdTipoVista = ''
       });
 
   CompanyCheckInFormState copyWith({
@@ -276,6 +282,7 @@ class CompanyCheckInFormState {
     String? cchkLocalNombre,
     String? cchkVisitaFrioCaliente,
     String? cchkNombreVisitaFrioCaliente,
+    String? cchkIdTipoVista,
   }) =>
       CompanyCheckInFormState(
         isFormValid: isFormValid ?? this.isFormValid,
@@ -305,5 +312,6 @@ class CompanyCheckInFormState {
         cchkLocalNombre: cchkLocalNombre ?? this.cchkLocalNombre,
         cchkVisitaFrioCaliente: cchkVisitaFrioCaliente ?? this.cchkVisitaFrioCaliente,
         cchkNombreVisitaFrioCaliente: cchkNombreVisitaFrioCaliente ?? this.cchkNombreVisitaFrioCaliente,
+        cchkIdTipoVista: cchkIdTipoVista ?? this.cchkIdTipoVista
       );
 }

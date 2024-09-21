@@ -1,6 +1,12 @@
+import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:crm_app/features/dashboard/domain/entities/notifying.dart';
+import 'package:crm_app/features/dashboard/presentation/providers/dashboard_provider.dart';
 import 'package:crm_app/features/dashboard/presentation/providers/home_notificaciones_provider.dart';
+import 'package:crm_app/features/shared/presentation/providers/notifications_provider.dart';
+import 'package:crm_app/features/users/presentation/providers/users_repository_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class NofiticationScreen extends ConsumerWidget {
   static const String name = "/NofiticationScreen";
@@ -18,10 +24,10 @@ class NofiticationScreen extends ConsumerWidget {
         children: [
           listProviderNotify.isLoading
               ? const Expanded(
-                child: Center(
+                  child: Center(
                     child: CircularProgressIndicator(),
                   ),
-              )
+                )
               : Expanded(
                   child: NotificationListener(
                     onNotification: (ScrollNotification scrollInfo) {
@@ -45,36 +51,74 @@ class NofiticationScreen extends ConsumerWidget {
                         itemCount:
                             ref.read(listNotifyProvider).activity?.length ?? 0,
                         separatorBuilder: (BuildContext context, int index) =>
-                            const Divider(),
+                            const Divider(
+                          height: 0,
+                        ),
                         itemBuilder: (context, index) {
                           final model =
                               listProviderNotify.activity?[index]; //     });
-                          return ListTile(
-                            title: Text(model?.userreportName ?? ''),
-                            subtitle: Text(
-                              model?.accmComentario ?? '',
-                              style: const TextStyle(
-                                  color: Colors.grey, fontSize: 13),
-                            ),
-                            leading: CircleAvatar(
-                              child: Text(model?.userreportAbbrt ?? ''),
-                            ),
-                            trailing: Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  model?.accmTiempoGestion ?? '',
-                                  style: const TextStyle(
-                                      color: Colors.grey, fontSize: 13),
-                                ),
-                              ],
+                          return Container(
+                            color: model?.accmLeido == '0'
+                                ? Colors.grey.shade200
+                                : Colors.white,
+                            child: ListTile(
+                              title: Text(
+                                  '${model?.userreportName ?? ''} te ha etiquetado:'),
+                              onTap: () {
+                                ref
+                                    .read(listNotifyProvider.notifier)
+                                    .readNotification(notifying: model);
+                                ref.read(selectedNotifier.notifier).state =
+                                    model?.accmIdActividad ?? '';
+
+                                context
+                                    .push(
+                                  '/activity_detail/${model?.accmIdActividad}',
+                                )
+                                    .then((value) {
+                                  ref
+                                      .read(listNotifyProvider.notifier)
+                                      .listAllNotification();
+                                  ref
+                                      .read(listNotifyProvider.notifier)
+                                      .readCounterNotification();
+                                });
+                              },
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    model?.accmComentario ?? '',
+                                    style: const TextStyle(
+                                        color: Colors.grey, fontSize: 13),
+                                  ),
+                                  Text(
+                                    model?.accmTiempoGestion ?? '',
+                                    style: const TextStyle(
+                                        color: Colors.grey, fontSize: 13),
+                                  ),
+                                ],
+                              ),
+                              leading: CircleAvatar(
+                                child: Text(model?.userreportAbbrt ?? ''),
+                              ),
+                              // trailing: Column(
+                              //   mainAxisAlignment: MainAxisAlignment.end,
+                              //   children: [
+                              //     Text(
+                              //       model?.accmTiempoGestion ?? '',
+                              //       style: const TextStyle(
+                              //           color: Colors.grey, fontSize: 13),
+                              //     ),
+                              //   ],
+                              // ),
                             ),
                           );
                         },
                       ),
                     ),
                   ),
-            )
+                )
         ],
       ),
     );

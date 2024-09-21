@@ -50,6 +50,7 @@ class SendWhatsappNotifier extends StateNotifier<SendWhatsappState> {
         'ACTI_NOMBRE_RESPONSABLE': user.name,
         'ACTI_ID_USUARIO_RESPONSABLE': user.code,
         'ACTI_ID_TIPO_GESTION': '05',
+        'ACTI_ID_TIPO_REGISTRO': '02',
         "ACTI_FECHA_ACTIVIDAD":
             "${dateCurrent.year.toString().padLeft(4, '0')}-${dateCurrent.month.toString().padLeft(2, '0')}-${dateCurrent.day.toString().padLeft(2, '0')}",
         'ACTI_HORA_ACTIVIDAD': hourCurrent,

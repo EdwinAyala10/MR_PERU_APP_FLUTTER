@@ -36,11 +36,53 @@ class NotifyNotifier extends StateNotifier<NotifyingState> {
     return Notifying();
   }
 
+  Future<void> readNotification({Notifying? notifying}) async {
+    try {
+      final data = {
+        'ACCM_ID_ACTIVIDAD': notifying?.accmIdActividad,
+        'ACCM_ID_USUARIO_REGISTRO': notifying?.accmIdUsuarioRegistro,
+        'ACMD_ID_ACTIVIDAD_COMENTARIO_DESTINO':
+            notifying?.acmdIdActividadComentarioDestino
+      };
+      log(data.toString());
+      final responde = await client.post(
+        '/actividad/actualizar-comentario-notificaciones',
+        data: data,
+      );
+      log(responde.toString());
+    } catch (e) {
+      log(e.toString());
+    }
+  }
+
+  Future<void> readCounterNotification() async {
+    try {
+      final data = {
+        'ACMD_ID_USUARIO_DESTINO': users?.code??'',
+      };
+      log(data.toString());
+      final response = await client.post(
+        '/actividad/total-comentario-notificaciones',
+        data: data,
+      );
+      log('response counter $response');
+      if(response.data['status'] == true){
+        state = state.copyWith(
+          counterNotification: response.data['data']['total']
+        );
+        
+      }
+      log(response.toString());
+    } catch (e) {
+      log(e.toString());
+    }
+  }
+
   Future<void> listAllNotification() async {
     try {
       var endPoint = "/actividad/listar-actividad-comentario-notificaciones";
       final formData = {
-        'ACCM_ID_USUARIO_REGISTRO': users?.code,
+        'ACMD_ID_USUARIO_DESTINO': users?.code,
       };
       state = state.copyWith(isLoading: true);
       final response = await client.post(endPoint, data: formData);
@@ -63,22 +105,24 @@ class NotifyingState {
   final List<Notifying>? activity;
   final bool isLoading;
   final bool isSaving;
+  final String counterNotification;
 
   NotifyingState({
     this.activity,
     this.isLoading = true,
     this.isSaving = false,
+    this.counterNotification = '0',
   });
 
-  NotifyingState copyWith({
-    String? id,
-    List<Notifying>? activity,
-    bool? isLoading,
-    bool? isSaving,
-  }) =>
+  NotifyingState copyWith(
+          {String? id,
+          List<Notifying>? activity,
+          bool? isLoading,
+          bool? isSaving,
+          String? counterNotification}) =>
       NotifyingState(
-        activity: activity ?? this.activity,
-        isLoading: isLoading ?? this.isLoading,
-        isSaving: isSaving ?? this.isSaving,
-      );
+          activity: activity ?? this.activity,
+          isLoading: isLoading ?? this.isLoading,
+          isSaving: isSaving ?? this.isSaving,
+          counterNotification: counterNotification ?? this.counterNotification);
 }

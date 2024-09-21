@@ -2,6 +2,7 @@ import 'package:crm_app/config/config.dart';
 import 'package:crm_app/features/contacts/presentation/providers/providers.dart';
 import 'package:crm_app/features/opportunities/presentation/screens/opportunity_detail_screen.dart';
 import 'package:crm_app/features/shared/presentation/providers/send_whatsapp_provider.dart';
+import 'package:crm_app/features/shared/shared.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -46,7 +47,7 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                widget.opportunity.razonComercial ?? '',
+                widget.opportunity.oprtNombreContacto ?? '',
                 style: const TextStyle(fontWeight: FontWeight.w400),
               ),
               Text(
@@ -59,6 +60,63 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
               Text(widget.opportunity.oprtNobbreEstadoOportunidad ?? ''),
               if (widget.opportunity.localDistrito != '')
                 Text(widget.opportunity.localDistrito ?? ''),
+              const SizedBox(height: 4),
+              if (widget.opportunity.actiIdTipoGestion != null) 
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 1.0),
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 247, 247, 247),
+                    border: Border.all(color: Color.fromARGB(255, 218, 218, 218), width: 1.5),
+                    borderRadius: BorderRadius.circular(20.0),
+                    boxShadow: const [
+                      BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 2,
+                          offset: Offset(0, 2))
+                    ]
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        'Ultima actividad: ',
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 96, 95, 95),
+                          fontSize: 14.0,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      IconsActivity(type: widget.opportunity.actiIdTipoGestion!, size: 19),
+                      const SizedBox(
+                        width: 4,
+                      ),
+                      Text(
+                        widget.opportunity.actiNombreTipoGestion ?? '',
+                        style: const TextStyle(
+                          color: Color.fromRGBO(130, 130, 130, 1),
+                          fontSize: 13.0,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  height: 3,
+                ),
+                if (widget.opportunity.actiFechaRegistro != "")
+                  Row(
+                    children: [
+                      const Icon(Icons.calendar_month, size: 14),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Expanded(
+                        child: Text(widget.opportunity.actiFechaRegistro ?? '', overflow: TextOverflow.ellipsis)
+                      ),
+                    ],
+                  )  
             ],
           ),
           trailing: Column(
@@ -67,17 +125,24 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
               Text('${widget.opportunity.oprtProbabilidad ?? ''}%',
                   textAlign: TextAlign.right,
                   style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 12,
                       color: Colors.blue,
                       fontWeight: FontWeight.w600)),
               Text(
                 '${widget.opportunity.oprtValor == '.00' ? '0.00' : widget.opportunity.oprtValor}',
                 textAlign: TextAlign.right,
                 style: const TextStyle(
-                    fontSize: 16,
+                    fontSize: 12,
                     color: Colors.green,
                     fontWeight: FontWeight.w600),
               ),
+              Text(
+                widget.opportunity.nombreUsuarioResponsable ?? '',
+                style: const TextStyle(
+                  fontSize: 11
+                ),
+              )
+              
             ],
           ),
           leading: const Icon(

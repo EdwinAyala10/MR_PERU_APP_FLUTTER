@@ -55,6 +55,7 @@ class ActivityPostCallNotifier extends StateNotifier<ActivityPostCallState> {
         actiIdContacto: '',
         actiIdOportunidad: '',
         actiIdTipoGestion: '02',
+        actiIdTipoRegistro: '02',
         actiNombreTipoGestion: 'Llamada Telefónica',
         actiIdUsuarioRegistro: user.code,
         actiIdUsuarioResponsable: user.code,

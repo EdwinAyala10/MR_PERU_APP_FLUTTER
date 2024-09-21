@@ -42,6 +42,7 @@ class _ConsumerMessageFormState extends ConsumerState<MessageForm> {
       activarBusqueda = false;
       currentMention = "";
     });
+    ref.read(selectedUsersMarkedProvider.notifier).state =[];
   }
 
   void _runTimer() {
@@ -186,7 +187,7 @@ class ListMarkedUsers extends ConsumerWidget {
                 onUserSelected(model);
               },
               leading: CircleAvatar(
-                child: Text(model.userreportName[0]),
+                child: Text(model.userreportAbbrt[0]),
               ),
             );
           },

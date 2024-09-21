@@ -100,6 +100,26 @@ class _ListKpis extends ConsumerWidget {
 
   const _ListKpis({required this.kpis, required this.onRefreshCallback});
 
+  Color isColorIndicator(double porc) {
+
+    Color returnColors = Colors.blue;
+
+    if (porc >= 0 && porc <= 33) {
+      returnColors = Colors.red;
+    }
+
+    if (porc >= 34 && porc <= 66) {
+      returnColors = Colors.yellow;
+    }
+
+    if (porc >= 67 && porc <= 100) {
+      returnColors = Colors.green;
+    }
+    
+    print('PORCENTAJE: ${porc}');
+    return returnColors; 
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final GlobalKey<RefreshIndicatorState> refreshIndicatorKey =
@@ -182,8 +202,8 @@ class _ListKpis extends ConsumerWidget {
                         child: CircularProgressIndicator(
                           strokeWidth: 5,
                           value: ((kpi.porcentaje ?? 0) / 100).toDouble(),
-                          valueColor: const AlwaysStoppedAnimation<Color>(
-                            Colors.blue,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            isColorIndicator(kpi.porcentaje ?? 0),
                           ), // Color cuando está marcado
                           backgroundColor: Colors.grey,
                         ),

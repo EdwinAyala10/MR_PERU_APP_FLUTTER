@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:crm_app/features/auth/domain/domain.dart';
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
@@ -7,6 +6,9 @@ import 'package:crm_app/features/companies/presentation/delegates/search_company
 import 'package:crm_app/features/companies/presentation/providers/company_provider.dart';
 import 'package:crm_app/features/companies/presentation/search/search_company_locales_active_provider.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
+import 'package:crm_app/features/contacts/domain/entities/contact.dart';
+import 'package:crm_app/features/contacts/presentation/delegates/search_contact_active_delegate.dart';
+import 'package:crm_app/features/contacts/presentation/search/search_contacts_active_provider.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 
 import '../../../companies/domain/domain.dart';
@@ -131,6 +133,10 @@ class _OpportunityInformationv2State
     DropdownOption(id: '', name: 'Cargando...')
   ];
 
+  List<DropdownOption> optionsMoneda = [
+    DropdownOption(id: '', name: 'Cargando...')
+  ];
+
   bool activeMotivo = false;
 
   @override
@@ -146,14 +152,23 @@ class _OpportunityInformationv2State
                   optionsEstado = value;
                 })
               });
+      
+      await ref
+          .read(resourceDetailsProvider.notifier)
+          .loadCatalogById('09')
+          .then((value) => {
+                setState(() {
+                  optionsMoneda = value;
+                })
+              });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    List<DropdownOption> optionsMoneda = [
+    /*List<DropdownOption> optionsMoneda = [
       DropdownOption(id: '01', name: 'USB'),
-    ];
+    ];*/
 
     User authUser = ref.watch(authProvider).user!;
     bool isAdmin = authUser.isAdmin;
@@ -258,22 +273,25 @@ class _OpportunityInformationv2State
               ],
             ),
           ),
-          SelectCustomForm(
-            label: 'Moneda',
-            value: opportunityForm.oprtIdValor,
-            callbackChange: (String? newValue) {
-              DropdownOption searchEstado =
-                  optionsEstado.where((option) => option.id == newValue!).first;
+          optionsEstado.length > 1
+              ? SelectCustomForm(
+                  label: 'Moneda',
+                  value: opportunityForm.oprtIdValor,
+                  callbackChange: (String? newValue) {
+                    DropdownOption searchEstado =
+                        optionsEstado.where((option) => option.id == newValue!).first;
 
-              ref
-                  .read(opportunityFormProvider(widget.opportunity).notifier)
-                  .onIdValorChanged(newValue!);
-              ref
-                  .read(opportunityFormProvider(widget.opportunity).notifier)
-                  .onValorChanged(searchEstado.name);
-            },
-            items: optionsMoneda,
-          ),
+                    ref
+                        .read(opportunityFormProvider(widget.opportunity).notifier)
+                        .onIdValorChanged(newValue!);
+                    ref
+                        .read(opportunityFormProvider(widget.opportunity).notifier)
+                        .onValorChanged(searchEstado.name);
+                  },
+                  items: optionsMoneda,
+                )
+              : PlaceholderInput(text: 'Cargando...'),
+
           const SizedBox(height: 10),
           CustomCompanyField(
             label: 'Importe Total',
@@ -459,6 +477,87 @@ class _OpportunityInformationv2State
           if (opportunityForm.oprtLocalCodigo.errorMessage != null)
             Text(
               opportunityForm.oprtLocalCodigo.errorMessage ?? 'Requerido',
+              style: TextStyle(color: Colors.red[400], fontSize: 13),
+            ),
+          const SizedBox(height: 10),
+
+          
+
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Contacto',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: opportunityForm.oprtIdContacto.errorMessage != null
+                        ? Colors.red[400]
+                        : null,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                GestureDetector(
+                  onTap: () {
+                    if (opportunityForm.oprtRuc.value == "") {
+                      showSnackbar(context, 'Debe seleccionar una empresa');
+                      return;
+                    }
+
+                    _openSearchContacts(
+                        context, ref, opportunityForm.oprtRuc.value);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                          color: opportunityForm.oprtIdContacto.errorMessage !=
+                                  null
+                              ? Colors.red
+                              : Colors.grey),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            opportunityForm.oprtIdContacto.value == ''
+                                ? 'Seleccione local'
+                                : opportunityForm.oprtNombreContacto ?? '',
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: opportunityForm
+                                            .oprtIdContacto.errorMessage !=
+                                        null
+                                    ? Colors.red
+                                    : null),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.search),
+                          onPressed: () {
+                            if (opportunityForm.oprtRuc.value == "") {
+                              showSnackbar(
+                                  context, 'Debe seleccionar una empresa');
+                              return;
+                            }
+
+                            _openSearchContacts(
+                                context, ref, opportunityForm.oprtRuc.value);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (opportunityForm.oprtIdContacto.errorMessage != null)
+            Text(
+              opportunityForm.oprtIdContacto.errorMessage ?? 'Requerido',
               style: TextStyle(color: Colors.red[400], fontSize: 13),
             ),
           const SizedBox(height: 10),
@@ -720,4 +819,34 @@ class _OpportunityInformationv2State
               '${companyLocal.localNombre} ${companyLocal.localDireccion}');
     });
   }
+
+  void _openSearchContacts(
+      BuildContext context, WidgetRef ref, String ruc) async {
+    final searchedContacts = ref.read(searchedContactsProvider);
+    final searchQuery = ref.read(searchQueryContactsProvider);
+
+    showSearch<Contact?>(
+        query: searchQuery,
+        context: context,
+        delegate: SearchContactDelegate(
+          ruc: ruc,
+          initialContacts: searchedContacts,
+          searchContacts: ref
+              .read(searchedContactsProvider.notifier)
+              .searchContactsByQuery,
+          resetSearchQuery: () {
+            ref
+                .read(searchQueryContactsProvider.notifier)
+                .update((state) => '');
+          },
+        )).then((contact) {
+      if (contact == null) return;
+
+      ref
+          .read(opportunityFormProvider(widget.opportunity).notifier)
+          .onContactChanged(contact.id,
+              '${contact.contactoDesc}');
+    });
+  }
+
 }

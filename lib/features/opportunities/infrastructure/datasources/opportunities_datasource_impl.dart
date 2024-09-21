@@ -32,7 +32,7 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
       if (id == null) {
         opportunityLike.remove('OPRT_ID_OPORTUNIDAD');
       }
-
+      //ORES_ID_USUARIO_RESPONSABLE
       log(opportunityLike.toString());
       final response = await dio.request(url,
           data: opportunityLike, options: Options(method: method));
@@ -73,8 +73,14 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
 
   @override
   Future<List<Opportunity>> getOpportunities(
-      {String ruc = '', String search = '', int offset = 0, int limit = 10}) async {
-    final data = {"RUC": ruc, "SEARCH": search, "OFFSET": offset, "TOP": limit};
+      {String ruc = '', String search = '', int offset = 0, int limit = 10,String idUsuario = ''}) async {
+    final data = {
+      "RUC": ruc, 
+      "SEARCH": search, 
+      "OFFSET": offset, 
+      "TOP": limit,
+      "ID_USUARIO_RESPONSABLE": idUsuario
+    };
 
     final response = await dio
         .post('/oportunidad/listar-oportunidades-by-ruc-est', data: data);
