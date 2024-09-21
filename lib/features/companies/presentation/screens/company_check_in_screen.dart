@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
 import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
@@ -22,11 +24,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class CompanyCheckInScreen extends ConsumerWidget {
-  final String id;
+// ignore: must_be_immutable
+class CompanyCheckInScreen extends ConsumerStatefulWidget {
+  String id;
 
-  const CompanyCheckInScreen({super.key, required this.id});
+  CompanyCheckInScreen({super.key, required this.id});
 
+  @override
+  ConsumerState<CompanyCheckInScreen> createState() =>
+      _CompanyCheckInScreenState();
+}
+
+class _CompanyCheckInScreenState extends ConsumerState<CompanyCheckInScreen> {
   void showSnackbar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context)
@@ -34,10 +43,39 @@ class CompanyCheckInScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final companyCheckInState = ref.watch(companyCheckInProvider(id));
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      final rucprov = ref.watch(stateRucProvider);
+      final locales = ref.watch(companyProvider(rucprov)).companyLocales;
+      final totalLocales = locales.length;
+      final idCheck = widget.id.split('*')[0];
+      String idLocal = '-';
+      String nombreLocal = '-';
+      String latLocal = '0.0';
+      String lngLocal = '0.0';
 
-    List<String> ids = id.split("*");
+      if (totalLocales == 1) {
+        idLocal = locales[0].id;
+        nombreLocal = '${locales[0].localNombre} ${locales[0].localDireccion}';
+        latLocal = locales[0].coordenadasLatitud!;
+        lngLocal = locales[0].coordenadasLongitud!;
+      }
+
+      String ruc = rucprov;
+      setState(() {
+        widget.id = '$idCheck*$ruc*$idLocal*$nombreLocal*$latLocal*$lngLocal';
+      });
+    });
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final companyCheckInState = ref.watch(companyCheckInProvider(widget.id));
+    final rucprov = ref.watch(stateRucProvider);
+    final locales = ref.watch(companyProvider(rucprov)).companyLocales;
+
+    List<String> ids = widget.id.split("*");
     String idCheck = ids[0];
     String ruc = ids[1];
     //String idLocal = ids[2];
@@ -59,10 +97,9 @@ class CompanyCheckInScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-              'Crear ${companyCheckInState.id == '01' ? 'Check-In' : 'Check-out'}', style: 
-              const TextStyle(
-                fontWeight: FontWeight.w600
-              ),),
+            'Crear ${companyCheckInState.id == '01' ? 'Check-In' : 'Check-out'}',
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
           /*eading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
@@ -73,9 +110,9 @@ class CompanyCheckInScreen extends ConsumerWidget {
         body: companyCheckInState.isLoading
             ? const FullScreenLoader()
             : _CompanyCheckInView(
-              companyCheckIn: companyCheckInState.companyCheckIn!,
-              idCheck: idCheck,
-            ),
+                companyCheckIn: companyCheckInState.companyCheckIn!,
+                idCheck: idCheck,
+              ),
         floatingActionButton: FloatingActionButtonCustom(
           iconData: Icons.save,
           isDisabled: !isButtonAllowSave,
@@ -105,7 +142,6 @@ class CompanyCheckInScreen extends ConsumerWidget {
 
             showLoadingMessage(context);
 
-
             ref
                 .read(companyCheckInFormProvider(
                         companyCheckInState.companyCheckIn!)
@@ -116,7 +152,6 @@ class CompanyCheckInScreen extends ConsumerWidget {
               if (value.message != '') {
                 showSnackbar(context, value.message);
                 if (value.response) {
-
                   ref
                       .watch(companyProvider(ruc).notifier)
                       .updateCheckState(idCheck);
@@ -135,7 +170,7 @@ class CompanyCheckInScreen extends ConsumerWidget {
                   //});
                 }
               }
-              
+
               Navigator.pop(context);
             });
           },
@@ -149,7 +184,8 @@ class _CompanyCheckInView extends ConsumerStatefulWidget {
   final CompanyCheckIn companyCheckIn;
   final String idCheck;
 
-  const _CompanyCheckInView({Key? key, required this.companyCheckIn,required this.idCheck})
+  const _CompanyCheckInView(
+      {Key? key, required this.companyCheckIn, required this.idCheck})
       : super(key: key);
 
   @override
@@ -166,7 +202,6 @@ class _CompanyCheckInViewState extends ConsumerState<_CompanyCheckInView> {
       locationNotifier.startFollowingUser();
 
       ref.read(locationProvider.notifier).setOffLocationAddressDiff();
-
     });
   }
 
@@ -188,7 +223,8 @@ class _CompanyCheckInViewState extends ConsumerState<_CompanyCheckInView> {
     return ListView(
       children: [
         const SizedBox(height: 10),
-        CompanyCheckInformation(companyCheckIn: companyCheckIn, idCheck: widget.idCheck),
+        CompanyCheckInformation(
+            companyCheckIn: companyCheckIn, idCheck: widget.idCheck),
       ],
     );
   }
@@ -198,14 +234,16 @@ class CompanyCheckInformation extends ConsumerStatefulWidget {
   final CompanyCheckIn companyCheckIn;
   final String idCheck;
 
-  const CompanyCheckInformation({super.key, required this.companyCheckIn, required this.idCheck});
+  const CompanyCheckInformation(
+      {super.key, required this.companyCheckIn, required this.idCheck});
 
   @override
-  ConsumerState<CompanyCheckInformation> createState() => _CompanyCheckInformationState();
+  ConsumerState<CompanyCheckInformation> createState() =>
+      _CompanyCheckInformationState();
 }
 
-class _CompanyCheckInformationState extends ConsumerState<CompanyCheckInformation> {
-
+class _CompanyCheckInformationState
+    extends ConsumerState<CompanyCheckInformation> {
   List<DropdownOption> optionsTipo = [
     DropdownOption(id: '', name: 'Cargando...'),
   ];
@@ -213,16 +251,19 @@ class _CompanyCheckInformationState extends ConsumerState<CompanyCheckInformatio
   @override
   void initState() {
     super.initState();
-    
+
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('20').then((value) => {
-        setState(() {
-          optionsTipo = value;
-        })
-      });
+      await ref
+          .read(resourceDetailsProvider.notifier)
+          .loadCatalogById('20')
+          .then((value) => {
+                setState(() {
+                  optionsTipo = value;
+                })
+              });
 
       final companyCheckInForm =
-        ref.watch(companyCheckInFormProvider(widget.companyCheckIn));
+          ref.watch(companyCheckInFormProvider(widget.companyCheckIn));
 
       if (companyCheckInForm.cchkLocalCodigo.value != null) {
         ref.read(locationProvider.notifier).setCoorsLocationAddressDiff(
@@ -233,7 +274,7 @@ class _CompanyCheckInformationState extends ConsumerState<CompanyCheckInformatio
       }
     });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final companyCheckInForm =
@@ -375,24 +416,26 @@ class _CompanyCheckInformationState extends ConsumerState<CompanyCheckInformatio
               placeholder: 'Longitud',
               label: 'Longitud Local'),
           Text('check: ${widget.idCheck}'),
-          optionsTipo.length > 1 ? SelectCustomForm(
-            label: 'Tipo',
-            isDisabled: widget.idCheck == '06',
-            value: companyCheckInForm.cchkIdTipoVista!,
-            callbackChange: (String? newValue) {
-              DropdownOption searchDropdown = optionsTipo
-                  .where((option) => option.id == newValue!)
-                  .first;
+          optionsTipo.length > 1
+              ? SelectCustomForm(
+                  label: 'Tipo',
+                  isDisabled: widget.idCheck == '06',
+                  value: companyCheckInForm.cchkIdTipoVista!,
+                  callbackChange: (String? newValue) {
+                    DropdownOption searchDropdown = optionsTipo
+                        .where((option) => option.id == newValue!)
+                        .first;
 
-              ref
-                  .read(companyCheckInFormProvider(widget.companyCheckIn).notifier)
-                  .onTipoChanged(searchDropdown.id, searchDropdown.name);
-
-            },
-            items: optionsTipo,
-          ): PlaceholderInput(text: 'Cargando Tipo...'),
-
-          if (companyCheckInForm.cchkVisitaFrioCaliente == 'Selecciona' || companyCheckInForm.cchkVisitaFrioCaliente == "")
+                    ref
+                        .read(companyCheckInFormProvider(widget.companyCheckIn)
+                            .notifier)
+                        .onTipoChanged(searchDropdown.id, searchDropdown.name);
+                  },
+                  items: optionsTipo,
+                )
+              : PlaceholderInput(text: 'Cargando Tipo...'),
+          if (companyCheckInForm.cchkVisitaFrioCaliente == 'Selecciona' ||
+              companyCheckInForm.cchkVisitaFrioCaliente == "")
             Padding(
               padding: const EdgeInsets.all(4.0),
               child: Column(
@@ -403,18 +446,21 @@ class _CompanyCheckInformationState extends ConsumerState<CompanyCheckInformatio
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: companyCheckInForm.cchkIdOportunidad.errorMessage !=
-                              null
-                          ? Theme.of(context).colorScheme.error
-                          : null,
+                      color:
+                          companyCheckInForm.cchkIdOportunidad.errorMessage !=
+                                  null
+                              ? Theme.of(context).colorScheme.error
+                              : null,
                     ),
                   ),
                   const SizedBox(height: 6),
                   GestureDetector(
-                    onTap: widget.idCheck == '06' ? null : () {
-                      _openSearchOportunities(
-                          context, ref, companyCheckInForm.cchkRuc.value);
-                    },
+                    onTap: widget.idCheck == '06'
+                        ? null
+                        : () {
+                            _openSearchOportunities(
+                                context, ref, companyCheckInForm.cchkRuc.value);
+                          },
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       decoration: BoxDecoration(
@@ -446,10 +492,12 @@ class _CompanyCheckInformationState extends ConsumerState<CompanyCheckInformatio
                           ),
                           IconButton(
                             icon: const Icon(Icons.search),
-                            onPressed: widget.idCheck == '06' ? null : () {
-                              _openSearchOportunities(
-                                  context, ref, companyCheckInForm.cchkRuc.value);
-                            },
+                            onPressed: widget.idCheck == '06'
+                                ? null
+                                : () {
+                                    _openSearchOportunities(context, ref,
+                                        companyCheckInForm.cchkRuc.value);
+                                  },
                           ),
                         ],
                       ),
@@ -458,18 +506,21 @@ class _CompanyCheckInformationState extends ConsumerState<CompanyCheckInformatio
                 ],
               ),
             ),
-
-          if (companyCheckInForm.cchkVisitaFrioCaliente == 'Selecciona' || companyCheckInForm.cchkVisitaFrioCaliente == "")
+          if (companyCheckInForm.cchkVisitaFrioCaliente == 'Selecciona' ||
+              companyCheckInForm.cchkVisitaFrioCaliente == "")
             const SizedBox(height: 6),
-          if (companyCheckInForm.cchkVisitaFrioCaliente == 'Selecciona' || companyCheckInForm.cchkVisitaFrioCaliente == "")
+          if (companyCheckInForm.cchkVisitaFrioCaliente == 'Selecciona' ||
+              companyCheckInForm.cchkVisitaFrioCaliente == "")
             if (companyCheckInForm.cchkIdOportunidad.errorMessage != null)
               Text(
-                companyCheckInForm.cchkIdOportunidad.errorMessage ?? 'Requerido',
+                companyCheckInForm.cchkIdOportunidad.errorMessage ??
+                    'Requerido',
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.error,
                 ),
               ),
-          if (companyCheckInForm.cchkVisitaFrioCaliente == 'Selecciona' || companyCheckInForm.cchkVisitaFrioCaliente == "")
+          if (companyCheckInForm.cchkVisitaFrioCaliente == 'Selecciona' ||
+              companyCheckInForm.cchkVisitaFrioCaliente == "")
             const SizedBox(height: 10),
           Padding(
             padding: const EdgeInsets.all(4.0),
@@ -489,9 +540,12 @@ class _CompanyCheckInformationState extends ConsumerState<CompanyCheckInformatio
                 ),
                 const SizedBox(height: 6),
                 GestureDetector(
-                  onTap: widget.idCheck == '06' ? null : () {
-                    _openSearchContacts(context, ref, companyCheckInForm.cchkRuc.value);
-                  },
+                  onTap: widget.idCheck == '06'
+                      ? null
+                      : () {
+                          _openSearchContacts(
+                              context, ref, companyCheckInForm.cchkRuc.value);
+                        },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     decoration: BoxDecoration(
@@ -521,9 +575,12 @@ class _CompanyCheckInformationState extends ConsumerState<CompanyCheckInformatio
                         ),
                         IconButton(
                           icon: const Icon(Icons.search),
-                          onPressed: widget.idCheck == '06' ? null : () {
-                            _openSearchContacts(context, ref, companyCheckInForm.cchkRuc.value);
-                          },
+                          onPressed: widget.idCheck == '06'
+                              ? null
+                              : () {
+                                  _openSearchContacts(context, ref,
+                                      companyCheckInForm.cchkRuc.value);
+                                },
                         ),
                       ],
                     ),
@@ -548,7 +605,8 @@ class _CompanyCheckInformationState extends ConsumerState<CompanyCheckInformatio
             initialValue: companyCheckInForm.cchkIdComentario.value,
             errorMessage: companyCheckInForm.cchkIdComentario.errorMessage,
             onChanged: ref
-                .read(companyCheckInFormProvider(widget.companyCheckIn).notifier)
+                .read(
+                    companyCheckInFormProvider(widget.companyCheckIn).notifier)
                 .onComentarioChanged,
           ),
           const SizedBox(height: 20),
@@ -612,19 +670,20 @@ class _CompanyCheckInformationState extends ConsumerState<CompanyCheckInformatio
     final searchQuery = ref.read(searchQueryOpportunitiesProvider);
 
     showSearch<Opportunity?>(
-            query: searchQuery,
-            context: context,
-            delegate: SearchOpportunityDelegate(
-                ruc: ruc,
-                initialOpportunities: searchedOpportunities,
-                searchOpportunities: ref
-                    .read(searchedOpportunitiesProvider.notifier)
-                    .searchOpportunitiesByQuery,
-                resetSearchQuery: () {
-                    ref.read(searchQueryOpportunitiesProvider.notifier).update((state) => '');
-                },
-            ))
-        .then((opportunity) {
+        query: searchQuery,
+        context: context,
+        delegate: SearchOpportunityDelegate(
+          ruc: ruc,
+          initialOpportunities: searchedOpportunities,
+          searchOpportunities: ref
+              .read(searchedOpportunitiesProvider.notifier)
+              .searchOpportunitiesByQuery,
+          resetSearchQuery: () {
+            ref
+                .read(searchQueryOpportunitiesProvider.notifier)
+                .update((state) => '');
+          },
+        )).then((opportunity) {
       if (opportunity == null) return;
 
       ref
@@ -633,24 +692,25 @@ class _CompanyCheckInformationState extends ConsumerState<CompanyCheckInformatio
     });
   }
 
-  void _openSearchContacts(BuildContext context, WidgetRef ref, String ruc) async {
+  void _openSearchContacts(
+      BuildContext context, WidgetRef ref, String ruc) async {
     final searchedContacts = ref.read(searchedContactsProvider);
     final searchQuery = ref.read(searchQueryContactsProvider);
 
     showSearch<Contact?>(
-            query: searchQuery,
-            context: context,
-            delegate: SearchContactDelegate(
-                ruc: ruc,
-                initialContacts: searchedContacts,
-                searchContacts: ref
-                    .read(searchedContactsProvider.notifier)
-                    .searchContactsByQuery,
-                resetSearchQuery: () {
-                    ref.read(searchQueryContactsProvider.notifier).update((state) => '');
-                },
-            ))
-        .then((contact) {
+        query: searchQuery,
+        context: context,
+        delegate: SearchContactDelegate(
+          ruc: ruc,
+          initialContacts: searchedContacts,
+          searchContacts:
+              ref.read(searchedContactsProvider.notifier).searchContactsByQuery,
+          resetSearchQuery: () {
+            ref
+                .read(searchQueryContactsProvider.notifier)
+                .update((state) => '');
+          },
+        )).then((contact) {
       if (contact == null) return;
 
       ref
@@ -665,19 +725,20 @@ class _CompanyCheckInformationState extends ConsumerState<CompanyCheckInformatio
     final searchQuery = ref.read(searchQueryCompanyLocalesProvider);
 
     showSearch<CompanyLocal?>(
-            query: searchQuery,
-            context: context,
-            delegate: SearchCompanyLocalDelegate(
-                ruc: ruc,
-                initialCompanyLocales: searchedCompanyLocales,
-                searchCompanyLocales: ref
-                    .read(searchedCompanyLocalesProvider.notifier)
-                    .searchCompanyLocalesByQuery,
-                resetSearchQuery: () {
-                    ref.read(searchQueryCompanyLocalesProvider.notifier).update((state) => '');
-                },
-            ))
-        .then((companyLocal) {
+        query: searchQuery,
+        context: context,
+        delegate: SearchCompanyLocalDelegate(
+          ruc: ruc,
+          initialCompanyLocales: searchedCompanyLocales,
+          searchCompanyLocales: ref
+              .read(searchedCompanyLocalesProvider.notifier)
+              .searchCompanyLocalesByQuery,
+          resetSearchQuery: () {
+            ref
+                .read(searchQueryCompanyLocalesProvider.notifier)
+                .update((state) => '');
+          },
+        )).then((companyLocal) {
       if (companyLocal == null) return;
 
       ref
@@ -697,6 +758,4 @@ class _CompanyCheckInformationState extends ConsumerState<CompanyCheckInformatio
       ref.read(locationProvider.notifier).setOnLocationAddressDiff();
     });
   }
-
-  
 }
