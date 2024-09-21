@@ -74,7 +74,7 @@ class _FilterBottomRouterPlannerSheetState extends ConsumerState<FilterBottomRou
                   FilterOptionContainerFil(title: 'Calificación', trailing: 'Selecciona', type: 'CALIFICACION'),
                   FilterOptionContainerFil(title: 'Responsable', trailing: 'Selecciona', type: 'ID_USUARIO_RESPONSABLE'),
                   FilterOptionContainerFil(title: 'Código postal', trailing: 'Selecciona', type: 'CODIGO_POSTAL', search: true),
-                  FilterOptionContainerFil(title: 'Distrito', trailing: 'Selecciona', type: 'DISTRITO', search: true),
+                  FilterOptionContainerFil(title: 'Distrito', trailing: 'Selecciona', type: 'DISTRITO', search: true, multi: true),
                   
                   FilterOptionContainerFil(title: 'RUC', trailing: 'Selecciona', type: 'RUC', search: true),
                   FilterOptionContainerFil(title: 'RUBRO', trailing: 'Selecciona', type: 'ID_RUBRO'),
@@ -98,8 +98,9 @@ class FilterOptionContainerFil extends ConsumerWidget {
   final String trailing;
   final String type;
   final bool? search;
+  final bool? multi;
 
-  FilterOptionContainerFil({required this.title, required this.trailing, required this.type, this.search});
+  FilterOptionContainerFil({required this.title, required this.trailing, required this.type, this.search, this.multi});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -116,7 +117,7 @@ class FilterOptionContainerFil extends ConsumerWidget {
         showModalBottomSheet(
           context: context,
           isScrollControlled: true,
-          builder: (context) => FilterDetailRoutePlanner(title: title, type: type, isSearch: search),
+          builder: (context) => FilterDetailRoutePlanner(title: title, type: type, isSearch: search, isMulti: multi),
         );
       },
       child: Padding(
@@ -125,12 +126,16 @@ class FilterOptionContainerFil extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(title, 
-            style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500)),
+            style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500, overflow: TextOverflow.ellipsis)),
             Row(
               children: [
-                Text(
-                  nameFilter ?? '', 
-                  style: TextStyle(color: nameFilter == 'Selecciona' ?  const Color.fromARGB(255, 170, 170, 170) : Colors.black )),
+                SizedBox(
+                  width: 140,
+                  child: Text(
+                    nameFilter ?? '', 
+                    textAlign: TextAlign.end,
+                    style: TextStyle(overflow: TextOverflow.ellipsis, color: nameFilter == 'Selecciona' ?  const Color.fromARGB(255, 170, 170, 170) : Colors.black )),
+                ),
                 const SizedBox(
                   width: 10,
                 ),

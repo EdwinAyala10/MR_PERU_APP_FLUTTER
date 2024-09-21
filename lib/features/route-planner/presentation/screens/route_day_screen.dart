@@ -703,12 +703,15 @@ class ItemLocal extends ConsumerWidget {
                                     ),
                                     overflow: TextOverflow.ellipsis,
                                 ),
-                                Text(data.localDireccion ?? '',
-                                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                      color: Colors.black54,
-                                      fontSize: 13
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
+                                SizedBox(
+                                  width: 300,
+                                  child: Text(data.localDireccion ?? '',
+                                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                        color: Colors.black54,
+                                        fontSize: 13
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
                               ],
                             ),

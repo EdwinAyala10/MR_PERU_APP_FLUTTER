@@ -155,8 +155,16 @@ class _EventPlannerInformationState extends ConsumerState<_EventPlannerInformati
 
       //SETEAR HORARIO TRABAJO
       await ref.watch(eventPlannerFormProvider.notifier).onChangeHorarioTrabajo(horarioTrabajo!.id, horarioTrabajo.name, strDuracion,strDistancia);
+      
+      String? dateIniHorario = await ref.read(routePlannerProvider).dateTimeInitial; 
+      String? dateFinHorario = await ref.read(routePlannerProvider).dateTimeEnd; 
 
+      DateTime dateInitialHorarioFormat = DateTime.parse(dateIniHorario ?? '');
+      DateTime dateEndHorarioFormat = DateTime.parse(dateFinHorario ?? '');
 
+      ref.watch(eventPlannerFormProvider.notifier).onFechaChanged(dateInitialHorarioFormat);
+      ref.watch(eventPlannerFormProvider.notifier).onFechaTerminoChanged(dateEndHorarioFormat);
+      
       print('INIT STATE REGISTER');
       print(horarioTrabajo.id);
       print(horarioTrabajo.name);
@@ -289,7 +297,7 @@ class _EventPlannerInformationState extends ConsumerState<_EventPlannerInformati
           ),
 
           const SizedBox(height: 10),
-          const Text('Hora de Inicio',
+          const Text('Hora programación',
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
           const SizedBox(height: 6),
           GestureDetector(

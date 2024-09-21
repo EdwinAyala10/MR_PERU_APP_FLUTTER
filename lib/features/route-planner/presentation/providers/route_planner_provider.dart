@@ -1,8 +1,7 @@
 import 'package:crm_app/features/route-planner/domain/entities/coordenada.dart';
 import 'package:crm_app/features/route-planner/domain/entities/create_event_planner_response.dart';
-import 'package:crm_app/features/route-planner/domain/entities/validate_event_planner.dart';
 import 'package:crm_app/features/route-planner/domain/entities/validate_event_planner_response.dart';
-import 'package:crm_app/features/route-planner/domain/entities/validate_response.dart';
+import 'package:crm_app/features/route-planner/domain/entities/validate_horario_trabajo_response.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_repository_provider.dart';
 import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
 import 'package:flutter/material.dart';
@@ -50,23 +49,66 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     //}
   }
 
-  void onSelectedFilter(FilterOption opt) {
+  void onSelectedFilter(FilterOption opt, bool isMulti) {
     bool found = false;
+
+    print('options id: ${opt.id}');
+    print('options name: ${opt.name}');
+    print('options title: ${opt.title}');
+    print('options type: ${opt.type}');
 
     // Usando una lista mutable para actualizar los filtros.
     List<FilterOption> updatedFilters = List.from(state.filters);
 
     for (int i = 0; i < updatedFilters.length; i++) {
       if (updatedFilters[i].type == opt.type) {
-        updatedFilters[i] = opt;
+
+        if (isMulti) {
+
+          var stringIds = updatedFilters[i].id;
+
+          
+          List<String> lists = stringIds.split(',');
+
+          if (!lists.contains(opt.id)) {
+            lists.add(opt.id);
+          } else {
+            lists.remove(opt.id);
+          }
+
+          String joinList = lists.join(',');
+
+          print(joinList);
+
+          var optNew = FilterOption(id: joinList, type: opt.type, title: opt.title, name: joinList);
+          updatedFilters[i] = optNew;
+        }else {
+          updatedFilters[i] = opt;
+        }
+
         found = true;
         break;
       }
     }
 
     if (!found) {
-      updatedFilters.add(opt);
+      if (isMulti) {
+        List<String> lists = [];
+
+        lists.add(opt.id);
+
+        String joinList = lists.join(',');
+
+        var optNew = FilterOption(id: joinList, type: opt.type, title: opt.title, name: joinList);
+        updatedFilters.add(optNew);
+
+      }else {
+        updatedFilters.add(opt);
+      }
+
     }
+
+    print(updatedFilters);
 
     // Actualizar el estado con los filtros modificados.
     state = state.copyWith(filters: updatedFilters);
@@ -226,6 +268,40 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     } 
   }
 
+   Future<void> loadFilterHorario() async {
+
+
+    ValidateHorarioTrabajoResponse validate =
+        await routePlannerRepository.getHorarioTrabajo();
+
+    if (validate.status) {
+
+      List<FilterOption> filtersA = [...state.filtersSuccess];
+
+      // Verifica si ya existe un filtro con el mismo id
+      bool exists = filtersA.any((filter) => filter.type == 'HRTR_ID_HORARIO_TRABAJO');
+      
+      print('EXIST: ${exists}' );
+      if (!exists) {
+
+        var nuevo = FilterOption(
+          id: validate.data?.idHorarioTrabajo ?? '', 
+          type: 'HRTR_ID_HORARIO_TRABAJO', 
+          title: 'Horario de trabajo', 
+          name: validate.data?.descripcion ?? '');
+      
+        List<FilterOption> filtersb = [nuevo, ...state.filtersSuccess];
+
+          state = state.copyWith(
+            filtersSuccess: filtersb,
+            filters: filtersb
+          );
+      }
+    } 
+
+  
+  }
+
   Future<List<DropdownOption>> loadFilterCodigoPostal(String search) async {
     //state = state.copyWith(isLoading: true);
 
@@ -258,6 +334,13 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     }
 
     return options;
+  }
+
+  void updateFechasRegister(String dateIni, String datetEnd) {
+    state = state.copyWith(
+      dateTimeInitial: dateIni,
+      dateTimeEnd: datetEnd
+    );
   }
 
   Future<ValidateEventPlannerResponse> validatePlanner(String idHorario) async {
@@ -440,6 +523,8 @@ class RoutePlannerState {
   final List<FilterOption> filters;
   final List<FilterOption> filtersSuccess;
   final List<CompanyLocalRoutePlanner> selectedItems;
+  final String? dateTimeInitial;
+  final String? dateTimeEnd;
 
   RoutePlannerState(
       {this.isLastPage = false,
@@ -453,7 +538,10 @@ class RoutePlannerState {
       this.filtersSuccess = const [],
       this.locales = const [],
       //this.localesOrderTemp = const [],
-      this.selectedItems = const []});
+      this.selectedItems = const [],
+      this.dateTimeInitial =  '',
+      this.dateTimeEnd =  '' 
+      });
 
   RoutePlannerState copyWith({
     bool? isLastPage,
@@ -468,6 +556,8 @@ class RoutePlannerState {
     List<FilterOption>? filters,
     List<FilterOption>? filtersSuccess,
     List<CompanyLocalRoutePlanner>? selectedItems,
+    String? dateTimeInitial,
+    String? dateTimeEnd
   }) =>
       RoutePlannerState(
         isLastPage: isLastPage ?? this.isLastPage,
@@ -482,5 +572,7 @@ class RoutePlannerState {
         filters: filters ?? this.filters,
         filtersSuccess: filtersSuccess ?? this.filtersSuccess,
         selectedItems: selectedItems ?? this.selectedItems,
+        dateTimeInitial: dateTimeInitial ?? this.dateTimeInitial,
+        dateTimeEnd: dateTimeEnd ?? this.dateTimeEnd,
       );
 }

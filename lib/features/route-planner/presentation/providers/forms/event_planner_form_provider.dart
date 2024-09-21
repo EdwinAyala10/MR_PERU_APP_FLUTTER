@@ -1,12 +1,9 @@
 import 'package:crm_app/features/auth/domain/domain.dart';
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
-import 'package:crm_app/features/location/presentation/providers/providers.dart';
 import 'package:crm_app/features/route-planner/domain/domain.dart';
 import 'package:crm_app/features/route-planner/domain/entities/create_event_planner_response.dart';
 import 'package:crm_app/features/route-planner/domain/entities/evento_planificador_ruta_array.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
-import 'package:crm_app/features/shared/widgets/format_distance.dart';
-import 'package:crm_app/features/shared/widgets/format_from_seconds.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';

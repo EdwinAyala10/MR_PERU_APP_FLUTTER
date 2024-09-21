@@ -4,7 +4,7 @@ import '../domain.dart';
 import '../entities/periodicidad.dart';
 
 abstract class KpisDatasource {
-  Future<List<Kpi>> getKpis();
+  Future<List<Kpi>> getKpis(String idUsuario);
   Future<Kpi> getKpiById(String id);
 
   Future<KpiResponse> createUpdateKpi(Map<dynamic, dynamic> kpiLike);

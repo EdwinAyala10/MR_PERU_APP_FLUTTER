@@ -3,6 +3,7 @@
 import 'package:crm_app/features/route-planner/domain/entities/coordenada.dart';
 import 'package:crm_app/features/route-planner/domain/entities/event_planner_response.dart';
 import 'package:crm_app/features/route-planner/domain/entities/validate_event_planner_response.dart';
+import 'package:crm_app/features/route-planner/domain/entities/validate_horario_trabajo_response.dart';
 
 import '../domain.dart';
 
@@ -26,6 +27,7 @@ abstract class RoutePlannerDatasource {
   Future<ValidateEventPlannerResponse> validateEventPlanner( Map<dynamic,dynamic> event );
 
   Future<Coordenada> getCoordenadas();
+  Future<ValidateHorarioTrabajoResponse> getHorarioTrabajo();
   
 }
 

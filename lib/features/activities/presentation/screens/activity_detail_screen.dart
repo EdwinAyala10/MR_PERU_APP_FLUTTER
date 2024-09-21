@@ -305,6 +305,21 @@ class ActivityDetailView extends ConsumerWidget {
                 label: 'Comentario Check Out',
                 text: activity.cchkComentarioCheckOut ?? '',
               ),
+              if(activity.actiIdTipoGestion == '04')
+                ListTile(
+                  title: const Text(
+                    'Mapa CheckIn', 
+                    style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black)),
+                  
+                  leading: const Icon(Icons.home_work_outlined, size: 34,),
+                  trailing: GestureDetector(
+                    onTap: () {
+                    context.push('/view-map/${activity.coordenadalatitud},${activity.coordenadaLongitud}');
+                  },
+                    child: const Icon(Icons.place, size: 38, color: Colors.deepOrangeAccent),
+                  ),
+                  //onTap: ,
+                )
             ],
           ),
         ),

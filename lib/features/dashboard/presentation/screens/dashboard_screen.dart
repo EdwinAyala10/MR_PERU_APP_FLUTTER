@@ -5,9 +5,9 @@ import 'package:crm_app/features/dashboard/presentation/providers/home_notificac
 import 'package:crm_app/features/dashboard/presentation/screens/notification_screen.dart';
 import 'package:crm_app/features/dashboard/presentation/widgets/widgets.dart';
 import 'package:crm_app/features/location/presentation/providers/gps_provider.dart';
+import 'package:crm_app/features/opportunities/presentation/widgets/item_opportunity.dart';
 import 'package:crm_app/features/shared/presentation/providers/notifications_provider.dart';
 import 'package:flutter_app_badge/flutter_app_badge.dart';
-import 'package:flutter_dynamic_icon/flutter_dynamic_icon.dart';
 
 import '../../../activities/domain/domain.dart';
 import '../../../activities/presentation/providers/activities_provider.dart';
@@ -613,7 +613,7 @@ class _ContainerDashboardOpportunities extends StatelessWidget {
                   itemBuilder: (context, index) {
                     final opportunity = opportunities[index];
 
-                    return ItemOpportunitySmall(
+                    return ItemOpportunity(
                       opportunity: opportunity,
                       callbackOnTap: () {},
                     );
