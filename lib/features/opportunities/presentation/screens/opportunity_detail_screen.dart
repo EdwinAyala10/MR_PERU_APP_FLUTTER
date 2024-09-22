@@ -39,7 +39,6 @@ class OpportunityDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // final companyState = ref.watch(companyProvider(companyId));
-
     // return Scaffold(
     //   body: companyState.isLoading
     //       ? const FullScreenLoader()
@@ -69,7 +68,8 @@ class OpportunityDetailScreen extends ConsumerWidget {
     //                   ),
     //                 ],
     //               ),
-    //             )),
+    //             ),
+    // ),
     // );
     return _CompanyDetailView(opportunityId);
   }
@@ -192,8 +192,32 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
             buildDocuments()
           ],
         ),
+        floatingActionButton: _itFloatingButton(currentIndex),
       ),
     );
+  }
+
+  Widget _itFloatingButton(int currentIndex) {
+    switch (currentIndex) {
+      case 2:
+        return FloatingActionButtonCustom(
+          callOnPressed: () {
+            final opportunity = ref.watch(selectedOp);
+            log("This is the opportunitye ${opportunity?.id}");
+            log("This is the opportunitye ${opportunity?.oprtRuc}");
+            log("This is the opportunitye ${opportunity?.razon}");
+            ref.read(rucOpportunitieProvider.notifier).state =
+                opportunity?.oprtRuc ?? '';
+            ref.read(idOportunidadMotivo.notifier).state = opportunity?.id;
+            ref.read(razonOportunityProvider.notifier).state =
+                opportunity?.razon ?? '';
+            context.push('/activity/new');
+          },
+          iconData: Icons.add,
+        );
+      default:
+        return Container();
+    }
   }
 
   Widget buildEventsOportunity() {
@@ -991,7 +1015,7 @@ Future<dynamic> showModalAdd(
               child: ListTile(
                 title: const Row(
                   children: [
-                    FaIcon(FontAwesomeIcons.camera) ,
+                    FaIcon(FontAwesomeIcons.camera),
                     SizedBox(width: 10),
                     Center(
                       child: Text('Tomar Foto'),
@@ -1136,7 +1160,6 @@ class _ListActivitiesState extends ConsumerState<_ListActivities> {
   Widget build(BuildContext context) {
     final GlobalKey<RefreshIndicatorState> refreshIndicatorKey =
         GlobalKey<RefreshIndicatorState>();
-
     return widget.activities.isEmpty
         ? Center(
             child: RefreshIndicator(
