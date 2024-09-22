@@ -24,8 +24,8 @@ class _ViewMapScreenState extends State<ViewMapScreen> {
   }
 
   Future<void> _loadMarkerIcon() async {
-    markerIcon = await BitmapDescriptor.fromAssetImage(
-      const ImageConfiguration(size: Size(24, 24)),
+    markerIcon = await BitmapDescriptor.asset(
+      const ImageConfiguration(size: Size(30, 30)),
       'assets/images/marker_map.png',
     );
     setState(() {}); // Actualiza el estado después de cargar el icono

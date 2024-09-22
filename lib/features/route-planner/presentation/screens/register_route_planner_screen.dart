@@ -64,6 +64,7 @@ class RegisterRoutePlannerScreen extends ConsumerWidget {
                     //Timer(const Duration(seconds: 3), () {
                     //TODO: LIMPIAR LOS SELECT ITEMS Y TODO EL FORMULARIO
                     ref.read(routePlannerProvider.notifier).clearSelectedLocales();
+                    ref.read(routePlannerProvider.notifier).loadNextPage(isRefresh: false);
                     
                     context.replace('/route_planner');
                     //});

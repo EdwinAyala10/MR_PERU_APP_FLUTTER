@@ -128,9 +128,6 @@ class RoutePlannerScreen extends ConsumerWidget {
 
                     Coordenada coorsLocal = await ref.read(routePlannerProvider.notifier).cargarCoordena();
 
-                    print('COORS1: ${coorsLocal.latitud} ');
-                    print('COORS2: ${coorsLocal.longitud} ');
-
                     //LatLng location = await ref.watch(locationProvider.notifier).currentPosition();
 
                     LatLng location = LatLng(double.parse(coorsLocal.latitud), double.parse(coorsLocal.longitud));

@@ -305,7 +305,7 @@ class ActivityDetailView extends ConsumerWidget {
                 label: 'Comentario Check Out',
                 text: activity.cchkComentarioCheckOut ?? '',
               ),
-              if(activity.actiIdTipoGestion == '04')
+              if(activity.actiIdTipoGestion == '04' && activity.coordenadalatitud != "")
                 ListTile(
                   title: const Text(
                     'Mapa CheckIn', 

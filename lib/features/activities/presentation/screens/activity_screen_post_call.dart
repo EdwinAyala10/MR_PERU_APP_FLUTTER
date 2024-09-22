@@ -148,7 +148,8 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
       await ref.read(resourceDetailsProvider.notifier).loadCatalogById('01').then((value) => {
         
         setState(() {
-          optionsTipoGestion = value.where((o) => o.id == '02' || o.id == '').toList();
+          //optionsTipoGestion = value.where((o) => o.id == '02' || o.id == '').toList();
+          optionsTipoGestion = value;
         })
       });
     });

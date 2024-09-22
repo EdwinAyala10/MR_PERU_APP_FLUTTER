@@ -1,7 +1,5 @@
 import 'dart:developer';
 
-import 'package:crm_app/features/shared/infrastructure/inputs/state_local.dart';
-
 import '../../../../kpis/domain/entities/array_user.dart';
 import '../../../../shared/infrastructure/inputs/inputs.dart';
 import '../../../../users/domain/domain.dart';
@@ -51,6 +49,7 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
           oprtProbabilidad: opportunity.oprtProbabilidad ?? '',
           oprtRuc: EmpresaPrincipal.dirty(opportunity.oprtRuc ?? ''),
           oprtIdContacto: StateContact.dirty(opportunity.oprtIdContacto ?? ''),
+          oprtNombreContacto: opportunity.oprtNombreContacto ?? '',
           oprtLocalCodigo: StateLocal.dirty(opportunity.oprtLocalCodigo ?? ''),
           //oprtLocalNombre: opportunity.oprtLocalNombre ?? '',
           oprtRazon: opportunity.oprtRazon ?? '',
