@@ -75,7 +75,7 @@ class ActivityScreen extends ConsumerWidget {
                 if (value.message != '') {
                   showSnackbar(context, value.message);
 
-                  if (value.response) {
+                  if (value.response && !ref.read(fromOpportunity)) {
                     ref
                         .read(activitiesProvider.notifier)
                         .loadNextPage(isRefresh: true);
@@ -90,10 +90,11 @@ class ActivityScreen extends ConsumerWidget {
                     //context.replace('/activities');
                     context.pop();
                     //});
+                    return;
                   }
+                  context.pop();
                 }
-
-                Navigator.pop(context);
+                context.pop();
               });
             }),
       ),

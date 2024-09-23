@@ -6,6 +6,9 @@ import 'package:intl/intl.dart';
 
 import 'activities_repository_provider.dart';
 
+
+final fromOpportunity = StateProvider<bool>((ref) => false);
+
 final activityProvider = StateNotifierProvider.autoDispose
     .family<ActivityNotifier, ActivityState, String>((ref, id) {
   final activitiesRepository = ref.watch(activitiesRepositoryProvider);

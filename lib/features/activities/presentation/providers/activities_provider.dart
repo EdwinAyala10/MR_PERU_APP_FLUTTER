@@ -139,6 +139,13 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
 
   }
 
+  Future<void> onDeleteState()async{
+    state = state.copyWith(
+      isLoading: true,
+      activities: [],
+    );
+  }
+
   Future loadNextPageActivitiesByOpportunities({
     bool isRefresh = false,
     required String opportunityId,

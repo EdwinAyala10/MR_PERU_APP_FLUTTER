@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:crm_app/config/constants/environment.dart';
 import 'package:crm_app/features/activities/domain/domain.dart';
 import 'package:crm_app/features/activities/presentation/providers/activities_provider.dart';
+import 'package:crm_app/features/activities/presentation/providers/activity_provider.dart';
 import 'package:crm_app/features/activities/presentation/widgets/item_activity.dart';
 import 'package:crm_app/features/agenda/domain/entities/event.dart';
 import 'package:crm_app/features/agenda/presentation/providers/events_provider.dart';
@@ -211,7 +212,16 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
             ref.read(idOportunidadMotivo.notifier).state = opportunity?.id;
             ref.read(razonOportunityProvider.notifier).state =
                 opportunity?.razon ?? '';
-            context.push('/activity/new');
+            ref.read(fromOpportunity.notifier).state = true;
+            context.push('/activity/new').then((value){
+              ref
+                  .read(activitiesProvider.notifier)
+                  .loadNextPageActivitiesByOpportunities(
+                    isRefresh: true,
+                    opportunityId:
+                        ref.read(selectedOp.notifier).state?.id ?? '',
+                  );
+            });
           },
           iconData: Icons.add,
         );
