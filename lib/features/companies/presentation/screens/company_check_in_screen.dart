@@ -198,10 +198,13 @@ class _CompanyCheckInViewState extends ConsumerState<_CompanyCheckInView> {
     super.initState();
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      final locationNotifier = ref.read(locationProvider.notifier);
-      locationNotifier.startFollowingUser();
 
       ref.read(locationProvider.notifier).setOffLocationAddressDiff();
+      final locationNotifier = ref.read(locationProvider.notifier);
+       
+      locationNotifier.startFollowingUser();
+
+
     });
   }
 
@@ -309,32 +312,59 @@ class _CompanyCheckInformationState
             ],
           ),
           const SizedBox(height: 10),
-          selectedLocationAddressDiff
-              ? Container(
-                  color: Colors.white,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Container(
-                        color: allowSave ? Colors.green : Colors.deepOrange,
-                        padding: const EdgeInsets.all(11.0),
-                        child: Text(
-                          distanceLocationAddressDiff == 0
-                              ? 'Estas en el local!'
-                              : 'Estas a ${formatDistance(distanceLocationAddressDiff)} de distancia del local',
-                          style: const TextStyle(
-                            fontSize: 17.0,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
+          (!allowSave && distanceLocationAddressDiff > 0)
+          //selectedLocationAddressDiff
+          ? Container(
+              color: Colors.white,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    color: allowSave ? Colors.green : Colors.deepOrange,
+                    padding: const EdgeInsets.all(11.0),
+                    child: Text(
+                      distanceLocationAddressDiff == 0
+                          ? 'Estas en el local!'
+                          : 'Estas a ${formatDistance(distanceLocationAddressDiff)} de distancia del local',
+                      style: const TextStyle(
+                        fontSize: 17.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
-                    ],
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                )
-              : const SizedBox(),
+                ],
+              ),
+            )
+            : Container(
+            width: double.infinity,
+            height: 36.0,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 10.0,
+                  offset: Offset(0, 5),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  "Calculando distancia...",
+                  style: TextStyle(fontSize: 18, color: Colors.black, fontWeight: FontWeight.w500),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 10),
           Padding(
             padding: const EdgeInsets.all(4.0),
