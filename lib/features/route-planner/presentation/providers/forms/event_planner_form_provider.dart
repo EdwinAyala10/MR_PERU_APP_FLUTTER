@@ -11,21 +11,23 @@ import 'package:intl/intl.dart';
 
 import '../../../../shared/shared.dart';
 
-final eventPlannerFormProvider = StateNotifierProvider<EventPlannerFormNotifier, EventPlannerFormState>((ref) {
+final eventPlannerFormProvider =
+    StateNotifierProvider<EventPlannerFormNotifier, EventPlannerFormState>(
+        (ref) {
   // final createUpdateCallback = ref.watch( productsRepositoryProvider ).createUpdateProduct;
   final createCallback =
       ref.watch(routePlannerProvider.notifier).createEventPlanner;
-  
+
   //final totalDistanceA = ref.watch(mapProvider).totalDistance;
   //final totalDurationA = ref.watch(mapProvider).totalDuration;
 
   final user = ref.watch(authProvider).user;
 
   return EventPlannerFormNotifier(
-    user: user!, 
+    user: user!,
     onSubmitCallback: createCallback,
-   // totalDistance: totalDistanceA,
-   // totalDuration: totalDurationA
+    // totalDistance: totalDistanceA,
+    // totalDuration: totalDurationA
   );
 });
 
@@ -74,11 +76,13 @@ class EventPlannerFormNotifier extends StateNotifier<EventPlannerFormState> {
       //'EVNT_ID_RECORDATORIO': state.evntIdRecordatorio,
       //'ID_INTERVALO_REUNION': state.evntIdIntervaloReunion.value,
       'PLRT_TIEMPO_RUTA': state.tiempoRuta,
-	    'PLRT_DISTANCIA_RUTA': state.distanciaRuta, 
+      'PLRT_DISTANCIA_RUTA': state.distanciaRuta,
+      'PLRT_ID_USUARIO_RESPONSABLE': state.plrtIdUsuarioResponsable,
       'EVNT_ID_USUARIO_RESPONSABLE': state.evntIdUsuarioResponsable,
       //'EVNT_NOMBRE_USUARIO_RESPONSABLE': state.evntNombreUsuarioResponsable,
       'EVENTOS_PLANIFICADOR_RUTA': state.arrayEventosPlanificadorRuta != null
-          ? List<dynamic>.from(state.arrayEventosPlanificadorRuta!.map((x) => x.toJson()))
+          ? List<dynamic>.from(
+              state.arrayEventosPlanificadorRuta!.map((x) => x.toJson()))
           : [],
     };
 
@@ -95,6 +99,12 @@ class EventPlannerFormNotifier extends StateNotifier<EventPlannerFormState> {
         TipoGestion.dirty(state.evntIdTipoGestion.value),
         Select.dirty(state.evntIdIntervaloReunion.value),
       ]),
+    );
+  }
+
+  void onUpdateUserPlannerSelector(String value) {
+    state = state.copyWith(
+      plrtIdUsuarioResponsable: value,
     );
   }
 
@@ -115,8 +125,8 @@ class EventPlannerFormNotifier extends StateNotifier<EventPlannerFormState> {
     );
   }
 
-  Future<void> onChangeHorarioTrabajo(String id, String name, String duracion, String distancia) async {
-
+  Future<void> onChangeHorarioTrabajo(
+      String id, String name, String duracion, String distancia) async {
     print('llego a onChangeHorarioTrabajo');
 
     print('id: ${id}');
@@ -125,56 +135,53 @@ class EventPlannerFormNotifier extends StateNotifier<EventPlannerFormState> {
     print('distancia: ${distancia}');
 
     state = state.copyWith(
-      horarioTrabajoId: id,
-      horarioTrabajoNombre: name,
-      tiempoRuta: duracion, 
-      distanciaRuta: distancia
-    );
+        horarioTrabajoId: id,
+        horarioTrabajoNombre: name,
+        tiempoRuta: duracion,
+        distanciaRuta: distancia);
   }
 
   void onTipoGestionChanged(String id, String name) {
     state = state.copyWith(
-      evntIdTipoGestion: TipoGestion.dirty(id),
-      evntNombreTipoGestion: name,
-      isFormValid: Formz.validate([
-        TipoGestion.dirty(id),
-        Select.dirty(state.evntIdIntervaloReunion.value),
-        HoraEntreVisita.dirty(state.tiempoEntreVisitasId.value)
-      ]));
+        evntIdTipoGestion: TipoGestion.dirty(id),
+        evntNombreTipoGestion: name,
+        isFormValid: Formz.validate([
+          TipoGestion.dirty(id),
+          Select.dirty(state.evntIdIntervaloReunion.value),
+          HoraEntreVisita.dirty(state.tiempoEntreVisitasId.value)
+        ]));
   }
 
   void onTiempoReunionesChanged(String id, String name) {
     //state = state.copyWith(evntIdRecordatorio: id, evntNombreRecordatorio: name);
     state = state.copyWith(
-      evntIdIntervaloReunion: Select.dirty(id),
-      evntNombreIntervaloReunion: name,
-      isFormValid: Formz.validate([
-        TipoGestion.dirty(state.evntIdTipoGestion.value),
-        Select.dirty(id),
-        HoraEntreVisita.dirty(state.tiempoEntreVisitasId.value)
-      ]));
+        evntIdIntervaloReunion: Select.dirty(id),
+        evntNombreIntervaloReunion: name,
+        isFormValid: Formz.validate([
+          TipoGestion.dirty(state.evntIdTipoGestion.value),
+          Select.dirty(id),
+          HoraEntreVisita.dirty(state.tiempoEntreVisitasId.value)
+        ]));
   }
 
   void onTiempoEntreVisitaChanged(String id, String name) {
     //state = state.copyWith(evntIdRecordatorio: id, evntNombreRecordatorio: name);
     state = state.copyWith(
-      tiempoEntreVisitasId: HoraEntreVisita.dirty(id),
-      tiempoEntreVisitasNombre: name,
-      isFormValid: Formz.validate([
-        TipoGestion.dirty(state.evntIdTipoGestion.value),
-        Select.dirty(state.evntIdIntervaloReunion.value),
-        HoraEntreVisita.dirty(id)
-      ]));
+        tiempoEntreVisitasId: HoraEntreVisita.dirty(id),
+        tiempoEntreVisitasNombre: name,
+        isFormValid: Formz.validate([
+          TipoGestion.dirty(state.evntIdTipoGestion.value),
+          Select.dirty(state.evntIdIntervaloReunion.value),
+          HoraEntreVisita.dirty(id)
+        ]));
   }
 
   void onFechaChanged(DateTime fecha) {
-    state =
-        state.copyWith(evntFechaInicioEvento: fecha);
+    state = state.copyWith(evntFechaInicioEvento: fecha);
   }
 
   void onFechaTerminoChanged(DateTime fecha) {
-    state =
-        state.copyWith(evntFechaTerminoEvento: fecha);
+    state = state.copyWith(evntFechaTerminoEvento: fecha);
   }
 
   void onHoraInicioChanged(String hora) {
@@ -185,21 +192,20 @@ class EventPlannerFormNotifier extends StateNotifier<EventPlannerFormState> {
     state = state.copyWith(tiempoRuta: tiempo, distanciaRuta: distancia);
   }
 
-  Future<void> setLocalesArray(List<CompanyLocalRoutePlanner> localesSelected) async {
-
+  Future<void> setLocalesArray(
+      List<CompanyLocalRoutePlanner> localesSelected) async {
     List<EventoPlanificadorRutaArray> newArrayEventosPlanificadorRuta = [];
 
     for (var i = 0; i < localesSelected.length; i++) {
       final local = localesSelected[i];
-      final item = EventoPlanificadorRutaArray(evntRuc: local.ruc, evntLocalCodigo: int.parse(local.localCodigo));
+      final item = EventoPlanificadorRutaArray(
+          evntRuc: local.ruc, evntLocalCodigo: int.parse(local.localCodigo));
       newArrayEventosPlanificadorRuta.add(item);
     }
 
     state = state.copyWith(
-      arrayEventosPlanificadorRuta: newArrayEventosPlanificadorRuta
-    );
+        arrayEventosPlanificadorRuta: newArrayEventosPlanificadorRuta);
   }
-
 }
 
 class EventPlannerFormState {
@@ -227,31 +233,32 @@ class EventPlannerFormState {
   final String? tiempoRuta;
   final String? distanciaRuta;
 
-  EventPlannerFormState(
-      {this.isFormValid = false,
-      this.id,
-      //this.evntAsunto = '',
-      this.evntFechaInicioEvento,
-      this.evntFechaTerminoEvento,
-      this.evntHoraInicioEvento = '',
-      this.evntIdTipoGestion = const TipoGestion.dirty(''),
-      this.evntNombreTipoGestion = '',
-      //this.evntIdRecordatorio,
-      this.evntIdIntervaloReunion = const Select.dirty(''),
-      this.evntNombreIntervaloReunion = '',
-      this.evntNombreRecordatorio,
-      this.evntIdUsuarioResponsable,
+  final String? plrtIdUsuarioResponsable;
 
-      this.horarioTrabajoNombre,
-      this.horarioTrabajoId,
-      this.tiempoEntreVisitasId = const HoraEntreVisita.dirty(''),
-      this.tiempoEntreVisitasNombre,
-
-      this.evntNombreUsuarioResponsable,
-      this.arrayEventosPlanificadorRuta = const [],
-      this.tiempoRuta,
-      this.distanciaRuta
-      });
+  EventPlannerFormState({
+    this.isFormValid = false,
+    this.plrtIdUsuarioResponsable,
+    this.id,
+    //this.evntAsunto = '',
+    this.evntFechaInicioEvento,
+    this.evntFechaTerminoEvento,
+    this.evntHoraInicioEvento = '',
+    this.evntIdTipoGestion = const TipoGestion.dirty(''),
+    this.evntNombreTipoGestion = '',
+    //this.evntIdRecordatorio,
+    this.evntIdIntervaloReunion = const Select.dirty(''),
+    this.evntNombreIntervaloReunion = '',
+    this.evntNombreRecordatorio,
+    this.evntIdUsuarioResponsable,
+    this.horarioTrabajoNombre,
+    this.horarioTrabajoId,
+    this.tiempoEntreVisitasId = const HoraEntreVisita.dirty(''),
+    this.tiempoEntreVisitasNombre,
+    this.evntNombreUsuarioResponsable,
+    this.arrayEventosPlanificadorRuta = const [],
+    this.tiempoRuta,
+    this.distanciaRuta,
+  });
 
   EventPlannerFormState copyWith({
     bool? isFormValid,
@@ -268,41 +275,49 @@ class EventPlannerFormState {
     String? evntNombreRecordatorio,
     String? evntIdUsuarioResponsable,
     String? evntNombreUsuarioResponsable,
-    
     String? horarioTrabajoNombre,
+    String? plrtIdUsuarioResponsable,
     String? horarioTrabajoId,
     HoraEntreVisita? tiempoEntreVisitasId,
     String? tiempoEntreVisitasNombre,
     String? tiempoRuta,
     String? distanciaRuta,
-
     List<EventoPlanificadorRutaArray>? arrayEventosPlanificadorRuta,
   }) =>
       EventPlannerFormState(
+        plrtIdUsuarioResponsable:
+            plrtIdUsuarioResponsable ?? this.plrtIdUsuarioResponsable,
         isFormValid: isFormValid ?? this.isFormValid,
         id: id ?? this.id,
         //evntAsunto: evntAsunto ?? this.evntAsunto,
-        evntFechaInicioEvento: evntFechaInicioEvento ?? this.evntFechaInicioEvento,
-        evntFechaTerminoEvento: evntFechaTerminoEvento ?? this.evntFechaTerminoEvento,
-        evntHoraInicioEvento:
-            evntHoraInicioEvento ?? this.evntHoraInicioEvento,
-        evntIdTipoGestion:
-            evntIdTipoGestion ?? this.evntIdTipoGestion,
+        evntFechaInicioEvento:
+            evntFechaInicioEvento ?? this.evntFechaInicioEvento,
+        evntFechaTerminoEvento:
+            evntFechaTerminoEvento ?? this.evntFechaTerminoEvento,
+        evntHoraInicioEvento: evntHoraInicioEvento ?? this.evntHoraInicioEvento,
+        evntIdTipoGestion: evntIdTipoGestion ?? this.evntIdTipoGestion,
         evntNombreTipoGestion:
             evntNombreTipoGestion ?? this.evntNombreTipoGestion,
         //evntIdRecordatorio: evntIdRecordatorio ?? this.evntIdRecordatorio,
-        evntIdIntervaloReunion: evntIdIntervaloReunion ?? this.evntIdIntervaloReunion,
-        evntNombreIntervaloReunion: evntNombreIntervaloReunion ?? this.evntNombreIntervaloReunion,
-        evntNombreRecordatorio: evntNombreRecordatorio ?? this.evntNombreRecordatorio,
-        
+        evntIdIntervaloReunion:
+            evntIdIntervaloReunion ?? this.evntIdIntervaloReunion,
+        evntNombreIntervaloReunion:
+            evntNombreIntervaloReunion ?? this.evntNombreIntervaloReunion,
+        evntNombreRecordatorio:
+            evntNombreRecordatorio ?? this.evntNombreRecordatorio,
+
         horarioTrabajoNombre: horarioTrabajoNombre ?? this.horarioTrabajoNombre,
         horarioTrabajoId: horarioTrabajoId ?? this.horarioTrabajoId,
         tiempoEntreVisitasId: tiempoEntreVisitasId ?? this.tiempoEntreVisitasId,
-        tiempoEntreVisitasNombre: tiempoEntreVisitasNombre ?? this.tiempoEntreVisitasNombre,
-        
-        evntIdUsuarioResponsable: evntIdUsuarioResponsable ?? this.evntIdUsuarioResponsable,
-        evntNombreUsuarioResponsable: evntNombreUsuarioResponsable ?? this.evntNombreUsuarioResponsable,
-        arrayEventosPlanificadorRuta: arrayEventosPlanificadorRuta ?? this.arrayEventosPlanificadorRuta,
+        tiempoEntreVisitasNombre:
+            tiempoEntreVisitasNombre ?? this.tiempoEntreVisitasNombre,
+
+        evntIdUsuarioResponsable:
+            evntIdUsuarioResponsable ?? this.evntIdUsuarioResponsable,
+        evntNombreUsuarioResponsable:
+            evntNombreUsuarioResponsable ?? this.evntNombreUsuarioResponsable,
+        arrayEventosPlanificadorRuta:
+            arrayEventosPlanificadorRuta ?? this.arrayEventosPlanificadorRuta,
         tiempoRuta: tiempoRuta ?? this.tiempoRuta,
         distanciaRuta: distanciaRuta ?? this.distanciaRuta,
       );

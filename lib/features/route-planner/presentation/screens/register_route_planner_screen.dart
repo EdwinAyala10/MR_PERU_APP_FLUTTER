@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:crm_app/features/companies/presentation/delegates/search_company_active_delegate.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/location/presentation/providers/providers.dart';
 import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
@@ -7,6 +8,8 @@ import 'package:crm_app/features/route-planner/domain/domain.dart';
 import 'package:crm_app/features/route-planner/domain/entities/create_event_planner_response.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/forms/event_planner_form_provider.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
+import 'package:crm_app/features/route-planner/presentation/providers/search_users_planner_provider.dart';
+import 'package:crm_app/features/route-planner/presentation/screens/search_users_planner.dart';
 import 'package:crm_app/features/route-planner/presentation/widgets/route_card.dart';
 import 'package:crm_app/features/shared/shared.dart';
 import 'package:crm_app/features/shared/widgets/format_distance.dart';
@@ -24,21 +27,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 class RegisterRoutePlannerScreen extends ConsumerWidget {
-
   const RegisterRoutePlannerScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-   
     return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Scaffold(
           appBar: AppBar(
-            title:
-                const Text('Planificador de rutas',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600
-                ),),
+            title: const Text(
+              'Planificador de rutas',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
             /*leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
@@ -48,42 +48,40 @@ class RegisterRoutePlannerScreen extends ConsumerWidget {
           ),
           body: const _EventView(),
           floatingActionButton: FloatingActionButtonCustom(
-            callOnPressed:() {
+              callOnPressed: () {
+                showLoadingMessage(context);
+                ref
+                    .read(eventPlannerFormProvider.notifier)
+                    .onFormSubmit()
+                    .then((CreateEventPlannerResponse value) {
+                  //if ( !value.response ) return;
+                  if (value.message != '') {
+                    showSnackbar(context, value.message);
 
-              showLoadingMessage(context);
+                    if (value.response) {
+                      //Timer(const Duration(seconds: 3), () {
+                      //TODO: LIMPIAR LOS SELECT ITEMS Y TODO EL FORMULARIO
+                      ref
+                          .read(routePlannerProvider.notifier)
+                          .clearSelectedLocales();
+                      ref
+                          .read(routePlannerProvider.notifier)
+                          .loadNextPage(isRefresh: false);
 
-              ref
-                  .read(eventPlannerFormProvider.notifier)
-                  .onFormSubmit()
-                  .then((CreateEventPlannerResponse value) {
-                //if ( !value.response ) return;
-                if (value.message != '') {
-                  showSnackbar(context, value.message);
-
-                  if (value.response) {
-                    //Timer(const Duration(seconds: 3), () {
-                    //TODO: LIMPIAR LOS SELECT ITEMS Y TODO EL FORMULARIO
-                    ref.read(routePlannerProvider.notifier).clearSelectedLocales();
-                    ref.read(routePlannerProvider.notifier).loadNextPage(isRefresh: false);
-                    
-                    context.replace('/route_planner');
-                    //});
+                      context.replace('/route_planner');
+                      //});
+                    }
                   }
-                }
 
-                Navigator.pop(context);
-
-              });
-
-            }, 
-            iconData: Icons.check),
-      )
-    );
+                  Navigator.pop(context);
+                });
+              },
+              iconData: Icons.check),
+        ));
   }
 }
 
 class _EventView extends ConsumerWidget {
-
   const _EventView();
 
   @override
@@ -101,10 +99,12 @@ class _EventPlannerInformation extends ConsumerStatefulWidget {
   const _EventPlannerInformation({super.key});
 
   @override
-  ConsumerState<_EventPlannerInformation> createState() => _EventPlannerInformationState();
+  ConsumerState<_EventPlannerInformation> createState() =>
+      _EventPlannerInformationState();
 }
 
-class _EventPlannerInformationState extends ConsumerState<_EventPlannerInformation> {
+class _EventPlannerInformationState
+    extends ConsumerState<_EventPlannerInformation> {
   List<DropdownOption> optionsTipoGestion = [
     DropdownOption(id: '', name: 'Selecciona'),
     DropdownOption(id: '04', name: 'Visita'),
@@ -134,10 +134,8 @@ class _EventPlannerInformationState extends ConsumerState<_EventPlannerInformati
 
   @override
   void initState() {
-
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
-
-      var filterSuccess =ref.read(routePlannerProvider).filtersSuccess;
+      var filterSuccess = ref.read(routePlannerProvider).filtersSuccess;
 
       FilterOption? horarioTrabajo = encontrarHorarioTrabajo(filterSuccess);
 
@@ -155,43 +153,54 @@ class _EventPlannerInformationState extends ConsumerState<_EventPlannerInformati
       print('strDistancia: ${strDistancia}');
 
       //SETEAR HORARIO TRABAJO
-      await ref.watch(eventPlannerFormProvider.notifier).onChangeHorarioTrabajo(horarioTrabajo!.id, horarioTrabajo.name, strDuracion,strDistancia);
-      
-      String? dateIniHorario = await ref.read(routePlannerProvider).dateTimeInitial; 
-      String? dateFinHorario = await ref.read(routePlannerProvider).dateTimeEnd; 
+      await ref.watch(eventPlannerFormProvider.notifier).onChangeHorarioTrabajo(
+          horarioTrabajo!.id, horarioTrabajo.name, strDuracion, strDistancia);
+
+      String? dateIniHorario =
+          await ref.read(routePlannerProvider).dateTimeInitial;
+      String? dateFinHorario = await ref.read(routePlannerProvider).dateTimeEnd;
 
       DateTime dateInitialHorarioFormat = DateTime.parse(dateIniHorario ?? '');
       DateTime dateEndHorarioFormat = DateTime.parse(dateFinHorario ?? '');
 
-      ref.watch(eventPlannerFormProvider.notifier).onFechaChanged(dateInitialHorarioFormat);
-      ref.watch(eventPlannerFormProvider.notifier).onFechaTerminoChanged(dateEndHorarioFormat);
-      
+      ref
+          .watch(eventPlannerFormProvider.notifier)
+          .onFechaChanged(dateInitialHorarioFormat);
+      ref
+          .watch(eventPlannerFormProvider.notifier)
+          .onFechaTerminoChanged(dateEndHorarioFormat);
+
       print('INIT STATE REGISTER');
       print(horarioTrabajo.id);
       print(horarioTrabajo.name);
       //ref.read(eventPlannerFormProvider.notifier).onDurationAndDistanceChanged(strDuracion, strDistancia);
 
-      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('26').then((value) => {
-        setState(() {
-          optionsRecordatorio = value;
-        })
-      });
+      await ref
+          .read(resourceDetailsProvider.notifier)
+          .loadCatalogById('26')
+          .then((value) => {
+                setState(() {
+                  optionsRecordatorio = value;
+                })
+              });
       /*await ref.read(resourceDetailsProvider.notifier).loadCatalogById('19').then((value) => {
         setState(() {
           optionsHorarioTrabajo = value;
         })
       });*/
-      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('25').then((value) => {
-        setState(() {
-          optionsTiempoEntreVisitas = value;
-        })
-      });
+      await ref
+          .read(resourceDetailsProvider.notifier)
+          .loadCatalogById('25')
+          .then((value) => {
+                setState(() {
+                  optionsTiempoEntreVisitas = value;
+                })
+              });
     });
 
     super.initState();
-
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final evenPlannertForm = ref.watch(eventPlannerFormProvider);
@@ -202,7 +211,7 @@ class _EventPlannerInformationState extends ConsumerState<_EventPlannerInformati
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 10),
-          
+
           SelectCustomForm(
             label: 'Tipo de gestión',
             value: evenPlannertForm.evntIdTipoGestion.value.trim(),
@@ -216,8 +225,8 @@ class _EventPlannerInformationState extends ConsumerState<_EventPlannerInformati
             },
             items: optionsTipoGestion,
             errorMessage: evenPlannertForm.evntIdTipoGestion.errorMessage,
-          ),// : PlaceholderInput(text: 'Cargando...'),
-          
+          ), // : PlaceholderInput(text: 'Cargando...'),
+
           const SizedBox(height: 10),
           const Text(
             'Fecha de Inicio',
@@ -237,7 +246,9 @@ class _EventPlannerInformationState extends ConsumerState<_EventPlannerInformati
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      DateFormat('dd-MM-yyyy').format(evenPlannertForm.evntFechaInicioEvento ?? DateTime.now()),
+                      DateFormat('dd-MM-yyyy').format(
+                          evenPlannertForm.evntFechaInicioEvento ??
+                              DateTime.now()),
                       style: const TextStyle(fontSize: 16),
                     ),
                     const Icon(Icons.calendar_today),
@@ -265,7 +276,9 @@ class _EventPlannerInformationState extends ConsumerState<_EventPlannerInformati
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      DateFormat('dd-MM-yyyy').format(evenPlannertForm.evntFechaTerminoEvento ?? DateTime.now()),
+                      DateFormat('dd-MM-yyyy').format(
+                          evenPlannertForm.evntFechaTerminoEvento ??
+                              DateTime.now()),
                       style: const TextStyle(fontSize: 16),
                     ),
                     const Icon(Icons.calendar_today),
@@ -274,88 +287,92 @@ class _EventPlannerInformationState extends ConsumerState<_EventPlannerInformati
               ),
             ),
           ),
-          
+
           const SizedBox(height: 12),
 
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 4, horizontal: 2),
             child: Text(
               'Horario de Trabajo',
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 15
-              ),
+              style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
             ),
           ),
 
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-            child: Text(
-              '${evenPlannertForm.horarioTrabajoNombre}', 
-            style: const TextStyle(
-              fontSize: 16
-            )),
+            child: Text('${evenPlannertForm.horarioTrabajoNombre}',
+                style: const TextStyle(fontSize: 16)),
           ),
 
           const SizedBox(height: 10),
           const Text('Hora programación',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
           const SizedBox(height: 6),
           GestureDetector(
-                  onTap: () => _selectTime(context, ref, 'inicio'),
-                  child: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          DateFormat('hh:mm a').format(evenPlannertForm.evntHoraInicioEvento != null
-                                  ? DateFormat('HH:mm:ss').parse(
-                                      evenPlannertForm.evntHoraInicioEvento ?? '')
-                                  : DateTime.now()),
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                        const Icon(Icons.access_time),
-                      ],
-                    ),
+            onTap: () => _selectTime(context, ref, 'inicio'),
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    DateFormat('hh:mm a').format(
+                        evenPlannertForm.evntHoraInicioEvento != null
+                            ? DateFormat('HH:mm:ss').parse(
+                                evenPlannertForm.evntHoraInicioEvento ?? '')
+                            : DateTime.now()),
+                    style: const TextStyle(fontSize: 16),
                   ),
-                ),
+                  const Icon(Icons.access_time),
+                ],
+              ),
+            ),
+          ),
 
           const SizedBox(height: 10),
-          optionsTiempoEntreVisitas.length > 1 ? SelectCustomForm(
-            label: 'Tiempo entre visitas',
-            value: evenPlannertForm.tiempoEntreVisitasId.value,
-            callbackChange: (String? newValue) {
-              DropdownOption searchRecordatorio = optionsTiempoEntreVisitas
-                    .where((option) => option.id == newValue!)
-                    .first;
-                ref
-                    .read(eventPlannerFormProvider.notifier)
-                    .onTiempoEntreVisitaChanged(newValue!, searchRecordatorio.name);
-            },
-            items: optionsTiempoEntreVisitas,
-            errorMessage: evenPlannertForm.tiempoEntreVisitasId.errorMessage,
-          ): PlaceholderInput(text: 'Cargando...'),
+          optionsTiempoEntreVisitas.length > 1
+              ? SelectCustomForm(
+                  label: 'Tiempo entre visitas',
+                  value: evenPlannertForm.tiempoEntreVisitasId.value,
+                  callbackChange: (String? newValue) {
+                    DropdownOption searchRecordatorio =
+                        optionsTiempoEntreVisitas
+                            .where((option) => option.id == newValue!)
+                            .first;
+                    ref
+                        .read(eventPlannerFormProvider.notifier)
+                        .onTiempoEntreVisitaChanged(
+                            newValue!, searchRecordatorio.name);
+                  },
+                  items: optionsTiempoEntreVisitas,
+                  errorMessage:
+                      evenPlannertForm.tiempoEntreVisitasId.errorMessage,
+                )
+              : PlaceholderInput(text: 'Cargando...'),
 
-          optionsRecordatorio.length > 1 ? SelectCustomForm(
-            label: 'Tiempo de la visita',
-            value: evenPlannertForm.evntIdIntervaloReunion.value,
-            callbackChange: (String? newValue) {
-              DropdownOption searchRecordatorio = optionsRecordatorio
-                    .where((option) => option.id == newValue!)
-                    .first;
-                ref
-                    .read(eventPlannerFormProvider.notifier)
-                    .onTiempoReunionesChanged(newValue!, searchRecordatorio.name);
-            },
-            items: optionsRecordatorio,
-            errorMessage: evenPlannertForm.evntIdIntervaloReunion.errorMessage,
-          ): PlaceholderInput(text: 'Cargando...'),
-          
+          optionsRecordatorio.length > 1
+              ? SelectCustomForm(
+                  label: 'Tiempo de la visita',
+                  value: evenPlannertForm.evntIdIntervaloReunion.value,
+                  callbackChange: (String? newValue) {
+                    DropdownOption searchRecordatorio = optionsRecordatorio
+                        .where((option) => option.id == newValue!)
+                        .first;
+                    ref
+                        .read(eventPlannerFormProvider.notifier)
+                        .onTiempoReunionesChanged(
+                            newValue!, searchRecordatorio.name);
+                  },
+                  items: optionsRecordatorio,
+                  errorMessage:
+                      evenPlannertForm.evntIdIntervaloReunion.errorMessage,
+                )
+              : PlaceholderInput(text: 'Cargando...'),
+
           const Text(
             'Responsable',
             style: TextStyle(
@@ -370,21 +387,81 @@ class _EventPlannerInformationState extends ConsumerState<_EventPlannerInformati
                   spacing: 8.0,
                   children: [
                     Chip(
-                        label: Text('${evenPlannertForm.evntNombreUsuarioResponsable}',
+                        label: Text(
+                      '${evenPlannertForm.evntNombreUsuarioResponsable}',
                     ))
                   ],
                 ),
               ),
             ],
           ),
+          const SizedBox(height: 20),
+          const Text(
+            'Lista de usuarios',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 5),
+          GestureDetector(
+            onTap: () {
+              context.push("/${SearchUsersPlanner.name}").then((value) {
+                final user = ref.watch(selectedUserPlannerProvider);
+                ref
+                    .read(eventPlannerFormProvider.notifier)
+                    .onUpdateUserPlannerSelector(user?.userreportCodigo ?? '');
+              });
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Colors.grey,
+                ),
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      ref.watch(selectedUserPlannerProvider)?.userreportName ??
+                          'Selecciona',
+                      style: const TextStyle(
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.search),
+                    onPressed: () {
+                      context.push("/${SearchUsersPlanner.name}").then((value) {
+                        final user = ref.watch(selectedUserPlannerProvider);
+                        ref
+                            .read(eventPlannerFormProvider.notifier)
+                            .onUpdateUserPlannerSelector(
+                                user?.userreportCodigo ?? '');
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
           const SizedBox(height: 30),
+
           RouteCard(),
         ],
       ),
     );
-
   }
 }
+
+void _openSearchCompanies(
+  BuildContext context,
+  WidgetRef ref,
+  String dni,
+) async {}
 
 Future<void> _selectDate(BuildContext context, WidgetRef ref) async {
   final DateTime? picked = await showDatePicker(
@@ -426,11 +503,9 @@ Future<void> _selectTime(
     String formattedTime = '${picked.toString().substring(10, 15)}:00';
 
     //if (type == 'inicio') {
-      ref
-          .read(eventPlannerFormProvider.notifier)
-          .onHoraInicioChanged(formattedTime);
+    ref
+        .read(eventPlannerFormProvider.notifier)
+        .onHoraInicioChanged(formattedTime);
     //}
-
-    
   }
 }

@@ -24,11 +24,11 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
-      ref
-          .read(contactProvider(widget.opportunity.contactId ?? '').notifier)
-          .loadContact(widget.opportunity.contactId ?? '');
-    });
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_){
+        ref.read(contactProvider(widget.opportunity.contactId ?? '').notifier).loadContact(widget.opportunity.contactId ?? '');
+      },
+    );
   }
 
   @override
@@ -61,20 +61,22 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
               if (widget.opportunity.localDistrito != '')
                 Text(widget.opportunity.localDistrito ?? ''),
               const SizedBox(height: 4),
-              if (widget.opportunity.actiIdTipoGestion != null) 
+              if (widget.opportunity.actiIdTipoGestion != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 1.0),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 6.0, vertical: 1.0),
                   decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 247, 247, 247),
-                    border: Border.all(color: Color.fromARGB(255, 218, 218, 218), width: 1.5),
-                    borderRadius: BorderRadius.circular(20.0),
-                    boxShadow: const [
-                      BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 2,
-                          offset: Offset(0, 2))
-                    ]
-                  ),
+                      color: const Color.fromARGB(255, 247, 247, 247),
+                      border: Border.all(
+                          color: Color.fromARGB(255, 218, 218, 218),
+                          width: 1.5),
+                      borderRadius: BorderRadius.circular(20.0),
+                      boxShadow: const [
+                        BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 2,
+                            offset: Offset(0, 2))
+                      ]),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -86,7 +88,9 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
                           fontWeight: FontWeight.w400,
                         ),
                       ),
-                      IconsActivity(type: widget.opportunity.actiIdTipoGestion!, size: 19),
+                      IconsActivity(
+                          type: widget.opportunity.actiIdTipoGestion!,
+                          size: 19),
                       const SizedBox(
                         width: 4,
                       ),
@@ -98,36 +102,37 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      
                     ],
                   ),
                 ),
-                const SizedBox(
-                  height: 3,
-                ),
-                if (widget.opportunity.actiFechaRegistro != "")
-                  Row(
-                    children: [
-                      const Icon(Icons.calendar_month, size: 14),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      Expanded(
-                        child: Text(widget.opportunity.actiFechaRegistro ?? '', overflow: TextOverflow.ellipsis)
-                      ),
-                    ],
-                  )  
+              const SizedBox(
+                height: 3,
+              ),
+              if (widget.opportunity.actiFechaRegistro != "")
+                Row(
+                  children: [
+                    const Icon(Icons.calendar_month, size: 14),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Expanded(
+                        child: Text(widget.opportunity.actiFechaRegistro ?? '',
+                            overflow: TextOverflow.ellipsis)),
+                  ],
+                )
             ],
           ),
           trailing: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text('${widget.opportunity.oprtProbabilidad ?? ''}%',
-                  textAlign: TextAlign.right,
-                  style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.blue,
-                      fontWeight: FontWeight.w600)),
+              Text(
+                '${widget.opportunity.oprtProbabilidad ?? ''}%',
+                textAlign: TextAlign.right,
+                style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.blue,
+                    fontWeight: FontWeight.w600),
+              ),
               Text(
                 '${widget.opportunity.oprtValor == '.00' ? '0.00' : widget.opportunity.oprtValor}',
                 textAlign: TextAlign.right,
@@ -139,13 +144,11 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
               Text(
                 widget.opportunity.nombreUsuarioResponsable ?? '',
                 style: const TextStyle(
-                  color: Colors.blue,
-                  overflow:TextOverflow.ellipsis,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 11
-                ),
+                    color: Colors.blue,
+                    overflow: TextOverflow.ellipsis,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 11),
               )
-              
             ],
           ),
           leading: const Icon(

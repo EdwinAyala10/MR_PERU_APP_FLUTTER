@@ -7,6 +7,12 @@ import '../../domain/domain.dart';
 
 import 'opportunities_repository_provider.dart';
 
+
+
+final rucOpportunitieProvider = StateProvider<String?>((ref) => null);
+final idOportunidadMotivo = StateProvider<String?>((ref) => null);
+final razonOportunityProvider = StateProvider<String?>((ref) => null);
+
 final opportunitiesProvider =
     StateNotifierProvider<OpportunitiesNotifier, OpportunitiesState>((ref) {
   final opportunitiesRepository = ref.watch(opportunitiesRepositoryProvider);

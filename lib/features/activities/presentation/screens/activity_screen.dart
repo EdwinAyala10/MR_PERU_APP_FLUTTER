@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:crm_app/features/companies/presentation/providers/company_provider.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
+import 'package:crm_app/features/opportunities/presentation/providers/docs_opportunitie_provider.dart';
+import 'package:crm_app/features/opportunities/presentation/providers/opportunities_provider.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 
 import '../../domain/domain.dart';
@@ -42,7 +45,10 @@ class ActivityScreen extends ConsumerWidget {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Crear Actividad', style: TextStyle(fontWeight: FontWeight.w700),),
+          title: const Text(
+            'Crear Actividad',
+            style: TextStyle(fontWeight: FontWeight.w700),
+          ),
           /*leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
@@ -56,6 +62,7 @@ class ActivityScreen extends ConsumerWidget {
         floatingActionButton: FloatingActionButtonCustom(
             iconData: Icons.save,
             callOnPressed: () {
+              log(activityState.activity.toString());
               if (activityState.activity == null) return;
 
               showLoadingMessage(context);
@@ -69,19 +76,24 @@ class ActivityScreen extends ConsumerWidget {
                   showSnackbar(context, value.message);
 
                   if (value.response) {
-                    ref.read(activitiesProvider.notifier).loadNextPage(isRefresh: true);
-                    ref.read(activityProvider(activityId).notifier).loadActivity();
-                    ref.read(companyProvider(value.id!).notifier).loadSecundaryActivities();
+                    ref
+                        .read(activitiesProvider.notifier)
+                        .loadNextPage(isRefresh: true);
+                    ref
+                        .read(activityProvider(activityId).notifier)
+                        .loadActivity();
+                    ref
+                        .read(companyProvider(value.id!).notifier)
+                        .loadSecundaryActivities();
 
                     //Timer(const Duration(seconds: 3), () {
-                      //context.replace('/activities');
-                      context.pop();
+                    //context.replace('/activities');
+                    context.pop();
                     //});
                   }
                 }
 
                 Navigator.pop(context);
-
               });
             }),
       ),
@@ -114,7 +126,8 @@ class _ActivityInformationv2 extends ConsumerStatefulWidget {
   _ActivityInformationv2State createState() => _ActivityInformationv2State();
 }
 
-class _ActivityInformationv2State extends ConsumerState<_ActivityInformationv2> {
+class _ActivityInformationv2State
+    extends ConsumerState<_ActivityInformationv2> {
   List<DropdownOption> optionsTipoGestion = [
     DropdownOption(id: '', name: 'Cargando...'),
   ];
@@ -123,40 +136,65 @@ class _ActivityInformationv2State extends ConsumerState<_ActivityInformationv2> 
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('01').then((value) => {
-        setState(() {
-          optionsTipoGestion = value;
-        })
-      });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await ref
+          .read(resourceDetailsProvider.notifier)
+          .loadCatalogById('01')
+          .then((value) => {
+                setState(() {
+                  optionsTipoGestion = value;
+                })
+              });
     });
+    final op = ref.read(selectedOp);
+    ref
+        .read(searchedCompaniesProvider.notifier)
+        .searchCompaniesByQuery(
+            op?.oprtIdUsuarioRegistro ?? '', op?.oprtRuc ?? '')
+        .then(
+      (company) {
+        if (company.length != 1) return;
+        ref
+            .read(
+              activityFormProvider(widget.activity).notifier,
+            )
+            .onRucChanged(
+              company[0].ruc,
+              company[0].razon,
+            );
+        ref
+            .read(activityFormProvider(widget.activity).notifier)
+            .onOportunidadChanged(op?.id ?? '', op?.oprtNombre ?? '');
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-
     final activityForm = ref.watch(activityFormProvider(widget.activity));
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 10),
-          optionsTipoGestion.length > 1 ? SelectCustomForm(
-            label: 'Tipo de gestión *',
-            value: activityForm.actiIdTipoGestion.value,
-            callbackChange: (String? newValue) {
-              DropdownOption searchTipoGestion = optionsTipoGestion
-                  .where((option) => option.id == newValue!)
-                  .first;
-              ref
-                  .read(activityFormProvider(widget.activity).notifier)
-                  .onTipoGestionChanged(newValue ?? '', searchTipoGestion.name);
-            },
-            items: optionsTipoGestion,
-            errorMessage: activityForm.actiIdTipoGestion.errorMessage,
-          ): PlaceholderInput(text: ''),
+          optionsTipoGestion.length > 1
+              ? SelectCustomForm(
+                  label: 'Tipo de gestión *',
+                  value: activityForm.actiIdTipoGestion.value,
+                  callbackChange: (String? newValue) {
+                    DropdownOption searchTipoGestion = optionsTipoGestion
+                        .where((option) => option.id == newValue!)
+                        .first;
+                    ref
+                        .read(activityFormProvider(widget.activity).notifier)
+                        .onTipoGestionChanged(
+                            newValue ?? '', searchTipoGestion.name);
+                  },
+                  items: optionsTipoGestion,
+                  errorMessage: activityForm.actiIdTipoGestion.errorMessage,
+                )
+              : PlaceholderInput(text: ''),
           const SizedBox(height: 10),
           const Text(
             'Fecha',
@@ -236,7 +274,10 @@ class _ActivityInformationv2State extends ConsumerState<_ActivityInformationv2> 
                 GestureDetector(
                   onTap: () {
                     _openSearchCompanies(
-                        context, ref, activityForm.actiIdUsuarioRegistro);
+                      context,
+                      ref,
+                      activityForm.actiIdUsuarioRegistro,
+                    );
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -298,7 +339,7 @@ class _ActivityInformationv2State extends ConsumerState<_ActivityInformationv2> 
                 GestureDetector(
                   onTap: () {
                     if (activityForm.actiRuc.value == '') {
-                      showSnackbar(context, 'Seleccione una empresa');
+                      showSnackbar(context, 'Seleccione una oportunidad');
                       return;
                     }
                     _openSearchOportunities(
@@ -352,9 +393,10 @@ class _ActivityInformationv2State extends ConsumerState<_ActivityInformationv2> 
                 )
               : const SizedBox(),
           const SizedBox(height: 15),
-          const Text('Contactos', style: TextStyle(
-            fontWeight: FontWeight.w600
-          ),),
+          const Text(
+            'Contactos',
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
           Row(
             children: [
               Expanded(
@@ -372,9 +414,9 @@ class _ActivityInformationv2State extends ConsumerState<_ActivityInformationv2> 
                                                 const TextStyle(fontSize: 12)),
                                         onDeleted: () {
                                           ref
-                                              .read(
-                                                  activityFormProvider(widget.activity)
-                                                      .notifier)
+                                              .read(activityFormProvider(
+                                                      widget.activity)
+                                                  .notifier)
                                               .onDeleteContactoChanged(item);
                                         },
                                       )))
@@ -385,14 +427,16 @@ class _ActivityInformationv2State extends ConsumerState<_ActivityInformationv2> 
                 ],
               )),
               ElevatedButton(
-                onPressed: activityForm.actividadesContacto!.length > 0 ? null : () {
-
-                  if (activityForm.actiRuc.value == "") {
-                    showSnackbar(context, 'Debe seleccionar una empresa');
-                    return;
-                  }
-                  _openSearchContacts(context, ref, activityForm.actiRuc.value);
-                },
+                onPressed: activityForm.actividadesContacto!.length > 0
+                    ? null
+                    : () {
+                        if (activityForm.actiRuc.value == "") {
+                          showSnackbar(context, 'Debe seleccionar una empresa');
+                          return;
+                        }
+                        _openSearchContacts(
+                            context, ref, activityForm.actiRuc.value);
+                      },
                 child: const Row(
                   children: [
                     Icon(Icons.add),
@@ -536,7 +580,9 @@ class _ActivityInformationv2State extends ConsumerState<_ActivityInformationv2> 
 
     //if (picked != null && picked != selectedDate) {
     if (picked != null) {
-      ref.read(activityFormProvider(widget.activity).notifier).onFechaChanged(picked);
+      ref
+          .read(activityFormProvider(widget.activity).notifier)
+          .onFechaChanged(picked);
     }
   }
 
@@ -556,30 +602,33 @@ class _ActivityInformationv2State extends ConsumerState<_ActivityInformationv2> 
   }
 
   void _openSearchCompanies(
-      BuildContext context, WidgetRef ref, String dni) async {
+    BuildContext context,
+    WidgetRef ref,
+    String dni,
+  ) async {
     final searchedCompanies = ref.read(searchedCompaniesProvider);
     final searchQuery = ref.read(searchQueryCompaniesProvider);
 
     showSearch<Company?>(
-            query: searchQuery,
-            context: context,
-            delegate: SearchCompanyDelegate(
-                dni: dni,
-                initialCompanies: searchedCompanies,
-                searchCompanies: ref
-                    .read(searchedCompaniesProvider.notifier)
-                    .searchCompaniesByQuery,
-                resetSearchQuery: () {
-                    ref.read(searchQueryCompaniesProvider.notifier).update((state) => '');
-                },
-            ))
-        .then((company) {
-      if (company == null) return;
-
-      ref
-          .read(activityFormProvider(widget.activity).notifier)
-          .onRucChanged(company.ruc, company.razon);
-    });
+      query: searchQuery,
+      context: context,
+      delegate: SearchCompanyDelegate(
+        dni: dni,
+        initialCompanies: searchedCompanies,
+        searchCompanies:
+            ref.read(searchedCompaniesProvider.notifier).searchCompaniesByQuery,
+        resetSearchQuery: () {
+          ref.read(searchQueryCompaniesProvider.notifier).update((state) => '');
+        },
+      ),
+    ).then(
+      (company) {
+        if (company == null) return;
+        ref
+            .read(activityFormProvider(widget.activity).notifier)
+            .onRucChanged(company.ruc, company.razon);
+      },
+    );
   }
 
   void _openSearchOportunities(
@@ -588,19 +637,20 @@ class _ActivityInformationv2State extends ConsumerState<_ActivityInformationv2> 
     final searchQuery = ref.read(searchQueryOpportunitiesProvider);
 
     showSearch<Opportunity?>(
-            query: searchQuery,
-            context: context,
-            delegate: SearchOpportunityDelegate(
-                ruc: ruc,
-                initialOpportunities: searchedOpportunities,
-                searchOpportunities: ref
-                    .read(searchedOpportunitiesProvider.notifier)
-                    .searchOpportunitiesByQuery,
-                resetSearchQuery: () {
-                    ref.read(searchQueryOpportunitiesProvider.notifier).update((state) => '');
-                },
-            ))
-        .then((opportunity) {
+        query: searchQuery,
+        context: context,
+        delegate: SearchOpportunityDelegate(
+          ruc: ruc,
+          initialOpportunities: searchedOpportunities,
+          searchOpportunities: ref
+              .read(searchedOpportunitiesProvider.notifier)
+              .searchOpportunitiesByQuery,
+          resetSearchQuery: () {
+            ref
+                .read(searchQueryOpportunitiesProvider.notifier)
+                .update((state) => '');
+          },
+        )).then((opportunity) {
       if (opportunity == null) return;
 
       ref
@@ -615,19 +665,19 @@ class _ActivityInformationv2State extends ConsumerState<_ActivityInformationv2> 
     final searchQuery = ref.read(searchQueryContactsProvider);
 
     showSearch<Contact?>(
-            query: searchQuery,
-            context: context,
-            delegate: SearchContactDelegate(
-                ruc: ruc,
-                initialContacts: searchedContacts,
-                searchContacts: ref
-                    .read(searchedContactsProvider.notifier)
-                    .searchContactsByQuery,
-                resetSearchQuery: () {
-                    ref.read(searchQueryContactsProvider.notifier).update((state) => '');
-                },
-            ))
-        .then((contact) {
+        query: searchQuery,
+        context: context,
+        delegate: SearchContactDelegate(
+          ruc: ruc,
+          initialContacts: searchedContacts,
+          searchContacts:
+              ref.read(searchedContactsProvider.notifier).searchContactsByQuery,
+          resetSearchQuery: () {
+            ref
+                .read(searchQueryContactsProvider.notifier)
+                .update((state) => '');
+          },
+        )).then((contact) {
       if (contact == null) return;
 
       ref
@@ -635,6 +685,4 @@ class _ActivityInformationv2State extends ConsumerState<_ActivityInformationv2> 
           .onContactoChanged(contact);
     });
   }
-
-  
 }

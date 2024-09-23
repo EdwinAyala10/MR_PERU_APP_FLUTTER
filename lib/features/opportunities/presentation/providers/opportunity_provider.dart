@@ -11,10 +11,8 @@ final opportunityProvider = StateNotifierProvider.autoDispose
     .family<OpportunityNotifier, OpportunityState, String>((ref, id) {
   final opportunitiesRepository = ref.watch(opportunitiesRepositoryProvider);
   final user = ref.watch(authProvider).user;
-
-  return OpportunityNotifier(opportunitiesRepository: opportunitiesRepository, 
-    user: user!,
-    id: id);
+  return OpportunityNotifier(
+      opportunitiesRepository: opportunitiesRepository, user: user!, id: id);
 });
 
 class OpportunityNotifier extends StateNotifier<OpportunityState> {
@@ -30,19 +28,18 @@ class OpportunityNotifier extends StateNotifier<OpportunityState> {
   }
 
   Opportunity newEmptyOpportunity() {
-
     List<ArrayUser>? arrayResponsables = [];
 
     //if (!user.isAdmin) {
-      ArrayUser array = ArrayUser();
-      array.idResponsable = user.id;
-      array.cresIdUsuarioResponsable = user.code;
-      array.oresIdUsuarioResponsable = user.code;
-      array.userreportName = user.name;
-      array.nombreResponsable = user.name;
-      arrayResponsables.add(array);
+    ArrayUser array = ArrayUser();
+    array.idResponsable = user.id;
+    array.cresIdUsuarioResponsable = user.code;
+    array.oresIdUsuarioResponsable = user.code;
+    array.userreportName = user.name;
+    array.nombreResponsable = user.name;
+    arrayResponsables.add(array);
     //}
-    
+
     return Opportunity(
       id: 'new',
       oprtEntorno: 'MR PERU',
@@ -80,7 +77,8 @@ class OpportunityNotifier extends StateNotifier<OpportunityState> {
         return;
       }
 
-      final opportunity = await opportunitiesRepository.getOpportunityById(state.id);
+      final opportunity =
+          await opportunitiesRepository.getOpportunityById(state.id);
 
       state = state.copyWith(isLoading: false, opportunity: opportunity);
     } catch (e) {
