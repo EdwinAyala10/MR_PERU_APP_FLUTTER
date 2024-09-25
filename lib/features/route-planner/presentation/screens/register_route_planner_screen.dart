@@ -57,12 +57,13 @@ class RegisterRoutePlannerScreen extends ConsumerWidget {
                     .then((CreateEventPlannerResponse value) {
                   //if ( !value.response ) return;
                   if (value.message != '') {
-                    showSnackbar(context, value.message);
+                    //showSnackbar(context, value.message);
 
+                    Navigator.pop(context);
                     if (value.response) {
                       //Timer(const Duration(seconds: 3), () {
                       //TODO: LIMPIAR LOS SELECT ITEMS Y TODO EL FORMULARIO
-                      ref
+                      /*ref
                           .read(routePlannerProvider.notifier)
                           .clearSelectedLocales();
                       ref
@@ -70,11 +71,27 @@ class RegisterRoutePlannerScreen extends ConsumerWidget {
                           .loadNextPage(isRefresh: false);
 
                       context.replace('/route_planner');
-                      //});
+                      //});*/
+                      mostrarModalMensaje(context, 'AVISO', value.message, () {
+                        Navigator.of(context).pop();
+                        ref
+                            .read(routePlannerProvider.notifier)
+                            .clearSelectedLocales();
+                        ref
+                            .read(routePlannerProvider.notifier)
+                            .loadNextPage(isRefresh: false);
+
+                        context.replace('/route_planner');
+                        //});
+                      });
+                    } else {
+                      mostrarModalMensaje(context, 'AVISO', value.message, () {
+                          Navigator.of(context).pop();
+                      });
                     }
                   }
                   ref.read(selectedUserPlannerProvider.notifier).state = null;
-                  Navigator.pop(context);
+                  //Navigator.pop(context);
                 });
               },
               iconData: Icons.check),

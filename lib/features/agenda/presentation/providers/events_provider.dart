@@ -1,5 +1,7 @@
 import 'dart:collection';
 
+import 'package:crm_app/features/auth/domain/domain.dart';
+import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/domain.dart';
 
@@ -8,13 +10,21 @@ import 'events_repository_provider.dart';
 final eventsProvider =
     StateNotifierProvider<EventsNotifier, EventsState>((ref) {
   final eventsRepository = ref.watch(eventsRepositoryProvider);
-  return EventsNotifier(eventsRepository: eventsRepository);
+  final user = ref.watch(authProvider).user;
+  
+
+  return EventsNotifier(eventsRepository: eventsRepository,
+      user: user!,
+  );
 });
 
 class EventsNotifier extends StateNotifier<EventsState> {
   final EventsRepository eventsRepository;
+  final User user;
 
-  EventsNotifier({required this.eventsRepository}) : super(EventsState()) {
+  EventsNotifier({required this.eventsRepository,
+    required this.user,
+  }) : super(EventsState()) {
     loadNextPage();
   }
 
@@ -89,8 +99,8 @@ class EventsNotifier extends StateNotifier<EventsState> {
 
     state = state.copyWith(isLoading: true);
 
-    final linkedEvents = await eventsRepository.getEvents();
-    final linkedEventsList = await eventsRepository.getEventsList();
+    final linkedEvents = await eventsRepository.getEvents(user.code);
+    final linkedEventsList = await eventsRepository.getEventsList(user.code);
 
     if (linkedEvents.isEmpty) {
       //state = state.copyWith(isLoading: false, isLastPage: true);

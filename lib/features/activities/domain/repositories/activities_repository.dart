@@ -5,6 +5,7 @@ abstract class ActivitiesRepository {
     String search,
     int limit = 10,
     int offset = 0,
+    String idUsuario = ''
   });
 
   Future<List<Activity>> getActivitiesByOpportunitie({

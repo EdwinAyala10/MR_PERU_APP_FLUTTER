@@ -88,7 +88,9 @@ class RoutePlannerScreen extends ConsumerWidget {
                 bool existFilter = existeHorarioTrabajo(filterSuccess);
 
                 if (!existFilter) {
-                  mostrarModalMensaje(context, 'AVISO', 'Debes seleccionar el filtro de Horario de trabajo.');
+                  mostrarModalMensaje(context, 'AVISO', 'Debes seleccionar el filtro de Horario de trabajo.', () {
+                      Navigator.of(context).pop();
+                  });
                   return;
                 } else {
 
@@ -102,7 +104,9 @@ class RoutePlannerScreen extends ConsumerWidget {
                   if (validatePlanner.status == false) {
                     Navigator.pop(context);
 
-                    mostrarModalMensaje(context, 'AVISO', validatePlanner.message);
+                    mostrarModalMensaje(context, 'AVISO', validatePlanner.message, () {
+                      Navigator.of(context).pop();
+                    });
                     //Navigator.pop(context);
                     return;
                   } else {
@@ -209,6 +213,7 @@ class _RoutePlannerViewState extends ConsumerState {
     });
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
+      ref.read(routePlannerProvider.notifier).onDeleteAllFilter();
       ref.read(routePlannerProvider.notifier).loadFilterHorario();
       ref.read(routePlannerProvider.notifier).onChangeNotIsActiveSearchSinRefresh();
       ref.read(routePlannerProvider.notifier).loadNextPage(isRefresh: true);

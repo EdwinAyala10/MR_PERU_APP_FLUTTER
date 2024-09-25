@@ -34,6 +34,7 @@ class Opportunity {
   String? actiNombreTipoGestion;  
   String? actiFechaRegistro;
   String? nombreUsuarioResponsable;
+  String? actiComentario;
 
   Opportunity({
     required this.id,
@@ -68,6 +69,7 @@ class Opportunity {
     this.actiIdTipoGestion,
     this.actiNombreTipoGestion, 
     this.actiFechaRegistro,
-    this.nombreUsuarioResponsable
+    this.nombreUsuarioResponsable,
+    this.actiComentario,
   });
 }

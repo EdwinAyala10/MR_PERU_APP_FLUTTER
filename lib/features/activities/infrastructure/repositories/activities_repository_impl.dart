@@ -18,9 +18,9 @@ class ActivitiesRepositoryImpl extends ActivitiesRepository {
 
   @override
   Future<List<Activity>> getActivities(
-      {String search = '', int limit = 10, int offset = 0}) {
+      {String search = '', int limit = 10, int offset = 0, String idUsuario = ''}) {
     return datasource.getActivities(
-        search: search, limit: limit, offset: offset);
+        search: search, limit: limit, offset: offset, idUsuario: idUsuario);
   }
 
   @override

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:io' show Platform;
 
-void mostrarModalMensaje(BuildContext context, String titulo, String descripcion) {
+void mostrarModalMensaje(BuildContext context, String titulo, String descripcion, Function() onAceptar) {
   if (Platform.isAndroid) {
     // Mostrar estilo Android
     showDialog(
@@ -38,9 +38,7 @@ void mostrarModalMensaje(BuildContext context, String titulo, String descripcion
           actions: <Widget>[
             TextButton(
               child: const Text('Aceptar'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: onAceptar
             ),
             /*TextButton(
               child: const Text('Cancelar'),

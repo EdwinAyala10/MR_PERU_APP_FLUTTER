@@ -5,6 +5,7 @@ abstract class ActivitiesDatasource {
     String search,
     int limit = 10,
     int offset = 0,
+    String idUsuario= ''
   });
   Future<List<Activity>> getActivitiesByOpportunitie({
     String opportunityId,

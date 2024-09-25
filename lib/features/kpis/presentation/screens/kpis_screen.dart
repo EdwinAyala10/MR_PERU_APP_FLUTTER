@@ -157,7 +157,7 @@ class _ListKpis extends ConsumerWidget {
 
                 return ListTile(
                   title: Text(kpi.objrNombre ?? '',
-                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 18)),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

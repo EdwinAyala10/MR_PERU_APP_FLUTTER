@@ -1,3 +1,5 @@
+import 'package:crm_app/features/auth/domain/domain.dart';
+import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/domain.dart';
 
@@ -6,13 +8,20 @@ import 'activities_repository_provider.dart';
 final activitiesProvider =
     StateNotifierProvider<ActivitiesNotifier, ActivitiesState>((ref) {
   final activitiesRepository = ref.watch(activitiesRepositoryProvider);
-  return ActivitiesNotifier(activitiesRepository: activitiesRepository);
+  final user = ref.watch(authProvider).user;
+
+  return ActivitiesNotifier(activitiesRepository: activitiesRepository,
+      user: user!,
+  );
 });
 
 class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
   final ActivitiesRepository activitiesRepository;
+  final User user;
 
-  ActivitiesNotifier({required this.activitiesRepository})
+  ActivitiesNotifier({required this.activitiesRepository,
+    required this.user,
+  })
       : super(
           ActivitiesState(),
         ) {
@@ -96,7 +105,11 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
     }
 
     final activities = await activitiesRepository.getActivities(
-        search: search, limit: sLimit, offset: sOffset);
+        search: search, 
+        limit: sLimit, 
+        offset: sOffset,
+        idUsuario: user.code
+        );
 
     if (activities.isEmpty) {
       //state = state.copyWith(isLoading: false, isLastPage: true);

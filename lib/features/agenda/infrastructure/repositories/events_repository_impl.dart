@@ -19,13 +19,13 @@ class EventsRepositoryImpl extends EventsRepository {
   }
 
   @override
-  Future<LinkedHashMap<DateTime, List<Event>>> getEvents() {
-    return datasource.getEvents();
+  Future<LinkedHashMap<DateTime, List<Event>>> getEvents(String idUsuario) {
+    return datasource.getEvents(idUsuario);
   }
 
   @override
-  Future<List<Event>> getEventsList() {
-    return datasource.getEventsList();
+  Future<List<Event>> getEventsList(String idUsuario) {
+    return datasource.getEventsList(idUsuario);
   }
 
   @override

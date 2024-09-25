@@ -105,6 +105,21 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
                     ],
                   ),
                 ),
+              if (widget.opportunity.actiComentario != "")
+                Row(
+                children: [
+                  const Icon(Icons.mode_comment, size: 14),
+                  const SizedBox(width: 4),
+                  SizedBox(
+                    width: 160,
+                    child: Text(widget.opportunity.actiComentario ?? '',
+                      style: const TextStyle(
+                          fontSize: 12,
+                        ),
+                      overflow: TextOverflow.ellipsis),
+                  ),
+                ],
+              ),
               const SizedBox(
                 height: 3,
               ),

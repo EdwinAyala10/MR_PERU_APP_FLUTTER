@@ -4,8 +4,8 @@ import '../domain.dart';
 
 abstract class EventsDatasource {
 
-  Future<LinkedHashMap<DateTime, List<Event>>> getEvents();
-  Future<List<Event>> getEventsList();
+  Future<LinkedHashMap<DateTime, List<Event>>> getEvents(String idUsuario);
+  Future<List<Event>> getEventsList(String idUsuario);
   Future<List<Event>> getEventsListByObjetive(String id);
 
   Future<List<Event>> getEventsListByRuc(String ruc);
