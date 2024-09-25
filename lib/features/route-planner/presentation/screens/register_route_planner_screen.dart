@@ -39,12 +39,13 @@ class RegisterRoutePlannerScreen extends ConsumerWidget {
               'Planificador de rutas',
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
-            /*leading: IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: () {
-              context.pop();
-            },
-          ),*/
+            leading: IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () {
+                ref.read(selectedUserPlannerProvider.notifier).state = null;
+                context.pop();
+              },
+            ),
           ),
           body: const _EventView(),
           floatingActionButton: FloatingActionButtonCustom(
@@ -72,7 +73,7 @@ class RegisterRoutePlannerScreen extends ConsumerWidget {
                       //});
                     }
                   }
-
+                  ref.read(selectedUserPlannerProvider.notifier).state = null;
                   Navigator.pop(context);
                 });
               },

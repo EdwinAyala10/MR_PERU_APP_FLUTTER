@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:crm_app/features/route-planner/presentation/providers/search_users_planner_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -57,40 +59,44 @@ class _SearchUsersPlannerState extends ConsumerState<SearchUsersPlanner> {
           )
         ],
       ),
-      body: Column(
-        children: [
-          listUsers.isEmpty
-              ? const Center(
-                  child: CircularProgressIndicator(),
-                )
-              : Expanded(
-                  child: ListView.separated(
-                    itemBuilder: (BuildContext context, int index) {
-                      return const Divider();
-                    },
-                    separatorBuilder: (BuildContext context, int index) {
-                      final user = listUsers[index];
-                      return ListTile(
-                        title: Text(user.userreportName ?? ''),
-                        subtitle: Text(user.userreportCodigo ?? ''),
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.blueGrey,
-                          child: Text(
-                            user.userreportAbbrt ?? '',
-                            style: const TextStyle(color: Colors.white),
+      body: SizedBox(
+        height: double.infinity,
+        child: Column(
+          children: [
+            listUsers.isEmpty
+                ? const Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : Expanded(
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      separatorBuilder: (BuildContext context, int index) {
+                        return const Divider();
+                      },
+                      itemBuilder: (BuildContext context, int index) {
+                        final user = listUsers[index];
+                        return ListTile(
+                          title: Text(user.userreportName ?? 'dw'),
+                          subtitle: Text(user.userreportCodigo ?? 'sds'),
+                          leading: CircleAvatar(
+                            backgroundColor: Colors.blueGrey,
+                            child: Text(
+                              user.userreportAbbrt ?? '',
+                              style: const TextStyle(color: Colors.white),
+                            ),
                           ),
-                        ),
-                        onTap: () {
-                          ref.read(selectedUserPlannerProvider.notifier).state =
-                              listUsers[index];
-                          context.pop();
-                        },
-                      );
-                    },
-                    itemCount: listUsers.length,
+                          onTap: () {
+                            ref.read(selectedUserPlannerProvider.notifier).state =
+                                listUsers[index];
+                            context.pop();
+                          },
+                        );
+                      },
+                      itemCount: listUsers.length,
+                    ),
                   ),
-                ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -264,18 +264,18 @@ class _ConsumerChatScreenState extends ConsumerState<ChatScreen> {
                                           child:
                                               Text(model.userreportAbbrt ?? ''),
                                         ),
-                                        trailing: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            Text(
-                                              model.userreportCodigo ?? '',
-                                              style: const TextStyle(
-                                                  color: Colors.grey,
-                                                  fontSize: 13),
-                                            ),
-                                          ],
-                                        ),
+                                        // trailing: Column(
+                                        //   mainAxisAlignment:
+                                        //       MainAxisAlignment.end,
+                                        //   children: [
+                                        //     Text(
+                                        //       model.userreportCodigo ?? '',
+                                        //       style: const TextStyle(
+                                        //           color: Colors.grey,
+                                        //           fontSize: 13),
+                                        //     ),
+                                        //   ],
+                                        // ),
                                       );
                                     },
                                   ),

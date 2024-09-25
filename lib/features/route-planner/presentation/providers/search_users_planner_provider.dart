@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:crm_app/config/constants/environment.dart';
 import 'package:crm_app/features/auth/domain/entities/user.dart';
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
@@ -40,6 +42,8 @@ class SearchUserPlannerNotifier extends StateNotifier<List<UsersPlannerModel>> {
         for (var v in response.data['data']) {
           list.add(UsersPlannerModel.fromJson(v));
         }
+        log('wfwef'+list.length.toString());
+        state = [];
         state = list;
         return state;
       }

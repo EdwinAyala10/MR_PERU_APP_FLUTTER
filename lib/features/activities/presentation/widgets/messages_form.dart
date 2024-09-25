@@ -187,7 +187,7 @@ class ListMarkedUsers extends ConsumerWidget {
                 onUserSelected(model);
               },
               leading: CircleAvatar(
-                child: Text(model.userreportAbbrt[0]),
+                child: Text(model.userreportAbbrt),
               ),
             );
           },
