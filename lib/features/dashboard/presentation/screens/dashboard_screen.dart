@@ -19,7 +19,6 @@ import '../../../kpis/domain/domain.dart';
 import '../../../kpis/presentation/providers/kpis_provider.dart';
 import '../../../opportunities/domain/domain.dart';
 import '../../../opportunities/presentation/providers/providers.dart';
-import '../../../opportunities/presentation/widgets/item_opportunity_small.dart';
 import '../../../shared/shared.dart';
 import 'package:floating_action_bubble_custom/floating_action_bubble_custom.dart';
 import 'package:flutter/material.dart';
@@ -398,7 +397,8 @@ class _ContainerDashboardKpis extends StatelessWidget {
                         for (var i = 0; i < 3 && i < kpis.length; i++)
                           progressKpi(
                               percentage: (kpis[i].porcentaje ?? 0).toDouble(),
-                              title: kpis[i].objrNombreCategoria ?? '',
+                              title: kpis[i].objrNombre ?? '',
+                              category: kpis[i].objrNombreCategoria ?? '',
                               subTitle: kpis[i].objrNombrePeriodicidad ?? '',
                               subSubTitle: kpis[i].objrNombreAsignacion ?? '',
                               advance: kpis[i].totalRegistro.toString(),
@@ -843,6 +843,7 @@ class _ItemOpportunity extends StatelessWidget {
 class progressKpi extends StatelessWidget {
   double percentage;
   String title;
+  String category;
   String subTitle;
   String subSubTitle;
   String advance;
@@ -852,6 +853,7 @@ class progressKpi extends StatelessWidget {
     super.key,
     required this.percentage,
     required this.title,
+    required this.category,
     required this.subTitle,
     required this.subSubTitle,
     required this.advance,
@@ -889,6 +891,17 @@ class progressKpi extends StatelessWidget {
             style: const TextStyle(
               fontWeight: FontWeight.w500,
               fontSize: 14,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          Text(
+            category,
+            style: const TextStyle(
+              fontWeight: FontWeight.w500,
+              color: Colors.black45,
+              fontSize: 12,
             ),
             textAlign: TextAlign.center,
             maxLines: 2,

@@ -312,8 +312,8 @@ class _CompanyCheckInformationState
             ],
           ),
           const SizedBox(height: 10),
-          (!allowSave && distanceLocationAddressDiff > 0)
-          //selectedLocationAddressDiff
+          //(!allowSave && distanceLocationAddressDiff > 0)
+          (selectedLocationAddressDiff)
           ? Container(
               color: Colors.white,
               child: Column(
@@ -344,7 +344,7 @@ class _CompanyCheckInformationState
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(10),
-              boxShadow: [
+              boxShadow: const [
                 BoxShadow(
                   color: Colors.black26,
                   blurRadius: 10.0,
@@ -352,7 +352,7 @@ class _CompanyCheckInformationState
                 ),
               ],
             ),
-            child: Row(
+            child: const Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 SizedBox(
@@ -445,7 +445,6 @@ class _CompanyCheckInformationState
               text: companyCheckInForm.cchkCoordenadaLongitud ?? '',
               placeholder: 'Longitud',
               label: 'Longitud Local'),
-          Text('check: ${widget.idCheck}'),
           optionsTipo.length > 1
               ? SelectCustomForm(
                   label: 'Tipo',
