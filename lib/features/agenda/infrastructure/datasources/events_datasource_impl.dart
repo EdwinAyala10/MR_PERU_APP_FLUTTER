@@ -70,7 +70,9 @@ class EventsDatasourceImpl extends EventsDatasource {
     try {
       final response =
           await dio.post('/evento/listar-evento-by-id-tipo-gestion', data: {
-            'ID_USUARIO_RESPONSABLE': idUsuario
+            'ID_USUARIO_RESPONSABLE': idUsuario,
+            'OFFSET': '0',
+            'TOP': '100'
           });
       //final List<Event> events = [];
       LinkedHashMap<DateTime, List<Event>> linkedEvents = LinkedHashMap();
@@ -100,7 +102,9 @@ class EventsDatasourceImpl extends EventsDatasource {
     try {
       final response =
           await dio.post('/evento/listar-evento-by-id-tipo-gestion', data: {
-            'ID_USUARIO_RESPONSABLE': idUsuario
+            'ID_USUARIO_RESPONSABLE': idUsuario,
+            'OFFSET': '0',
+            'TOP': '100'
           });
       final List<Event> events = [];
       for (final event in response.data['data'] ?? []) {

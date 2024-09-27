@@ -283,7 +283,7 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
       
       print('EXIST: ${exists}' );
       if (!exists) {
-
+ 
         var nuevo = FilterOption(
           id: validate.data?.idHorarioTrabajo ?? '', 
           type: 'HRTR_ID_HORARIO_TRABAJO', 

@@ -212,9 +212,9 @@ class _RoutePlannerViewState extends ConsumerState {
       }
     });
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance?.addPostFrameCallback((_) async {
       ref.read(routePlannerProvider.notifier).onDeleteAllFilter();
-      ref.read(routePlannerProvider.notifier).loadFilterHorario();
+      await ref.read(routePlannerProvider.notifier).loadFilterHorario();
       ref.read(routePlannerProvider.notifier).onChangeNotIsActiveSearchSinRefresh();
       ref.read(routePlannerProvider.notifier).loadNextPage(isRefresh: true);
     });
