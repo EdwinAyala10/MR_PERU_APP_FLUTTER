@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:crm_app/config/config.dart';
+import 'package:crm_app/features/companies/presentation/providers/providers.dart';
 import 'package:crm_app/features/shared/widgets/loading_modal.dart';
 import 'package:crm_app/features/shared/widgets/no_exist_listview.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +20,6 @@ import '../../../opportunities/presentation/widgets/item_opportunity.dart';
 import '../../../shared/widgets/floating_action_button_custom.dart';
 import '../../../shared/widgets/floating_action_button_icon_custom.dart';
 import '../../domain/domain.dart';
-import '../providers/company_provider.dart';
 import '../../../shared/shared.dart';
 
 class CompanyDetailScreen extends ConsumerWidget {
@@ -133,11 +133,14 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
       length: 6, // Ahora tenemos 6 pestañas
       child: Scaffold(
           appBar: AppBar(
-            title: Text(widget.company.razon,
-                style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w600,
-                    overflow: TextOverflow.ellipsis)),
+            title: Text(
+              widget.company.razon,
+              style: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
             bottom: TabBar(
               controller: _tabController,
               tabs: const [
@@ -501,7 +504,8 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
                 ? '01'
                 : (widget.company.cchkIdEstadoCheck == null ? '01' : '06');
             ref.read(stateRucProvider.notifier).state = widget.company.ruc;
-            final locales = ref.read(companyProvider(widget.company.ruc)).companyLocales;
+            final locales =
+                ref.read(companyProvider(widget.company.ruc)).companyLocales;
             final totalLocales = locales.length;
             String idLocal = '-';
             String nombreLocal = '-';
@@ -514,12 +518,30 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
               latLocal = locales[0].coordenadasLatitud!;
               lngLocal = locales[0].coordenadasLongitud!;
             }
-
             String ruc = widget.company.ruc;
             String ids =
                 '$idCheck*$ruc*$idLocal*$nombreLocal*$latLocal*$lngLocal';
             log(ids);
-            context.push('/company_check_in/$ids');
+            ref.read(companiesProvider.notifier).validateCheckIn(
+                  ruc: ruc,
+                );
+            if (ref.watch(companiesProvider).isValidateCheckIn) {
+              context.push('/company_check_in/$ids');
+              return;
+            } else {
+              log(ref.read(companiesProvider).validationCheckinMessage);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  elevation: 3,
+                  backgroundColor: Colors.grey,
+                  content: Text(
+                    ref.watch(companiesProvider).validationCheckinMessage,
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              );
+            }
+            // context.push('/company_check_in/$ids');
           },
           iconData: Icons.check_circle_outline_outlined,
         );

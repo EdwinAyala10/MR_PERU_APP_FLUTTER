@@ -1,3 +1,9 @@
+import 'dart:developer';
+
+import 'package:crm_app/config/constants/environment.dart';
+import 'package:crm_app/features/auth/domain/entities/user.dart';
+import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/domain.dart';
 
@@ -6,15 +12,59 @@ import 'companies_repository_provider.dart';
 final companiesProvider =
     StateNotifierProvider<CompaniesNotifier, CompaniesState>((ref) {
   final companiesRepository = ref.watch(companiesRepositoryProvider);
-  return CompaniesNotifier(companiesRepository: companiesRepository);
+  final user = ref.read(authProvider);
+  return CompaniesNotifier(
+    companiesRepository: companiesRepository,
+    user: user.user,
+  );
 });
 
+/// [Para agilizar el desarroollo de los clientes incorpore directamente DIO en el providoer state, esto de momento en cuanto haya la oportunidad se necesatara realizar un refactor]
 class CompaniesNotifier extends StateNotifier<CompaniesState> {
   final CompaniesRepository companiesRepository;
-
-  CompaniesNotifier({required this.companiesRepository})
-      : super(CompaniesState()) {
+  Dio client = Dio();
+  final User? user;
+  CompaniesNotifier({
+    required this.companiesRepository,
+    this.user,
+  }) : super(CompaniesState()) {
+    client = Dio(
+      BaseOptions(
+        headers: {'Authorization': 'Bearer ${user?.token}'},
+        baseUrl: Environment.apiUrl,
+      ),
+    );
     loadNextPage(isRefresh: true);
+  }
+
+  Future<void> validateCheckIn({
+    required String ruc,
+  }) async {
+    try {
+      final form = {
+        "RUC": ruc,
+        "ID_USUARIO_RESPONSABLE": user?.code ?? '',
+      };
+      const endPoint = '/cliente-check/validar-checkin';
+      final request = await client.post(
+        endPoint,
+        data: form,
+      );
+      log(request.toString());
+      if (request.data['status'] == true) {
+        state = state.copyWith(
+          isValidateCheckIn: true,
+          validationCheckinMessage: request.data['message'] ?? '',
+        );
+        return;
+      }
+      state = state.copyWith(
+        isValidateCheckIn: false,
+        validationCheckinMessage: request.data['message'] ?? '',
+      );
+    } catch (e) {
+      log(e.toString());
+    }
   }
 
   Future<CreateUpdateCompanyResponse> createOrUpdateCompany(
@@ -157,6 +207,7 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
     loadNextPage(isRefresh: true);
     //}
   }
+
   void onChangeNotIsActiveSearchSinRefresh() {
     state = state.copyWith(isActiveSearch: false, textSearch: '');
     //if (state.textSearch != "") {
@@ -171,7 +222,7 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
       if (state.isLoading) return;
       state = state.copyWith(isLoading: true);
     } else {
-      if (state.isReload || state.isLastPage) return;  
+      if (state.isReload || state.isLastPage) return;
       state = state.copyWith(isReload: true);
     }
 
@@ -198,7 +249,7 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
       //state = state.copyWith(isLoading: false, isLastPage: true);
       //state = state.copyWith(isLoading: false, companies: []);
       if (isRefresh) {
-        state = state.copyWith(isLoading: false, isLastPage: true);    
+        state = state.copyWith(isLoading: false, isLastPage: true);
       } else {
         state = state.copyWith(isReload: false, isLastPage: true);
       }
@@ -217,21 +268,20 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
       }
 
       print('Offset: ${newOffset}');
-      
+
       if (isRefresh) {
         state = state.copyWith(
-          isLastPage: false,
-          isLoading: false,
-          offset: newOffset,
-          companies: newCompanies);
+            isLastPage: false,
+            isLoading: false,
+            offset: newOffset,
+            companies: newCompanies);
       } else {
         state = state.copyWith(
-          isLastPage: false,
-          isReload: false,
-          offset: newOffset,
-          companies: newCompanies);
+            isLastPage: false,
+            isReload: false,
+            offset: newOffset,
+            companies: newCompanies);
       }
-      
     }
 
     /*state = state.copyWith(
@@ -292,6 +342,8 @@ class CompaniesState {
   final List<Company> companies;
   final bool isActiveSearch;
   final String textSearch;
+  final bool isValidateCheckIn;
+  final String validationCheckinMessage;
 
   CompaniesState(
       {this.isLastPage = false,
@@ -300,6 +352,8 @@ class CompaniesState {
       this.offset = 0,
       this.isLoading = false,
       this.isActiveSearch = false,
+      this.isValidateCheckIn = false,
+      this.validationCheckinMessage = '',
       this.textSearch = '',
       this.companies = const []});
 
@@ -311,16 +365,20 @@ class CompaniesState {
     bool? isLoading,
     bool? isActiveSearch,
     String? textSearch,
+    bool? isValidateCheckIn,
+    String? validationCheckinMessage,
     List<Company>? companies,
   }) =>
       CompaniesState(
-        isLastPage: isLastPage ?? this.isLastPage,
-        isReload: isReload ?? this.isReload,
-        limit: limit ?? this.limit,
-        offset: offset ?? this.offset,
-        isLoading: isLoading ?? this.isLoading,
-        companies: companies ?? this.companies,
-        isActiveSearch: isActiveSearch ?? this.isActiveSearch,
-        textSearch: textSearch ?? this.textSearch,
-      );
+          isLastPage: isLastPage ?? this.isLastPage,
+          isReload: isReload ?? this.isReload,
+          limit: limit ?? this.limit,
+          offset: offset ?? this.offset,
+          isLoading: isLoading ?? this.isLoading,
+          companies: companies ?? this.companies,
+          isActiveSearch: isActiveSearch ?? this.isActiveSearch,
+          textSearch: textSearch ?? this.textSearch,
+          validationCheckinMessage:
+              validationCheckinMessage ?? this.validationCheckinMessage,
+          isValidateCheckIn: isValidateCheckIn ?? this.isValidateCheckIn);
 }
