@@ -35,7 +35,8 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     required this.routePlannerRepository,
     this.user,
   }) : super(RoutePlannerState()) {
-    loadNextPage(isRefresh: true);
+    //loadNextPage(isRefresh: true);
+    initialPlannerLoad();
   }
 
   // Future<void> validateplanificadorEvent({
@@ -87,7 +88,7 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     //}
   }
 
-  void onChangeNotIsActiveSearchSinRefresh() {
+  Future<void> onChangeNotIsActiveSearchSinRefresh() async {
     state = state.copyWith(isActiveSearch: false, textSearch: '');
     //if (state.textSearch != "") {
     //loadNextPage(isRefresh: true);
@@ -213,7 +214,22 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     state = state.copyWith(selectedItems: newListItemsSelected);
   }
 
-  void onDeleteAllFilter() {
+  void initialPlannerLoad() async {
+    state = state.copyWith(isLoading: true);
+
+    List<FilterOption>? validate = await loadFieldFilterHorario();
+
+    state = state.copyWith(
+        filtersSuccess: validate ?? [],
+        filters: validate ?? [],
+        isActiveSearch: false,
+        textSearch: '',
+        isLoading: false);
+
+    await loadNextPage(isRefresh: true);
+  }
+
+  Future<void> onDeleteAllFilter() async {
     state = state.copyWith(filtersSuccess: [], filters: []);
     loadNextPage(isRefresh: true);
   }
@@ -305,8 +321,39 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     }
   }
 
-  Future<void> loadFilterHorario() async {
+  Future<List<FilterOption>?> loadFieldFilterHorario() async {
     ValidateHorarioTrabajoResponse validate =
+        await routePlannerRepository.getHorarioTrabajo();
+
+    if (validate.status) {
+      List<FilterOption> filtersA = [...state.filtersSuccess];
+
+      bool exists =
+          filtersA.any((filter) => filter.type == 'HRTR_ID_HORARIO_TRABAJO');
+
+      if (!exists) {
+        var nuevo = FilterOption(
+            id: validate.data?.idHorarioTrabajo ?? '',
+            type: 'HRTR_ID_HORARIO_TRABAJO',
+            title: 'Horario de trabajo',
+            name: validate.data?.descripcion ?? '');
+
+        List<FilterOption> filtersb = [nuevo, ...state.filtersSuccess];
+
+        return filtersb;
+      }
+    }
+    return null;
+  }
+
+  Future<void> loadFilterHorario() async {
+    List<FilterOption>? validate = await loadFieldFilterHorario();
+
+    if (validate != null) {
+      state = state.copyWith(filtersSuccess: validate, filters: validate);
+    }
+
+    /*ValidateHorarioTrabajoResponse validate =
         await routePlannerRepository.getHorarioTrabajo();
 
     if (validate.status) {
@@ -326,9 +373,13 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
 
         List<FilterOption> filtersb = [nuevo, ...state.filtersSuccess];
 
-        state = state.copyWith(filtersSuccess: filtersb, filters: filtersb);
+
+          state = state.copyWith(
+            filtersSuccess: filtersb,
+            filters: filtersb
+          );
       }
-    }
+    } */
   }
 
   Future<List<DropdownOption>> loadFilterCodigoPostal(String search) async {
