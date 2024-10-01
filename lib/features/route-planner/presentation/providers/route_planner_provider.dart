@@ -1,28 +1,73 @@
+import 'dart:developer';
+
+import 'package:crm_app/features/auth/domain/entities/user.dart';
+import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crm_app/features/route-planner/domain/entities/coordenada.dart';
 import 'package:crm_app/features/route-planner/domain/entities/create_event_planner_response.dart';
 import 'package:crm_app/features/route-planner/domain/entities/validate_event_planner_response.dart';
 import 'package:crm_app/features/route-planner/domain/entities/validate_horario_trabajo_response.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_repository_provider.dart';
 import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/domain.dart';
 
-
 final routePlannerProvider =
     StateNotifierProvider<RoutePlannerNotifier, RoutePlannerState>((ref) {
   final routePlannerRepository = ref.watch(routePlannerRepositoryProvider);
-  return RoutePlannerNotifier(routePlannerRepository: routePlannerRepository);
+  final user = ref.read(authProvider);
+  return RoutePlannerNotifier(
+    routePlannerRepository: routePlannerRepository,
+    user: user.user,
+  );
 });
 
+final userResponsableProvider = StateProvider<String>((ref) => '');
 
+/// [Para agilizar el desarroollo de los clientes incorpore directamente DIO en el providoer state, esto de momento en cuanto haya la oportunidad se necesatara realizar un refactor]
 class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
   final RoutePlannerRepository routePlannerRepository;
+  final User? user;
+  Dio client = Dio();
 
-  RoutePlannerNotifier({required this.routePlannerRepository})
-      : super(RoutePlannerState()) {
+  RoutePlannerNotifier({
+    required this.routePlannerRepository,
+    this.user,
+  }) : super(RoutePlannerState()) {
     loadNextPage(isRefresh: true);
   }
+
+  // Future<void> validateplanificadorEvent({
+  //   required String idUsuarioResponsable,
+  // }) async {
+  //   try {
+  //     final form = {
+  //       "ID_USUARIO_RESPONSABLE": idUsuarioResponsable,
+  //     };
+
+  //     const endPoint = '/evento/validar-planificador-evento';
+
+  //     final request = await client.post(
+  //       endPoint,
+  //       data: form,
+  //     );
+  //     log(request.toString());
+  //     if (request.data['status'] == true) {
+  //       state = state.copyWith(
+  //         isValidatePlanner: true,
+  //         validationMessagePlanner: request.data['message'],
+  //       );
+  //       return;
+  //     }
+  //     state = state.copyWith(
+  //       isValidatePlanner: false,
+  //       validationMessagePlanner: request.data['message'],
+  //     );
+  //   } catch (e) {
+  //     log(e.toString());
+  //   }
+  // }
 
   void onChangeIsActiveSearch() {
     state = state.copyWith(
@@ -62,12 +107,9 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
 
     for (int i = 0; i < updatedFilters.length; i++) {
       if (updatedFilters[i].type == opt.type) {
-
         if (isMulti) {
-
           var stringIds = updatedFilters[i].id;
 
-          
           List<String> lists = stringIds.split(',');
 
           if (!lists.contains(opt.id)) {
@@ -80,9 +122,10 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
 
           print(joinList);
 
-          var optNew = FilterOption(id: joinList, type: opt.type, title: opt.title, name: joinList);
+          var optNew = FilterOption(
+              id: joinList, type: opt.type, title: opt.title, name: joinList);
           updatedFilters[i] = optNew;
-        }else {
+        } else {
           updatedFilters[i] = opt;
         }
 
@@ -99,13 +142,12 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
 
         String joinList = lists.join(',');
 
-        var optNew = FilterOption(id: joinList, type: opt.type, title: opt.title, name: joinList);
+        var optNew = FilterOption(
+            id: joinList, type: opt.type, title: opt.title, name: joinList);
         updatedFilters.add(optNew);
-
-      }else {
+      } else {
         updatedFilters.add(opt);
       }
-
     }
 
     print(updatedFilters);
@@ -129,11 +171,12 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
   }*/
 
   int indexOfKey(Key key) {
-    return state.selectedItems.indexWhere((CompanyLocalRoutePlanner d) => d.key == key);
+    return state.selectedItems
+        .indexWhere((CompanyLocalRoutePlanner d) => d.key == key);
   }
 
-  bool onReorder(Key item, Key newPosition, List<CompanyLocalRoutePlanner> list) {
-
+  bool onReorder(
+      Key item, Key newPosition, List<CompanyLocalRoutePlanner> list) {
     int draggingIndex = indexOfKey(item);
     int newPositionIndex = indexOfKey(newPosition);
 
@@ -143,34 +186,31 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
 
     newListSelectedItems.removeAt(draggingIndex);
     newListSelectedItems.insert(newPositionIndex, draggedItem);
-    
-    state = state.copyWith(
-      selectedItems: newListSelectedItems
-    );
-  
+
+    state = state.copyWith(selectedItems: newListSelectedItems);
+
     return true;
   }
 
-  Future<void> setSelectedItemsOrder(List<CompanyLocalRoutePlanner> selectedItemsOrder) async {
+  Future<void> setSelectedItemsOrder(
+      List<CompanyLocalRoutePlanner> selectedItemsOrder) async {
     state = state.copyWith(
       selectedItems: selectedItemsOrder,
     );
   }
 
-  Future<void> initialOrderkey()  async {
+  Future<void> initialOrderkey() async {
     List<CompanyLocalRoutePlanner> newListItemsSelected = [];
     List<CompanyLocalRoutePlanner> oldListItemsSelected = state.selectedItems;
 
     for (var i = 0; i < oldListItemsSelected.length; i++) {
       CompanyLocalRoutePlanner local = oldListItemsSelected[i];
       local.key = ValueKey(i);
-  
+
       newListItemsSelected.add(local);
     }
 
-    state = state.copyWith(
-      selectedItems: newListItemsSelected
-    );
+    state = state.copyWith(selectedItems: newListItemsSelected);
   }
 
   void onDeleteAllFilter() {
@@ -181,7 +221,8 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
   void onDeleteFilter(int index) {
     var filterSuccessNew = [...state.filtersSuccess];
     filterSuccessNew.removeAt(index);
-    state = state.copyWith(filters: filterSuccessNew, filtersSuccess: filterSuccessNew);
+    state = state.copyWith(
+        filters: filterSuccessNew, filtersSuccess: filterSuccessNew);
     loadNextPage(isRefresh: true);
   }
 
@@ -196,21 +237,18 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     options.add(DropdownOption(id: '', name: 'Selecciona'));
 
     for (final filter in filters) {
-        options.add(
-          DropdownOption(id: filter.valor, name: filter.descripcion));
+      options.add(DropdownOption(id: filter.valor, name: filter.descripcion));
     }
 
     return options;
   }
 
   Future<Coordenada> cargarCoordena() async {
-
-    Coordenada coors =
-        await routePlannerRepository.getCoordenadas();
+    Coordenada coors = await routePlannerRepository.getCoordenadas();
     return coors;
   }
 
-   Future<List<DropdownOption>> loadFilterHorarioTrabajo() async {
+  Future<List<DropdownOption>> loadFilterHorarioTrabajo() async {
     //state = state.copyWith(isLoading: true);
 
     List<FilterHorarioTrabajo> filters =
@@ -221,8 +259,8 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     options.add(DropdownOption(id: '', name: 'Selecciona'));
 
     for (final filter in filters) {
-        options.add(
-          DropdownOption(id: filter.hrtrIdHorarioTrabajo!, name: filter.hrtrDescricion!));
+      options.add(DropdownOption(
+          id: filter.hrtrIdHorarioTrabajo!, name: filter.hrtrDescricion!));
     }
 
     return options;
@@ -239,7 +277,8 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     options.add(DropdownOption(id: '', name: 'Selecciona'));
 
     for (final filter in filters) {
-        options.add(DropdownOption(id: filter.userreportCodigo, name: filter.userreportName));
+      options.add(DropdownOption(
+          id: filter.userreportCodigo, name: filter.userreportName));
     }
 
     return options;
@@ -248,58 +287,48 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
   void onCheckItem(CompanyLocalRoutePlanner company) {
     print('onCheckItem localCodigo: ${company.localCodigo}');
     print('onCheckItem ruc: ${company.ruc}');
-    bool exists = state.selectedItems.any((item) => item.ruc == company.ruc && item.localCodigo == company.localCodigo);
+    bool exists = state.selectedItems.any((item) =>
+        item.ruc == company.ruc && item.localCodigo == company.localCodigo);
     print(exists);
     print('onCheckItem total: ${state.selectedItems.length}');
     if (!exists) {
-      state = state.copyWith(
-        selectedItems: [...state.selectedItems, company]
-      );
+      state = state.copyWith(selectedItems: [...state.selectedItems, company]);
     } else {
       print('eliminar item');
       List<CompanyLocalRoutePlanner> newItems = [...state.selectedItems];
 
-      newItems.removeWhere((item) => item.ruc == company.ruc && item.localCodigo == company.localCodigo);
+      newItems.removeWhere((item) =>
+          item.ruc == company.ruc && item.localCodigo == company.localCodigo);
       //newItems.remove(company);
-      print('total elimnado: ${newItems.length } ');
-      state = state.copyWith(
-        selectedItems: newItems
-      );
-    } 
+      print('total elimnado: ${newItems.length} ');
+      state = state.copyWith(selectedItems: newItems);
+    }
   }
 
-   Future<void> loadFilterHorario() async {
-
-
+  Future<void> loadFilterHorario() async {
     ValidateHorarioTrabajoResponse validate =
         await routePlannerRepository.getHorarioTrabajo();
 
     if (validate.status) {
-
       List<FilterOption> filtersA = [...state.filtersSuccess];
 
       // Verifica si ya existe un filtro con el mismo id
-      bool exists = filtersA.any((filter) => filter.type == 'HRTR_ID_HORARIO_TRABAJO');
-      
-      print('EXIST: ${exists}' );
+      bool exists =
+          filtersA.any((filter) => filter.type == 'HRTR_ID_HORARIO_TRABAJO');
+
+      print('EXIST: ${exists}');
       if (!exists) {
- 
         var nuevo = FilterOption(
-          id: validate.data?.idHorarioTrabajo ?? '', 
-          type: 'HRTR_ID_HORARIO_TRABAJO', 
-          title: 'Horario de trabajo', 
-          name: validate.data?.descripcion ?? '');
-      
+            id: validate.data?.idHorarioTrabajo ?? '',
+            type: 'HRTR_ID_HORARIO_TRABAJO',
+            title: 'Horario de trabajo',
+            name: validate.data?.descripcion ?? '');
+
         List<FilterOption> filtersb = [nuevo, ...state.filtersSuccess];
 
-          state = state.copyWith(
-            filtersSuccess: filtersb,
-            filters: filtersb
-          );
+        state = state.copyWith(filtersSuccess: filtersb, filters: filtersb);
       }
-    } 
-
-  
+    }
   }
 
   Future<List<DropdownOption>> loadFilterCodigoPostal(String search) async {
@@ -313,7 +342,8 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     options.add(DropdownOption(id: '', name: 'Selecciona'));
 
     for (final filter in filters) {
-        options.add(DropdownOption(id: filter.localCodigoPostal, name: filter.localCodigoPostal));
+      options.add(DropdownOption(
+          id: filter.localCodigoPostal, name: filter.localCodigoPostal));
     }
 
     return options;
@@ -337,33 +367,37 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
   }
 
   void updateFechasRegister(String dateIni, String datetEnd) {
-    state = state.copyWith(
-      dateTimeInitial: dateIni,
-      dateTimeEnd: datetEnd
-    );
+    state = state.copyWith(dateTimeInitial: dateIni, dateTimeEnd: datetEnd);
   }
 
-  Future<ValidateEventPlannerResponse> validatePlanner(String idHorario) async {
+  Future<ValidateEventPlannerResponse> validatePlanner(
+      String idHorario, String idResponsable) async {
     //state = state.copyWith(isLoading: true);
 
     final event = {
       'PLRT_ID_HORARIO_TRABAJO': idHorario,
       'EVENTOS_PLANIFICADOR_RUTA': state.selectedItems != null
-          ? List<dynamic>.from(
-              state.selectedItems!.map((x) => x.toJson()))
+          ? List<dynamic>.from(state.selectedItems!.map((x) => x.toJson()))
           : [],
+
+      /// [Planificador]
+      'ID_USUARIO_RESPONSABLE': idResponsable,
     };
+    log('This is the send in the ID_USUARIO_RESPONSABLE $event ');
 
     ValidateEventPlannerResponse validate =
         await routePlannerRepository.validateEventPlanner(event);
+    log('''
+  ${validate.message}
+  ${validate.status}
+${validate.type}
+     ''');
 
     return validate;
   }
 
   void sendLoadFilter() {
-    state = state.copyWith(
-      filtersSuccess: state.filters
-    );
+    state = state.copyWith(filtersSuccess: state.filters);
     loadNextPage(isRefresh: true);
   }
 
@@ -378,12 +412,11 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     options.add(DropdownOption(id: '', name: 'Selecciona'));
 
     for (final filter in filters) {
-        options.add(
-          DropdownOption(
-            id: filter.ruc, 
-            name: filter.ruc,  
-            subTitle: filter.razon, 
-            secundary: filter.tipoCliente));
+      options.add(DropdownOption(
+          id: filter.ruc,
+          name: filter.ruc,
+          subTitle: filter.razon,
+          secundary: filter.tipoCliente));
     }
 
     return options;
@@ -400,8 +433,11 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     options.add(DropdownOption(id: '', name: 'Selecciona'));
 
     for (final filter in filters) {
-        options.add(
-          DropdownOption(id: filter.razonComercial, name: filter.razonComercial, subTitle: filter.razon, secundary: filter.tipoCliente));
+      options.add(DropdownOption(
+          id: filter.razonComercial,
+          name: filter.razonComercial,
+          subTitle: filter.razon,
+          secundary: filter.tipoCliente));
     }
 
     return options;
@@ -410,7 +446,8 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
   Future<CreateEventPlannerResponse> createEventPlanner(
       Map<dynamic, dynamic> eventLike) async {
     try {
-      final eventResponse = await routePlannerRepository.createEventPlanner(eventLike);
+      final eventResponse =
+          await routePlannerRepository.createEventPlanner(eventLike);
 
       final message = eventResponse.message;
 
@@ -426,9 +463,7 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
   }
 
   void clearSelectedLocales() {
-    state = state.copyWith(
-      selectedItems: []
-    );
+    state = state.copyWith(selectedItems: []);
   }
 
   Future loadNextPage({bool isRefresh = false}) async {
@@ -438,7 +473,7 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
       if (state.isLoading) return;
       state = state.copyWith(isLoading: true);
     } else {
-      if (state.isReload || state.isLastPage) return;  
+      if (state.isReload || state.isLastPage) return;
       state = state.copyWith(isReload: true);
     }
 
@@ -461,16 +496,15 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     print('sOffset x: ${sOffset}');
 
     final locales = await routePlannerRepository.getCompanyLocals(
-      search: search, 
-      limit: sLimit, 
-      offset: sOffset,
-      filters: state.filtersSuccess
-    );
+        search: search,
+        limit: sLimit,
+        offset: sOffset,
+        filters: state.filtersSuccess);
 
     if (locales.isEmpty) {
       //state = state.copyWith(isLoading: false, isLastPage: true, locales: []);
       if (isRefresh) {
-        state = state.copyWith(isLoading: false, isLastPage: true);    
+        state = state.copyWith(isLoading: false, isLastPage: true);
       } else {
         state = state.copyWith(isReload: false, isLastPage: true);
       }
@@ -493,20 +527,18 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
 
       if (isRefresh) {
         state = state.copyWith(
-          isLastPage: false,
-          isLoading: false,
-          offset: newOffset,
-          locales: newLocales);
+            isLastPage: false,
+            isLoading: false,
+            offset: newOffset,
+            locales: newLocales);
       } else {
         state = state.copyWith(
-          isLastPage: false,
-          isReload: false,
-          offset: newOffset,
-          locales: newLocales);
+            isLastPage: false,
+            isReload: false,
+            offset: newOffset,
+            locales: newLocales);
       }
-      
     }
-   
   }
 }
 
@@ -525,10 +557,14 @@ class RoutePlannerState {
   final List<CompanyLocalRoutePlanner> selectedItems;
   final String? dateTimeInitial;
   final String? dateTimeEnd;
+  final String? validationMessagePlanner;
+  final bool? isValidatePlanner;
 
   RoutePlannerState(
       {this.isLastPage = false,
       this.isReload = false,
+      this.isValidatePlanner,
+      this.validationMessagePlanner,
       this.limit = 10,
       this.offset = 0,
       this.isLoading = false,
@@ -539,15 +575,16 @@ class RoutePlannerState {
       this.locales = const [],
       //this.localesOrderTemp = const [],
       this.selectedItems = const [],
-      this.dateTimeInitial =  '',
-      this.dateTimeEnd =  '' 
-      });
+      this.dateTimeInitial = '',
+      this.dateTimeEnd = ''});
 
   RoutePlannerState copyWith({
     bool? isLastPage,
     bool? isReload,
     int? limit,
     int? offset,
+    String? validationMessagePlanner,
+    bool? isValidatePlanner,
     bool? isLoading,
     bool? isActiveSearch,
     String? textSearch,
@@ -557,10 +594,12 @@ class RoutePlannerState {
     List<FilterOption>? filtersSuccess,
     List<CompanyLocalRoutePlanner>? selectedItems,
     String? dateTimeInitial,
-    String? dateTimeEnd
+    String? dateTimeEnd,
   }) =>
       RoutePlannerState(
         isLastPage: isLastPage ?? this.isLastPage,
+        validationMessagePlanner: this.validationMessagePlanner,
+        isValidatePlanner: isValidatePlanner ?? this.isValidatePlanner,
         isReload: isReload ?? this.isReload,
         limit: limit ?? this.limit,
         offset: offset ?? this.offset,

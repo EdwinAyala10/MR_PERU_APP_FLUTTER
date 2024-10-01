@@ -499,7 +499,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
               : (widget.company.cchkIdEstadoCheck == null
                   ? 'CHECK-IN'
                   : 'CHECK-OUT'),
-          callOnPressed: () {
+          callOnPressed: () async {
             String idCheck = widget.company.cchkIdEstadoCheck == '06'
                 ? '01'
                 : (widget.company.cchkIdEstadoCheck == null ? '01' : '06');
@@ -522,9 +522,24 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
             String ids =
                 '$idCheck*$ruc*$idLocal*$nombreLocal*$latLocal*$lngLocal';
             log(ids);
-            ref.read(companiesProvider.notifier).validateCheckIn(
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return Dialog(
+                    backgroundColor: Colors.transparent,
+                    surfaceTintColor: Colors.transparent,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        backgroundColor: Colors.white38,
+                        color: Colors.blueGrey,
+                      ),
+                    ),
+                  );
+                });
+            await ref.read(companiesProvider.notifier).validateCheckIn(
                   ruc: ruc,
                 );
+            context.pop();
             if (ref.watch(companiesProvider).isValidateCheckIn) {
               context.push('/company_check_in/$ids');
               return;

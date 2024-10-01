@@ -1,6 +1,5 @@
 import 'package:crm_app/features/route-planner/domain/entities/coordenada.dart';
 import 'package:crm_app/features/route-planner/domain/entities/event_planner_response.dart';
-import 'package:crm_app/features/route-planner/domain/entities/validar_horario_trabajo.dart';
 import 'package:crm_app/features/route-planner/domain/entities/validate_event_planner_response.dart';
 import 'package:crm_app/features/route-planner/domain/entities/validate_horario_trabajo_response.dart';
 import 'package:crm_app/features/route-planner/infrastructure/errors/route_planner_errors.dart';
@@ -21,18 +20,18 @@ class RoutePlannerDatasourceImpl extends RoutePlannerDatasource {
   final String accessToken;
 
   RoutePlannerDatasourceImpl({required this.accessToken})
-      : dio = Dio(BaseOptions(
+      : dio = Dio(
+          BaseOptions(
             baseUrl: Environment.apiUrl,
-            headers: {'Authorization': 'Bearer $accessToken'}));
-
+            headers: {'Authorization': 'Bearer $accessToken'},
+          ),
+        );
   @override
-  Future<List<CompanyLocalRoutePlanner>> getCompanyLocals({ 
-    int limit = 10, 
-    int offset = 0, 
-    String search = '', 
-    List<FilterOption> filters = const []
-  }) async {
-
+  Future<List<CompanyLocalRoutePlanner>> getCompanyLocals(
+      {int limit = 10,
+      int offset = 0,
+      String search = '',
+      List<FilterOption> filters = const []}) async {
     var data = {
       'SEARCH': search,
       'OFFSET': offset,
@@ -51,7 +50,6 @@ class RoutePlannerDatasourceImpl extends RoutePlannerDatasource {
     final response =
         await dio.post('/cliente/listar-clientes-local', data: data);
 
-
     final List<CompanyLocalRoutePlanner> locales = [];
 
     for (final local in response.data['data'] ?? []) {
@@ -63,8 +61,7 @@ class RoutePlannerDatasourceImpl extends RoutePlannerDatasource {
 
   @override
   Future<List<FilterActivity>> getFilterActivities() async {
-    final response =
-      await dio.get('/cliente/listar-filtro-actividad');
+    final response = await dio.get('/cliente/listar-filtro-actividad');
 
     final List<FilterActivity> filters = [];
 
@@ -76,11 +73,10 @@ class RoutePlannerDatasourceImpl extends RoutePlannerDatasource {
   }
 
   @override
-  Future<List<FilterResponsable>> getFilterResponsable({ String search = '' }) async {
-    final response =
-      await dio.get('/user/listar-usuarios-by-tipo', data: {
-        'SEARCH': search
-      });
+  Future<List<FilterResponsable>> getFilterResponsable(
+      {String search = ''}) async {
+    final response = await dio
+        .get('/user/listar-usuarios-by-tipo', data: {'SEARCH': search});
 
     final List<FilterResponsable> filters = [];
 
@@ -92,11 +88,10 @@ class RoutePlannerDatasourceImpl extends RoutePlannerDatasource {
   }
 
   @override
-  Future<List<FilterCodigoPostal>> getFilterCodigoPostal({ String search = '' }) async {
-    final response =
-      await dio.get('/cliente/listar-codigo-postal', data: {
-        'SEARCH': search
-      });
+  Future<List<FilterCodigoPostal>> getFilterCodigoPostal(
+      {String search = ''}) async {
+    final response = await dio
+        .get('/cliente/listar-codigo-postal', data: {'SEARCH': search});
 
     final List<FilterCodigoPostal> filters = [];
 
@@ -108,11 +103,9 @@ class RoutePlannerDatasourceImpl extends RoutePlannerDatasource {
   }
 
   @override
-  Future<List<FilterDistrito>> getFilterDistrito({ String search = '' }) async {
+  Future<List<FilterDistrito>> getFilterDistrito({String search = ''}) async {
     final response =
-      await dio.get('/cliente/listar-distrito', data: {
-        'SEARCH': search
-      });
+        await dio.get('/cliente/listar-distrito', data: {'SEARCH': search});
 
     final List<FilterDistrito> filters = [];
 
@@ -124,11 +117,11 @@ class RoutePlannerDatasourceImpl extends RoutePlannerDatasource {
   }
 
   @override
-  Future<List<FilterRucRazonSocial>> getFilterRucRazonSocial({ String search = '' }) async {
-    final response =
-      await dio.post('/cliente/listar-clientes-by-ruc-tipo-est-Cal', data: {
-        'SEARCH': search
-      });
+  Future<List<FilterRucRazonSocial>> getFilterRucRazonSocial(
+      {String search = ''}) async {
+    final response = await dio.post(
+        '/cliente/listar-clientes-by-ruc-tipo-est-Cal',
+        data: {'SEARCH': search});
 
     final List<FilterRucRazonSocial> filters = [];
 
@@ -162,11 +155,10 @@ class RoutePlannerDatasourceImpl extends RoutePlannerDatasource {
   }
 
   @override
-  Future<List<FilterHorarioTrabajo>> getFilterHorarioTrabajo({ String search = '' }) async {
-    final response =
-      await dio.post('/horario-trabajo/listar-horario-trabajo', data: {
-        'SEARCH': search
-      });
+  Future<List<FilterHorarioTrabajo>> getFilterHorarioTrabajo(
+      {String search = ''}) async {
+    final response = await dio.post('/horario-trabajo/listar-horario-trabajo',
+        data: {'SEARCH': search});
 
     final List<FilterHorarioTrabajo> filters = [];
 
@@ -184,8 +176,8 @@ class RoutePlannerDatasourceImpl extends RoutePlannerDatasource {
       const String method = 'POST';
       const String url = '/evento/validar-planificador-evento';
 
-      final response = await dio.request(url,
-          data: event, options: Options(method: method));
+      final response =
+          await dio.request(url, data: event, options: Options(method: method));
 
       final ValidateEventPlannerResponse eventResponse =
           ValidateEventPlannerResponseMapper.jsonToEntity(response.data);
@@ -193,7 +185,8 @@ class RoutePlannerDatasourceImpl extends RoutePlannerDatasource {
       print('STATUS: ${eventResponse.status}');
 
       if (eventResponse.status == true) {
-        eventResponse.data = ValidateVariableResponseMapper.jsonToEntity(response.data['data']);
+        eventResponse.data =
+            ValidateVariableResponseMapper.jsonToEntity(response.data['data']);
       }
 
       return eventResponse;
@@ -208,10 +201,11 @@ class RoutePlannerDatasourceImpl extends RoutePlannerDatasource {
   @override
   Future<Coordenada> getCoordenadas() async {
     try {
-      final response = await dio.get('/planificador/obtener-coordenada-punto-partida');
-      final Coordenada coordenada = CoordenadaMapper.jsonToEntity(response.data['data']);
+      final response =
+          await dio.get('/planificador/obtener-coordenada-punto-partida');
+      final Coordenada coordenada =
+          CoordenadaMapper.jsonToEntity(response.data['data']);
 
-     
       return coordenada;
     } on DioException catch (e) {
       if (e.response!.statusCode == 404) throw RoutePlannerNotFound();
@@ -223,16 +217,16 @@ class RoutePlannerDatasourceImpl extends RoutePlannerDatasource {
 
   @override
   Future<ValidateHorarioTrabajoResponse> getHorarioTrabajo() async {
-    final response =
-      await dio.post('/horario-trabajo/validar-horario-trabajo');
+    final response = await dio.post('/horario-trabajo/validar-horario-trabajo');
 
-    ValidateHorarioTrabajoResponse result = ValidateHorarioTrabajoResponseMapper.jsonToEntity(response.data);
-    
+    ValidateHorarioTrabajoResponse result =
+        ValidateHorarioTrabajoResponseMapper.jsonToEntity(response.data);
+
     if (result.status) {
-      result.data = ValidarHorarioTrabajoMapper.jsonToEntity(response.data['data']);
+      result.data =
+          ValidarHorarioTrabajoMapper.jsonToEntity(response.data['data']);
     }
 
     return result;
   }
-
 }

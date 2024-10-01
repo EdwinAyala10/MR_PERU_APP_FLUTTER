@@ -7,14 +7,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FilterBottomRouterPlannerSheet extends ConsumerStatefulWidget {
   @override
-  _FilterBottomRouterPlannerSheetState createState() => _FilterBottomRouterPlannerSheetState();
+  _FilterBottomRouterPlannerSheetState createState() =>
+      _FilterBottomRouterPlannerSheetState();
 }
 
-class _FilterBottomRouterPlannerSheetState extends ConsumerState<FilterBottomRouterPlannerSheet> {
+class _FilterBottomRouterPlannerSheetState
+    extends ConsumerState<FilterBottomRouterPlannerSheet> {
   @override
   Widget build(BuildContext context) {
     final double screenHeight = MediaQuery.of(context).size.height;
-    final double desiredHeight = screenHeight * 0.95; // 85% de la altura de la pantalla
+    final double desiredHeight =
+        screenHeight * 0.95; // 85% de la altura de la pantalla
 
     return Container(
       height: desiredHeight,
@@ -64,21 +67,59 @@ class _FilterBottomRouterPlannerSheetState extends ConsumerState<FilterBottomRou
           const SizedBox(height: 10),
           Expanded(
             child: ListView.separated(
-              itemBuilder: ( context, index) {
+              itemBuilder: (context, index) {
                 final options = [
-                  FilterOptionContainerFil(title: 'Horario de trabajo', trailing: 'Selecciona', type: 'HRTR_ID_HORARIO_TRABAJO'),
-                  FilterOptionContainerFil(title: 'Muestra sólo en seguimiento', trailing: 'Selecciona', type: 'ESTADO'),
-                  FilterOptionContainerFil(title: 'Actividad', trailing: 'Selecciona', type: 'ULTIMAS_VISITAS'),
-                  FilterOptionContainerFil(title: 'Tipo', trailing: 'Selecciona', type: 'TIPOCLIENTE'),
-                  FilterOptionContainerFil(title: 'Estado', trailing: 'Selecciona', type: 'ESTADO_CRM'),
-                  FilterOptionContainerFil(title: 'Calificación', trailing: 'Selecciona', type: 'CALIFICACION'),
-                  FilterOptionContainerFil(title: 'Responsable', trailing: 'Selecciona', type: 'ID_USUARIO_RESPONSABLE'),
-                  FilterOptionContainerFil(title: 'Código postal', trailing: 'Selecciona', type: 'CODIGO_POSTAL', search: true),
-                  FilterOptionContainerFil(title: 'Distrito', trailing: 'Selecciona', type: 'DISTRITO', search: true, multi: true),
-                  
-                  FilterOptionContainerFil(title: 'RUC', trailing: 'Selecciona', type: 'RUC', search: true),
-                  FilterOptionContainerFil(title: 'RUBRO', trailing: 'Selecciona', type: 'ID_RUBRO'),
-                  FilterOptionContainerFil(title: 'Razón comercial', trailing: 'Selecciona', type: 'RAZON_COMERCIAL', search: true),
+                  FilterOptionContainerFil(
+                      title: 'Horario de trabajo',
+                      trailing: 'Selecciona',
+                      type: 'HRTR_ID_HORARIO_TRABAJO'),
+                  FilterOptionContainerFil(
+                      title: 'Muestra sólo en seguimiento',
+                      trailing: 'Selecciona',
+                      type: 'ESTADO'),
+                  FilterOptionContainerFil(
+                      title: 'Actividad',
+                      trailing: 'Selecciona',
+                      type: 'ULTIMAS_VISITAS'),
+                  FilterOptionContainerFil(
+                      title: 'Tipo',
+                      trailing: 'Selecciona',
+                      type: 'TIPOCLIENTE'),
+                  FilterOptionContainerFil(
+                      title: 'Estado',
+                      trailing: 'Selecciona',
+                      type: 'ESTADO_CRM'),
+                  FilterOptionContainerFil(
+                      title: 'Calificación',
+                      trailing: 'Selecciona',
+                      type: 'CALIFICACION'),
+                  FilterOptionContainerFil(
+                      title: 'Responsable',
+                      trailing: 'Selecciona',
+                      type: 'ID_USUARIO_RESPONSABLE'),
+                  FilterOptionContainerFil(
+                      title: 'Código postal',
+                      trailing: 'Selecciona',
+                      type: 'CODIGO_POSTAL',
+                      search: true),
+                  FilterOptionContainerFil(
+                      title: 'Distrito',
+                      trailing: 'Selecciona',
+                      type: 'DISTRITO',
+                      search: true,
+                      multi: true),
+                  FilterOptionContainerFil(
+                      title: 'RUC',
+                      trailing: 'Selecciona',
+                      type: 'RUC',
+                      search: true),
+                  FilterOptionContainerFil(
+                      title: 'RUBRO', trailing: 'Selecciona', type: 'ID_RUBRO'),
+                  FilterOptionContainerFil(
+                      title: 'Razón comercial',
+                      trailing: 'Selecciona',
+                      type: 'RAZON_COMERCIAL',
+                      search: true),
                 ];
 
                 return options[index];
@@ -100,46 +141,62 @@ class FilterOptionContainerFil extends ConsumerWidget {
   final bool? search;
   final bool? multi;
 
-  FilterOptionContainerFil({required this.title, required this.trailing, required this.type, this.search, this.multi});
+  FilterOptionContainerFil(
+      {required this.title,
+      required this.trailing,
+      required this.type,
+      this.search,
+      this.multi});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
-    final List<FilterOption> listFilters = ref.watch(routePlannerProvider).filters;
+    final List<FilterOption> listFilters =
+        ref.watch(routePlannerProvider).filters;
 
     //final String? nameFilter = findFilterOptionIdByType(listFilters, type);
-    final String? nameFilter = findFilterOptionByType(listFilters, type, 'name', 'Selecciona');
+    final String? nameFilter =
+        findFilterOptionByType(listFilters, type, 'name', 'Selecciona');
 
     //options[index].trailing = '';
-    
     return InkWell(
-      onTap: () {
-        showModalBottomSheet(
+      onTap: ()async {
+        await showModalBottomSheet(
           context: context,
           isScrollControlled: true,
-          builder: (context) => FilterDetailRoutePlanner(title: title, type: type, isSearch: search, isMulti: multi),
+          builder: (context) => FilterDetailRoutePlanner(
+              title: title, type: type, isSearch: search, isMulti: multi),
         );
+        // ref.read(provider)
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 14),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(title, 
-            style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500, overflow: TextOverflow.ellipsis)),
+            Text(title,
+                style: const TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.w500,
+                    overflow: TextOverflow.ellipsis)),
             Row(
               children: [
                 SizedBox(
                   width: 140,
-                  child: Text(
-                    nameFilter ?? '', 
-                    textAlign: TextAlign.end,
-                    style: TextStyle(overflow: TextOverflow.ellipsis, color: nameFilter == 'Selecciona' ?  const Color.fromARGB(255, 170, 170, 170) : Colors.black )),
+                  child: Text(nameFilter ?? '',
+                      textAlign: TextAlign.end,
+                      style: TextStyle(
+                          overflow: TextOverflow.ellipsis,
+                          color: nameFilter == 'Selecciona'
+                              ? const Color.fromARGB(255, 170, 170, 170)
+                              : Colors.black)),
                 ),
                 const SizedBox(
                   width: 10,
                 ),
-                const Icon(Icons.arrow_forward_ios_rounded, color: Color.fromARGB(255, 175, 174, 174),)
+                const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: Color.fromARGB(255, 175, 174, 174),
+                )
               ],
             )
           ],
@@ -148,7 +205,6 @@ class FilterOptionContainerFil extends ConsumerWidget {
     );
   }
 }
-
 
 String? findFilterOptionIdByType(List<FilterOption> filters, String type) {
   try {

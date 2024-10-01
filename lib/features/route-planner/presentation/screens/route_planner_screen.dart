@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:crm_app/config/config.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
@@ -25,7 +26,6 @@ class RoutePlannerScreen extends ConsumerWidget {
   const RoutePlannerScreen({super.key});
 
   bool existeHorarioTrabajo(List<FilterOption> options) {
-
     if (options.length > 0) {
       return options.any((option) => option.type == "HRTR_ID_HORARIO_TRABAJO");
     } else {
@@ -44,8 +44,10 @@ class RoutePlannerScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final scaffoldKey = GlobalKey<ScaffoldState>();
 
-    final List<FilterOption> listFiltersSuccess = ref.watch(routePlannerProvider).filtersSuccess;
-    final List<CompanyLocalRoutePlanner> listSelectedItems = ref.watch(routePlannerProvider).selectedItems;
+    final List<FilterOption> listFiltersSuccess =
+        ref.watch(routePlannerProvider).filtersSuccess;
+    final List<CompanyLocalRoutePlanner> listSelectedItems =
+        ref.watch(routePlannerProvider).selectedItems;
 
     return Scaffold(
       drawer: SideMenu(scaffoldKey: scaffoldKey),
@@ -55,66 +57,93 @@ class RoutePlannerScreen extends ConsumerWidget {
             style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
             textAlign: TextAlign.center),
         actions: [
-          IconButton(onPressed: () {
-            showModalBottomSheet(
-              context: context,
-              isScrollControlled: true,
-              builder: (context) => FilterBottomRouterPlannerSheet(),
-            );
-          }, icon: Icon(Icons.filter_alt, color: listFiltersSuccess.isNotEmpty ? primaryColor : Colors.black  ))
+          IconButton(
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                builder: (context) => FilterBottomRouterPlannerSheet(),
+              );
+            },
+            icon: Icon(
+              Icons.filter_alt,
+              color:
+                  listFiltersSuccess.isNotEmpty ? primaryColor : Colors.black,
+            ),
+          )
         ],
       ),
-      
       body: Column(
         children: [
           const _SearchComponent(),
-          listFiltersSuccess.isNotEmpty ? TagRowRoutePlanner(): const SizedBox(),
+          listFiltersSuccess.isNotEmpty
+              ? TagRowRoutePlanner()
+              : const SizedBox(),
           const Expanded(child: _RoutePlannerView()),
         ],
       ),
-      floatingActionButton: listSelectedItems.isNotEmpty ? Stack(
-        alignment: Alignment.center, // Alineación central del FAB y el contador
-        children: [
-          SizedBox(
-            width: 46+ 9.0 * 2,
-            height: 46 + 9.0 * 2,
-            child: FloatingActionButton(
-              backgroundColor: primaryColor,
-              onPressed:  () async {
+      floatingActionButton: listSelectedItems.isNotEmpty
+          ? Stack(
+              alignment:
+                  Alignment.center, // Alineación central del FAB y el contador
+              children: [
+                SizedBox(
+                  width: 46 + 9.0 * 2,
+                  height: 46 + 9.0 * 2,
+                  child: FloatingActionButton(
+                    backgroundColor: primaryColor,
+                    onPressed: () async {
+                      var filterSuccess =
+                          ref.read(routePlannerProvider).filtersSuccess;
+                      var filter = ref.read(routePlannerProvider).filters;
+                      bool existFilter = existeHorarioTrabajo(filterSuccess);
+                      log("${filter}");
 
+                      if (!existFilter) {
+                        mostrarModalMensaje(context, 'AVISO',
+                            'Debes seleccionar el filtro de Horario de trabajo.',
+                            () {
+                          Navigator.of(context).pop();
+                        });
+                        return;
+                      } else {
+                        var horario = searchHorarioTrabajo(filterSuccess);
+                        var idHorario = horario.id;
+                        log("dasdas${filter.length}");
+                        var idResponsable = "";
+                        if (filter.isNotEmpty) {
+                          idResponsable = filter
+                                  .where((v) =>
+                                      (v.type == "ID_USUARIO_RESPONSABLE"))
+                                  .firstOrNull
+                                  ?.id ??
+                              '';
+                        }
+                        showLoadingMessage(context);
 
+                        var validatePlanner = await ref
+                            .read(routePlannerProvider.notifier)
+                            .validatePlanner(idHorario, idResponsable);
 
-                var filterSuccess =ref.read(routePlannerProvider).filtersSuccess;
-                bool existFilter = existeHorarioTrabajo(filterSuccess);
+                        if (validatePlanner.status == false) {
+                          Navigator.pop(context);
 
-                if (!existFilter) {
-                  mostrarModalMensaje(context, 'AVISO', 'Debes seleccionar el filtro de Horario de trabajo.', () {
-                      Navigator.of(context).pop();
-                  });
-                  return;
-                } else {
+                          mostrarModalMensaje(
+                              context, 'AVISO', validatePlanner.message, () {
+                            Navigator.of(context).pop();
+                          });
+                          //Navigator.pop(context);
+                          return;
+                        } else {
+                          Navigator.pop(context);
 
-                  var horario = searchHorarioTrabajo(filterSuccess);
-                  var idHorario = horario.id;
+                          ref
+                              .read(routePlannerProvider.notifier)
+                              .updateFechasRegister(
+                                  validatePlanner.data?.fechaIni ?? '',
+                                  validatePlanner.data?.fechaFin ?? '');
 
-                  showLoadingMessage(context);
-
-                  var validatePlanner = await ref.read(routePlannerProvider.notifier).validatePlanner(idHorario);
-
-                  if (validatePlanner.status == false) {
-                    Navigator.pop(context);
-
-                    mostrarModalMensaje(context, 'AVISO', validatePlanner.message, () {
-                      Navigator.of(context).pop();
-                    });
-                    //Navigator.pop(context);
-                    return;
-                  } else {
-                    Navigator.pop(context);
-                    
-                    ref.read(routePlannerProvider.notifier).updateFechasRegister(validatePlanner.data?.fechaIni ?? '', validatePlanner.data?.fechaFin ?? '');
-
-                    /*final gpsState = ref.read(gpsProvider.notifier).state;
+                          /*final gpsState = ref.read(gpsProvider.notifier).state;
 
                     if (!gpsState.isAllGranted) {
                       if (!gpsState.isGpsEnabled) {
@@ -128,65 +157,83 @@ class RoutePlannerScreen extends ConsumerWidget {
                       return;
                     }*/
 
-                    showLoadingMessage(context);
+                          showLoadingMessage(context);
 
-                    Coordenada coorsLocal = await ref.read(routePlannerProvider.notifier).cargarCoordena();
+                          Coordenada coorsLocal = await ref
+                              .read(routePlannerProvider.notifier)
+                              .cargarCoordena();
 
-                    //LatLng location = await ref.watch(locationProvider.notifier).currentPosition();
+                          //LatLng location = await ref.watch(locationProvider.notifier).currentPosition();
 
-                    LatLng location = LatLng(double.parse(coorsLocal.latitud), double.parse(coorsLocal.longitud));
+                          LatLng location = LatLng(
+                              double.parse(coorsLocal.latitud),
+                              double.parse(coorsLocal.longitud));
 
-                    List<CompanyLocalRoutePlanner> orderSelectedItems = await ref.read(mapProvider.notifier).sortLocalesByDistance(location, listSelectedItems);
+                          List<CompanyLocalRoutePlanner> orderSelectedItems =
+                              await ref
+                                  .read(mapProvider.notifier)
+                                  .sortLocalesByDistance(
+                                      location, listSelectedItems);
 
-                    await ref.read(routePlannerProvider.notifier).setSelectedItemsOrder(orderSelectedItems);
-                    await ref.read(routePlannerProvider.notifier).initialOrderkey();
+                          await ref
+                              .read(routePlannerProvider.notifier)
+                              .setSelectedItemsOrder(orderSelectedItems);
+                          await ref
+                              .read(routePlannerProvider.notifier)
+                              .initialOrderkey();
 
-                    ref.watch(eventPlannerFormProvider.notifier).setInitialForm();
-                    await ref.read(eventPlannerFormProvider.notifier).setLocalesArray(orderSelectedItems);
+                          ref
+                              .watch(eventPlannerFormProvider.notifier)
+                              .setInitialForm();
+                          await ref
+                              .read(eventPlannerFormProvider.notifier)
+                              .setLocalesArray(orderSelectedItems);
 
-                    ref.read(mapProvider.notifier).setLocation(location);
+                          ref.read(mapProvider.notifier).setLocation(location);
 
-                    //final mapState = ref.watch(mapProvider.notifier);
-                    
-                    ref.watch(mapProvider.notifier).addMarkersAndLocation(listSelectedItems, location);
-                    
-                    Navigator.pop(context);
+                          //final mapState = ref.watch(mapProvider.notifier);
 
-                    context.push('/register_route_planner');
-                  }
-                }
-              },
-              shape: const CircleBorder(),
-              child: const Icon(Icons.map, size: 32, color: Colors.white),
-            ),
-          ),
-          Positioned(
-            right: 0,
-            top: 0,
-            child: Container(
-              padding: const EdgeInsets.all(5),
-              constraints: const BoxConstraints(
-                minWidth: 25,
-                minHeight: 25,
-              ),
-              decoration: const BoxDecoration(
-                color: Colors.red,
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Text(
-                  '${listSelectedItems.length}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
+                          ref.watch(mapProvider.notifier).addMarkersAndLocation(
+                              listSelectedItems, location);
+
+                          Navigator.pop(context);
+
+                          context.push('/register_route_planner');
+                        }
+                      }
+                    },
+                    shape: const CircleBorder(),
+                    child: const Icon(Icons.map, size: 32, color: Colors.white),
                   ),
                 ),
-              ),
-            ),
-          ),
-        ],
-      ): null,
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(5),
+                    constraints: const BoxConstraints(
+                      minWidth: 25,
+                      minHeight: 25,
+                    ),
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        '${listSelectedItems.length}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            )
+          : null,
     );
   }
 }
@@ -206,7 +253,8 @@ class _RoutePlannerViewState extends ConsumerState {
     super.initState();
 
     scrollController.addListener(() {
-      if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 200) {
+      if (scrollController.position.pixels >=
+          scrollController.position.maxScrollExtent - 200) {
         print('CARGANDO MAS');
         ref.read(routePlannerProvider.notifier).loadNextPage(isRefresh: false);
       }
@@ -215,7 +263,9 @@ class _RoutePlannerViewState extends ConsumerState {
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
       ref.read(routePlannerProvider.notifier).onDeleteAllFilter();
       await ref.read(routePlannerProvider.notifier).loadFilterHorario();
-      ref.read(routePlannerProvider.notifier).onChangeNotIsActiveSearchSinRefresh();
+      ref
+          .read(routePlannerProvider.notifier)
+          .onChangeNotIsActiveSearchSinRefresh();
       ref.read(routePlannerProvider.notifier).loadNextPage(isRefresh: true);
     });
   }
@@ -240,17 +290,16 @@ class _RoutePlannerViewState extends ConsumerState {
     }
 
     return routePlannerState.locales.isNotEmpty
-      ? _ListLocales(
-          locales: routePlannerState.locales, 
-          onRefreshCallback: _refresh,
-          isReload: isReload,
-          scrollController: scrollController,
-      )
-      : NoExistData(
-        textCenter: 'No hay locales registradas', 
-        onRefreshCallback: _refresh, 
-        icon: Icons.business
-        );
+        ? _ListLocales(
+            locales: routePlannerState.locales,
+            onRefreshCallback: _refresh,
+            isReload: isReload,
+            scrollController: scrollController,
+          )
+        : NoExistData(
+            textCenter: 'No hay locales registradas',
+            onRefreshCallback: _refresh,
+            icon: Icons.business);
   }
 }
 
@@ -261,7 +310,10 @@ class _ListLocales extends ConsumerStatefulWidget {
   final bool isReload;
 
   const _ListLocales(
-      {required this.locales, required this.onRefreshCallback, required this.scrollController, required this.isReload});
+      {required this.locales,
+      required this.onRefreshCallback,
+      required this.scrollController,
+      required this.isReload});
 
   @override
   _ListLocalesState createState() => _ListLocalesState();
@@ -294,38 +346,42 @@ class _ListLocalesState extends ConsumerState<_ListLocales> {
                 )),
           )
         : NotificationListener(
-          onNotification: (ScrollNotification scrollInfo) {
-            if (scrollInfo.metrics.pixels + 400 == scrollInfo.metrics.maxScrollExtent) {
-              ref.read(routePlannerProvider.notifier).loadNextPage(isRefresh: false);
-            }
-            return false;
-          },
-          child: RefreshIndicator(
-              notificationPredicate: defaultScrollNotificationPredicate,
-              onRefresh: widget.onRefreshCallback,
-              //key: _refreshIndicatorKey,
-              child: ListView.separated(
-                itemCount: widget.locales.length,
-                controller: widget.scrollController,
-                //physics: const BouncingScrollPhysics(),
-                separatorBuilder: (BuildContext context, int index) =>   const Divider(),
-                itemBuilder: (context, index) {
-                  final local = widget.locales[index];
+            onNotification: (ScrollNotification scrollInfo) {
+              if (scrollInfo.metrics.pixels + 400 ==
+                  scrollInfo.metrics.maxScrollExtent) {
+                ref
+                    .read(routePlannerProvider.notifier)
+                    .loadNextPage(isRefresh: false);
+              }
+              return false;
+            },
+            child: RefreshIndicator(
+                notificationPredicate: defaultScrollNotificationPredicate,
+                onRefresh: widget.onRefreshCallback,
+                //key: _refreshIndicatorKey,
+                child: ListView.separated(
+                  itemCount: widget.locales.length,
+                  controller: widget.scrollController,
+                  //physics: const BouncingScrollPhysics(),
+                  separatorBuilder: (BuildContext context, int index) =>
+                      const Divider(),
+                  itemBuilder: (context, index) {
+                    final local = widget.locales[index];
 
-                  if (index + 1 == widget.locales.length) {
-                    if (widget.isReload) {
-                      return const Center(child: CircularProgressIndicator());
+                    if (index + 1 == widget.locales.length) {
+                      if (widget.isReload) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
                     }
-                  }
-          
-                  return ItemRoutePlannerLocal(
-                      local: local,
-                      callbackOnTap: () {
-                        //context.push('/company_detail/${local.ruc}');
-                      });
-                },
-              )),
-        );
+
+                    return ItemRoutePlannerLocal(
+                        local: local,
+                        callbackOnTap: () {
+                          //context.push('/company_detail/${local.ruc}');
+                        });
+                  },
+                )),
+          );
   }
 }
 
@@ -337,15 +393,14 @@ class _SearchComponent extends ConsumerStatefulWidget {
 }
 
 class _SearchComponentState extends ConsumerState<_SearchComponent> {
-
   TextEditingController searchController = TextEditingController(
       //text: ref.read(routePlannerProvider).textSearch
-    );
+      );
 
   @override
   Widget build(BuildContext context) {
     Timer? debounce;
-  
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
       width: double.infinity,
@@ -359,7 +414,9 @@ class _SearchComponentState extends ConsumerState<_SearchComponent> {
               if (debounce?.isActive ?? false) debounce?.cancel();
               debounce = Timer(const Duration(milliseconds: 500), () {
                 //ref.read(companiesProvider.notifier).loadNextPage(value);
-                ref.read(routePlannerProvider.notifier).onChangeTextSearch(value);
+                ref
+                    .read(routePlannerProvider.notifier)
+                    .onChangeTextSearch(value);
               });
             },
             decoration: InputDecoration(
@@ -398,4 +455,3 @@ class _SearchComponentState extends ConsumerState<_SearchComponent> {
     );
   }
 }
-

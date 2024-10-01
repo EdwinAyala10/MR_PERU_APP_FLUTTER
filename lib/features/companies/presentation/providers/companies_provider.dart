@@ -24,6 +24,7 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
   final CompaniesRepository companiesRepository;
   Dio client = Dio();
   final User? user;
+
   CompaniesNotifier({
     required this.companiesRepository,
     this.user,
