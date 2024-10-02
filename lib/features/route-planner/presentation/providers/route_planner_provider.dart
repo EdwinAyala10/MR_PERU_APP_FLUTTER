@@ -555,9 +555,9 @@ ${validate.type}
     if (locales.isEmpty) {
       //state = state.copyWith(isLoading: false, isLastPage: true, locales: []);
       if (isRefresh) {
-        state = state.copyWith(isLoading: false, isLastPage: true);
+        state = state.copyWith(isLoading: false, isLastPage: true, locales: []);
       } else {
-        state = state.copyWith(isReload: false, isLastPage: true);
+        state = state.copyWith(isReload: false, isLastPage: true, locales: []);
       }
       //state = state.copyWith(isLoading: false, locales: []);
       return;

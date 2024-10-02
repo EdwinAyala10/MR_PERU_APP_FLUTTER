@@ -195,7 +195,7 @@ class _EventPlannerInformationState
 
       await ref
           .read(resourceDetailsProvider.notifier)
-          .loadCatalogById('26')
+          .loadCatalogById(groupId: '26')
           .then((value) => {
                 setState(() {
                   optionsRecordatorio = value;
@@ -208,7 +208,7 @@ class _EventPlannerInformationState
       });*/
       await ref
           .read(resourceDetailsProvider.notifier)
-          .loadCatalogById('25')
+          .loadCatalogById(groupId: '25')
           .then((value) => {
                 setState(() {
                   optionsTiempoEntreVisitas = value;

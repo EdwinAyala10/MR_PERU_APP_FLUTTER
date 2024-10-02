@@ -258,7 +258,7 @@ class _CompanyCheckInformationState
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
       await ref
           .read(resourceDetailsProvider.notifier)
-          .loadCatalogById('20')
+          .loadCatalogById(groupId: '20')
           .then((value) => {
                 setState(() {
                   optionsTipo = value;

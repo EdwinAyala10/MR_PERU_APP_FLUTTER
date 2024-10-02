@@ -46,7 +46,7 @@ class ActivityPostCallScreen extends ConsumerWidget {
     //final activityForm = ref.watch(activityFormProvider(activityPostCallState.activity));
 
     if (activityPostCallState.activity == null) {
-      return Scaffold(
+      return const Scaffold(
         body: LoadingModal(),
       );
     }
@@ -145,7 +145,7 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
     super.initState();
 
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('01').then((value) => {
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogVisibleById(groupId: '01', codigoId: '02').then((value) => {
         
         setState(() {
           //optionsTipoGestion = value.where((o) => o.id == '02' || o.id == '').toList();
@@ -459,62 +459,70 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
       enableDrag: false,
       backgroundColor: Colors.transparent,
       builder: (BuildContext contextInt) {
-        return SizedBox(
-          width: double.infinity,
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 14.0, horizontal: 10.0)),
-                    onPressed: () {
-                      Navigator.pop(context);
-        
-                      ref
-                          .read(activityFormProvider(activity).notifier)
-                          .onHoraChanged(
-                              DateFormat('HH:mm:ss').format(DateTime.now()));
-        
-                      llamarTelefono(context, agregarPrefijoPeru(phone));
-                    },
-                    child: Text(
-                      'Llamar ${agregarPrefijoPeru(phone)}',
-                      style: const TextStyle(fontSize: 19, color: Colors.blue),
+        return WillPopScope(
+          onWillPop: () async {
+            // Aquí puedes ejecutar la acción que quieras si se presiona el botón de retroceso
+            print("Botón de retroceso presionado");
+            // Devuelve false para evitar que el modal se cierre
+            return false;
+          },
+          child: SizedBox(
+            width: double.infinity,
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 14.0, horizontal: 10.0)),
+                      onPressed: () {
+                        Navigator.pop(context);
+          
+                        ref
+                            .read(activityFormProvider(activity).notifier)
+                            .onHoraChanged(
+                                DateFormat('HH:mm:ss').format(DateTime.now()));
+          
+                        llamarTelefono(context, agregarPrefijoPeru(phone));
+                      },
+                      child: Text(
+                        'Llamar ${agregarPrefijoPeru(phone)}',
+                        style: const TextStyle(fontSize: 19, color: Colors.blue),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 14.0, horizontal: 10.0)),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      Navigator.pop(context);
-                      /*Timer(Duration(seconds: 3), () {
-                        //Navigator.pop(context);
-                        context.pop();
-                      });*/
-                      //context.pop();
-                    },
-                    child: const Text('CANCELAR'),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 14.0, horizontal: 10.0)),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+                        /*Timer(Duration(seconds: 3), () {
+                          //Navigator.pop(context);
+                          context.pop();
+                        });*/
+                        //context.pop();
+                      },
+                      child: const Text('CANCELAR'),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );

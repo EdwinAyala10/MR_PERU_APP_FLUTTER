@@ -118,35 +118,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
             },
           ),*/
           BubbleMenu(
-            title: 'Nueva Evento',
+            title: 'Nueva Empresa',
             iconColor: Colors.white,
             bubbleColor: primaryColor,
-            icon: Icons.event,
+            icon: Icons.account_balance_rounded,
             style: const TextStyle(fontSize: 16, color: Colors.white),
             onPressed: () {
-              context.go('/event/no-id');
-              _animationController.reverse();
-            },
-          ),
-          BubbleMenu(
-            title: 'Nueva Actividad',
-            iconColor: Colors.white,
-            bubbleColor: primaryColor,
-            icon: Icons.local_activity_outlined,
-            style: const TextStyle(fontSize: 16, color: Colors.white),
-            onPressed: () {
-              context.go('/activity/no-id');
-              _animationController.reverse();
-            },
-          ),
-          BubbleMenu(
-            title: 'Nueva Oportunidad',
-            iconColor: Colors.white,
-            bubbleColor: primaryColor,
-            icon: Icons.work,
-            style: const TextStyle(fontSize: 16, color: Colors.white),
-            onPressed: () {
-              context.go('/opportunity/no-id');
+              context.push('/company/new');
+              //context.go('/company/no-id');
               _animationController.reverse();
             },
           ),
@@ -157,21 +136,49 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
             icon: Icons.perm_contact_cal,
             style: const TextStyle(fontSize: 16, color: Colors.white),
             onPressed: () {
-              context.go('/contact/no-id');
+              context.push('/contact/new');
+              //context.go('/contact/no-id');
               _animationController.reverse();
             },
           ),
           BubbleMenu(
-            title: 'Nueva Empresa',
+            title: 'Nueva Oportunidad',
             iconColor: Colors.white,
             bubbleColor: primaryColor,
-            icon: Icons.account_balance_rounded,
+            icon: Icons.work,
             style: const TextStyle(fontSize: 16, color: Colors.white),
             onPressed: () {
-              context.go('/company/no-id');
+              context.push('/opportunity/new');
+              //context.go('/opportunity/no-id');
               _animationController.reverse();
             },
           ),
+          BubbleMenu(
+            title: 'Nueva Actividad',
+            iconColor: Colors.white,
+            bubbleColor: primaryColor,
+            icon: Icons.local_activity_outlined,
+            style: const TextStyle(fontSize: 16, color: Colors.white),
+            onPressed: () {
+              //context.go('/activity/no-id');
+              context.push('/activity/new');
+              _animationController.reverse();
+            },
+          ),
+          BubbleMenu(
+            title: 'Nueva Evento',
+            iconColor: Colors.white,
+            bubbleColor: primaryColor,
+            icon: Icons.event,
+            style: const TextStyle(fontSize: 16, color: Colors.white),
+            onPressed: () {
+              //context.go('/event/new');
+              context.push('/event/new');
+              _animationController.reverse();
+            },
+          ),
+          
+          
         ],
       ),
     );

@@ -7,7 +7,6 @@ import 'package:crm_app/features/route-planner/presentation/screens/register_rou
 import 'package:crm_app/features/route-planner/presentation/screens/route_day_screen.dart';
 import 'package:crm_app/features/route-planner/presentation/screens/route_planner_screen.dart';
 import 'package:crm_app/features/route-planner/presentation/screens/search_users_planner.dart';
-import 'package:crm_app/features/users/presentation/delegates/search_user_delegate.dart';
 
 import '../../features/activities/presentation/screens/activity_detail_screen.dart';
 import '../../features/activities/presentation/screens/activity_screen_post_call.dart';

@@ -58,7 +58,7 @@ class _FilterDetailRoutePlannerState extends ConsumerState<FilterDetailRoutePlan
           break;
 
         case 'ESTADO':
-          await ref.read(resourceDetailsProvider.notifier).loadCatalogById('18').then((value) => {
+          await ref.read(resourceDetailsProvider.notifier).loadCatalogById(groupId: '18').then((value) => {
             setState(() {
               optionsMaster = getOptionProcess(value, listFilters, widget.isMulti);
               isLoading = false;
@@ -76,7 +76,7 @@ class _FilterDetailRoutePlannerState extends ConsumerState<FilterDetailRoutePlan
         break;
 
         case 'TIPOCLIENTE':
-          await ref.read(resourceDetailsProvider.notifier).loadCatalogById('02').then((value) => {
+          await ref.read(resourceDetailsProvider.notifier).loadCatalogById(groupId: '02').then((value) => {
             setState(() {
               optionsMaster = getOptionProcess(value, listFilters, widget.isMulti);
               isLoading = false;
@@ -85,7 +85,7 @@ class _FilterDetailRoutePlannerState extends ConsumerState<FilterDetailRoutePlan
         break;
 
         case 'ESTADO_CRM':
-          await ref.read(resourceDetailsProvider.notifier).loadCatalogById('03').then((value) => {
+          await ref.read(resourceDetailsProvider.notifier).loadCatalogById(groupId: '03').then((value) => {
             setState(() {
               optionsMaster = getOptionProcess(value, listFilters, widget.isMulti);
               isLoading = false;
@@ -94,7 +94,7 @@ class _FilterDetailRoutePlannerState extends ConsumerState<FilterDetailRoutePlan
         break;
 
         case 'CALIFICACION':
-          await ref.read(resourceDetailsProvider.notifier).loadCatalogById('04').then((value) => {
+          await ref.read(resourceDetailsProvider.notifier).loadCatalogById(groupId: '04').then((value) => {
             setState(() {
               optionsMaster = getOptionProcess(value, listFilters, widget.isMulti);
               isLoading = false;
@@ -139,7 +139,7 @@ class _FilterDetailRoutePlannerState extends ConsumerState<FilterDetailRoutePlan
         break;
 
         case 'ID_RUBRO':
-          await ref.read(resourceDetailsProvider.notifier).loadCatalogById('16').then((value) => {
+          await ref.read(resourceDetailsProvider.notifier).loadCatalogById(groupId: '16').then((value) => {
             setState(() {
               optionsMaster = getOptionProcess(value, listFilters, widget.isMulti);
               isLoading = false;

@@ -7,8 +7,13 @@ class ResourceDetailsRepositoryImpl extends ResourceDetailsRepository {
   ResourceDetailsRepositoryImpl(this.datasource);
 
   @override
-  Future<List<ResourceDetail>> getResourceDetailsByGroup(String idGroup) {
-    return datasource.getResourceDetailsByGroup(idGroup);
+  Future<List<ResourceDetail>> getResourceDetailsByGroup({ String idGroup = '', String idCodigo = '' }) {
+    return datasource.getResourceDetailsByGroup(idGroup: idGroup, idCodigo: idCodigo);
+  }
+  
+  @override
+  Future<List<ResourceDetail>> getResourceDetailsVisibleByGroup({ String idGroup = '', String idCodigo = '' }) {
+    return datasource.getResourceDetailsVisibleByGroup(idGroup: idGroup, idCodigo: idCodigo);
   }
 
 }

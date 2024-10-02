@@ -146,7 +146,7 @@ class _OpportunityInformationv2State
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
       await ref
           .read(resourceDetailsProvider.notifier)
-          .loadCatalogById('05')
+          .loadCatalogById(groupId: '05')
           .then((value) => {
                 setState(() {
                   optionsEstado = value;
@@ -155,7 +155,7 @@ class _OpportunityInformationv2State
       
       await ref
           .read(resourceDetailsProvider.notifier)
-          .loadCatalogById('09')
+          .loadCatalogById(groupId: '09')
           .then((value) => {
                 setState(() {
                   optionsMoneda = value;
@@ -203,7 +203,7 @@ class _OpportunityInformationv2State
                     if (newValue == '07') {
                       ref
                           .read(resourceDetailsProvider.notifier)
-                          .loadCatalogById('22')
+                          .loadCatalogById(groupId: '22')
                           .then(
                             (value) => {
                               setState(

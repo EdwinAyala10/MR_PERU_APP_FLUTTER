@@ -145,25 +145,25 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
     _fieldKeyLocalName = UniqueKey();
 
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('02').then((value) => {
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogById(groupId: '02').then((value) => {
         setState(() {
           optionsTipoCliente = value;
         })
       });
 
-      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('03').then((value) => {
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogById(groupId: '03').then((value) => {
         setState(() {
           optionsEstado = value;
         })
       });
 
-      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('04').then((value) => {
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogById(groupId: '04').then((value) => {
         setState(() {
           optionsCalificacion = value;
         })
       });
 
-      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('16').then((value) => {
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogById(groupId: '16').then((value) => {
         setState(() {
           optionsRubro = value;
         })

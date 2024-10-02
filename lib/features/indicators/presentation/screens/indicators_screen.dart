@@ -59,7 +59,7 @@ class _ViewIndicatorsState extends ConsumerState {
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
       ref.watch(indicatorsProvider.notifier).resetForm();
 
-      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('21').then((value) => {
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogById(groupId: '21').then((value) => {
         setState(() {
           optionsPeriodicidad = value;
         })

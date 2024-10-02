@@ -14,10 +14,49 @@ class ResourceDetailsDatasourceImpl extends ResourceDetailsDatasource {
             headers: {'Authorization': 'Bearer $accessToken'}));
 
   @override
-  Future<List<ResourceDetail>> getResourceDetailsByGroup(String idGroup) async {
+  Future<List<ResourceDetail>> getResourceDetailsByGroup({ String idGroup = '', String idCodigo = '' }) async {
+    
+    Object dataArr = {
+      'RECD_GRUPO': idGroup,
+    };
+
+    if (idCodigo!="") {
+      dataArr = {
+        'RECD_GRUPO': idGroup,
+        'RECD_CODIGO': idCodigo
+      };
+    }
+    
     final response = await dio.post(
         '/recurso-detalle/listar-recursos-detalle-by-grupo',
-        data: {'RECD_GRUPO': idGroup});
+        data: dataArr);
+
+    final List<ResourceDetail> resourceDetails = [];
+
+    for (final resourceDetail in response.data['data'] ?? []) {
+      resourceDetails.add(ResourceDetailMapper.jsonToEntity(resourceDetail));
+    }
+
+    return resourceDetails;
+  }
+
+  @override
+  Future<List<ResourceDetail>> getResourceDetailsVisibleByGroup({ String idGroup = '', String idCodigo = '' }) async {
+    
+    Object dataArr = {
+      'RECD_GRUPO': idGroup,
+    };
+
+    if (idCodigo!="") {
+      dataArr = {
+        'RECD_GRUPO': idGroup,
+        'RECD_CODIGO': idCodigo
+      };
+    }
+    
+    final response = await dio.post(
+        '/recurso-detalle/listar-recursos-detalle-visible-by-grupo',
+        data: dataArr);
 
     final List<ResourceDetail> resourceDetails = [];
 

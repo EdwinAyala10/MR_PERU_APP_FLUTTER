@@ -4,7 +4,6 @@ import 'dart:developer';
 import 'package:crm_app/features/companies/presentation/providers/company_provider.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/opportunities/presentation/providers/docs_opportunitie_provider.dart';
-import 'package:crm_app/features/opportunities/presentation/providers/opportunities_provider.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 
 import '../../domain/domain.dart';
@@ -61,7 +60,10 @@ class ActivityScreen extends ConsumerWidget {
             : _ActivityView(activity: activityState.activity!),
         floatingActionButton: FloatingActionButtonCustom(
             iconData: Icons.save,
-            callOnPressed: () {
+            callOnPressed:
+            ref.watch(activityFormProvider(activityState.activity!)).actiComentario == '' ? () {
+              showSnackbar(context, 'El comentario es requerido');
+            } : () {
               log(activityState.activity.toString());
               if (activityState.activity == null) return;
 
@@ -90,11 +92,14 @@ class ActivityScreen extends ConsumerWidget {
                     //context.replace('/activities');
                     context.pop();
                     //});
-                    return;
+                    //return;
                   }
-                  context.pop();
+                  //context.pop();
                 }
-                context.pop();
+                
+                Navigator.pop(context);
+
+                //context.pop();
               });
             }),
       ),
@@ -140,7 +145,7 @@ class _ActivityInformationv2State
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await ref
           .read(resourceDetailsProvider.notifier)
-          .loadCatalogById('01')
+          .loadCatalogById(groupId: '01')
           .then((value) => {
                 setState(() {
                   optionsTipoGestion = value;
@@ -548,7 +553,15 @@ class _ActivityInformationv2State
                 .read(activityFormProvider(widget.activity).notifier)
                 .onComentarioChanged,
           ),
-          const SizedBox(height: 10),
+          activityForm.actiComentario.length == 0
+              ? const Padding(
+                  padding: EdgeInsets.only(left: 4),
+                  child: Text(
+                    'Es requerido, debe ingresar un comentario',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                )
+              : const SizedBox(),
           /*Center(
           child: DropdownButton<String>(
             value: scores.first,

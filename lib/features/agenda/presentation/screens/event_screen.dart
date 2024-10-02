@@ -53,11 +53,12 @@ class EventScreen extends ConsumerWidget {
                   fontWeight: FontWeight.w600
                 ),),
             /*leading: IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: () {
-              context.pop();
-            },
-          ),*/
+              icon: const Icon(Icons.close),
+              onPressed: () {
+                context.pop();
+                //Navigator.of(context).pop();
+              },
+            ),*/
           ),
           body: eventState.isLoading
               ? const FullScreenLoader()

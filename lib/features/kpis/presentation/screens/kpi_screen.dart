@@ -152,25 +152,25 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
     super.initState();
 
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('12').then((value) => {
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogById(groupId: '12').then((value) => {
         setState(() {
           optionsCategoria = value;
         })
       });
 
-      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('11').then((value) => {
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogById(groupId: '11').then((value) => {
         setState(() {
           optionsAsignacion = value;
         })
       });
 
-      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('13').then((value) => {
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogById(groupId: '13').then((value) => {
         setState(() {
           optionsPeriodicidad = value;
         })
       });
 
-      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('14').then((value) => {
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogById(groupId: '14').then((value) => {
         setState(() {
           optionsTipo = value;
         })

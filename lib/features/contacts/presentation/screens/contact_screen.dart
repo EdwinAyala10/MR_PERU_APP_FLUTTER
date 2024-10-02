@@ -133,7 +133,7 @@ class __ContactInformationv2State extends ConsumerState<_ContactInformationv2> {
     super.initState();
 
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      await ref.read(resourceDetailsProvider.notifier).loadCatalogById('07').then((value) => {
+      await ref.read(resourceDetailsProvider.notifier).loadCatalogById(groupId: '07').then((value) => {
         setState(() {
           optionsCargo = value;
         })
