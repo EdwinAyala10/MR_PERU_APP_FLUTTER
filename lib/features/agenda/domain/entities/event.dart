@@ -32,6 +32,8 @@ class Event {
   String? evntLocalCodigo;
   String? evntLocalNombre;
   String? evntIdTipoRegistro;
+  String? cckkIdEstadoCheck;
+  String? cchkFechaRegistroCheckIn;
   List<ContactArray>? arraycontacto;
   List<ContactArray>? arraycontactoElimimar;
   List<ResponsableArray>? arrayresponsable;
@@ -73,5 +75,7 @@ class Event {
     this.arraycontactoElimimar,
     this.arrayresponsable,
     this.arrayresponsableElimimar,
+    this.cchkFechaRegistroCheckIn,
+    this.cckkIdEstadoCheck,
   });
 }

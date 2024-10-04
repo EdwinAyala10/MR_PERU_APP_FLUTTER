@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import '../../domain/domain.dart';
 import '../providers/events_provider.dart';
 import '../widgets/item_event.dart';
@@ -31,10 +33,10 @@ class AgendaScreen extends StatelessWidget {
       ),
       body: const _AgendaView(),
       floatingActionButton: FloatingActionButtonCustom(
-        iconData: Icons.add,
-        callOnPressed: () {
-        context.push('/event/new');
-      }),
+          iconData: Icons.add,
+          callOnPressed: () {
+            context.push('/event/new');
+          }),
     );
   }
 }
@@ -169,18 +171,65 @@ class _AgendaViewState extends ConsumerState {
                 return RefreshIndicator(
                   onRefresh: _onRefresh,
                   child: value.isNotEmpty
-                      ? ListView.builder(
+                      ? ListView.separated(
                           itemCount: value.length,
                           itemBuilder: (context, index) {
-                           
                             final event = value[index];
-                  
                             return ItemEvent(
-                              event: event,
-                              callbackOnTap: () {
-                                //context.push('/event/${value[index].id}');
-                                context.push('/event_detail/${value[index].id}');
-                              });
+                                event: event,
+                                callbackOnTap: () async {
+                                  //context.push('/event/${value[index].id}');
+                                  showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return const Dialog(
+                                          backgroundColor: Colors.transparent,
+                                          surfaceTintColor: Colors.transparent,
+                                          child: Center(
+                                            child: CircularProgressIndicator(
+                                              backgroundColor: Colors.white38,
+                                              color: Colors.blueGrey,
+                                            ),
+                                          ),
+                                        );
+                                      });
+                                  await ref
+                                      .read(eventsProvider.notifier)
+                                      .validateCheckIn(
+                                        ruc: event.evntRuc ?? '',
+                                      );
+                                  context.pop();
+                                  if (ref
+                                      .watch(eventsProvider)
+                                      .isValidateCheckIn) {
+                                    context.push(
+                                      '/event_detail/${value[index].id}',
+                                    );
+                                    return;
+                                  } else {
+                                    log(ref
+                                        .read(eventsProvider)
+                                        .validationCheckinMessage);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        elevation: 3,
+                                        backgroundColor: Colors.grey,
+                                        content: Text(
+                                          ref
+                                              .watch(eventsProvider)
+                                              .validationCheckinMessage,
+                                          style: const TextStyle(
+                                              color: Colors.white),
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                });
+                          },
+                          separatorBuilder: (BuildContext context, int index) {
+                            return const Divider(
+                              height: 0,
+                            );
                           },
                         )
                       : ListView(

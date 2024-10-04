@@ -1,7 +1,10 @@
 import 'dart:collection';
+import 'dart:developer';
 
+import 'package:crm_app/config/constants/environment.dart';
 import 'package:crm_app/features/auth/domain/domain.dart';
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/domain.dart';
 
@@ -11,21 +14,59 @@ final eventsProvider =
     StateNotifierProvider<EventsNotifier, EventsState>((ref) {
   final eventsRepository = ref.watch(eventsRepositoryProvider);
   final user = ref.watch(authProvider).user;
-  
 
-  return EventsNotifier(eventsRepository: eventsRepository,
-      user: user!,
+  return EventsNotifier(
+    eventsRepository: eventsRepository,
+    user: user!,
   );
 });
 
 class EventsNotifier extends StateNotifier<EventsState> {
   final EventsRepository eventsRepository;
   final User user;
+  Dio client = Dio();
 
-  EventsNotifier({required this.eventsRepository,
+  EventsNotifier({
+    required this.eventsRepository,
     required this.user,
   }) : super(EventsState()) {
+    client = Dio(
+      BaseOptions(
+        headers: {'Authorization': 'Bearer ${user?.token}'},
+        baseUrl: Environment.apiUrl,
+      ),
+    );
     loadNextPage();
+  }
+
+  Future<void> validateCheckIn({
+    required String ruc,
+  }) async {
+    try {
+      final form = {
+        "RUC": ruc,
+        "ID_USUARIO_RESPONSABLE": user.code,
+      };
+      const endPoint = '/cliente-check/validar-checkin';
+      final request = await client.post(
+        endPoint,
+        data: form,
+      );
+      log(request.toString());
+      if (request.data['status'] == true) {
+        state = state.copyWith(
+          isValidateCheckIn: true,
+          validationCheckinMessage: request.data['message'] ?? '',
+        );
+        return;
+      }
+      state = state.copyWith(
+        isValidateCheckIn: false,
+        validationCheckinMessage: request.data['message'] ?? '',
+      );
+    } catch (e) {
+      log(e.toString());
+    }
   }
 
   Future<CreateUpdateEventResponse> createOrUpdateEvent(
@@ -161,6 +202,8 @@ class EventsState {
   final List<Event> selectedEvents;
   final LinkedHashMap<DateTime, List<Event>> linkedEvents;
   final List<Event> linkedEventsList;
+  final bool isValidateCheckIn;
+  final String validationCheckinMessage;
 
   EventsState(
       {this.isLastPage = false,
@@ -170,6 +213,8 @@ class EventsState {
       this.events = const [],
       this.selectedEvents = const [],
       this.linkedEventsList = const [],
+      this.isValidateCheckIn = false,
+      this.validationCheckinMessage = '',
       DateTime? selectedDay,
       DateTime? focusedDay,
       LinkedHashMap<DateTime, List<Event>>? linkedEvents})
@@ -188,17 +233,21 @@ class EventsState {
     DateTime? focusedDay,
     LinkedHashMap<DateTime, List<Event>>? linkedEvents,
     List<Event>? linkedEventsList,
+    bool? isValidateCheckIn,
+    String? validationCheckinMessage,
   }) =>
       EventsState(
-        isLastPage: isLastPage ?? this.isLastPage,
-        limit: limit ?? this.limit,
-        offset: offset ?? this.offset,
-        isLoading: isLoading ?? this.isLoading,
-        events: events ?? this.events,
-        selectedEvents: selectedEvents ?? this.selectedEvents,
-        linkedEventsList: linkedEventsList ?? this.linkedEventsList,
-        selectedDay: selectedDay ?? this.selectedDay,
-        focusedDay: focusedDay ?? this.focusedDay,
-        linkedEvents: linkedEvents ?? this.linkedEvents,
-      );
+          isLastPage: isLastPage ?? this.isLastPage,
+          limit: limit ?? this.limit,
+          offset: offset ?? this.offset,
+          isLoading: isLoading ?? this.isLoading,
+          events: events ?? this.events,
+          selectedEvents: selectedEvents ?? this.selectedEvents,
+          linkedEventsList: linkedEventsList ?? this.linkedEventsList,
+          selectedDay: selectedDay ?? this.selectedDay,
+          focusedDay: focusedDay ?? this.focusedDay,
+          linkedEvents: linkedEvents ?? this.linkedEvents,
+          isValidateCheckIn: isValidateCheckIn ?? this.isValidateCheckIn,
+          validationCheckinMessage:
+              validationCheckinMessage ?? this.validationCheckinMessage);
 }
