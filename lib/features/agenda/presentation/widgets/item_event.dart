@@ -9,8 +9,13 @@ import 'package:intl/intl.dart';
 class ItemEvent extends StatelessWidget {
   final Event event;
   final Function()? callbackOnTap;
+  final Function()? callbackChekIn;
 
-  const ItemEvent({super.key, required this.event, this.callbackOnTap});
+  const ItemEvent(
+      {super.key,
+      required this.event,
+      this.callbackOnTap,
+      this.callbackChekIn});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +24,7 @@ class ItemEvent extends StatelessWidget {
         Stack(
           children: [
             ListTile(
-              // onTap: callbackOnTap,
+              onTap: callbackOnTap,
               leading: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -59,59 +64,73 @@ class ItemEvent extends StatelessWidget {
                     style: const TextStyle(
                         fontSize: 16, fontWeight: FontWeight.w500),
                   ),
-                  Text(
-                    '${event.evntNombreTipoGestion}',
-                    style: const TextStyle(fontSize: 13,color: Colors.black),
+                  Visibility(
+                    visible: event.evntNombreTipoGestion == '' ? false : true,
+                    child: Text(
+                      '${event.evntNombreTipoGestion}',
+                      style: const TextStyle(fontSize: 13, color: Colors.black),
+                    ),
                   ),
                   Visibility(
                     visible: event.cckkIdEstadoCheck == 'Visitado',
                     child: Container(
-                      // padding: EdgeInsets.all(4),
-                      // decoration: BoxDecoration(
-                      //   color: const Color.fromARGB(255, 136, 155, 165),
-                      //   borderRadius: BorderRadius.circular(25)
-                      // ),
-                      child: Text(
-                        '${event.cchkFechaRegistroCheckIn}',
-                        style:
-                            const TextStyle(fontSize: 13, color: Colors.black),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(25),
+                        color: Colors.green,
                       ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 2,
+                      ),
+                      child: Text(
+                        event.cckkIdEstadoCheck ?? '',
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 14),
+                      ),
+                    ),
+                  ),
+                  Visibility(
+                    visible: event.cckkIdEstadoCheck == 'Visitado',
+                    child: Text(
+                      '${event.cchkFechaRegistroCheckIn}',
+                      style: const TextStyle(fontSize: 13, color: Colors.black),
                     ),
                   ),
                 ],
               ),
             ),
             Positioned(
-              bottom: -1,
-              right: 15,
-              top: event.cckkIdEstadoCheck == 'Visitado' ? null : 35,
+              bottom: 10,
+              right: 10,
+              // top: event.cckkIdEstadoCheck == 'Visitado' ? null : 35,
               child: Column(
                 children: [
                   Visibility(
                     visible: event.cckkIdEstadoCheck == 'Visitado',
-                    child: MaterialButton(
-                      onPressed: () {},
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      color: Colors.green,
-                      child: Text(
-                        event.cckkIdEstadoCheck ?? '',
-                        style: const TextStyle(
+                    child: const Padding(
+                      padding: EdgeInsets.only(bottom: 10, right: 20),
+                      child: CircleAvatar(
+                        radius: 28,
+                        backgroundColor: Colors.green,
+                        child: Icon(
+                          Icons.check,
                           color: Colors.white,
                         ),
                       ),
                     ),
                   ),
-                  MaterialButton(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                    color: primaryColor,
-                    onPressed: callbackOnTap,
-                    child: const Text(
-                      'CHECK-IN',
-                      style: TextStyle(color: Colors.white),
+                  Visibility(
+                    visible: event.cckkIdEstadoCheck != 'Visitado',
+                    child: MaterialButton(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      color: primaryColor,
+                      onPressed: callbackChekIn,
+                      child: const Text(
+                        'CHECK-IN',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ),
                 ],

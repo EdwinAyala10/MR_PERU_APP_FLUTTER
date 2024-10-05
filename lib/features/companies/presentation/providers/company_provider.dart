@@ -251,7 +251,7 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
       }
       log('state ruc' + state.rucId);
       final company = await companiesRepository.getCompanyById(state.rucId, user.code);
-      log(company.toString());
+      log( "def" +company.ruc);
       company.rucId = company.ruc;
       
       /*final contacts = await contactsRepository.getContacts(ruc: company.ruc, search: '', limit: 100, offset: 0);
@@ -261,7 +261,7 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
       final events = await eventsRepository.getEventsListByRuc(company.ruc);
       */
       final companyLocales =  await companiesRepository.getCompanyLocales(company.ruc);
-
+      log('wwerwerwer');
       state = state.copyWith(
         isLoading: false,
         company: company,
@@ -272,10 +272,11 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
         events: events,
         companyLocales: companyLocales,*/
       );
+
     } catch (e) {
       // 404 product not found
       state = state.copyWith(isLoading: false, company: null);
-      print(e);
+      log("ddddd"+e.toString());
     }
   }
 

@@ -1,5 +1,8 @@
 import 'dart:developer';
 
+import 'package:crm_app/features/companies/presentation/providers/companies_provider.dart';
+import 'package:crm_app/features/companies/presentation/providers/company_provider.dart';
+
 import '../../domain/domain.dart';
 import '../providers/events_provider.dart';
 import '../widgets/item_event.dart';
@@ -175,14 +178,47 @@ class _AgendaViewState extends ConsumerState {
                           itemCount: value.length,
                           itemBuilder: (context, index) {
                             final event = value[index];
+
                             return ItemEvent(
                                 event: event,
-                                callbackOnTap: () async {
-                                  //context.push('/event/${value[index].id}');
+                                callbackOnTap: () {
+                                  context.push(
+                                    '/event_detail/${value[index].id}',
+                                  );
+                                },
+                                callbackChekIn: () async {
+                                  await ref
+                                      .watch(
+                                          companyProvider(event.evntRuc ?? '')
+                                              .notifier)
+                                      .loadCompany();
+                                  String idCheck = '06';
+                                  ref.read(stateRucProvider.notifier).state =
+                                      event.evntRuc ?? '';
+                                  final locales = ref
+                                      .read(
+                                          companyProvider(event.evntRuc ?? ''))
+                                      .companyLocales;
+                                  final totalLocales = locales.length;
+                                  String idLocal = '-';
+                                  String nombreLocal = '-';
+                                  String latLocal = '0.0';
+                                  String lngLocal = '0.0';
+                                  if (totalLocales == 1) {
+                                    idLocal = locales[0].id;
+                                    nombreLocal =
+                                        '${locales[0].localNombre} ${locales[0].localDireccion}';
+                                    latLocal = locales[0].coordenadasLatitud!;
+                                    lngLocal = locales[0].coordenadasLongitud!;
+                                  }
+                                  String ruc = event.evntRuc ?? '';
+                                  String ids =
+                                      '$idCheck*$ruc*$idLocal*$nombreLocal*$latLocal*$lngLocal';
+                                  log(ids);
                                   showDialog(
                                       context: context,
                                       builder: (BuildContext context) {
-                                        return const Dialog(
+                                        return Dialog(
                                           backgroundColor: Colors.transparent,
                                           surfaceTintColor: Colors.transparent,
                                           child: Center(
@@ -194,21 +230,25 @@ class _AgendaViewState extends ConsumerState {
                                         );
                                       });
                                   await ref
-                                      .read(eventsProvider.notifier)
+                                      .read(companiesProvider.notifier)
                                       .validateCheckIn(
-                                        ruc: event.evntRuc ?? '',
+                                        ruc: ruc,
                                       );
                                   context.pop();
                                   if (ref
-                                      .watch(eventsProvider)
+                                      .watch(companiesProvider)
                                       .isValidateCheckIn) {
-                                    context.push(
-                                      '/event_detail/${value[index].id}',
-                                    );
+                                    context
+                                        .push('/company_check_in/$ids')
+                                        .then((value) async {
+                                      await ref
+                                          .read(eventsProvider.notifier)
+                                          .loadNextPage();
+                                    });
                                     return;
                                   } else {
                                     log(ref
-                                        .read(eventsProvider)
+                                        .read(companiesProvider)
                                         .validationCheckinMessage);
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
@@ -216,7 +256,7 @@ class _AgendaViewState extends ConsumerState {
                                         backgroundColor: Colors.grey,
                                         content: Text(
                                           ref
-                                              .watch(eventsProvider)
+                                              .watch(companiesProvider)
                                               .validationCheckinMessage,
                                           style: const TextStyle(
                                               color: Colors.white),
