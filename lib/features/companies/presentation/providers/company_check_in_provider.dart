@@ -22,8 +22,8 @@ final companyCheckInProvider = StateNotifierProvider.autoDispose
   return CompanyCheckInNotifier(
     companiesRepository: companiesRepository,
     id: idCheck,
-    ruc: company!.ruc,
-    nameEmpresa: company.razon,
+    ruc: company?.ruc ?? '',
+    nameEmpresa: company?.razon ?? '',
     idLocal: idLocal,
     nombreLocal: nombreLocal,
     latLocal: latLocal,
@@ -61,26 +61,25 @@ class CompanyCheckInNotifier extends StateNotifier<CompanyCheckInState> {
     String isNombreLocal = nombreLocal == '-' ? '' : nombreLocal;
 
     return CompanyCheckIn(
-      cchkIdClientesCheck: 'new',
-      cchkIdComentario: '',
-      cchkIdContacto: '',
-      cchkIdEstadoCheck: idCheck,
-      cchkIdOportunidad: '',
-      cchkIdUsuarioResponsable: user.code,
-      cchkNombreUsuarioResponsable: user.name,
-      cchkRuc: ruc,
-      cchkRazon: nameEmpresa,
-      cchkCoordenadaLatitud: latLocal,
-      cchkCoordenadaLongitud: lngLocal,
-      cchkDireccionMapa: '',
-      cchkIdUsuarioRegistro: user.code,
-      cchkUbigeo: '',
-      cchkLocalCodigo: isIdLocal,
-      cchkLocalNombre: isNombreLocal,
-      cchkNombreOportunidad: '',
-      cchkNombreContacto: '',
-      cchkVisitaFrioCaliente: ''
-    );
+        cchkIdClientesCheck: 'new',
+        cchkIdComentario: '',
+        cchkIdContacto: '',
+        cchkIdEstadoCheck: idCheck,
+        cchkIdOportunidad: '',
+        cchkIdUsuarioResponsable: user.code,
+        cchkNombreUsuarioResponsable: user.name,
+        cchkRuc: ruc,
+        cchkRazon: nameEmpresa,
+        cchkCoordenadaLatitud: latLocal,
+        cchkCoordenadaLongitud: lngLocal,
+        cchkDireccionMapa: '',
+        cchkIdUsuarioRegistro: user.code,
+        cchkUbigeo: '',
+        cchkLocalCodigo: isIdLocal,
+        cchkLocalNombre: isNombreLocal,
+        cchkNombreOportunidad: '',
+        cchkNombreContacto: '',
+        cchkVisitaFrioCaliente: '');
   }
 
   Future<void> loadCompanyCheckIn(String idCheck) async {
@@ -98,27 +97,28 @@ class CompanyCheckInNotifier extends StateNotifier<CompanyCheckInState> {
               checkInByRucLocalResponse.checkInByRucLocal!;
 
           companyCheckInNew = CompanyCheckIn(
-              cchkIdClientesCheck: 'new',
-              cchkRuc: checkInByRucLocal.ruc,
-              cchkIdOportunidad: checkInByRucLocal.idOportunidad,
-              cchkNombreOportunidad: checkInByRucLocal.oprtNombre,
-              cchkIdContacto: checkInByRucLocal.idContacto,
-              cchkNombreContacto: checkInByRucLocal.contactoDesc,
-              cchkIdEstadoCheck: idCheck,
-              cchkIdComentario: '',
-              cchkIdUsuarioResponsable: user.code,
-              cchkNombreUsuarioResponsable: user.name,
-              cchkLocalCodigo: checkInByRucLocal.cchkLocalCodigo,
-              cchkLocalNombre: '${checkInByRucLocal.localNombre} ${checkInByRucLocal.localDireccion}',
-              cchkCoordenadaLatitud: checkInByRucLocal.coordenadasLatitud,
-              cchkCoordenadaLongitud: checkInByRucLocal.coordenadasLongitud,
-              cchkRazon: checkInByRucLocal.razon,
-              cchkDireccionMapa: checkInByRucLocal.localDireccion,
-              cchkVisitaFrioCaliente: checkInByRucLocal.cchkNombreTipoVisita,
-              cchkIdTipoVista: checkInByRucLocal.cchkIdTipoVista,
-              cchkNombreTipoVisita: checkInByRucLocal.cchkNombreTipoVisita,
-              //cchkVisitaFrioCaliente: checkInByRucLocal.
-              );
+            cchkIdClientesCheck: 'new',
+            cchkRuc: checkInByRucLocal.ruc,
+            cchkIdOportunidad: checkInByRucLocal.idOportunidad,
+            cchkNombreOportunidad: checkInByRucLocal.oprtNombre,
+            cchkIdContacto: checkInByRucLocal.idContacto,
+            cchkNombreContacto: checkInByRucLocal.contactoDesc,
+            cchkIdEstadoCheck: idCheck,
+            cchkIdComentario: '',
+            cchkIdUsuarioResponsable: user.code,
+            cchkNombreUsuarioResponsable: user.name,
+            cchkLocalCodigo: checkInByRucLocal.cchkLocalCodigo,
+            cchkLocalNombre:
+                '${checkInByRucLocal.localNombre} ${checkInByRucLocal.localDireccion}',
+            cchkCoordenadaLatitud: checkInByRucLocal.coordenadasLatitud,
+            cchkCoordenadaLongitud: checkInByRucLocal.coordenadasLongitud,
+            cchkRazon: checkInByRucLocal.razon,
+            cchkDireccionMapa: checkInByRucLocal.localDireccion,
+            cchkVisitaFrioCaliente: checkInByRucLocal.cchkNombreTipoVisita,
+            cchkIdTipoVista: checkInByRucLocal.cchkIdTipoVista,
+            cchkNombreTipoVisita: checkInByRucLocal.cchkNombreTipoVisita,
+            //cchkVisitaFrioCaliente: checkInByRucLocal.
+          );
         }
       }
 

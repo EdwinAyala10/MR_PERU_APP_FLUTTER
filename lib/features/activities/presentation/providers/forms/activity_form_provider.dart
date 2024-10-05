@@ -1,3 +1,5 @@
+import 'package:crm_app/features/opportunities/domain/domain.dart';
+
 import '../../../../contacts/domain/domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
@@ -5,6 +7,8 @@ import 'package:formz/formz.dart';
 import '../../../domain/domain.dart';
 import '../providers.dart';
 import '../../../../shared/shared.dart';
+
+final selectOpportunity = StateProvider<Opportunity?>((ref) => null);
 
 final activityFormProvider = StateNotifierProvider.autoDispose
     .family<ActivityFormNotifier, ActivityFormState, Activity>((ref, activity) {
@@ -116,8 +120,6 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
   }
 
   void onRucChanged(String value, String name) {
-
-
     state = state.copyWith(
         actiRuc: StateCompany.dirty(value),
         actiRazon: name,
@@ -226,17 +228,15 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
 
     if (state.id == "new") {
       arrayContactos = state.actividadesContacto!
-        .where((contact) =>
-            contact.acntIdContacto != item.acntIdContacto)
-        .toList();
-    }else {
+          .where((contact) => contact.acntIdContacto != item.acntIdContacto)
+          .toList();
+    } else {
       arrayContactos = state.actividadesContacto!
-        .where((contact) =>
-            contact.acntIdActividadContacto != item.acntIdActividadContacto)
-        .toList();
+          .where((contact) =>
+              contact.acntIdActividadContacto != item.acntIdActividadContacto)
+          .toList();
     }
 
-    
     state = state.copyWith(
         actividadesContacto: arrayContactos,
         actividadesContactoEliminar: arrayContactosEliminar);
