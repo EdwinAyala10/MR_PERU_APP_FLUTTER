@@ -75,7 +75,7 @@ class _TagRowState extends ConsumerState<TagRowRoutePlanner> {
           ),
           const SizedBox(width: 10),
           const Text(
-            'Total: ',
+            'Tot. Filtros: ',
             style: TextStyle(color: Color.fromARGB(255, 62, 62, 62),
             fontWeight: FontWeight.w600),
           ),
@@ -84,7 +84,7 @@ class _TagRowState extends ConsumerState<TagRowRoutePlanner> {
             style: const TextStyle(color: Color.fromARGB(255, 62, 62, 62)),
           ),
           const SizedBox(
-            width: 10,
+            width: 6,
           ),
           InkWell(
             onTap: () {

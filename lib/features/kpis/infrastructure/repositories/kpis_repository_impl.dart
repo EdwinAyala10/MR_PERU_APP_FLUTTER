@@ -36,4 +36,10 @@ class KpisRepositoryImpl extends KpisRepository {
   ) {
     return datasource.listObjetiveByCategory(kpiForm);
   }
+
+  @override
+  Future<KpiResponse> updateOrderKpis({ String idKpiOld = '', String orderKpiOld = '', String idKpiNew = '', String orderKpiNew = '' }) {
+    return datasource.updateOrderKpis(idKpiOld : idKpiOld, orderKpiOld: orderKpiOld, idKpiNew: idKpiNew, orderKpiNew: orderKpiNew);
+  }
+
 }

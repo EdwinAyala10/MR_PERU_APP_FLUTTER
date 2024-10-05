@@ -1,6 +1,8 @@
 import '../domain.dart';
 import 'array_user.dart';
 import 'periodicidad.dart';
+import 'package:flutter/material.dart';
+
 
 class Kpi {
     String id;
@@ -26,6 +28,7 @@ class Kpi {
     List<ArrayUser>? arrayuserasignacion;
     List<Periodicidad>? peobIdPeriodicidad;
     List<UsuarioAsignado>? usuariosAsignados;
+    Key? key;
 
     Kpi({
         required this.id,
@@ -50,6 +53,7 @@ class Kpi {
         this.porcentaje,
         this.objrValorDifMes,
         this.usuariosAsignados,
-        this.userreportNameResponsable
+        this.userreportNameResponsable,
+        this.key
     });
 }

@@ -15,4 +15,5 @@ abstract class KpisDatasource {
     Map<dynamic, dynamic> kpiForm,
   );
 
+  Future<KpiResponse> updateOrderKpis({ String idKpiOld = '', String orderKpiOld = '', String idKpiNew = '', String orderKpiNew = '' });
 }

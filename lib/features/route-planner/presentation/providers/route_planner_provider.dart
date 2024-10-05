@@ -222,6 +222,7 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     state = state.copyWith(
         filtersSuccess: validate ?? [],
         filters: validate ?? [],
+        selectedItems: [],
         isActiveSearch: false,
         textSearch: '',
         isLoading: false);

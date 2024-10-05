@@ -14,4 +14,7 @@ abstract class KpisRepository {
   Future<ObjetiveByCategoryResponse> listObjetiveByCategory(
     Map<dynamic, dynamic> kpiForm,
   );
+
+  Future<KpiResponse> updateOrderKpis({ String idKpiOld = '', String orderKpiOld = '', String idKpiNew = '', String orderKpiNew = '' });
+
 }

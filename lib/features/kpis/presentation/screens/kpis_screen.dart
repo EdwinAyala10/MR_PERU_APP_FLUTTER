@@ -1,12 +1,13 @@
-import 'dart:developer';
-
-import 'package:crm_app/features/kpis/presentation/providers/kpis_by_cat_provider.dart';
+import 'package:crm_app/features/kpis/presentation/widgets/item_kpi.dart';
 
 import '../../domain/domain.dart';
 import '../providers/providers.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
+import 'package:flutter/material.dart' hide ReorderableList;
+import 'package:flutter_reorderable_list/flutter_reorderable_list.dart';
+
 
 class KpisScreen extends StatelessWidget {
   const KpisScreen({super.key});
@@ -66,6 +67,8 @@ class _KpisViewState extends ConsumerState {
         //ref.read(productsProvider.notifier).loadNextPage();
       }
     });
+
+    ref.read(kpisProvider.notifier).initialOrderkeyKpis();
   }
 
   @override
@@ -81,6 +84,7 @@ class _KpisViewState extends ConsumerState {
     // Simula la adición de nuevos datos o actualización de los existentes
     //items = List.generate(20, (index) => "Item ${index + 100}");
     ref.read(kpisProvider.notifier).loadNextPage();
+
     //});
   }
 
@@ -145,7 +149,59 @@ class _ListKpis extends ConsumerWidget {
                   ),
                 )),
           )
-        : RefreshIndicator(
+        : 
+          RefreshIndicator(
+            //key: refreshIndicatorKey,
+            onRefresh: onRefreshCallback,
+            child: ReorderableList(
+              onReorder: (Key item, Key newPosition) {
+                return ref.read(kpisProvider.notifier).onReorder(item, newPosition, kpis);
+              },
+              onReorderDone: (Key item) async {
+                print('EJECUTA ON REORDER DONE');
+
+               // await ref.read(kpisProvider.notifier).updateOrderKpis(item);
+                //showLoadingMessage(context);
+
+                //LatLng location = await ref.watch(locationProvider.notifier).currentPosition();
+
+                //List<CompanyLocalRoutePlanner> orderSelectedItems = await ref.read(mapProvider.notifier).sortLocalesByDistance(location, listSelectedItems);
+
+                //await ref.read(routePlannerProvider.notifier).setSelectedItemsOrder(orderSelectedItems);
+                //await ref.read(kpisProvider.notifier).initialOrderkeyKpis();
+
+                //ref.read(mapProvider.notifier).setLocation(location);
+
+                //final List<Kpi> listSelectedItemsRenew = ref.watch(kpisProvider).kpis;
+
+                //ref.watch(mapProvider.notifier).addMarkersAndLocation(listSelectedItemsRenew, location);
+                //await ref.read(eventPlannerFormProvider.notifier).setLocalesArray(listSelectedItemsRenew);
+
+                //Navigator.pop(context);
+              },
+              child: CustomScrollView(
+                slivers: <Widget>[
+                  SliverPadding(
+                      padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).padding.bottom),
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (BuildContext context, int index) {
+                            return ItemKpi(
+                              data: kpis[index],
+                              isFirst: index == 0,
+                              isLast: index == kpis.length - 1,
+                              index: index
+                            );
+                          },
+                          childCount: kpis.length,
+                        ),
+                      )),
+                ],
+              ),
+            ), 
+          );
+        /* RefreshIndicator(
             onRefresh: onRefreshCallback,
             key: refreshIndicatorKey,
             child: ListView.separated(
@@ -192,7 +248,7 @@ class _ListKpis extends ConsumerWidget {
                           kpi.usuariosAsignados![i].userreportName ?? '',
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(fontSize: 10),
-                        )
+                      )
                     ],
                   ),
                   leading: Stack(
@@ -229,7 +285,7 @@ class _ListKpis extends ConsumerWidget {
                 );
               },
             ),
-          );
+          );*/
   }
 
   convertTypeCategory(Kpi kpi) {

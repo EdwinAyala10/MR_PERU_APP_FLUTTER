@@ -126,4 +126,38 @@ class KpisDatasourceImpl extends KpisDatasource {
       );
     }
   }
+
+  @override
+  Future<KpiResponse> updateOrderKpis({ String idKpiOld = '', String orderKpiOld = '', String idKpiNew = '', String orderKpiNew = '' }) async {
+    try {
+      const String method = 'POST';
+      const String url = '/objetivo/actualiar-orden';
+
+      Object data = {
+        "OBJETIVO": [
+          {
+              "OBJR_ID_OBJETIVO":idKpiOld,
+              "OBJR_ORDEN":orderKpiOld
+          },
+          {
+              "OBJR_ID_OBJETIVO": idKpiNew,
+              "OBJR_ORDEN":orderKpiNew
+          }      
+        ]
+      };
+
+      final response = await dio.request(url,
+          data: data, options: Options(method: method));
+
+      final KpiResponse kpiResponse =
+          KpiResponseMapper.jsonToEntity(response.data);
+
+      return kpiResponse;
+    } on DioException catch (e) {
+      if (e.response!.statusCode == 404) throw KpiNotFound();
+      throw Exception();
+    } catch (e) {
+      throw Exception();
+    }
+  }
 }

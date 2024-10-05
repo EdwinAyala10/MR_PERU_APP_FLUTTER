@@ -81,7 +81,7 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Text(
-                        'Ultima actividad: ',
+                        'Ult. act.: ',
                         style: TextStyle(
                           color: Color.fromARGB(255, 96, 95, 95),
                           fontSize: 14.0,
@@ -100,11 +100,15 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
                           color: Color.fromRGBO(130, 130, 130, 1),
                           fontSize: 13.0,
                           fontWeight: FontWeight.w500,
+                          overflow: TextOverflow.ellipsis
                         ),
                       ),
                     ],
                   ),
                 ),
+              SizedBox(
+                height: 4,
+              ),
               if (widget.opportunity.actiComentario != "")
                 Row(
                 children: [
