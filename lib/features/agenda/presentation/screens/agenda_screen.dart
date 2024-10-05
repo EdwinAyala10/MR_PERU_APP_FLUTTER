@@ -192,7 +192,7 @@ class _AgendaViewState extends ConsumerState {
                                           companyProvider(event.evntRuc ?? '')
                                               .notifier)
                                       .loadCompany();
-                                  String idCheck = '06';
+                                  String idCheck = '01';
                                   ref.read(stateRucProvider.notifier).state =
                                       event.evntRuc ?? '';
                                   final locales = ref
