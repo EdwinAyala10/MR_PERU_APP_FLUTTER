@@ -1,4 +1,5 @@
 import 'package:crm_app/config/config.dart';
+import 'package:crm_app/features/activities/presentation/providers/providers.dart';
 import 'package:crm_app/features/contacts/presentation/providers/providers.dart';
 import 'package:crm_app/features/opportunities/presentation/screens/opportunity_detail_screen.dart';
 import 'package:crm_app/features/shared/presentation/providers/send_whatsapp_provider.dart';
@@ -25,8 +26,10 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
-      (_){
-        ref.read(contactProvider(widget.opportunity.contactId ?? '').notifier).loadContact(widget.opportunity.contactId ?? '');
+      (_) {
+        ref
+            .read(contactProvider(widget.opportunity.contactId ?? '').notifier)
+            .loadContact(widget.opportunity.contactId ?? '');
       },
     );
   }
@@ -107,19 +110,19 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
                 ),
               if (widget.opportunity.actiComentario != "")
                 Row(
-                children: [
-                  const Icon(Icons.mode_comment, size: 14),
-                  const SizedBox(width: 4),
-                  SizedBox(
-                    width: 160,
-                    child: Text(widget.opportunity.actiComentario ?? '',
-                      style: const TextStyle(
-                          fontSize: 12,
-                        ),
-                      overflow: TextOverflow.ellipsis),
-                  ),
-                ],
-              ),
+                  children: [
+                    const Icon(Icons.mode_comment, size: 14),
+                    const SizedBox(width: 4),
+                    SizedBox(
+                      width: 160,
+                      child: Text(widget.opportunity.actiComentario ?? '',
+                          style: const TextStyle(
+                            fontSize: 12,
+                          ),
+                          overflow: TextOverflow.ellipsis),
+                    ),
+                  ],
+                ),
               const SizedBox(
                 height: 3,
               ),
@@ -183,6 +186,7 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
               children: [
                 IconButton(
                   onPressed: () {
+                    ref.read(selectOpportunity.notifier).state = widget.opportunity;
                     final contact = contactState.contact;
                     if (contact == null) {
                       return;

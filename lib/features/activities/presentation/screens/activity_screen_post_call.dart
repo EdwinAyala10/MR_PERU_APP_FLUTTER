@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 import 'package:crm_app/call_duration_service.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
+import 'package:crm_app/features/opportunities/presentation/providers/docs_opportunitie_provider.dart';
 import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
 import 'package:crm_app/features/shared/widgets/loading_modal.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
@@ -28,7 +30,7 @@ import '../../../shared/widgets/select_custom_form.dart';
 import 'package:intl/intl.dart';
 import 'package:phone_state/phone_state.dart';
 
-class ActivityPostCallScreen extends ConsumerWidget {
+class ActivityPostCallScreen extends ConsumerStatefulWidget {
   final String contactId;
   final String phone;
 
@@ -36,12 +38,49 @@ class ActivityPostCallScreen extends ConsumerWidget {
       {super.key, required this.contactId, required this.phone});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    
+  ConsumerState<ActivityPostCallScreen> createState() =>
+      _ActivityPostCallScreenState();
+}
+
+class _ActivityPostCallScreenState
+    extends ConsumerState<ActivityPostCallScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      final String idOP = ref.watch(selectOpportunity)?.id ?? '';
+      final String oprtNombre = ref.watch(selectOpportunity)?.oprtNombre ?? '';
+      await ref
+          .read(activityPostCallProvider(ActivityPostCallParams(
+                  contactId: widget.contactId, phone: widget.phone))
+              .notifier)
+          .loadActivityPostCall(
+            widget.contactId,
+            widget.phone,
+          );
+      final activityPostCallState = ref.watch(
+        activityPostCallProvider(
+          ActivityPostCallParams(
+              contactId: widget.contactId, phone: widget.phone),
+        ),
+      );
+
+      log(idOP);
+      log(oprtNombre);
+      ref
+          .watch(activityFormProvider(activityPostCallState.activity!).notifier)
+          .onOportunidadChanged(
+            idOP,
+            oprtNombre,
+          );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final activityPostCallState = ref.watch(activityPostCallProvider(
-        ActivityPostCallParams(contactId: contactId, phone: phone)));
-
-
+        ActivityPostCallParams(
+            contactId: widget.contactId, phone: widget.phone)));
 
     //final activityForm = ref.watch(activityFormProvider(activityPostCallState.activity));
 
@@ -55,8 +94,8 @@ class ActivityPostCallScreen extends ConsumerWidget {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Informe post llamada', 
-          style: TextStyle(fontWeight: FontWeight.w500)),
+          title: const Text('Informe post llamada',
+              style: TextStyle(fontWeight: FontWeight.w500)),
           /*leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
@@ -67,39 +106,44 @@ class ActivityPostCallScreen extends ConsumerWidget {
         body: activityPostCallState.isLoading
             ? const FullScreenLoader()
             : _ActivityView(
-                activity: activityPostCallState.activity!, phone: phone),
+                activity: activityPostCallState.activity!, phone: widget.phone),
         floatingActionButton: FloatingActionButtonCustom(
             iconData: Icons.save,
             //isDisabled: activityForm.actiComentario == '',
-            callOnPressed: ref.watch(activityFormProvider(activityPostCallState.activity!)).actiComentario == '' ? () {
-              showSnackbar(context, 'El comentario es requerido');
-            } 
-            : () {
-              if (activityPostCallState.activity == null) return;
-              showLoadingMessage(context);
-
-              //activityPostCallState.activity?.actiIdTipoRegistro = '02';
-
-              ref
-                  .read(activityFormProvider(activityPostCallState.activity!)
-                      .notifier)
-                  .onFormSubmit()
-                  .then((CreateUpdateActivityResponse value) {
-                //if ( !value.response ) return;
-                if (value.message != '') {
-                  showSnackbar(context, value.message);
-
-                  if (value.response) {
-                    context.pop();
-                    //Timer(const Duration(seconds: 3), () {
-                    //context.push('/activities');
-                    //});
+            callOnPressed: ref
+                        .watch(activityFormProvider(
+                            activityPostCallState.activity!))
+                        .actiComentario ==
+                    ''
+                ? () {
+                    showSnackbar(context, 'El comentario es requerido');
                   }
-                }
-                Navigator.pop(context);
+                : () {
+                    if (activityPostCallState.activity == null) return;
+                    showLoadingMessage(context);
 
-              });
-            }),
+                    //activityPostCallState.activity?.actiIdTipoRegistro = '02';
+
+                    ref
+                        .read(activityFormProvider(
+                                activityPostCallState.activity!)
+                            .notifier)
+                        .onFormSubmit()
+                        .then((CreateUpdateActivityResponse value) {
+                      //if ( !value.response ) return;
+                      if (value.message != '') {
+                        showSnackbar(context, value.message);
+
+                        if (value.response) {
+                          context.pop();
+                          //Timer(const Duration(seconds: 3), () {
+                          //context.push('/activities');
+                          //});
+                        }
+                      }
+                      Navigator.pop(context);
+                    });
+                  }),
       ),
     );
   }
@@ -145,15 +189,17 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
     super.initState();
 
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      await ref.read(resourceDetailsProvider.notifier).loadCatalogVisibleById(groupId: '01', codigoId: '02').then((value) => {
-        
-        setState(() {
-          //optionsTipoGestion = value.where((o) => o.id == '02' || o.id == '').toList();
-          optionsTipoGestion = value;
-        })
-      });
+      await ref
+          .read(resourceDetailsProvider.notifier)
+          .loadCatalogVisibleById(groupId: '01', codigoId: '02')
+          .then((value) => {
+                setState(() {
+                  //optionsTipoGestion = value.where((o) => o.id == '02' || o.id == '').toList();
+                  optionsTipoGestion = value;
+                })
+              });
     });
-    
+
     _callDurationService.onCallEnded = (duration) {
       setState(() {
         _callDuration = duration;
@@ -169,9 +215,7 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
     });
   }
 
-
   void setStream() {
-
     PhoneState.stream.listen((event) {
       String? number = event.number;
       PhoneStateStatus statusCall = event.status;
@@ -179,7 +223,6 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
       bool sendActivityCall = ref.read(activityCallProvider).sendActivityCall!;
 
       if (!sendActivityCall) {
-
         if (number == widget.phone &&
             statusCall == PhoneStateStatus.CALL_STARTED) {
           ref.read(activityCallProvider.notifier).onInitialCallChanged();
@@ -192,7 +235,6 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
 
         if (number == widget.phone &&
             statusCall == PhoneStateStatus.CALL_ENDED) {
-
           ref.read(activityCallProvider.notifier).onFinishCallChanged();
           //widget.activityPostCallState.onFinishCallChanged();
         }
@@ -206,7 +248,6 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
 
   @override
   Widget build(BuildContext context) {
-
     /*List<DropdownOption> optionsTipoGestion = [
       DropdownOption(id: '', name: 'Selecciona'),
       //DropdownOption(id: '01', name: 'Comentario'),
@@ -229,24 +270,24 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
             children: [
               const SizedBox(height: 10),
               Text('Call Duration: $_callDuration seconds'),
+              optionsTipoGestion.length > 1
+                  ? SelectCustomForm(
+                      label: 'Tipo de gestión',
+                      value: activityForm.actiIdTipoGestion.value,
+                      callbackChange: (String? newValue) {
+                        DropdownOption searchTipoGestion = optionsTipoGestion
+                            .where((option) => option.id == newValue!)
+                            .first;
 
-              optionsTipoGestion.length > 1 ? SelectCustomForm(
-                label: 'Tipo de gestión',
-                value: activityForm.actiIdTipoGestion.value,
-                callbackChange: (String? newValue) {
-                  DropdownOption searchTipoGestion =
-                      optionsTipoGestion.where((option) => option.id == newValue!).first;
-
-                  ref
-                      .read(activityFormProvider(activity).notifier)
-                      .onTipoGestionChanged(
-                          newValue ?? '', searchTipoGestion.name);
-          
-                },
-                items: optionsTipoGestion,
-                errorMessage: activityForm.actiIdTipoGestion.errorMessage,
-              ): PlaceholderInput(text: 'Cargando Cargo...'),
-
+                        ref
+                            .read(activityFormProvider(activity).notifier)
+                            .onTipoGestionChanged(
+                                newValue ?? '', searchTipoGestion.name);
+                      },
+                      items: optionsTipoGestion,
+                      errorMessage: activityForm.actiIdTipoGestion.errorMessage,
+                    )
+                  : PlaceholderInput(text: 'Cargando Cargo...'),
               const SizedBox(height: 20),
               const Text(
                 'DATOS DE LA GESTIÓN',
@@ -269,10 +310,11 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
                     Text(
                       'Oportunidad',
                       style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: activityForm.actiIdOportunidad.value == '' ? Colors.red :  Colors.black
-                      ),
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: activityForm.actiIdOportunidad.value == ''
+                              ? Colors.red
+                              : Colors.black),
                     ),
                     const SizedBox(height: 6),
                     GestureDetector(
@@ -300,9 +342,12 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
                                     ? 'Seleccione Oportunidad'
                                     : activityForm.actiNombreOportunidad,
                                 style: TextStyle(
-                                  fontSize: 16,
-                                  color: activityForm.actiIdOportunidad.value == '' ? Colors.red : Colors.black
-                                ),
+                                    fontSize: 16,
+                                    color:
+                                        activityForm.actiIdOportunidad.value ==
+                                                ''
+                                            ? Colors.red
+                                            : Colors.black),
                               ),
                             ),
                             IconButton(
@@ -430,19 +475,20 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
     final searchQuery = ref.read(searchQueryOpportunitiesProvider);
 
     showSearch<Opportunity?>(
-            query: searchQuery,
-            context: context,
-            delegate: SearchOpportunityDelegate(
-                ruc: ruc,
-                initialOpportunities: searchedOpportunities,
-                searchOpportunities: ref
-                    .read(searchedOpportunitiesProvider.notifier)
-                    .searchOpportunitiesByQuery,
-                resetSearchQuery: () {
-                    ref.read(searchQueryOpportunitiesProvider.notifier).update((state) => '');
-                },
-            ))
-        .then((opportunity) {
+        query: searchQuery,
+        context: context,
+        delegate: SearchOpportunityDelegate(
+          ruc: ruc,
+          initialOpportunities: searchedOpportunities,
+          searchOpportunities: ref
+              .read(searchedOpportunitiesProvider.notifier)
+              .searchOpportunitiesByQuery,
+          resetSearchQuery: () {
+            ref
+                .read(searchQueryOpportunitiesProvider.notifier)
+                .update((state) => '');
+          },
+        )).then((opportunity) {
       if (opportunity == null) return;
 
       ref
@@ -485,17 +531,18 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
                               vertical: 14.0, horizontal: 10.0)),
                       onPressed: () {
                         Navigator.pop(context);
-          
+
                         ref
                             .read(activityFormProvider(activity).notifier)
                             .onHoraChanged(
                                 DateFormat('HH:mm:ss').format(DateTime.now()));
-          
+
                         llamarTelefono(context, agregarPrefijoPeru(phone));
                       },
                       child: Text(
                         'Llamar ${agregarPrefijoPeru(phone)}',
-                        style: const TextStyle(fontSize: 19, color: Colors.blue),
+                        style:
+                            const TextStyle(fontSize: 19, color: Colors.blue),
                       ),
                     ),
                   ),
@@ -558,4 +605,3 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
     return numero;
   }
 }
-

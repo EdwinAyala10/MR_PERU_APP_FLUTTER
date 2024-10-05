@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:crm_app/features/activities/presentation/providers/providers.dart';
 import 'package:crm_app/features/shared/widgets/no_exist_listview.dart';
 
 import '../../domain/domain.dart';
@@ -360,6 +361,7 @@ class _ListOpportunitiesState extends ConsumerState<_ListOpportunities> {
                     opportunity: opportunity,
                     callbackOnTap: () {
                       ref.read(selectedOp.notifier).state = opportunity;
+                      ref.read(selectOpportunity.notifier).state = opportunity;
                       context.push('/opportunity_detail/${opportunity.id}');
                     },
                   );
