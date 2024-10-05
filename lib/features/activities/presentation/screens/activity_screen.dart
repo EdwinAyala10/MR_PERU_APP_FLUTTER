@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:crm_app/features/companies/presentation/providers/company_provider.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/opportunities/presentation/providers/docs_opportunitie_provider.dart';
+import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 
 import '../../domain/domain.dart';
@@ -151,6 +152,21 @@ class _ActivityInformationv2State
                   optionsTipoGestion = value;
                 })
               });
+    
+      String? idEmpresa = ref.read(uiProvider).idCompanyAct;
+      String? nameEmpresa = ref.read(uiProvider).nameCompanyAct;
+      
+      if (idEmpresa != "") {
+        ref
+          .read(
+            activityFormProvider(widget.activity).notifier,
+          )
+          .onRucChanged(
+            idEmpresa ?? '',
+            nameEmpresa ?? '',
+          );
+      }
+      
     });
     final op = ref.read(selectedOp);
     ref

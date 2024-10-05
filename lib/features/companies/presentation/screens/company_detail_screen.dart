@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:crm_app/config/config.dart';
 import 'package:crm_app/features/companies/presentation/providers/providers.dart';
+import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
 import 'package:crm_app/features/shared/widgets/loading_modal.dart';
 import 'package:crm_app/features/shared/widgets/no_exist_listview.dart';
 import 'package:flutter/material.dart';
@@ -525,7 +526,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
             showDialog(
                 context: context,
                 builder: (BuildContext context) {
-                  return Dialog(
+                  return const Dialog(
                     backgroundColor: Colors.transparent,
                     surfaceTintColor: Colors.transparent,
                     child: Center(
@@ -587,6 +588,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
       case 4:
         return FloatingActionButtonCustom(
             callOnPressed: () {
+              ref.read(uiProvider.notifier).onCompanyActivity(widget.company.ruc, widget.company.razon);
               context.push('/activity/new');
             },
             iconData: Icons.add);

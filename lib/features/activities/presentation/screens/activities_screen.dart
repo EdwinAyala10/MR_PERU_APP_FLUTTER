@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:crm_app/features/activities/presentation/providers/docs_activitie_provider.dart';
 import 'package:crm_app/features/dashboard/presentation/providers/dashboard_provider.dart';
+import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
 
 import '../../domain/domain.dart';
 import '../providers/providers.dart';
@@ -83,6 +84,7 @@ class ActivitiesScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButtonCustom(
           iconData: Icons.add,
           callOnPressed: () {
+            ref.read(uiProvider.notifier).deleteCompanyActivity();
             context.push('/activity/new');
             /*showModalBottomSheet(
             context: context,

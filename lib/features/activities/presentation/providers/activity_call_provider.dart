@@ -147,7 +147,7 @@ class ActivityCallNotifier extends StateNotifier<ActivityCallState> {
         //'ACTI_ID_OPORTUNIDAD': activityCall.actiIdOportunidad,
         'ACTI_ID_CONTACTO': activityCall.actiIdContacto,
         'ACTI_COMENTARIO': ' - ',
-        'ACTI_TIEMPO_GESTION': activityCall.actiTiempoGestion,
+        'ACTI_TIEMPO_GESTION_LLAMADA': activityCall.actiTiempoGestion,
         'ACTI_ID_USUARIO_REGISTRO': activityCall.actiIdUsuarioRegistro,
         'ACTI_NOMBRE_TIPO_GESTION': activityCall.actiNombreTipoGestion,
         'ACTIVIDADES_CONTACTO': activityCall.actividadesContacto != null
