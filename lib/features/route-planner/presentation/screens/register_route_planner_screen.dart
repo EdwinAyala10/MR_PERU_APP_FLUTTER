@@ -86,7 +86,7 @@ class RegisterRoutePlannerScreen extends ConsumerWidget {
                       });
                     } else {
                       mostrarModalMensaje(context, 'AVISO', value.message, () {
-                          Navigator.of(context).pop();
+                        Navigator.of(context).pop();
                       });
                     }
                   }
@@ -215,7 +215,6 @@ class _EventPlannerInformationState
                 })
               });
     });
-
     super.initState();
   }
 
@@ -391,31 +390,31 @@ class _EventPlannerInformationState
                 )
               : PlaceholderInput(text: 'Cargando...'),
 
-          const Text(
-            'Responsable',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: Wrap(
-                  spacing: 8.0,
-                  children: [
-                    Chip(
-                        label: Text(
-                      '${evenPlannertForm.evntNombreUsuarioResponsable}',
-                    ))
-                  ],
-                ),
-              ),
-            ],
-          ),
+          // const Text(
+          //   'Responsable',
+          //   style: TextStyle(
+          //     fontSize: 14,
+          //     fontWeight: FontWeight.bold,
+          //   ),
+          // ),
+          // Row(
+          //   children: [
+          //     Expanded(
+          //       child: Wrap(
+          //         spacing: 8.0,
+          //         children: [
+          //           Chip(
+          //               label: Text(
+          //             '${evenPlannertForm.evntNombreUsuarioResponsable}',
+          //           ))
+          //         ],
+          //       ),
+          //     ),
+          //   ],
+          // ),
           const SizedBox(height: 20),
           const Text(
-            'Lista de usuarios',
+            'Responsable',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
@@ -424,15 +423,15 @@ class _EventPlannerInformationState
           const SizedBox(height: 5),
           GestureDetector(
             onTap: () {
-              context.push("/${SearchUsersPlanner.name}").then((value) {
-                final user = ref.watch(selectedUserPlannerProvider);
-                ref
-                    .read(eventPlannerFormProvider.notifier)
-                    .onUpdateUserPlannerSelector(user?.userreportCodigo ?? '');
-              });
+              // context.push("/${SearchUsersPlanner.name}").then((value) {
+              //   final user = ref.watch(selectedUserPlannerProvider);
+              //   ref
+              //       .read(eventPlannerFormProvider.notifier)
+              //       .onUpdateUserPlannerSelector(user?.userreportCodigo ?? '');
+              // });
             },
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
               decoration: BoxDecoration(
                 border: Border.all(
                   color: Colors.grey,
@@ -443,25 +442,27 @@ class _EventPlannerInformationState
                 children: [
                   Expanded(
                     child: Text(
-                      ref.watch(selectedUserPlannerProvider)?.userreportName ??
+                      ref
+                              .watch(eventPlannerFormProvider)
+                              .plrtIdUsuarioResponsable ??
                           'Selecciona',
                       style: const TextStyle(
                         fontSize: 16,
                       ),
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.search),
-                    onPressed: () {
-                      context.push("/${SearchUsersPlanner.name}").then((value) {
-                        final user = ref.watch(selectedUserPlannerProvider);
-                        ref
-                            .read(eventPlannerFormProvider.notifier)
-                            .onUpdateUserPlannerSelector(
-                                user?.userreportCodigo ?? '');
-                      });
-                    },
-                  ),
+                  // IconButton(
+                  //   icon: const Icon(Icons.search),
+                  //   onPressed: () {
+                  //     context.push("/${SearchUsersPlanner.name}").then((value) {
+                  //       final user = ref.watch(selectedUserPlannerProvider);
+                  //       ref
+                  //           .read(eventPlannerFormProvider.notifier)
+                  //           .onUpdateUserPlannerSelector(
+                  //               user?.userreportCodigo ?? '');
+                  //     });
+                  //   },
+                  // ),
                 ],
               ),
             ),

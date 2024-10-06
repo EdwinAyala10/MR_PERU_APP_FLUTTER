@@ -108,6 +108,12 @@ class EventPlannerFormNotifier extends StateNotifier<EventPlannerFormState> {
     );
   }
 
+  void onUpdatePlrtNameUserResponsable(String value) {
+    state = state.copyWith(
+      plrtNameUserResponsable: value,
+    );
+  }
+
   void setInitialForm() {
     state = state.copyWith(
       id: '0',
@@ -232,6 +238,7 @@ class EventPlannerFormState {
   final String? tiempoEntreVisitasNombre;
   final String? tiempoRuta;
   final String? distanciaRuta;
+  final String? plrtNameUserResponsable;
 
   final String? plrtIdUsuarioResponsable;
 
@@ -241,6 +248,7 @@ class EventPlannerFormState {
     this.id,
     //this.evntAsunto = '',
     this.evntFechaInicioEvento,
+    this.plrtNameUserResponsable,
     this.evntFechaTerminoEvento,
     this.evntHoraInicioEvento = '',
     this.evntIdTipoGestion = const TipoGestion.dirty(''),
@@ -277,6 +285,7 @@ class EventPlannerFormState {
     String? evntNombreUsuarioResponsable,
     String? horarioTrabajoNombre,
     String? plrtIdUsuarioResponsable,
+    String? plrtNameUserResponsable,
     String? horarioTrabajoId,
     HoraEntreVisita? tiempoEntreVisitasId,
     String? tiempoEntreVisitasNombre,
@@ -287,7 +296,10 @@ class EventPlannerFormState {
       EventPlannerFormState(
         plrtIdUsuarioResponsable:
             plrtIdUsuarioResponsable ?? this.plrtIdUsuarioResponsable,
+
         isFormValid: isFormValid ?? this.isFormValid,
+        plrtNameUserResponsable:
+            plrtNameUserResponsable ?? this.plrtNameUserResponsable,
         id: id ?? this.id,
         //evntAsunto: evntAsunto ?? this.evntAsunto,
         evntFechaInicioEvento:
