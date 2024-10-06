@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:crm_app/call_duration_service.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
-import 'package:crm_app/features/opportunities/presentation/providers/docs_opportunitie_provider.dart';
 import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
 import 'package:crm_app/features/shared/widgets/loading_modal.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
@@ -96,12 +95,12 @@ class _ActivityPostCallScreenState
         appBar: AppBar(
           title: const Text('Informe post llamada',
               style: TextStyle(fontWeight: FontWeight.w500)),
-          /*leading: IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: () {
+          leading: const IconButton(
+            icon: Icon(Icons.close),
+            onPressed: null /*() {
               context.pop();
-            },
-          ),*/
+            },*/
+          ),
         ),
         body: activityPostCallState.isLoading
             ? const FullScreenLoader()
