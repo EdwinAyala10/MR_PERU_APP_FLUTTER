@@ -449,7 +449,7 @@ ${validate.type}
   }
 
   void sendLoadFilter() {
-    state = state.copyWith(filtersSuccess: state.filters);
+    state = state.copyWith(filtersSuccess: state.filters, selectedItems: [] );
     loadNextPage(isRefresh: true);
   }
 
@@ -555,11 +555,21 @@ ${validate.type}
 
     if (locales.isEmpty) {
       //state = state.copyWith(isLoading: false, isLastPage: true, locales: []);
-      if (isRefresh) {
-        state = state.copyWith(isLoading: false, isLastPage: true, locales: []);
-      } else {
-        state = state.copyWith(isReload: false, isLastPage: true, locales: []);
+
+      if (!state.isLastPage) {
+        if (isRefresh) {
+          state = state.copyWith(isLoading: false, isLastPage: true, );
+        } else {
+          state = state.copyWith(isReload: false, isLastPage: true, );
+        }
+      }else {
+        if (isRefresh) {
+          state = state.copyWith(isLoading: false, isLastPage: true, locales: [] );
+        } else {
+          state = state.copyWith(isReload: false, isLastPage: true, locales: [] );
+        }
       }
+     
       //state = state.copyWith(isLoading: false, locales: []);
       return;
     } else {
