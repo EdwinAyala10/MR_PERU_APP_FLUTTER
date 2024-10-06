@@ -8,6 +8,7 @@ import 'package:crm_app/features/route-planner/domain/domain.dart';
 import 'package:crm_app/features/route-planner/domain/entities/coordenada.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/forms/event_planner_form_provider.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
+import 'package:crm_app/features/route-planner/presentation/providers/search_users_planner_provider.dart';
 import 'package:crm_app/features/route-planner/presentation/widgets/filter_route_planner_bottom_sheet.dart';
 import 'package:crm_app/features/route-planner/presentation/widgets/item_route_planner_local.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -109,14 +110,21 @@ class RoutePlannerScreen extends ConsumerWidget {
                       } else {
                         var horario = searchHorarioTrabajo(filterSuccess);
                         var idHorario = horario.id;
-                        log("dasdas${filter.length}");
+                        log("dasdas${filter.map((e) => e)}");
                         var idResponsable = "";
+                        var idResponsableName = "";
                         if (filter.isNotEmpty) {
                           idResponsable = filter
                                   .where((v) =>
                                       (v.type == "ID_USUARIO_RESPONSABLE"))
                                   .firstOrNull
                                   ?.id ??
+                              '';
+                          idResponsableName = filter
+                                  .where((v) =>
+                                      (v.type == "ID_USUARIO_RESPONSABLE"))
+                                  .firstOrNull
+                                  ?.name ??
                               '';
                         }
                         showLoadingMessage(context);
@@ -196,6 +204,13 @@ class RoutePlannerScreen extends ConsumerWidget {
                           ref.watch(mapProvider.notifier).addMarkersAndLocation(
                               listSelectedItems, location);
 
+                          /// [set id responsable]
+                          ref
+                              .read(eventPlannerFormProvider.notifier)
+                              .onUpdateUserPlannerSelector(idResponsable);
+                          ref
+                              .read(eventPlannerFormProvider.notifier)
+                              .onUpdateUserPlannerSelector(idResponsableName);
                           Navigator.pop(context);
 
                           context.push('/register_route_planner');
