@@ -588,7 +588,7 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
       //bool? res = await FlutterPhoneDirectCaller.callNumber(phone);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No se pudo realizar la llamada')),
+        const SnackBar(content: Text('No se pudo realizar la llamada, falta permisos de llamada.')),
       );
     }
     //});
