@@ -152,6 +152,9 @@ class KpisDatasourceImpl extends KpisDatasource {
       final KpiResponse kpiResponse =
           KpiResponseMapper.jsonToEntity(response.data);
 
+          print('MENSAJE ORDENAR OBJ');
+          print(kpiResponse.message);
+
       return kpiResponse;
     } on DioException catch (e) {
       if (e.response!.statusCode == 404) throw KpiNotFound();

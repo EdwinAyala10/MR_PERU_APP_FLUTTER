@@ -99,9 +99,14 @@ class KpisNotifier extends StateNotifier<KpisState> {
   Future updateOrderKpis({ String idKpiOld = '', String orderKpiOld = '', String idKpiNew = '', String orderKpiNew = '' }) async {
     print('UPDATE ORDER KPIS');
 
-    final kpis = await kpisRepository.updateOrderKpis(idKpiOld: idKpiOld, orderKpiOld: orderKpiOld, idKpiNew: idKpiNew, orderKpiNew: orderKpiNew);
-
+    print('State idKpiOld: ${state.idKpiOld}');
+    print('State orderKpiOld: ${state.orderKpiOld}');
+    print('State idKpiNew: ${state.idKpiNew}');
+    print('State orderKpiNew: ${state.orderKpiNew}');
     print('Se proceso ORDER KPIS');
+
+    final kpis = await kpisRepository.updateOrderKpis(idKpiOld: state.idKpiOld ?? '', orderKpiOld: state.orderKpiNew ?? '', idKpiNew: state.idKpiNew ?? '', orderKpiNew: state.orderKpiOld ?? '');
+
   }
 
   int indexOfKey(Key key) {
@@ -122,17 +127,7 @@ class KpisNotifier extends StateNotifier<KpisState> {
     Kpi oldItem = searchItemBhyKey(item);
     Kpi newItem = searchItemBhyKey(newPosition);
 
-    print(oldItem.id);
-    print(oldItem.key.toString());
-    print(draggingIndex);
-
-    print('........');
-
-    print(newItem.id);
-    print(newItem.key.toString());
-    print(newPositionIndex);
-
-    updateOrderKpis(idKpiOld: oldItem.id, orderKpiOld: draggingIndex.toString(), idKpiNew: newItem.id, orderKpiNew: newPositionIndex.toString());
+    //updateOrderKpis(idKpiOld: oldItem.id, orderKpiOld: newItem.orden ?? '', idKpiNew: newItem.id, orderKpiNew: oldItem.orden ?? '');
 
     final draggedItem = state.kpis[draggingIndex];
 
@@ -141,7 +136,13 @@ class KpisNotifier extends StateNotifier<KpisState> {
     newListSelectedItems.removeAt(draggingIndex);
     newListSelectedItems.insert(newPositionIndex, draggedItem);
 
-    state = state.copyWith(kpis: newListSelectedItems);
+    state = state.copyWith(
+      kpis: newListSelectedItems, 
+      idKpiOld: oldItem.id,
+      orderKpiOld: oldItem.orden,
+      idKpiNew: newItem.id,
+      orderKpiNew: newItem.orden,
+    );
 
     return true;
   }
@@ -193,12 +194,20 @@ class KpisState {
   final int offset;
   final bool isLoading;
   final List<Kpi> kpis;
+  final String? idKpiOld;
+  final String? orderKpiOld;
+  final String? idKpiNew;
+  final String? orderKpiNew;
 
   KpisState(
       {this.isLastPage = false,
       this.limit = 10,
       this.offset = 0,
       this.isLoading = false,
+      this.idKpiOld = '',
+      this.orderKpiOld = '',
+      this.idKpiNew = '',
+      this.orderKpiNew = '',
       this.kpis = const []});
 
   KpisState copyWith({
@@ -206,6 +215,10 @@ class KpisState {
     int? limit,
     int? offset,
     bool? isLoading,
+    String? idKpiOld,
+    String? orderKpiOld,
+    String? idKpiNew,
+    String? orderKpiNew,
     List<Kpi>? kpis,
   }) =>
       KpisState(
@@ -214,5 +227,9 @@ class KpisState {
         offset: offset ?? this.offset,
         isLoading: isLoading ?? this.isLoading,
         kpis: kpis ?? this.kpis,
+        idKpiOld: idKpiOld ?? this.idKpiOld,
+        orderKpiOld: orderKpiOld ?? this.orderKpiOld,
+        idKpiNew: idKpiNew ?? this.idKpiNew,
+        orderKpiNew: orderKpiNew ?? this.orderKpiNew,
       );
 }

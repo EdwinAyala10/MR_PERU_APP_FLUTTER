@@ -29,6 +29,7 @@ class Kpi {
     List<Periodicidad>? peobIdPeriodicidad;
     List<UsuarioAsignado>? usuariosAsignados;
     Key? key;
+    String? orden;
 
     Kpi({
         required this.id,
@@ -54,6 +55,7 @@ class Kpi {
         this.objrValorDifMes,
         this.usuariosAsignados,
         this.userreportNameResponsable,
-        this.key
+        this.key,
+        this.orden
     });
 }

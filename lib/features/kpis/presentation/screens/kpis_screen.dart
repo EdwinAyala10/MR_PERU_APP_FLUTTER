@@ -160,7 +160,8 @@ class _ListKpis extends ConsumerWidget {
               onReorderDone: (Key item) async {
                 print('EJECUTA ON REORDER DONE');
 
-               // await ref.read(kpisProvider.notifier).updateOrderKpis(item);
+
+                await ref.read(kpisProvider.notifier).updateOrderKpis();
                 //showLoadingMessage(context);
 
                 //LatLng location = await ref.watch(locationProvider.notifier).currentPosition();

@@ -15,7 +15,7 @@ class KpiMapper {
     objrObservaciones: json['OBJR_OBSERVACIONES'] ?? '',
     objrIdUsuarioRegistro: json['OBJR_ID_USUARIO_REGISTRO'] ?? '',
     objrIdCategoria: json['OBJR_ID_CATEGORIA'] ?? '',
-
+    orden: json['OBJR_ORDEN'] ?? '',
     objrNombreAsignacion: json['OBJR_NOMBRE_ASIGNACION'] ?? '',
     objrNombreCategoria: json['OBJR_NOMBRE_CATEGORIA'] ?? '',
     objrNombreTipo: json['OBJR_NOMNRE_TIPO'] ?? '',
