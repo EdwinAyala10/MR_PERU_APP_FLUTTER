@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:crm_app/features/activities/presentation/providers/providers.dart';
+import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
 import 'package:crm_app/features/shared/widgets/no_exist_listview.dart';
 
 import '../../domain/domain.dart';
@@ -80,6 +81,7 @@ class OpportunitiesScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButtonCustom(
           iconData: Icons.add,
           callOnPressed: () {
+            ref.read(uiProvider.notifier).deleteCompanyActivity();
             context.push('/opportunity/new');
           }),
     );

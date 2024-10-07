@@ -7,6 +7,7 @@ import 'package:crm_app/features/dashboard/presentation/widgets/widgets.dart';
 import 'package:crm_app/features/location/presentation/providers/gps_provider.dart';
 import 'package:crm_app/features/opportunities/presentation/widgets/item_opportunity.dart';
 import 'package:crm_app/features/shared/presentation/providers/notifications_provider.dart';
+import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
 import 'package:flutter_app_badge/flutter_app_badge.dart';
 
 import '../../../activities/domain/domain.dart';
@@ -124,6 +125,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
             icon: Icons.account_balance_rounded,
             style: const TextStyle(fontSize: 16, color: Colors.white),
             onPressed: () {
+              ref.read(uiProvider.notifier).deleteCompanyActivity();
               context.push('/company/new');
               //context.go('/company/no-id');
               _animationController.reverse();
@@ -136,6 +138,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
             icon: Icons.perm_contact_cal,
             style: const TextStyle(fontSize: 16, color: Colors.white),
             onPressed: () {
+              ref.read(uiProvider.notifier).deleteCompanyActivity();
               context.push('/contact/new');
               //context.go('/contact/no-id');
               _animationController.reverse();
@@ -148,6 +151,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
             icon: Icons.work,
             style: const TextStyle(fontSize: 16, color: Colors.white),
             onPressed: () {
+              ref.read(uiProvider.notifier).deleteCompanyActivity();
               context.push('/opportunity/new');
               //context.go('/opportunity/no-id');
               _animationController.reverse();
@@ -160,6 +164,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
             icon: Icons.local_activity_outlined,
             style: const TextStyle(fontSize: 16, color: Colors.white),
             onPressed: () {
+            ref.read(uiProvider.notifier).deleteCompanyActivity();
               //context.go('/activity/no-id');
               context.push('/activity/new');
               _animationController.reverse();
@@ -173,6 +178,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
             style: const TextStyle(fontSize: 16, color: Colors.white),
             onPressed: () {
               //context.go('/event/new');
+              ref.read(uiProvider.notifier).deleteCompanyActivity();
               context.push('/event/new');
               _animationController.reverse();
             },

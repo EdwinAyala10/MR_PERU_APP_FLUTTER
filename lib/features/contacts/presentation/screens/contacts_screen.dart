@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
+
 import '../../domain/domain.dart';
 import '../providers/contacts_provider.dart';
 import '../providers/providers.dart';
@@ -37,6 +39,7 @@ class ContactsScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButtonCustom(
           iconData: Icons.add,
           callOnPressed: () {
+            ref.read(uiProvider.notifier).deleteCompanyActivity();
             context.push('/contact/new');
           }),
     );

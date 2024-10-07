@@ -13,6 +13,7 @@ import 'package:crm_app/features/documents/presentation/screens/documents_screen
 import 'package:crm_app/features/opportunities/infrastructure/mappers/op_create_document_response.dart';
 import 'package:crm_app/features/opportunities/infrastructure/mappers/op_delete_document_mapper.dart';
 import 'package:crm_app/features/opportunities/presentation/widgets/op_document_card.dart';
+import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
 import 'package:crm_app/features/shared/widgets/loading_modal.dart';
 import 'package:crm_app/features/shared/widgets/no_exist_listview.dart';
@@ -213,6 +214,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
             ref.read(razonOportunityProvider.notifier).state =
                 opportunity?.razon ?? '';
             ref.read(fromOpportunity.notifier).state = true;
+            ref.read(uiProvider.notifier).deleteCompanyActivity();
             context.push('/activity/new').then((value){
               ref
                   .read(activitiesProvider.notifier)

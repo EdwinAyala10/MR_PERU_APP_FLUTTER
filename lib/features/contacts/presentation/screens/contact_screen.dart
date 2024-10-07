@@ -2,6 +2,7 @@ import 'package:crm_app/features/companies/presentation/delegates/search_company
 import 'package:crm_app/features/companies/presentation/providers/company_provider.dart';
 import 'package:crm_app/features/companies/presentation/search/search_company_locales_active_provider.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
+import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 
 import '../../../companies/domain/domain.dart';
@@ -138,6 +139,14 @@ class __ContactInformationv2State extends ConsumerState<_ContactInformationv2> {
           optionsCargo = value;
         })
       });
+
+      String? idEmpresa = ref.read(uiProvider).idCompanyAct;
+      String? nameEmpresa = ref.read(uiProvider).nameCompanyAct;
+      
+      if (widget.contact.id == "new" && idEmpresa != "") { 
+        ref.read(contactFormProvider(widget.contact).notifier).onRucChanged(idEmpresa ?? '');
+        ref.read(contactFormProvider(widget.contact).notifier).onRazonChanged(nameEmpresa ?? '');
+      }
     });
 
   }

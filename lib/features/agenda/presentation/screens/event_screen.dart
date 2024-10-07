@@ -6,6 +6,7 @@ import 'package:crm_app/features/companies/presentation/delegates/search_company
 import 'package:crm_app/features/companies/presentation/providers/company_provider.dart';
 import 'package:crm_app/features/companies/presentation/search/search_company_locales_active_provider.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
+import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 
 import '../../domain/domain.dart';
@@ -122,12 +123,46 @@ class _EventView extends ConsumerWidget {
   }
 }
 
-class _EventInformation extends ConsumerWidget {
+
+class _EventInformation extends ConsumerStatefulWidget {
   final Event event;
-  const _EventInformation({required this.event});
+
+  const _EventInformation({super.key, required this.event});
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    List<DropdownOption> optionsTipoGestion = [
+  ConsumerState<_EventInformation> createState() => __EventInformationState();
+}
+
+class __EventInformationState extends ConsumerState<_EventInformation> {
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+    
+    
+      String? idEmpresa = ref.read(uiProvider).idCompanyAct;
+      String? nameEmpresa = ref.read(uiProvider).nameCompanyAct;
+      
+      if (widget.event.id == "new" && idEmpresa != "") { 
+        ref
+          .read(
+            eventFormProvider(widget.event).notifier,
+          )
+          .onEmpresaChanged(
+            idEmpresa ?? '',
+            nameEmpresa ?? '',
+          );
+      }
+      
+    });
+    
+  }
+
+  @override
+  Widget build(BuildContext context) {
+     List<DropdownOption> optionsTipoGestion = [
       DropdownOption(id: '', name: 'Selecciona'),
       DropdownOption(id: '01', name: 'Comentario'),
       DropdownOption(id: '02', name: 'Llamada Telefónica'),
@@ -143,7 +178,7 @@ class _EventInformation extends ConsumerWidget {
       DropdownOption(id: '5', name: '1 SEMANA ANTES'),
     ];
 
-    final eventForm = ref.watch(eventFormProvider(event));
+    final eventForm = ref.watch(eventFormProvider(widget.event));
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -156,7 +191,7 @@ class _EventInformation extends ConsumerWidget {
             initialValue: eventForm.evntAsunto.value,
             errorMessage: eventForm.evntAsunto.errorMessage,
             onChanged:
-                ref.read(eventFormProvider(event).notifier).onAsuntoChanged,
+                ref.read(eventFormProvider(widget.event).notifier).onAsuntoChanged,
           ),
           SelectCustomForm(
             label: 'Tipo de gestión',
@@ -166,7 +201,7 @@ class _EventInformation extends ConsumerWidget {
                   .where((option) => option.id == newValue!)
                   .first;
               ref
-                  .read(eventFormProvider(event).notifier)
+                  .read(eventFormProvider(widget.event).notifier)
                   .onTipoGestionChanged(newValue ?? '', searchTipoGestion.name);
             },
             items: optionsTipoGestion,
@@ -338,7 +373,7 @@ class _EventInformation extends ConsumerWidget {
                 value: eventForm.todoDia == "0" ? false : true,
                 onChanged: (bool bol) {
                   ref
-                      .read(eventFormProvider(event).notifier)
+                      .read(eventFormProvider(widget.event).notifier)
                       .onTodoDiaChanged(bol ? '1' : '0');
                 },
               ),
@@ -461,7 +496,7 @@ class _EventInformation extends ConsumerWidget {
                         optionsRecordatorio.where((option) => option.id == newValue!).first;
 
                     ref
-                        .read(eventFormProvider(event).notifier)
+                        .read(eventFormProvider(widget.event).notifier)
                         .onRecordatorioChanged(int.parse(newValue ?? '1'), searchDropdown.name);
                   },
                   items: optionsRecordatorio,
@@ -523,7 +558,7 @@ class _EventInformation extends ConsumerWidget {
                                         onDeleted: () {
                                           ref
                                             .read(
-                                                eventFormProvider(event)
+                                                eventFormProvider(widget.event)
                                                     .notifier)
                                             .onDeleteContactoChanged(item);
                                         },
@@ -548,7 +583,7 @@ class _EventInformation extends ConsumerWidget {
                                         onDeleted: () {
                                           ref
                                             .read(
-                                                eventFormProvider(event)
+                                                eventFormProvider(widget.event)
                                                     .notifier)
                                             .onDeleteResponsableChanged(item);
                                           // Aquí puedes manejar la eliminación del chip si es necesario
@@ -765,54 +800,16 @@ class _EventInformation extends ConsumerWidget {
             maxLines: 2,
             initialValue: eventForm.evntComentario ?? '',
             onChanged: ref
-                .read(eventFormProvider(event).notifier)
+                .read(eventFormProvider(widget.event).notifier)
                 .onComentariosChanged,
           ),
           const SizedBox(height: 30),
         ],
       ),
     );
+ 
   }
 
-  Future<void> _selectDate(BuildContext context, WidgetRef ref) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime(2101),
-    );
-    //print(picked);
-
-    //if (picked != null && picked != selectedDate) {
-    if (picked != null) {
-      ref.read(eventFormProvider(event).notifier).onFechaChanged(picked);
-    }
-  }
-
-  Future<void> _selectTime(
-      BuildContext context, WidgetRef ref, String type) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
-
-    //if (picked != null && picked != selectedDate) {
-    if (picked != null) {
-      String formattedTime = '${picked.toString().substring(10, 15)}:00';
-
-      if (type == 'inicio') {
-        ref
-            .read(eventFormProvider(event).notifier)
-            .onHoraInicioChanged(formattedTime);
-      }
-
-      if (type == 'fin') {
-        ref
-            .read(eventFormProvider(event).notifier)
-            .onHoraFinChanged(formattedTime);
-      }
-    }
-  }
 
   void _openSearchOportunities(
       BuildContext context, WidgetRef ref, String ruc) async {
@@ -836,7 +833,7 @@ class _EventInformation extends ConsumerWidget {
       if (opportunity == null) return;
 
       ref
-          .read(eventFormProvider(event).notifier)
+          .read(eventFormProvider(widget.event).notifier)
           .onOportunidadChanged(opportunity.id, opportunity.oprtNombre);
     });
   }
@@ -863,7 +860,7 @@ class _EventInformation extends ConsumerWidget {
       if (company == null) return;
 
       ref
-          .read(eventFormProvider(event).notifier)
+          .read(eventFormProvider(widget.event).notifier)
           .onEmpresaChanged(company.ruc, company.razon);
     });
   }
@@ -888,7 +885,7 @@ class _EventInformation extends ConsumerWidget {
         .then((contact) {
       if (contact == null) return;
 
-      ref.read(eventFormProvider(event).notifier).onContactoChanged(contact);
+      ref.read(eventFormProvider(widget.event).notifier).onContactoChanged(contact);
     });
   }
 
@@ -914,7 +911,7 @@ class _EventInformation extends ConsumerWidget {
         .then((user) {
       if (user == null) return;
 
-      ref.read(eventFormProvider(event).notifier).onResponsableChanged(user);
+      ref.read(eventFormProvider(widget.event).notifier).onResponsableChanged(user);
     });
   }
 
@@ -940,10 +937,51 @@ class _EventInformation extends ConsumerWidget {
       if (companyLocal == null) return;
 
       ref
-          .read(eventFormProvider(event).notifier)
+          .read(eventFormProvider(widget.event).notifier)
           .onLocalChanged(companyLocal.id,
               '${companyLocal.localNombre} ${companyLocal.localDireccion}');
 
     });
   }
+
+  Future<void> _selectDate(BuildContext context, WidgetRef ref) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime(2101),
+    );
+    //print(picked);
+
+    //if (picked != null && picked != selectedDate) {
+    if (picked != null) {
+      ref.read(eventFormProvider(widget.event).notifier).onFechaChanged(picked);
+    }
+  }
+
+  Future<void> _selectTime(
+      BuildContext context, WidgetRef ref, String type) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    //if (picked != null && picked != selectedDate) {
+    if (picked != null) {
+      String formattedTime = '${picked.toString().substring(10, 15)}:00';
+
+      if (type == 'inicio') {
+        ref
+            .read(eventFormProvider(widget.event).notifier)
+            .onHoraInicioChanged(formattedTime);
+      }
+
+      if (type == 'fin') {
+        ref
+            .read(eventFormProvider(widget.event).notifier)
+            .onHoraFinChanged(formattedTime);
+      }
+    }
+  }
+
 }

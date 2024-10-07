@@ -574,6 +574,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
       case 2:
         return FloatingActionButtonCustom(
             callOnPressed: () {
+              ref.read(uiProvider.notifier).onCompanyActivity(widget.company.ruc, widget.company.razon);
               context.push('/contact/new');
             },
             iconData: Icons.add);
@@ -581,6 +582,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
       case 3:
         return FloatingActionButtonCustom(
             callOnPressed: () {
+              ref.read(uiProvider.notifier).onCompanyActivity(widget.company.ruc, widget.company.razon);
               context.push('/opportunity/new');
             },
             iconData: Icons.add);
@@ -596,6 +598,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
       case 5:
         return FloatingActionButtonCustom(
             callOnPressed: () {
+              ref.read(uiProvider.notifier).onCompanyActivity(widget.company.ruc, widget.company.razon);
               context.push('/event/new');
             },
             iconData: Icons.add);

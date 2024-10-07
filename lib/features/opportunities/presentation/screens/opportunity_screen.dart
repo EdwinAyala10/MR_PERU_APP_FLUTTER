@@ -9,6 +9,7 @@ import 'package:crm_app/features/companies/presentation/widgets/show_loading_mes
 import 'package:crm_app/features/contacts/domain/entities/contact.dart';
 import 'package:crm_app/features/contacts/presentation/delegates/search_contact_active_delegate.dart';
 import 'package:crm_app/features/contacts/presentation/search/search_contacts_active_provider.dart';
+import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 
 import '../../../companies/domain/domain.dart';
@@ -161,6 +162,20 @@ class _OpportunityInformationv2State
                   optionsMoneda = value;
                 })
               });
+
+      String? idEmpresa = ref.read(uiProvider).idCompanyAct;
+      String? nameEmpresa = ref.read(uiProvider).nameCompanyAct;
+      
+      if (widget.opportunity.id == "new" && idEmpresa != "") { 
+        ref
+          .read(
+            opportunityFormProvider(widget.opportunity).notifier,
+          )
+          .onRucChanged(
+            idEmpresa ?? '',
+            nameEmpresa ?? '',
+          );
+      }
     });
   }
 

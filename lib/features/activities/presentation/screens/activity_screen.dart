@@ -45,8 +45,8 @@ class ActivityScreen extends ConsumerWidget {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text(
-            'Crear Actividad',
+          title: Text(
+            '${activityId == 'new' ? 'Crear' : 'Editar'} Actividad',
             style: TextStyle(fontWeight: FontWeight.w700),
           ),
           /*leading: IconButton(
@@ -156,7 +156,7 @@ class _ActivityInformationv2State
       String? idEmpresa = ref.read(uiProvider).idCompanyAct;
       String? nameEmpresa = ref.read(uiProvider).nameCompanyAct;
       
-      if (idEmpresa != "") {
+      if (widget.activity.id == "new" && idEmpresa != "") { 
         ref
           .read(
             activityFormProvider(widget.activity).notifier,

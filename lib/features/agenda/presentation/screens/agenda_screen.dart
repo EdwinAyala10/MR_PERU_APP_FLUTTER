@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:crm_app/features/companies/presentation/providers/companies_provider.dart';
 import 'package:crm_app/features/companies/presentation/providers/company_provider.dart';
+import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
 
 import '../../domain/domain.dart';
 import '../providers/events_provider.dart';
@@ -17,11 +18,11 @@ import 'package:intl/intl.dart';
 
 import 'package:table_calendar/table_calendar.dart';
 
-class AgendaScreen extends StatelessWidget {
+class AgendaScreen extends ConsumerWidget {
   const AgendaScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final scaffoldKey = GlobalKey<ScaffoldState>();
 
     return Scaffold(
@@ -38,6 +39,8 @@ class AgendaScreen extends StatelessWidget {
       floatingActionButton: FloatingActionButtonCustom(
           iconData: Icons.add,
           callOnPressed: () {
+            ref.read(uiProvider.notifier).deleteCompanyActivity();
+
             context.push('/event/new');
           }),
     );

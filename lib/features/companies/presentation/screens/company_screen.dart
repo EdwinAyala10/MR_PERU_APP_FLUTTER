@@ -36,8 +36,9 @@ class CompanyScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text('${rucId == 'new' ? 'Crear' : 'Editar'} Empresa', style: const TextStyle(
-            fontWeight: FontWeight.w700
-          ),),
+              fontWeight: FontWeight.w700
+            ),
+          ),
           /*leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
