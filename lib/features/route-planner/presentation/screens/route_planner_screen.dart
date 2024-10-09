@@ -110,7 +110,7 @@ class RoutePlannerScreen extends ConsumerWidget {
                       } else {
                         var horario = searchHorarioTrabajo(filterSuccess);
                         var idHorario = horario.id;
-                        log("dasdas${filter.map((e) => e)}");
+                        log("dasdas${filter.map((e) => e.name)}");
                         var idResponsable = "";
                         var idResponsableName = "";
                         if (filter.isNotEmpty) {
@@ -210,7 +210,7 @@ class RoutePlannerScreen extends ConsumerWidget {
                               .onUpdateUserPlannerSelector(idResponsable);
                           ref
                               .read(eventPlannerFormProvider.notifier)
-                              .onUpdateUserPlannerSelector(idResponsableName);
+                              .onUpdatePlrtNameUserResponsable(idResponsableName);
                           Navigator.pop(context);
 
                           context.push('/register_route_planner');

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:crm_app/features/auth/domain/domain.dart';
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crm_app/features/route-planner/domain/domain.dart';
@@ -85,6 +87,8 @@ class EventPlannerFormNotifier extends StateNotifier<EventPlannerFormState> {
               state.arrayEventosPlanificadorRuta!.map((x) => x.toJson()))
           : [],
     };
+
+    log('Send Form Register Planner Router ----> ${eventLike}');
 
     try {
       return await onSubmitCallback!(eventLike);

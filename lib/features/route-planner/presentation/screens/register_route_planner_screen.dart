@@ -444,7 +444,7 @@ class _EventPlannerInformationState
                     child: Text(
                       ref
                               .watch(eventPlannerFormProvider)
-                              .plrtIdUsuarioResponsable ??
+                              .plrtNameUserResponsable ??
                           'Selecciona',
                       style: const TextStyle(
                         fontSize: 16,
