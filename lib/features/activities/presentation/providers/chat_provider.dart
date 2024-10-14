@@ -24,11 +24,7 @@ class ChatNotifier extends ChangeNotifier {
   bool isConnected = false;
   String? idActivity;
 
-  ChatNotifier({
-    this.user,
-    this.activity,
-    this.idActivity
-  });
+  ChatNotifier({this.user, this.activity, this.idActivity});
 
   void connectToServer() {
     if (isConnected) return;
@@ -73,6 +69,21 @@ class ChatNotifier extends ChangeNotifier {
       log('Desconectado del servidor');
       isConnected = false; // Marca como desconectado
     });
+  }
+
+  Future sendMessageCallAPI({
+    required String message,
+    required List<UserMarked> listUsersMarked,
+  }) async {
+    final sendMessage = MessageModel(
+      accmFechaRegistro: DateTime.now(),
+      accmComentario: message,
+      accmIdUsuarioRegistro: user?.id ?? '',
+    );
+    await registerComentActivity(
+      destinoID: listUsersMarked,
+      model: sendMessage,
+    );
   }
 
   void sendMessage(String message, List<UserMarked> listUsersMarked) {
@@ -130,7 +141,7 @@ class ChatNotifier extends ChangeNotifier {
     );
     final path = Environment.apiUrl;
     final url = "$path/actividad/crear-actividad-comentario";
-    log("Actividad comentario"); 
+    log("Actividad comentario");
     log(url);
     final formData = {
       "ACCM_ID_ACTIVIDAD": idActivity,
@@ -144,7 +155,7 @@ class ChatNotifier extends ChangeNotifier {
     };
     log(formData.toString());
     final response = await client.post(url, data: formData);
-    log(response.data.toString());
+    log("DOKO${response.data}");
     if (response.data['status'] == true) {
       messages.add(model);
       notifyListeners();
@@ -159,7 +170,7 @@ class ChatNotifier extends ChangeNotifier {
     );
     final path = Environment.apiUrl;
     final url = "$path/actividad/listar-actividad-comentario";
-    final formData = {'ACCM_ID_ACTIVIDAD': idActivity??''};
+    final formData = {'ACCM_ID_ACTIVIDAD': idActivity ?? ''};
     try {
       log('all chat response $formData');
 
@@ -240,11 +251,8 @@ final chatProvider = ChangeNotifierProvider<ChatNotifier>((ref) {
   final user = ref.read(authProvider).user;
   final activity = ref.watch(selectedAC);
   final idActividad = ref.watch(selectedNotifier);
-  final notifier = ChatNotifier(
-    user: user,
-    activity: activity,
-    idActivity: idActividad
-  );
+  final notifier =
+      ChatNotifier(user: user, activity: activity, idActivity: idActividad);
   ref.onDispose(() {
     notifier.disconnect();
   });

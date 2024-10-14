@@ -26,16 +26,28 @@ class _ConsumerChatScreenState extends ConsumerState<ChatScreen> {
 
   void _onStopTyping() {}
 
+  Future<void> _handleRefresh() async {
+    ref.read(chatProvider.notifier).messages.clear();
+    ref.read(chatProvider.notifier).listAllComents();
+    return; // Asegúrate de retornar explícitamente un Future<void>
+  }
+
   void _sendMessage(String messageContent) async {
-    ref.read(chatProvider).sendMessage(
-          messageContent,
-          ref.read(selectedUsersMarkedProvider) ?? [],
+    // ref.read(chatProvider).sendMessage(
+    //       messageContent,
+    //       ref.read(selectedUsersMarkedProvider) ?? [],
+    //     );
+    ref.read(chatProvider.notifier).sendMessageCallAPI(
+          message: messageContent,
+          listUsersMarked: ref.read(selectedUsersMarkedProvider) ?? [],
         );
+    ref.read(chatProvider.notifier).listAllComents();
+
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) async {
         await Future.delayed(const Duration(milliseconds: 200));
         _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent + 100,
+          _scrollController.position.maxScrollExtent,
           duration: const Duration(
             milliseconds: 200,
           ),
@@ -53,7 +65,7 @@ class _ConsumerChatScreenState extends ConsumerState<ChatScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       ref.read(chatProvider.notifier).messages.clear();
       ref.read(chatProvider).listAllComents();
-      ref.read(chatProvider).connectToServer();
+      // ref.read(chatProvider).connectToServer();
       ref.read(chatProvider.notifier).listUsersComentActivity();
 
       await Future.delayed(
@@ -137,17 +149,22 @@ class _ConsumerChatScreenState extends ConsumerState<ChatScreen> {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 0),
-              reverse: false,
-              controller: _scrollController,
-              itemCount: messagesProvider.messages.length,
-              itemBuilder: (ctx, index) => SizedBox(
-                // color: Colors.red,
-                child: MessagesItem(
-                  messagesProvider.messages[index],
-                  messagesProvider.messages[index].isUserMessage(
-                    widget.userID,
+            child: RefreshIndicator(
+              onRefresh: _handleRefresh,
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(vertical: 0),
+                physics:
+                    const AlwaysScrollableScrollPhysics(), // Forzar el scroll
+                reverse: false,
+                controller: _scrollController,
+                itemCount: messagesProvider.messages.length,
+                itemBuilder: (ctx, index) => SizedBox(
+                  // color: Colors.red,
+                  child: MessagesItem(
+                    messagesProvider.messages[index],
+                    messagesProvider.messages[index].isUserMessage(
+                      widget.userID,
+                    ),
                   ),
                 ),
               ),
