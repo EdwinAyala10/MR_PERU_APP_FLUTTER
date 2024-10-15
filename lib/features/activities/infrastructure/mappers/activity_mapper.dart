@@ -35,6 +35,7 @@ class ActivityMapper {
     opt: json['OPT'] ?? '',
     coordenadaLongitud: json['COORDENADA_LONGITUD'] ?? '',
     coordenadalatitud: json['COORDENADA_LATITUD'] ?? '',
+    localNombre: json['LOCAL_NOMBRE'] ?? '',
   );
 
 }

@@ -32,6 +32,7 @@ class Activity {
   String? cchkFechaRegistroCheckOut;
   String? coordenadalatitud;
   String? coordenadaLongitud;
+  String? localNombre;
 
   Activity(
       {required this.id,
@@ -64,6 +65,7 @@ class Activity {
       this.cchkFechaRegistroCheckOut,
       this.actiNombreResponsable,
       this.coordenadalatitud,
-      this.coordenadaLongitud
+      this.coordenadaLongitud,
+      this.localNombre
   });
 }

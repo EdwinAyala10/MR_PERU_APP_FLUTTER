@@ -63,7 +63,19 @@ class ActivityScreen extends ConsumerWidget {
             iconData: Icons.save,
             callOnPressed:
             ref.watch(activityFormProvider(activityState.activity!)).actiComentario == '' ? () {
-              showSnackbar(context, 'El comentario es requerido');
+             //showSnackbar(context, 'El comentario es requerido');
+              mostrarModalMensaje(context, 'AVISO',
+                  'El comentario es requerido',
+                  () {
+                Navigator.of(context).pop();
+              });
+            } :  (  ref.watch(activityFormProvider(activityState.activity!)).actividadesContacto!.length == 0 ? () {
+              //showSnackbar(context, 'Debes seleccionar un contacto como minimo');
+              mostrarModalMensaje(context, 'AVISO',
+                  'Debes seleccionar un contacto como minimo',
+                  () {
+                Navigator.of(context).pop();
+              });
             } : () {
               log(activityState.activity.toString());
               if (activityState.activity == null) return;
@@ -102,7 +114,7 @@ class ActivityScreen extends ConsumerWidget {
 
                 //context.pop();
               });
-            }),
+            })),
       ),
     );
   }

@@ -82,8 +82,8 @@ class ItemActivity extends StatelessWidget {
               style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
             ),
           Text(
-            activity.actiRazon ?? '',
-            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+             activity.actiIdTipoGestion == '04' ? '${activity.actiRazon} - ${activity.localNombre}' : '${activity.actiRazon}' ,
+            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12, overflow: TextOverflow.ellipsis),
           ),
         ],
       ),
