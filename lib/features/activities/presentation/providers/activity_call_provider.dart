@@ -27,7 +27,7 @@ class ActivityCallNotifier extends StateNotifier<ActivityCallState> {
   }
 
   Activity newActivityCall(String contactoId, String contactoNombre,
-      String horaActividad, String duracion, String ruc, String razon) {
+      String horaActividad, String duracion, String duracionLlamada, String ruc, String razon) {
 
     List<ContactArray> actividadesContacto = [];
 
@@ -54,6 +54,7 @@ class ActivityCallNotifier extends StateNotifier<ActivityCallState> {
         actiRuc: ruc,
         actiRazon: razon,
         actiTiempoGestion: duracion,
+        actiTiempoGestionLlamada: duracionLlamada,
         actiIdActividadIn: '',
         actiIdUsuarioActualizacion: '',
         actiNombreResponsable: user.name,
@@ -68,7 +69,7 @@ class ActivityCallNotifier extends StateNotifier<ActivityCallState> {
   
   String formatDuration(Duration duration) {
     if (duration.inSeconds < 1) {
-      return '0';
+      return '0 segundos';
     }
     String tiempoTranscurrido = '';
     if (duration.inHours > 0) {
@@ -85,8 +86,18 @@ class ActivityCallNotifier extends StateNotifier<ActivityCallState> {
     return tiempoTranscurrido.trim();
   }
 
-  void onFinishCallChanged() async {
-    print('FIN LLAMADA ${state.phone}');
+  String formatDuration2(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+
+    String hours = twoDigits(duration.inHours);
+    String minutes = twoDigits(duration.inMinutes.remainder(60));
+    String seconds = twoDigits(duration.inSeconds.remainder(60));
+
+    return "$hours:$minutes:$seconds";
+  }
+
+  void onFinishCallChanged(String phone) async {
+    print('FIN LLAMADA ${phone}');
 
     var finishDateTime = DateTime.now();
     print('STATUS REAL finishDateTime: $finishDateTime');
@@ -96,16 +107,20 @@ class ActivityCallNotifier extends StateNotifier<ActivityCallState> {
     print('STATUS REAL durationSeconds: $durationDiff');
 
     String duration = formatDuration(durationDiff);
+    String durationLlamada = formatDuration2(durationDiff);
 
     print('STATUS REAL DURATION: $duration');
 
     print('STATUS REAL ENVIAR ACTIVIDAD LLAMADA');
+
+    print('fecha: ${DateFormat('HH:mm:ss').format(DateTime.now())}');
 
     var activityCall = newActivityCall(
         state.activity?.actividadesContacto?[0].acntIdContacto ?? '',
         state.activity?.actividadesContacto?[0].nombre ?? '',
         DateFormat('HH:mm:ss').format(DateTime.now()),
         duration,
+        durationLlamada,
         state.activity?.actiRuc ?? '',
         state.activity?.actiRazon ?? '');
 
@@ -143,11 +158,13 @@ class ActivityCallNotifier extends StateNotifier<ActivityCallState> {
             "${activityCall.actiFechaActividad.year.toString().padLeft(4, '0')}-${activityCall.actiFechaActividad.month.toString().padLeft(2, '0')}-${activityCall.actiFechaActividad.day.toString().padLeft(2, '0')}",
         'ACTI_HORA_ACTIVIDAD': activityCall.actiHoraActividad,
         'ACTI_RUC': activityCall.actiRuc,
+        'ACTI_NOMBRE_ARCHIVO': '',
         'ACTI_RAZON': activityCall.actiRazon,
         //'ACTI_ID_OPORTUNIDAD': activityCall.actiIdOportunidad,
         'ACTI_ID_CONTACTO': activityCall.actiIdContacto,
         'ACTI_COMENTARIO': ' - ',
-        'ACTI_TIEMPO_GESTION_LLAMADA': activityCall.actiTiempoGestion,
+        'ACTI_TIEMPO_GESTION': activityCall.actiTiempoGestion,
+        'ACTI_TIEMPO_GESTION_LLAMADA': activityCall.actiTiempoGestionLlamada,
         'ACTI_ID_USUARIO_REGISTRO': activityCall.actiIdUsuarioRegistro,
         'ACTI_NOMBRE_TIPO_GESTION': activityCall.actiNombreTipoGestion,
         'ACTIVIDADES_CONTACTO': activityCall.actividadesContacto != null

@@ -221,6 +221,10 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
 
       bool sendActivityCall = ref.read(activityCallProvider).sendActivityCall!;
 
+      print('NUMERO AA');
+      print('widget.phone: ${widget.phone}');
+      print('number: ${number}');
+
       if (!sendActivityCall) {
         if (number == widget.phone &&
             statusCall == PhoneStateStatus.CALL_STARTED) {
@@ -234,7 +238,7 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
 
         if (number == widget.phone &&
             statusCall == PhoneStateStatus.CALL_ENDED) {
-          ref.read(activityCallProvider.notifier).onFinishCallChanged();
+          ref.read(activityCallProvider.notifier).onFinishCallChanged(widget.phone);
           //widget.activityPostCallState.onFinishCallChanged();
         }
       }
@@ -268,7 +272,7 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 10),
-              Text('Call Duration: $_callDuration seconds'),
+              //Text('Call Duration: $_callDuration seconds'),
               optionsTipoGestion.length > 1
                   ? SelectCustomForm(
                       label: 'Tipo de gestión',

@@ -1,3 +1,5 @@
+import 'package:crm_app/features/auth/domain/domain.dart';
+import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
 
@@ -18,19 +20,24 @@ final companyFormProvider = StateNotifierProvider.autoDispose
   // final createUpdateCallback = ref.watch( productsRepositoryProvider ).createUpdateProduct;
   final createUpdateCallback =
       ref.watch(companiesProvider.notifier).createOrUpdateCompany;
+  final user = ref.watch(authProvider).user;
 
   return CompanyFormNotifier(
     company: company,
     onSubmitCallback: createUpdateCallback,
+    user: user!
   );
 });
 
 class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
   final Future<CreateUpdateCompanyResponse> Function(
       Map<dynamic, dynamic> companyLike)? onSubmitCallback;
+  final User user;
+
 
   CompanyFormNotifier({
     this.onSubmitCallback,
+    required this.user,
     required Company company,
   }) : super(CompanyFormState(
           rucId: company.rucId,
@@ -103,7 +110,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
       'DEPARTAMENTO': state.departamento,
       'PROVINCIA': state.provincia,
       'DISTRITO': state.distrito,
-      'ID_RUBRO': state.idRubro.value,
+      'ID_RUBRO': state.idRubro.value, 
       'CLIENTE_COORDENADAS_GEO': state.clienteCoordenadasGeo,
       'CLIENTE_COORDENADAS_LONGITUD': state.clienteCoordenadasLongitud,
       'CLIENTE_COORDENADAS_LATITUD': state.clienteCoordenadasLatitud,
@@ -111,7 +118,7 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
       'WEBSITE': state.website,
       'CALIFICACION': state.calificacion.value,
       'ID_USUARIO_REGISTRO': state.idUsuarioRegistro,
-      'ID_USUARIO_ACTUALIZACION': state.idUsuarioActualizacion,
+      'ID_USUARIO_ACTUALIZACION': user.code,
       'USUARIO_REGISTRO': state.usuarioRegistro,
       'VISIBLE_TODOS': state.visibleTodos,
       'EMAIL': state.email,

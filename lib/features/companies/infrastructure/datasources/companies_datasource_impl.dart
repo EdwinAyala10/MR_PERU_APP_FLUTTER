@@ -29,7 +29,7 @@ class CompaniesDatasourceImpl extends CompaniesDatasource {
 
       //companyLike.remove('rucId');
 
-      companyLike['ID_USUARIO_ACTUALIZACION'] = companyLike['ID_USUARIO_REGISTRO'];
+      //companyLike['ID_USUARIO_ACTUALIZACION'] = companyLike['ID_USUARIO_REGISTRO'];
 
       final response = await dio.request(url,
           data: companyLike, options: Options(method: method));

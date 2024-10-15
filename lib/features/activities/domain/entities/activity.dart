@@ -22,6 +22,7 @@ class Activity {
   String? cchkComentarioCheckIn;
   String? cchkComentarioCheckOut;
   String? actiTiempoGestion;
+  String? actiTiempoGestionLlamada;
   String? actiNombreResponsable;
   String? contactoDesc;
   String? actiIdTipoRegistro;
@@ -56,6 +57,7 @@ class Activity {
       this.cchkComentarioCheckIn,
       this.cchkComentarioCheckOut,
       this.actiTiempoGestion,
+      this.actiTiempoGestionLlamada,
       this.contactoDesc,
       this.actiIdTipoRegistro,
       this.cchkFechaRegistroCheckIn,
