@@ -1,3 +1,4 @@
+import 'package:crm_app/features/kpis/presentation/providers/kpis_by_cat_provider.dart';
 import 'package:crm_app/features/kpis/presentation/widgets/item_kpi.dart';
 
 import '../../domain/domain.dart';
@@ -192,7 +193,13 @@ class _ListKpis extends ConsumerWidget {
                               data: kpis[index],
                               isFirst: index == 0,
                               isLast: index == kpis.length - 1,
-                              index: index
+                              index: index,
+                              onTap: () {
+                                ref.read(goalsModelProvider.notifier).state = kpis[index];
+                                ref.read(selectKpiProvider.notifier).state = kpis[index];
+                                // log(ref.read(selectKpiProvider.notifier).state!.objrIdCategoria.toString());
+                                context.push('/kpi_detail/${kpis[index].id}');
+                              }
                             );
                           },
                           childCount: kpis.length,
