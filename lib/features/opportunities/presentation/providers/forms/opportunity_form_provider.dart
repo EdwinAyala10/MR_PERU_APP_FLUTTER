@@ -106,7 +106,7 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
                   state.arrayresponsablesEliminar!.map((x) => x.toJson()))
               : [],
     };
-
+    log("$opportunityLike");
     try {
       return await onSubmitCallback!(opportunityLike);
     } catch (e) {

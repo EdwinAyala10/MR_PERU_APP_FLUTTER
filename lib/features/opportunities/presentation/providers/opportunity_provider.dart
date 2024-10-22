@@ -7,6 +7,14 @@ import '../../domain/domain.dart';
 
 import 'opportunities_repository_provider.dart';
 
+final isFromOpportunity = StateProvider<bool>((ref) {
+  return false;
+});
+final idCreateFromOP = StateProvider<String?>((ref) {
+  return null;
+});
+
+
 final opportunityProvider = StateNotifierProvider.autoDispose
     .family<OpportunityNotifier, OpportunityState, String>((ref, id) {
   final opportunitiesRepository = ref.watch(opportunitiesRepositoryProvider);

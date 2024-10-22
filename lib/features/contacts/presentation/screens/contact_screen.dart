@@ -1,7 +1,10 @@
+import 'dart:developer';
+
 import 'package:crm_app/features/companies/presentation/delegates/search_company_local_active_delegate.dart';
 import 'package:crm_app/features/companies/presentation/providers/company_provider.dart';
 import 'package:crm_app/features/companies/presentation/search/search_company_locales_active_provider.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
+import 'package:crm_app/features/opportunities/presentation/providers/opportunity_provider.dart';
 import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 
@@ -56,10 +59,8 @@ class ContactScreen extends ConsumerWidget {
             isDisabled: contactState.isSaving,
             callOnPressed: () {
               if (contactState.contact == null) return;
-
               showLoadingMessage(context);
               ref.read(contactProvider(contactId).notifier).isSaving();
-
               ref
                   .read(contactFormProvider(contactState.contact!).notifier)
                   .onFormSubmit()
@@ -67,8 +68,15 @@ class ContactScreen extends ConsumerWidget {
                 //if ( !value.response ) return;
                 if (value.message != '') {
                   showSnackbar(context, value.message);
-
                   if (value.response) {
+                    /// CREATE CONTACT FROM OPPORTUNITY MODULE
+                    log("this is the validator ${ref.read(isFromOpportunity)}");
+                    if(ref.read(isFromOpportunity)){
+                      log('THIS IS CONTACT ID: ${value.id}');
+                      ref.read(idCreateFromOP.notifier).state = value.id;
+                      context.pop();
+                    }else {
+
                     print('CONTATID: ${value.id}');
                     ref.read(contactsProvider.notifier).loadNextPage(isRefresh: true);
                     ref.read(contactProvider(contactId).notifier).loadContact(contactId);
@@ -78,15 +86,12 @@ class ContactScreen extends ConsumerWidget {
                       //context.replace('/contacts');
                       context.pop();
                     //});
+                    }
                   }
                 }
-
-                Navigator.pop(context);
-
+                context.pop();
               });
-
               ref.read(contactProvider(contactId).notifier).isNotSaving();
-
             },
             iconData: Icons.save)
         : null

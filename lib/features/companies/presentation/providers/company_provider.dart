@@ -1,6 +1,8 @@
 import 'dart:developer';
 
+import 'package:crm_app/config/constants/environment.dart';
 import 'package:crm_app/features/kpis/domain/entities/array_user.dart';
+import 'package:dio/dio.dart';
 
 import '../../../activities/domain/domain.dart';
 import '../../../activities/presentation/providers/activities_repository_provider.dart';
@@ -126,6 +128,41 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
       arrayresponsablesEliminar: [],
     );
   }
+
+
+
+  Future<Map<String,dynamic>> removeClient(String ruc)async{
+    final client = Dio(
+    BaseOptions(
+      headers: {'Authorization': 'Bearer ${user.token}'},
+    ),
+    );
+    final path = Environment.apiUrl;
+    final url = "$path/cliente/baja-cliente";
+    final formData = {'RUC': ruc}; 
+    try {
+      final response = await client.post(url,data: formData);
+      log('message $response');
+      if(response.data['status']){
+        return {
+          "status": true,
+          "message": response.data['message'] 
+        };
+      }
+      return {
+      "status": false,
+      "message": response.data['message'] 
+      };
+    } catch (e) {
+        log(e.toString());
+        return {
+          "status": true,
+          "message": "Ocurrion un error, intente nuevamente." 
+        };
+    }
+
+  }
+
 
   Future<void> updateCheckState(String idCheck) async {
     Company? companyNew = state.company;

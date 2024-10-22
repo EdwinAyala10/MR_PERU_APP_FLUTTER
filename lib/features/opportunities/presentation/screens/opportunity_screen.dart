@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:developer';
 
+import 'package:crm_app/config/config.dart';
 import 'package:crm_app/features/auth/domain/domain.dart';
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crm_app/features/companies/presentation/delegates/search_company_local_active_delegate.dart';
@@ -11,6 +13,7 @@ import 'package:crm_app/features/contacts/presentation/delegates/search_contact_
 import 'package:crm_app/features/contacts/presentation/search/search_contacts_active_provider.dart';
 import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
+import 'package:flutter/rendering.dart';
 
 import '../../../companies/domain/domain.dart';
 import '../../../companies/presentation/delegates/search_company_active_delegate.dart';
@@ -153,7 +156,7 @@ class _OpportunityInformationv2State
                   optionsEstado = value;
                 })
               });
-      
+
       await ref
           .read(resourceDetailsProvider.notifier)
           .loadCatalogById(groupId: '09')
@@ -165,16 +168,16 @@ class _OpportunityInformationv2State
 
       String? idEmpresa = ref.read(uiProvider).idCompanyAct;
       String? nameEmpresa = ref.read(uiProvider).nameCompanyAct;
-      
-      if (widget.opportunity.id == "new" && idEmpresa != "") { 
+
+      if (widget.opportunity.id == "new" && idEmpresa != "") {
         ref
-          .read(
-            opportunityFormProvider(widget.opportunity).notifier,
-          )
-          .onRucChanged(
-            idEmpresa ?? '',
-            nameEmpresa ?? '',
-          );
+            .read(
+              opportunityFormProvider(widget.opportunity).notifier,
+            )
+            .onRucChanged(
+              idEmpresa ?? '',
+              nameEmpresa ?? '',
+            );
       }
     });
   }
@@ -293,20 +296,22 @@ class _OpportunityInformationv2State
                   label: 'Moneda',
                   value: opportunityForm.oprtIdValor,
                   callbackChange: (String? newValue) {
-                    DropdownOption searchEstado =
-                        optionsEstado.where((option) => option.id == newValue!).first;
+                    DropdownOption searchEstado = optionsEstado
+                        .where((option) => option.id == newValue!)
+                        .first;
 
                     ref
-                        .read(opportunityFormProvider(widget.opportunity).notifier)
+                        .read(opportunityFormProvider(widget.opportunity)
+                            .notifier)
                         .onIdValorChanged(newValue!);
                     ref
-                        .read(opportunityFormProvider(widget.opportunity).notifier)
+                        .read(opportunityFormProvider(widget.opportunity)
+                            .notifier)
                         .onValorChanged(searchEstado.name);
                   },
                   items: optionsMoneda,
                 )
               : PlaceholderInput(text: 'Cargando...'),
-
           const SizedBox(height: 10),
           CustomCompanyField(
             label: 'Importe Total',
@@ -495,9 +500,6 @@ class _OpportunityInformationv2State
               style: TextStyle(color: Colors.red[400], fontSize: 13),
             ),
           const SizedBox(height: 10),
-
-          
-
           Padding(
             padding: const EdgeInsets.all(4.0),
             child: Column(
@@ -524,47 +526,101 @@ class _OpportunityInformationv2State
                     _openSearchContacts(
                         context, ref, opportunityForm.oprtRuc.value);
                   },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                          color: opportunityForm.oprtIdContacto.errorMessage !=
-                                  null
-                              ? Colors.red
-                              : Colors.grey),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            opportunityForm.oprtIdContacto.value == ''
-                                ? 'Seleccione local'
-                                : opportunityForm.oprtNombreContacto ?? '',
-                            style: TextStyle(
-                                fontSize: 16,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          decoration: BoxDecoration(
+                            border: Border.all(
                                 color: opportunityForm
                                             .oprtIdContacto.errorMessage !=
                                         null
                                     ? Colors.red
-                                    : null),
+                                    : Colors.grey),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  opportunityForm.oprtIdContacto.value == ''
+                                      ? 'Seleccione local'
+                                      : opportunityForm.oprtNombreContacto ??
+                                          '',
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      color: opportunityForm.oprtIdContacto
+                                                  .errorMessage !=
+                                              null
+                                          ? Colors.red
+                                          : null),
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.search),
+                                onPressed: () {
+                                  if (opportunityForm.oprtRuc.value == "") {
+                                    showSnackbar(context,
+                                        'Debe seleccionar una empresa');
+                                    return;
+                                  }
+
+                                  _openSearchContacts(context, ref,
+                                      opportunityForm.oprtRuc.value);
+                                },
+                              ),
+                            ],
                           ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.search),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: MaterialButton(
+                          color: primaryColor,
+                          minWidth: 25,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          height: 50,
                           onPressed: () {
                             if (opportunityForm.oprtRuc.value == "") {
-                              showSnackbar(
-                                  context, 'Debe seleccionar una empresa');
+                              showSnackbar(context, 'Debe seleccionar una empresa');
                               return;
                             }
+                            ref.read(isFromOpportunity.notifier).state = true;
+                            context.push('/contact/new').then((v) async {
+                              final contactID = ref.watch(idCreateFromOP);
+                              final contact = await ref
+                                  .read(searchedContactsProvider.notifier)
+                                  .searchContactsByQuery(
+                                    contactID ?? '',
+                                    opportunityForm.oprtRuc.value,
+                                  );
+                              log("Tihs cotact $contact");
+                              if(contact.isNotEmpty){
+                                  ref
+                                  .read(opportunityFormProvider(widget.opportunity).notifier)
+                                  .onContactChanged(contact[0].id, contact[0].contactoDesc);
+                                  ref
+                                  .read(searchQueryContactsProvider.notifier)
+                                  .update((state) => '');
+                                  ref.read(isFromOpportunity.notifier).state = false;
+                                  log(opportunityForm.oprtIdContacto.value);
+                                  log("${opportunityForm.oprtNombreContacto}");
 
-                            _openSearchContacts(
-                                context, ref, opportunityForm.oprtRuc.value);
+
+                               }
+
+                            });
                           },
+                          child: const Icon(
+                            Icons.add,
+                            color: Colors.white,
+                          ),
                         ),
-                      ],
-                    ),
+                      )
+                    ],
                   ),
                 ),
               ],
@@ -846,9 +902,8 @@ class _OpportunityInformationv2State
         delegate: SearchContactDelegate(
           ruc: ruc,
           initialContacts: searchedContacts,
-          searchContacts: ref
-              .read(searchedContactsProvider.notifier)
-              .searchContactsByQuery,
+          searchContacts:
+              ref.read(searchedContactsProvider.notifier).searchContactsByQuery,
           resetSearchQuery: () {
             ref
                 .read(searchQueryContactsProvider.notifier)
@@ -859,9 +914,7 @@ class _OpportunityInformationv2State
 
       ref
           .read(opportunityFormProvider(widget.opportunity).notifier)
-          .onContactChanged(contact.id,
-              '${contact.contactoDesc}');
+          .onContactChanged(contact.id, '${contact.contactoDesc}');
     });
   }
-
 }
