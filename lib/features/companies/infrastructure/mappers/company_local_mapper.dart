@@ -22,6 +22,9 @@ class CompanyLocalMapper {
     localCoordenadasGeo: json['LOCAL_COORDENADAS_GEO'] ?? '', 
     localCoordenadasLatitud: json['LOCAL_COORDENADAS_LATITUD'] ?? '', 
     localCoordenadasLongitud: json['LOCAL_COORDENADAS_LONGITUD'] ?? '', 
+    localDepartamentoDesc: json['LOCAL_DEPARTAMENTO_DESC'] ?? '',
+    localProvinciaDesc: json['LOCAL_PROVINCIA_DESC'] ?? '',
+    localDistritoDesc: json['LOCAL_DISTRITO_DESC'] ?? '',
     ruc: json['RUC'] ?? '',
   );
 

@@ -735,6 +735,11 @@ class _ListCompanyLocales extends StatelessWidget {
 
             return ItemCompanyLocal(
                 companyLocal: companyLocal,
+                editCallOnTap: () {
+                  String ruc = companyLocal.ruc;
+                  String ids = '${companyLocal.id}*${ruc}';
+                  context.push('/company_local/$ids');
+                },
                 callbackOnTap: () {
                   context.push('/view-map/${companyLocal.coordenadasGeo}');
                 });

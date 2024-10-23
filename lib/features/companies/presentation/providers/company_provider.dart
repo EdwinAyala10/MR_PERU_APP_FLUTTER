@@ -336,7 +336,7 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
 
       if (companyLocalResponse.status) {
         //final companyCheckIn = companyCheckInResponse.companyCheckIn as CompanyCheckIn;
-        final companyLocal = companyLocalResponse.companyLocal as CompanyLocal;
+        /*final companyLocal = companyLocalResponse.companyLocal as CompanyLocal;
         final isCompanyLocalInList = state.companyLocales
             .any((element) => element.ruc == companyLocal.id);
 
@@ -353,7 +353,7 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
                   (element) =>
                       (element.id == companyLocal.id) ? companyLocal : element,
                 )
-                .toList());
+                .toList());*/
 
         return CreateUpdateCompanyLocalResponse(
             response: true, message: message);

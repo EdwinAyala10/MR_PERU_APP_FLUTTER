@@ -6,8 +6,8 @@ class CompanyMapper {
 
   static jsonToEntity( Map<dynamic, dynamic> json ) => Company(
     rucId: json['RUC'] ?? '',
-    ruc: json['RUC'],
-    razon:  json['RAZON'],
+    ruc: json['RUC'] ?? '',
+    razon:  json['RAZON'] ?? '',
     direccion: json['DIRECCION'] ?? '',
     telefono: json['TELEFONO'] ?? '',
     email: json['EMAIL'] ?? '',

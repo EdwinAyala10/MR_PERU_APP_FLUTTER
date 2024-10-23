@@ -27,13 +27,14 @@ class CompanyLocalNotifier extends StateNotifier<CompanyLocalState> {
   final User user;
   final String ruc;
   final String nameEmpresa;
+  final String id;
 
   CompanyLocalNotifier({
     required this.companiesRepository,
     required this.user,
     required this.ruc,
     required this.nameEmpresa,
-    required String id,
+    required this.id,
   }) : super(CompanyLocalState(id: id)) {
     loadCompanyLocal();
   }
@@ -73,9 +74,11 @@ class CompanyLocalNotifier extends StateNotifier<CompanyLocalState> {
         return;
       }
 
-      //final company = await companiesRepository.getCompanyById(state.rucId);
+      final companyLocal = await companiesRepository.getLocalById(ruc, id);
+      companyLocal.ruc = ruc;
+      companyLocal.razon = nameEmpresa;
 
-      //state = state.copyWith(isLoading: false, companyCheckIn: company);
+      state = state.copyWith(isLoading: false, companyLocal: companyLocal);
     } catch (e) {
       // 404 product not found
       print(e);

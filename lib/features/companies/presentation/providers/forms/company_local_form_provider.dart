@@ -1,3 +1,6 @@
+import 'package:crm_app/features/auth/domain/domain.dart';
+import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
+
 import '../../../domain/entities/create_update_company_local_response.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
@@ -17,19 +20,25 @@ final companyLocalFormProvider = StateNotifierProvider.autoDispose
       .watch(companyProvider(companyLocal.ruc).notifier)
       .createOrUpdateCompanyLocal;
 
+  final user = ref.watch(authProvider).user;
+    
+
   return CompanyLocalFormNotifier(
     companyLocal: companyLocal,
     onSubmitCallback: createUpdateCallback,
+    user: user!
   );
 });
 
 class CompanyLocalFormNotifier extends StateNotifier<CompanyLocalFormState> {
   final Future<CreateUpdateCompanyLocalResponse> Function(
       Map<dynamic, dynamic> companyLocalLike)? onSubmitCallback;
+  final User user;
 
   CompanyLocalFormNotifier({
     this.onSubmitCallback,
     required CompanyLocal companyLocal,
+    required this.user,
   }) : super(CompanyLocalFormState(
           id: companyLocal.id,
           ruc: Ruc.dirty(companyLocal.ruc),
@@ -84,6 +93,7 @@ class CompanyLocalFormNotifier extends StateNotifier<CompanyLocalFormState> {
       'LOCAL_DISTRITO_DESC': state.localDistritoDesc,
       'LOCAL_CODIGO_POSTAL': state.localCodigoPostal,
       'RAZON': state.razon,
+      'ID_USUARIO_RESPONSABLE': user.code,
       'DEPARTAMENTO': state.departamento,
       'DISTRITO': state.distrito,
       'PROVINCIA': state.provincia,

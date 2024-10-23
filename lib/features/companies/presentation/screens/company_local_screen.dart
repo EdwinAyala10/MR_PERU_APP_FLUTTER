@@ -27,13 +27,15 @@ class CompanyLocalScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final companyLocalState = ref.watch(companyLocalProvider(id));
 
-    id.split("*");
+    var ids = id.split("*");
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Crear Local'),
+          title: Text('${ids[0] == 'new' ? 'Crear' : 'Editar'} Local', style: TextStyle(
+            fontWeight: FontWeight.w500
+          )),
           /*leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
@@ -59,6 +61,7 @@ class CompanyLocalScreen extends ConsumerWidget {
                   showSnackbar(context, value.message);
                   if (value.response) {
                     //Timer(const Duration(seconds: 3), () {
+                    ref.watch(companyProvider(companyLocalState.companyLocal?.ruc ?? '').notifier).loadSecundaryLocales();
                     ref.read(companiesProvider.notifier).loadAddressCompanyByRuc(companyLocalState.companyLocal?.ruc ?? '');
                     context.pop();
 

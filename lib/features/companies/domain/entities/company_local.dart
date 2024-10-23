@@ -23,6 +23,7 @@ class CompanyLocal {
   String? localCoordenadasGeo;
   String? localCoordenadasLongitud;
   String? localCoordenadasLatitud;
+  String? idUsuarioResponsable;
 
   CompanyLocal(
       {required this.id,
@@ -48,6 +49,7 @@ class CompanyLocal {
       this.localTipoDescripcion,
       this.localCoordenadasGeo,
       this.localCoordenadasLatitud,
-      this.localCoordenadasLongitud
+      this.localCoordenadasLongitud,
+      this.idUsuarioResponsable
       });
 }

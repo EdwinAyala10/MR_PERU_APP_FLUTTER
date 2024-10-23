@@ -30,21 +30,21 @@ class ItemRoutePlannerLocal extends ConsumerWidget {
         children: [
           if (local.localCoordenadasLatitud=="") 
             Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.redAccent.withOpacity(0.1),
-                      border: Border.all(color: Colors.redAccent),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      'Sin coordenadas',
-                      style: TextStyle(
-                        color: Colors.redAccent,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.redAccent.withOpacity(0.1),
+                border: Border.all(color: Colors.redAccent),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Text(
+                'Sin coordenadas',
+                style: TextStyle(
+                  color: Colors.redAccent,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
           Text(local.razon ?? '',
             style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)),  
           Row(
@@ -97,7 +97,7 @@ class ItemRoutePlannerLocal extends ConsumerWidget {
         children: [
           SizedBox(
             width: 100,
-            child: Text(local.calificacion ?? '', style: TextStyle(fontSize: 10, overflow: TextOverflow.ellipsis), )),
+            child: Text(local.calificacion ?? '', style: const TextStyle(fontSize: 10, overflow: TextOverflow.ellipsis), )),
           Text(local.userreportName ?? '')
         ],
       ),

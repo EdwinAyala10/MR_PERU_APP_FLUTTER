@@ -139,7 +139,7 @@ class CompaniesDatasourceImpl extends CompaniesDatasource {
       const String method = 'POST';
       final String url = (id == null)
           ? '/cliente/create-cliente-locales'
-          : '/cliente/update-cliente-locales';
+          : '/cliente/actualizar-cliente-locales';
 
       if (id == null) {
         companyLocalLike.remove('LOCAL_CODIGO');
@@ -164,6 +164,25 @@ class CompaniesDatasourceImpl extends CompaniesDatasource {
       throw Exception();
     }
   }
+
+  @override
+  Future<CompanyLocal> getLocalById(String rucId, String localId) async {
+    try {
+      final response = await dio.get('/cliente/cliente-locales-by-local', data: {
+        'RUC': rucId,
+        'LOCAL_CODIGO': localId
+      });
+      final CompanyLocal companyLocal = CompanyLocalMapper.jsonToEntity(response.data['data']);
+
+      return companyLocal;
+    } on DioException catch (e) {
+      if (e.response!.statusCode == 404) throw CompanyNotFound();
+      throw Exception();
+    } catch (e) {
+      throw Exception();
+    }
+  }
+
    @override
   Future<List<CompanyLocal>> getCompanyLocales(String ruc) async {
     final response =
