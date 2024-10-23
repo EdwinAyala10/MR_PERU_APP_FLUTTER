@@ -28,6 +28,23 @@ class ItemRoutePlannerLocal extends ConsumerWidget {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (local.localCoordenadasLatitud=="") 
+            Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.redAccent.withOpacity(0.1),
+                      border: Border.all(color: Colors.redAccent),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      'Sin coordenadas',
+                      style: TextStyle(
+                        color: Colors.redAccent,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
           Text(local.razon ?? '',
             style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)),  
           Row(
