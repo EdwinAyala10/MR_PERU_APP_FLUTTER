@@ -47,41 +47,21 @@ class _ActivityPostCallScreenState
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      final String idOP = ref.watch(selectOpportunity)?.id ?? '';
-      final String oprtNombre = ref.watch(selectOpportunity)?.oprtNombre ?? '';
-      await ref
-          .read(activityPostCallProvider(ActivityPostCallParams(
-                  contactId: widget.contactId, phone: widget.phone))
-              .notifier)
-          .loadActivityPostCall(
-            widget.contactId,
-            widget.phone,
-          );
-      final activityPostCallState = ref.watch(
-        activityPostCallProvider(
-          ActivityPostCallParams(
-              contactId: widget.contactId, phone: widget.phone),
-        ),
-      );
-
-      log(idOP);
-      log(oprtNombre);
-      ref
-          .watch(activityFormProvider(activityPostCallState.activity!).notifier)
-          .onOportunidadChanged(
-            idOP,
-            oprtNombre,
-          );
+      // final String idOP = ref.read(selectOpportunity)?.id ?? '';
+      // final String oprtNombre = ref.read(selectOpportunity)?.oprtNombre ?? '';
+      // log(idOP);
+      // log(oprtNombre);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final activityPostCallState = ref.watch(activityPostCallProvider(
-        ActivityPostCallParams(
-            contactId: widget.contactId, phone: widget.phone)));
-
-    //final activityForm = ref.watch(activityFormProvider(activityPostCallState.activity));
+      ActivityPostCallParams(
+        contactId: widget.contactId,
+        phone: widget.phone,
+      ),
+    ));
 
     if (activityPostCallState.activity == null) {
       return const Scaffold(
@@ -89,6 +69,7 @@ class _ActivityPostCallScreenState
       );
     }
 
+    log("message  ${activityPostCallState.activity?.actiComentario}");
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -96,11 +77,12 @@ class _ActivityPostCallScreenState
           title: const Text('Informe post llamada',
               style: TextStyle(fontWeight: FontWeight.w500)),
           leading: const IconButton(
-            icon: Icon(Icons.close),
-            onPressed: null /*() {
+              icon: Icon(Icons.close),
+              onPressed:
+                  null /*() {
               context.pop();
             },*/
-          ),
+              ),
         ),
         body: activityPostCallState.isLoading
             ? const FullScreenLoader()
@@ -188,6 +170,12 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
     super.initState();
 
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      ref
+          .read(activityFormProvider(widget.activity ).notifier)
+          .onOportunidadChanged(
+            ref.read(selectOpportunity)?.id ?? '',
+            ref.read(selectOpportunity)?.oprtNombre ?? '',
+          );
       await ref
           .read(resourceDetailsProvider.notifier)
           .loadCatalogVisibleById(groupId: '01', codigoId: '02')
@@ -238,7 +226,9 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
 
         if (number == widget.phone &&
             statusCall == PhoneStateStatus.CALL_ENDED) {
-          ref.read(activityCallProvider.notifier).onFinishCallChanged(widget.phone);
+          ref
+              .read(activityCallProvider.notifier)
+              .onFinishCallChanged(widget.phone);
           //widget.activityPostCallState.onFinishCallChanged();
         }
       }
@@ -592,7 +582,9 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
       //bool? res = await FlutterPhoneDirectCaller.callNumber(phone);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No se pudo realizar la llamada, falta permisos de llamada.')),
+        const SnackBar(
+            content: Text(
+                'No se pudo realizar la llamada, falta permisos de llamada.')),
       );
     }
     //});

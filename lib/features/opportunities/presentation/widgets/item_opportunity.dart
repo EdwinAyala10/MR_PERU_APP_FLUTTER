@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:crm_app/config/config.dart';
 import 'package:crm_app/features/activities/presentation/providers/providers.dart';
 import 'package:crm_app/features/contacts/presentation/providers/providers.dart';
+import 'package:crm_app/features/opportunities/presentation/providers/docs_opportunitie_provider.dart';
 import 'package:crm_app/features/opportunities/presentation/screens/opportunity_detail_screen.dart';
 import 'package:crm_app/features/shared/presentation/providers/send_whatsapp_provider.dart';
 import 'package:crm_app/features/shared/shared.dart';
@@ -100,11 +103,10 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
                       Text(
                         widget.opportunity.actiNombreTipoGestion ?? '',
                         style: const TextStyle(
-                          color: Color.fromRGBO(130, 130, 130, 1),
-                          fontSize: 13.0,
-                          fontWeight: FontWeight.w500,
-                          overflow: TextOverflow.ellipsis
-                        ),
+                            color: Color.fromRGBO(130, 130, 130, 1),
+                            fontSize: 13.0,
+                            fontWeight: FontWeight.w500,
+                            overflow: TextOverflow.ellipsis),
                       ),
                     ],
                   ),
@@ -190,13 +192,25 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
               children: [
                 IconButton(
                   onPressed: () {
-                    ref.read(selectOpportunity.notifier).state = widget.opportunity;
+                    ref.read(selectOpportunity.notifier).state = null;
+                    log("Estoy entrandoo aqui CELL");
+                    ref.read(selectOpportunity.notifier).state =
+                        widget.opportunity;
                     final contact = contactState.contact;
                     if (contact == null) {
                       return;
                     }
-                    context.push(
-                        '/activity_post_call/${contact?.id}/${agregarPrefijoPeru(contact?.contactoTelefonoc ?? '')}');
+                    ref.read(selectOpportunity.notifier).state =
+                        widget.opportunity;
+                    context
+                        .push(
+                      '/activity_post_call/${contact?.id}/${agregarPrefijoPeru(
+                        contact?.contactoTelefonoc ?? '',
+                      )}',
+                    )
+                        .then((v) {
+                      ref.read(selectOpportunity.notifier).state = null;
+                    });
                   },
                   color: Colors.blueAccent,
                   icon: const Icon(
@@ -209,6 +223,8 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
                     Radius.circular(25),
                   ),
                   onTap: () {
+                    log("Estoy entrandoo aqui whatsapp");
+
                     final contact = contactState.contact;
                     if (contact == null) {
                       return;

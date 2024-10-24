@@ -190,11 +190,8 @@ class _AgendaViewState extends ConsumerState {
                                   );
                                 },
                                 callbackChekIn: () async {
-                                  await ref
-                                      .watch(
-                                          companyProvider(event.evntRuc ?? '')
-                                              .notifier)
-                                      .loadCompany();
+                                   ref.read(companyProvider(event.evntRuc ?? ''));
+                                   await ref.read(companyProvider(event.evntRuc ?? '').notifier).loadCompany();
                                   String idCheck = '01';
                                   ref.read(stateRucProvider.notifier).state =
                                       event.evntRuc ?? '';

@@ -20,12 +20,11 @@ import '../../domain/domain.dart';
 
 import 'companies_repository_provider.dart';
 
-
-
 final stateRucProvider = StateProvider((ref) => '');
 
-final companyProvider = StateNotifierProvider.autoDispose
-    .family<CompanyNotifier, CompanyState, String>((ref, rucId) {
+final companyProvider =
+    StateNotifierProvider.family<CompanyNotifier, CompanyState, String>(
+        (ref, rucId) {
   final companiesRepository = ref.watch(companiesRepositoryProvider);
   final contactsRepository = ref.watch(contactsRepositoryProvider);
   final opportunitiesRepository = ref.watch(opportunitiesRepositoryProvider);
@@ -64,16 +63,15 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
   }
 
   Company newEmptyCompany() {
-
     List<ArrayUser>? arrayResponsables = [];
 
     //if (!user.isAdmin) {
-      ArrayUser array = ArrayUser();
-      array.idResponsable = user.id;
-      array.cresIdUsuarioResponsable = user.code;
-      array.userreportName = user.name;
-      array.nombreResponsable = user.name;
-      arrayResponsables.add(array);
+    ArrayUser array = ArrayUser();
+    array.idResponsable = user.id;
+    array.cresIdUsuarioResponsable = user.code;
+    array.userreportName = user.name;
+    array.nombreResponsable = user.name;
+    arrayResponsables.add(array);
     //}
 
     return Company(
@@ -129,40 +127,30 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
     );
   }
 
-
-
-  Future<Map<String,dynamic>> removeClient(String ruc)async{
+  Future<Map<String, dynamic>> removeClient(String ruc) async {
     final client = Dio(
-    BaseOptions(
-      headers: {'Authorization': 'Bearer ${user.token}'},
-    ),
+      BaseOptions(
+        headers: {'Authorization': 'Bearer ${user.token}'},
+      ),
     );
     final path = Environment.apiUrl;
     final url = "$path/cliente/baja-cliente";
-    final formData = {'RUC': ruc}; 
+    final formData = {'RUC': ruc};
     try {
-      final response = await client.post(url,data: formData);
+      final response = await client.post(url, data: formData);
       log('message $response');
-      if(response.data['status']){
-        return {
-          "status": true,
-          "message": response.data['message'] 
-        };
+      if (response.data['status']) {
+        return {"status": true, "message": response.data['message']};
       }
-      return {
-      "status": false,
-      "message": response.data['message'] 
-      };
+      return {"status": false, "message": response.data['message']};
     } catch (e) {
-        log(e.toString());
-        return {
-          "status": true,
-          "message": "Ocurrion un error, intente nuevamente." 
-        };
+      log(e.toString());
+      return {
+        "status": true,
+        "message": "Ocurrion un error, intente nuevamente."
+      };
     }
-
   }
-
 
   Future<void> updateCheckState(String idCheck) async {
     Company? companyNew = state.company;
@@ -175,33 +163,34 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
 
   Future<void> loadSecundaryDetails() async {
     state = state.copyWith(
-      isLoadingContacts: true,
-      isLoadingOpportunities: true,
-      isLoadingActivities: true,
-      isLoadingEvents: true,
-      isLoadingLocales: true
-    );
+        isLoadingContacts: true,
+        isLoadingOpportunities: true,
+        isLoadingActivities: true,
+        isLoadingEvents: true,
+        isLoadingLocales: true);
 
-    final contacts = await contactsRepository.getContacts(ruc: state.company!.ruc, search: '', limit: 100, offset: 0);
-    final opportunities =
-        await opportunitiesRepository.getOpportunitiesByName(ruc:state.company!.ruc);
-    final activities = await activitiesRepository.getActivitiesByRuc(state.company!.ruc);
-    final events = await eventsRepository.getEventsListByRuc(state.company!.ruc);
+    final contacts = await contactsRepository.getContacts(
+        ruc: state.company!.ruc, search: '', limit: 100, offset: 0);
+    final opportunities = await opportunitiesRepository.getOpportunitiesByName(
+        ruc: state.company!.ruc);
+    final activities =
+        await activitiesRepository.getActivitiesByRuc(state.company!.ruc);
+    final events =
+        await eventsRepository.getEventsListByRuc(state.company!.ruc);
     final companyLocales =
         await companiesRepository.getCompanyLocales(state.company!.ruc);
 
     state = state.copyWith(
-      contacts: contacts,
-      isLoadingContacts: false,
-      opportunities: opportunities,
-      isLoadingOpportunities: false,
-      activities: activities,
-      isLoadingActivities: false,
-      events: events,
-      isLoadingEvents: false,
-      companyLocales: companyLocales,
-      isLoadingLocales: false
-    );
+        contacts: contacts,
+        isLoadingContacts: false,
+        opportunities: opportunities,
+        isLoadingOpportunities: false,
+        activities: activities,
+        isLoadingActivities: false,
+        events: events,
+        isLoadingEvents: false,
+        companyLocales: companyLocales,
+        isLoadingLocales: false);
   }
 
   Future<void> loadSecundaryLocales() async {
@@ -220,7 +209,8 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
     //if (state.isLoadingContacts) return;
     state = state.copyWith(isLoadingContacts: true);
 
-    final contacts = await contactsRepository.getContacts(ruc: state.company!.ruc, search: '', limit: 100, offset: 0);
+    final contacts = await contactsRepository.getContacts(
+        ruc: state.company!.ruc, search: '', limit: 100, offset: 0);
     state = state.copyWith(
       isLoadingContacts: false,
       contacts: contacts,
@@ -231,9 +221,9 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
     if (state.isLoadingOpportunities) return;
     state = state.copyWith(isLoadingOpportunities: true);
 
-    final opportunities =
-        await opportunitiesRepository.getOpportunitiesByName(ruc:state.company!.ruc);
-    
+    final opportunities = await opportunitiesRepository.getOpportunitiesByName(
+        ruc: state.company!.ruc);
+
     state = state.copyWith(
       isLoadingOpportunities: false,
       opportunities: opportunities,
@@ -244,8 +234,9 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
     if (state.isLoadingActivities) return;
     state = state.copyWith(isLoadingActivities: true);
 
-    final activities = await activitiesRepository.getActivitiesByRuc(state.company!.ruc);
-    
+    final activities =
+        await activitiesRepository.getActivitiesByRuc(state.company!.ruc);
+
     state = state.copyWith(
       isLoadingActivities: false,
       activities: activities,
@@ -257,8 +248,9 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
 
     state = state.copyWith(isLoadingEvents: true);
 
-    final events = await eventsRepository.getEventsListByRuc(state.company!.ruc);
-    
+    final events =
+        await eventsRepository.getEventsListByRuc(state.company!.ruc);
+
     state = state.copyWith(
       isLoadingEvents: false,
       events: events,
@@ -266,15 +258,11 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
   }
 
   Future<void> isLoading() async {
-    state = state.copyWith(
-      isSaving: true
-    );
+    state = state.copyWith(isSaving: true);
   }
 
   Future<void> isNotLoading() async {
-    state = state.copyWith(
-      isSaving: false
-    );
+    state = state.copyWith(isSaving: false);
   }
 
   Future<void> loadCompany() async {
@@ -287,39 +275,39 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
         return;
       }
       log('state ruc' + state.rucId);
-      final company = await companiesRepository.getCompanyById(state.rucId, user.code);
-      log( "def" +company.ruc);
+      final company =
+          await companiesRepository.getCompanyById(state.rucId, user.code);
+      log("def" + company.ruc);
       company.rucId = company.ruc;
-      
+
       /*final contacts = await contactsRepository.getContacts(ruc: company.ruc, search: '', limit: 100, offset: 0);
       final opportunities =
           await opportunitiesRepository.getOpportunities(ruc:company.ruc, search: '', limit: 100, offset: 0);
       final activities = await activitiesRepository.getActivitiesByRuc(company.ruc);
       final events = await eventsRepository.getEventsListByRuc(company.ruc);
       */
-      final companyLocales =  await companiesRepository.getCompanyLocales(company.ruc);
+      final companyLocales =
+          await companiesRepository.getCompanyLocales(company.ruc);
       log('wwerwerwer');
       state = state.copyWith(
-        isLoading: false,
-        company: company,
-        companyLocales: companyLocales
-        /*contacts: contacts,
+          isLoading: false, company: company, companyLocales: companyLocales
+          /*contacts: contacts,
         opportunities: opportunities,
         activities: activities,
         events: events,
         companyLocales: companyLocales,*/
-      );
-
+          );
     } catch (e) {
       // 404 product not found
+      log("ddddd" + e.toString());
       state = state.copyWith(isLoading: false, company: null);
-      log("ddddd"+e.toString());
     }
   }
 
   Future<void> loadContacts(String ruc) async {
     try {
-      final contacts = await contactsRepository.getContacts(ruc: ruc, search: '', limit: 100, offset: 0);
+      final contacts = await contactsRepository.getContacts(
+          ruc: ruc, search: '', limit: 100, offset: 0);
       state = state.copyWith(contacts: contacts);
     } catch (e) {
       state = state.copyWith(contacts: []);
@@ -428,7 +416,8 @@ class CompanyState {
         isLoading: isLoading ?? this.isLoading,
         isLoadingLocales: isLoadingLocales ?? this.isLoadingLocales,
         isLoadingContacts: isLoadingContacts ?? this.isLoadingContacts,
-        isLoadingOpportunities: isLoadingOpportunities ?? this.isLoadingOpportunities,
+        isLoadingOpportunities:
+            isLoadingOpportunities ?? this.isLoadingOpportunities,
         isLoadingActivities: isLoadingActivities ?? this.isLoadingActivities,
         isLoadingEvents: isLoadingEvents ?? this.isLoadingEvents,
         isSaving: isSaving ?? this.isSaving,

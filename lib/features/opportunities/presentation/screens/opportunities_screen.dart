@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:crm_app/features/activities/presentation/providers/providers.dart';
 import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
@@ -365,6 +366,7 @@ class _ListOpportunitiesState extends ConsumerState<_ListOpportunities> {
                       ref.read(selectedOp.notifier).state = opportunity;
                       ref.read(selectOpportunity.notifier).state = opportunity;
                       context.push('/opportunity_detail/${opportunity.id}');
+                      log("Estoy entrandoo aqui");
                     },
                   );
                 },

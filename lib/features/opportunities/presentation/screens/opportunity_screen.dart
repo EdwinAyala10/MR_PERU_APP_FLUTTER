@@ -322,7 +322,7 @@ class _OpportunityInformationv2State
                 .onImporteChanged,
           ),
           const Text(
-            'Fecha',
+            'Fecha Prevista',
             style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 6),

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'parameters/activity_post_call_params.dart';
 import '../../../auth/domain/domain.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
@@ -87,20 +89,23 @@ class ActivityPostCallNotifier extends StateNotifier<ActivityPostCallState> {
       List<ContactArray> actividadesContacto = [];
 
       final contactArray = ContactArray(
-          acntIdContacto: contact.id, nombre: contact.contactoDesc);
+        acntIdContacto: contact.id,
+        nombre: contact.contactoDesc,
+      );
 
       actividadesContacto.add(contactArray);
 
-      final newActivity = newEmptyActivity(
-          contact.ruc, contact.razon ?? '', contact.contactoDesc, contact.id);
+      final newActivity = newEmptyActivity(contact.ruc, contact.razon ?? '', contact.contactoDesc, contact.id);
 
-      state =
-          state.copyWith(isLoading: false, activity: newActivity, phone: phone);
+      state = state.copyWith(isLoading: false, activity: newActivity, phone: phone);
     } catch (e) {
+          log("ocurrio un error");
+
       state = state.copyWith(isLoading: false, activity: null);
       // 404 product not found
       print(e);
     }
+    log("dsdsd"+state.activity.toString());
   }
 }
 

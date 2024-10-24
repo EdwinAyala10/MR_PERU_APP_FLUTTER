@@ -200,8 +200,8 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
                     builder: (BuildContext context) {
                       return AlertDialog(
                         title: const Text('Alerta'),
-                        content: const Text(
-                          'Esta seguro de realizar esta acciòn?',
+                        content: Text(
+                          'Esta seguro de dar de baja a la empresa ${widget.company.razon}?',
                         ),
                         actions: [
                           TextButton(
@@ -221,7 +221,9 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
                                   );
                               context.pop();
                               if (result['status']) {
-                                ref.read(companiesProvider.notifier).loadNextPage(isRefresh: true);
+                                ref
+                                    .read(companiesProvider.notifier)
+                                    .loadNextPage(isRefresh: true);
                                 context.pop();
                                 context.pop();
                               }
@@ -239,7 +241,6 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
                                 );
                                 context.pop();
                                 context.pop();
-
                               }
                               // context.pop();
                             },
