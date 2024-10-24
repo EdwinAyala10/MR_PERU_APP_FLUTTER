@@ -71,7 +71,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
             child: InkWell(
               onTap: () async {
                 final count = ref.read(listNotifyProvider);
-                FlutterAppBadge.count(int.parse(count.counterNotification));
+                FlutterAppBadge.count(
+                  int.parse(
+                    count.counterNotification,
+                  ),
+                );
+                ref.read(listNotifyProvider.notifier).listAllNotification();
                 context.push(
                   NofiticationScreen.name,
                 );
@@ -79,7 +84,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
               },
               child: NotificationBell(
                 notificationCount: int.parse(
-                    ref.watch(listNotifyProvider).counterNotification),
+                  ref.watch(listNotifyProvider).counterNotification,
+                ),
               ),
             ),
           ),
@@ -164,7 +170,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
             icon: Icons.local_activity_outlined,
             style: const TextStyle(fontSize: 16, color: Colors.white),
             onPressed: () {
-            ref.read(uiProvider.notifier).deleteCompanyActivity();
+              ref.read(uiProvider.notifier).deleteCompanyActivity();
               //context.go('/activity/no-id');
               context.push('/activity/new');
               _animationController.reverse();
@@ -183,8 +189,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
               _animationController.reverse();
             },
           ),
-          
-          
         ],
       ),
     );
