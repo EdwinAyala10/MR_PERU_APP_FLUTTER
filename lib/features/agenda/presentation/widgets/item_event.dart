@@ -105,17 +105,31 @@ class ItemEvent extends StatelessWidget {
               // top: event.cckkIdEstadoCheck == 'Visitado' ? null : 35,
               child: Column(
                 children: [
+                  // Visibility(
+                  //   visible: event.cckkIdEstadoCheck == 'Visitado',
+                  //   child: const Padding(
+                  //     padding: EdgeInsets.only(bottom: 10, right: 20),
+                  //     child: CircleAvatar(
+                  //       radius: 28,
+                  //       backgroundColor: Colors.green,
+                  //       child: Icon(
+                  //         Icons.check,
+                  //         color: Colors.white,
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
                   Visibility(
                     visible: event.cckkIdEstadoCheck == 'Visitado',
-                    child: const Padding(
-                      padding: EdgeInsets.only(bottom: 10, right: 20),
-                      child: CircleAvatar(
-                        radius: 28,
-                        backgroundColor: Colors.green,
-                        child: Icon(
-                          Icons.check,
-                          color: Colors.white,
-                        ),
+                    child: MaterialButton(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      color: primaryColor,
+                      onPressed: null,
+                      child: Text(
+                        event.cckkIdEstadoCheck ?? '',
+                        style: const TextStyle(color: Colors.green),
                       ),
                     ),
                   ),

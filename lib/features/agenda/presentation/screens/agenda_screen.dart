@@ -233,6 +233,7 @@ class _AgendaViewState extends ConsumerState {
                                       .read(companiesProvider.notifier)
                                       .validateCheckIn(
                                         ruc: ruc,
+                                        idEvent: event.id
                                       );
                                   context.pop();
                                   if (ref

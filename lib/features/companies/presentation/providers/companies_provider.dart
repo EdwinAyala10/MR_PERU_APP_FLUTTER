@@ -40,11 +40,13 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
 
   Future<void> validateCheckIn({
     required String ruc,
+    String? idEvent,
   }) async {
     try {
       final form = {
         "RUC": ruc,
         "ID_USUARIO_RESPONSABLE": user?.code ?? '',
+        "ID_EVENTO": idEvent??''
       };
       const endPoint = '/cliente-check/validar-checkin';
       final request = await client.post(
