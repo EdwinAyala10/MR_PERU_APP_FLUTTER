@@ -10,6 +10,10 @@ import '../../domain/domain.dart';
 
 import 'events_repository_provider.dart';
 
+final idEventFromAgenda = StateProvider<String>((ref) {
+  return "";
+});
+
 final eventsProvider =
     StateNotifierProvider<EventsNotifier, EventsState>((ref) {
   final eventsRepository = ref.watch(eventsRepositoryProvider);

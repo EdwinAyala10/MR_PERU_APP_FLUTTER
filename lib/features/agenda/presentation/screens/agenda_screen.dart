@@ -190,8 +190,26 @@ class _AgendaViewState extends ConsumerState {
                                   );
                                 },
                                 callbackChekIn: () async {
-                                   ref.read(companyProvider(event.evntRuc ?? ''));
-                                   await ref.read(companyProvider(event.evntRuc ?? '').notifier).loadCompany();
+                                  showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return Dialog(
+                                          backgroundColor: Colors.transparent,
+                                          surfaceTintColor: Colors.transparent,
+                                          child: Center(
+                                            child: CircularProgressIndicator(
+                                              backgroundColor: Colors.white38,
+                                              color: Colors.blueGrey,
+                                            ),
+                                          ),
+                                        );
+                                      });
+                                  ref.read(
+                                      companyProvider(event.evntRuc ?? ''));
+                                  await ref
+                                      .read(companyProvider(event.evntRuc ?? '')
+                                          .notifier)
+                                      .loadCompany();
                                   String idCheck = '01';
                                   ref.read(stateRucProvider.notifier).state =
                                       event.evntRuc ?? '';
@@ -215,30 +233,17 @@ class _AgendaViewState extends ConsumerState {
                                   String ids =
                                       '$idCheck*$ruc*$idLocal*$nombreLocal*$latLocal*$lngLocal';
                                   log(ids);
-                                  showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return Dialog(
-                                          backgroundColor: Colors.transparent,
-                                          surfaceTintColor: Colors.transparent,
-                                          child: Center(
-                                            child: CircularProgressIndicator(
-                                              backgroundColor: Colors.white38,
-                                              color: Colors.blueGrey,
-                                            ),
-                                          ),
-                                        );
-                                      });
                                   await ref
                                       .read(companiesProvider.notifier)
                                       .validateCheckIn(
                                         ruc: ruc,
-                                        idEvent: event.id
                                       );
+                                  ref.read(idEventFromAgenda.notifier).state = event.id;
                                   context.pop();
                                   if (ref
                                       .watch(companiesProvider)
                                       .isValidateCheckIn) {
+                                      
                                     context
                                         .push('/company_check_in/$ids')
                                         .then((value) async {

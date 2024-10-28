@@ -39,10 +39,8 @@ class CompanyCheckInFormNotifier
           cchkIdComentario: Comment.dirty(companyCheckIn.cchkIdComentario),
           cchkIdEstadoCheck: companyCheckIn.cchkIdEstadoCheck ?? '01',
           cchkIdUsuarioRegistro: companyCheckIn.cchkIdUsuarioRegistro ?? '',
-          cchkIdUsuarioResponsable:
-              companyCheckIn.cchkIdUsuarioResponsable,
-          cchkNombreUsuarioResponsable:
-              companyCheckIn.cchkNombreUsuarioResponsable ?? '',
+          cchkIdUsuarioResponsable: companyCheckIn.cchkIdUsuarioResponsable,
+          cchkNombreUsuarioResponsable: companyCheckIn.cchkNombreUsuarioResponsable ?? '',
           cchkNombreContacto: companyCheckIn.cchkNombreContacto,
           cchkNombreOportunidad: companyCheckIn.cchkNombreOportunidad,
           cchkUbigeo: companyCheckIn.cchkUbigeo ?? '',
@@ -82,7 +80,8 @@ class CompanyCheckInFormNotifier
       'CCHK_LOCAL_NOMBRE': state.cchkLocalNombre,
       'CCHK_ID_USUARIO_REGISTRO': state.cchkIdUsuarioRegistro,
       'CCHK_VISITA_FRIO_CALIENTE': state.cchkVisitaFrioCaliente,
-      'CCHK_ID_TIPO_VISITA': state.cchkIdTipoVista
+      'CCHK_ID_TIPO_VISITA': state.cchkIdTipoVista,
+      'EVNT_ID_EVENTO': state.evntIdEvento
     };
 
     try {
@@ -90,6 +89,12 @@ class CompanyCheckInFormNotifier
     } catch (e) {
       return CreateUpdateCompanyCheckInResponse(response: false, message: '');
     }
+  }
+
+  void onUpdateEvnIDEvento(String value){
+    state= state.copyWith(
+      evntIdEvento: value
+    );
   }
 
   void _touchedEverything() {
@@ -234,6 +239,7 @@ class CompanyCheckInFormState {
   final String? cchkVisitaFrioCaliente;
   final String? cchkNombreVisitaFrioCaliente;
   final String? cchkIdTipoVista;
+  final String? evntIdEvento;
 
   CompanyCheckInFormState(
       {this.isFormValid = false,
@@ -257,6 +263,7 @@ class CompanyCheckInFormState {
       this.cchkUbigeo = '',
       this.cchkVisitaFrioCaliente = '',
       this.cchkNombreVisitaFrioCaliente = '',
+      this.evntIdEvento,
       this.cchkIdTipoVista = ''
       });
 
@@ -283,6 +290,7 @@ class CompanyCheckInFormState {
     String? cchkVisitaFrioCaliente,
     String? cchkNombreVisitaFrioCaliente,
     String? cchkIdTipoVista,
+    String? evntIdEvento,
   }) =>
       CompanyCheckInFormState(
         isFormValid: isFormValid ?? this.isFormValid,
@@ -312,6 +320,7 @@ class CompanyCheckInFormState {
         cchkLocalNombre: cchkLocalNombre ?? this.cchkLocalNombre,
         cchkVisitaFrioCaliente: cchkVisitaFrioCaliente ?? this.cchkVisitaFrioCaliente,
         cchkNombreVisitaFrioCaliente: cchkNombreVisitaFrioCaliente ?? this.cchkNombreVisitaFrioCaliente,
-        cchkIdTipoVista: cchkIdTipoVista ?? this.cchkIdTipoVista
+        cchkIdTipoVista: cchkIdTipoVista ?? this.cchkIdTipoVista,
+        evntIdEvento: evntIdEvento??this.evntIdEvento
       );
 }

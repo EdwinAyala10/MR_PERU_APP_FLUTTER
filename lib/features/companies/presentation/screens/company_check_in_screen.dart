@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:crm_app/features/agenda/presentation/providers/providers.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
 import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
@@ -139,9 +140,14 @@ class _CompanyCheckInScreenState extends ConsumerState<CompanyCheckInScreen> {
               showSnackbar(context, 'Te encuentras lejos del local (<100 m)');
               return;
             }*/
-
+            ref
+                .read(companyCheckInFormProvider(
+                        companyCheckInState.companyCheckIn!)
+                    .notifier)
+                .onUpdateEvnIDEvento(
+                  ref.read(idEventFromAgenda),
+                );
             showLoadingMessage(context);
-
             ref
                 .read(companyCheckInFormProvider(
                         companyCheckInState.companyCheckIn!)
@@ -198,13 +204,10 @@ class _CompanyCheckInViewState extends ConsumerState<_CompanyCheckInView> {
     super.initState();
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-
       ref.read(locationProvider.notifier).setOffLocationAddressDiff();
       final locationNotifier = ref.read(locationProvider.notifier);
-       
+
       locationNotifier.startFollowingUser();
-
-
     });
   }
 
@@ -314,57 +317,60 @@ class _CompanyCheckInformationState
           const SizedBox(height: 10),
           //(!allowSave && distanceLocationAddressDiff > 0)
           (selectedLocationAddressDiff)
-          ? Container(
-              color: Colors.white,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Container(
-                    color: allowSave ? Colors.green : Colors.deepOrange,
-                    padding: const EdgeInsets.all(11.0),
-                    child: Text(
-                      distanceLocationAddressDiff == 0
-                          ? 'Estas en el local!'
-                          : 'Estas a ${formatDistance(distanceLocationAddressDiff)} de distancia del local',
-                      style: const TextStyle(
-                        fontSize: 17.0,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+              ? Container(
+                  color: Colors.white,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Container(
+                        color: allowSave ? Colors.green : Colors.deepOrange,
+                        padding: const EdgeInsets.all(11.0),
+                        child: Text(
+                          distanceLocationAddressDiff == 0
+                              ? 'Estas en el local!'
+                              : 'Estas a ${formatDistance(distanceLocationAddressDiff)} de distancia del local',
+                          style: const TextStyle(
+                            fontSize: 17.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
-                      textAlign: TextAlign.center,
-                    ),
+                    ],
                   ),
-                ],
-              ),
-            )
-            : Container(
-            width: double.infinity,
-            height: 36.0,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 10.0,
-                  offset: Offset(0, 5),
+                )
+              : Container(
+                  width: double.infinity,
+                  height: 36.0,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 10.0,
+                        offset: Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Text(
+                        "Calculando distancia...",
+                        style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: 10,
-                ),
-                Text(
-                  "Calculando distancia...",
-                  style: TextStyle(fontSize: 18, color: Colors.black, fontWeight: FontWeight.w500),
-                ),
-              ],
-            ),
-          ),
           const SizedBox(height: 10),
           Padding(
             padding: const EdgeInsets.all(4.0),
