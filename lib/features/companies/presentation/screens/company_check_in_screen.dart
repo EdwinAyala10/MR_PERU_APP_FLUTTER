@@ -46,26 +46,29 @@ class _CompanyCheckInScreenState extends ConsumerState<CompanyCheckInScreen> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      final rucprov = ref.watch(stateRucProvider);
-      final locales = ref.watch(companyProvider(rucprov)).companyLocales;
-      final totalLocales = locales.length;
-      final idCheck = widget.id.split('*')[0];
-      String idLocal = '-';
-      String nombreLocal = '-';
-      String latLocal = '0.0';
-      String lngLocal = '0.0';
+      if (!ref.read(isFromEventProvider)) {
+        final rucprov = ref.watch(stateRucProvider);
+        final locales = ref.watch(companyProvider(rucprov)).companyLocales;
+        final totalLocales = locales.length;
+        final idCheck = widget.id.split('*')[0];
+        String idLocal = '-';
+        String nombreLocal = '-';
+        String latLocal = '0.0';
+        String lngLocal = '0.0';
 
-      if (totalLocales == 1) {
-        idLocal = locales[0].id;
-        nombreLocal = '${locales[0].localNombre} ${locales[0].localDireccion}';
-        latLocal = locales[0].coordenadasLatitud!;
-        lngLocal = locales[0].coordenadasLongitud!;
+        if (totalLocales == 1) {
+          idLocal = locales[0].id;
+          nombreLocal =
+              '${locales[0].localNombre} ${locales[0].localDireccion}';
+          latLocal = locales[0].coordenadasLatitud!;
+          lngLocal = locales[0].coordenadasLongitud!;
+        }
+
+        String ruc = rucprov;
+        setState(() {
+          widget.id = '$idCheck*$ruc*$idLocal*$nombreLocal*$latLocal*$lngLocal';
+        });
       }
-
-      String ruc = rucprov;
-      setState(() {
-        widget.id = '$idCheck*$ruc*$idLocal*$nombreLocal*$latLocal*$lngLocal';
-      });
     });
     super.initState();
   }

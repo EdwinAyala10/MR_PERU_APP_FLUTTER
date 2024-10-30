@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:crm_app/features/agenda/presentation/providers/event_provider.dart';
 import 'package:crm_app/features/companies/presentation/providers/companies_provider.dart';
 import 'package:crm_app/features/companies/presentation/providers/company_provider.dart';
 import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
@@ -193,7 +194,7 @@ class _AgendaViewState extends ConsumerState {
                                   showDialog(
                                       context: context,
                                       builder: (BuildContext context) {
-                                        return Dialog(
+                                        return const Dialog(
                                           backgroundColor: Colors.transparent,
                                           surfaceTintColor: Colors.transparent,
                                           child: Center(
@@ -204,6 +205,10 @@ class _AgendaViewState extends ConsumerState {
                                           ),
                                         );
                                       });
+                                  ref.read(isFromEventProvider.notifier).state =
+                                      true;
+                                  ref.read(eventProvider(event.id));
+
                                   ref.read(
                                       companyProvider(event.evntRuc ?? ''));
                                   await ref
@@ -213,10 +218,28 @@ class _AgendaViewState extends ConsumerState {
                                   String idCheck = '01';
                                   ref.read(stateRucProvider.notifier).state =
                                       event.evntRuc ?? '';
-                                  final locales = ref
+
+                                  var localesOld = ref
                                       .read(
-                                          companyProvider(event.evntRuc ?? ''))
+                                        companyProvider(event.evntRuc ?? ''),
+                                      )
                                       .companyLocales;
+                                  log(localesOld[0].id.toString());
+                                  final localCodigo = ref
+                                          .read(eventProvider(event.id))
+                                          .event
+                                          ?.evntLocalCodigo ??
+                                      '';
+                                  final locales = localesOld
+                                      .where((v) => (v.id == localCodigo))
+                                      .toList();
+                                  log(ref
+                                          .read(eventProvider(event.id))
+                                          .event
+                                          ?.evntLocalCodigo ??
+                                      'KK');
+
+                                  log(locales.toString());
                                   final totalLocales = locales.length;
                                   String idLocal = '-';
                                   String nombreLocal = '-';
@@ -238,15 +261,20 @@ class _AgendaViewState extends ConsumerState {
                                       .validateCheckIn(
                                         ruc: ruc,
                                       );
-                                  ref.read(idEventFromAgenda.notifier).state = event.id;
+                                  ref.read(idEventFromAgenda.notifier).state =
+                                      event.id;
                                   context.pop();
                                   if (ref
                                       .watch(companiesProvider)
                                       .isValidateCheckIn) {
-                                      
+                                    log(ids);
+
                                     context
                                         .push('/company_check_in/$ids')
                                         .then((value) async {
+                                      ref
+                                          .read(isFromEventProvider.notifier)
+                                          .state = false;
                                       await ref
                                           .read(eventsProvider.notifier)
                                           .loadNextPage();

@@ -14,6 +14,10 @@ final idEventFromAgenda = StateProvider<String>((ref) {
   return "";
 });
 
+final isFromEventProvider = StateProvider<bool>((ref) {
+  return false;
+});
+
 final eventsProvider =
     StateNotifierProvider<EventsNotifier, EventsState>((ref) {
   final eventsRepository = ref.watch(eventsRepositoryProvider);

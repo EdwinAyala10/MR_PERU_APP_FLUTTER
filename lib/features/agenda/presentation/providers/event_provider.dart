@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'events_provider.dart';
 import '../../../auth/domain/domain.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
@@ -7,18 +9,17 @@ import 'package:intl/intl.dart';
 
 import 'events_repository_provider.dart';
 
-final eventProvider = StateNotifierProvider.autoDispose
-    .family<EventNotifier, EventState, String>((ref, id) {
+final eventProvider =
+    StateNotifierProvider.family<EventNotifier, EventState, String>((ref, id) {
   final eventsRepository = ref.watch(eventsRepositoryProvider);
   final user = ref.watch(authProvider).user;
   final selectDay = ref.watch(eventsProvider).selectedDay;
 
   return EventNotifier(
-    eventsRepository: eventsRepository, 
-    user: user!, 
-    selectDay: selectDay,
-    id: id
-  );
+      eventsRepository: eventsRepository,
+      user: user!,
+      selectDay: selectDay,
+      id: id);
 });
 
 class EventNotifier extends StateNotifier<EventState> {
@@ -82,12 +83,12 @@ class EventNotifier extends StateNotifier<EventState> {
       }
 
       final event = await eventsRepository.getEventById(state.id);
-
+      log('FFF'+ '${event.evntLocalCodigo}');
       state = state.copyWith(isLoading: false, event: event);
     } catch (e) {
+      log(e.toString());
       state = state.copyWith(isLoading: false, event: null);
       // 404 product not found
-      print(e);
     }
   }
 }
