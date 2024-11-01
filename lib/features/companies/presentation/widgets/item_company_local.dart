@@ -45,14 +45,14 @@ class ItemCompanyLocal extends StatelessWidget {
         children: [
           GestureDetector(
             onTap: editCallOnTap,
-            child: const Icon(Icons.edit, size: 30, color: Color.fromARGB(255, 45, 45, 45)),
+            child: const Icon(Icons.edit, size: 24, color: Color.fromARGB(255, 45, 45, 45)),
           ),
           const SizedBox(
-            height: 10,
+            height: 5,
           ),
           GestureDetector(
             onTap: companyLocal.coordenadasLatitud=="" ? null : callbackOnTap,
-            child: Icon(Icons.place, size: 30, color: companyLocal.coordenadasLatitud=="" ? const Color.fromARGB(255, 239, 210, 200) : Colors.deepOrangeAccent),
+            child: Icon(Icons.place, size: 24, color: companyLocal.coordenadasLatitud=="" ? const Color.fromARGB(255, 239, 210, 200) : Colors.deepOrangeAccent),
           ),
         ],
       ),

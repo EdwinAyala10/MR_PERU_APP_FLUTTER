@@ -1,4 +1,3 @@
-
 import 'dart:async';
 
 import 'package:animate_do/animate_do.dart';
@@ -7,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class ViewMapScreen extends StatefulWidget {
-  String coors;
+  final String coors;
 
   ViewMapScreen({super.key, required this.coors});
 
@@ -16,8 +15,8 @@ class ViewMapScreen extends StatefulWidget {
 }
 
 class _ViewMapScreenState extends State<ViewMapScreen> {
-  late BitmapDescriptor markerIcon;
-  
+  late BitmapDescriptor markerIcon = BitmapDescriptor.defaultMarker; // Ícono predeterminado
+
   @override
   void initState() {
     super.initState();
@@ -25,22 +24,17 @@ class _ViewMapScreenState extends State<ViewMapScreen> {
   }
 
   Future<void> _loadMarkerIcon() async {
-
     try {
-      markerIcon = await BitmapDescriptor.asset(
+      markerIcon = await BitmapDescriptor.fromAssetImage(
         const ImageConfiguration(size: Size(30, 30)),
         'assets/images/marker_map.png',
       );
-
-      setState(() {}); 
-      // Actualiza el estado después de cargar el icono
+      setState(() {}); // Actualiza el estado después de cargar el icono
     } catch (e) {
-       mostrarModalMensaje(
-          context, 'AVISO', 'Error', () {
+      mostrarModalMensaje(context, 'AVISO', 'Error', () {
         Navigator.of(context).pop();
       });
     }
-    
   }
 
   @override
@@ -56,8 +50,6 @@ class _ViewMapScreenState extends State<ViewMapScreen> {
         CameraPosition(target: latLng, zoom: 20);
 
     final size = MediaQuery.of(context).size;
-
-
     GoogleMapController? mapController;
 
     return Scaffold(
@@ -78,7 +70,6 @@ class _ViewMapScreenState extends State<ViewMapScreen> {
                 },
               ),
             ),
-
             FadeInLeft(
               duration: const Duration(milliseconds: 300),
               child: SafeArea(
@@ -86,7 +77,6 @@ class _ViewMapScreenState extends State<ViewMapScreen> {
                   margin: const EdgeInsets.only(top: 10),
                   padding: const EdgeInsets.symmetric(horizontal: 30),
                   width: double.infinity,
-                  
                   child: Row(
                     children: [
                       CircleAvatar(
@@ -100,13 +90,11 @@ class _ViewMapScreenState extends State<ViewMapScreen> {
                           },
                         ),
                       ),
-                      
                     ],
                   ),
                 ),
               ),
             ),
-
             Positioned(
               right: 16.0,
               top: 36.0,
@@ -114,7 +102,6 @@ class _ViewMapScreenState extends State<ViewMapScreen> {
                 onPressed: () {
                   final cameraUpdate = CameraUpdate.newLatLng(latLng);
                   mapController?.animateCamera(cameraUpdate);
-                  
                 },
                 child: const Icon(Icons.location_on),
               ),
