@@ -1,7 +1,6 @@
 
 import 'package:crm_app/features/route-planner/domain/entities/coordenada.dart';
 import 'package:crm_app/features/route-planner/domain/entities/event_planner_response.dart';
-import 'package:crm_app/features/route-planner/domain/entities/validar_horario_trabajo.dart';
 import 'package:crm_app/features/route-planner/domain/entities/validate_event_planner_response.dart';
 import 'package:crm_app/features/route-planner/domain/entities/validate_horario_trabajo_response.dart';
 

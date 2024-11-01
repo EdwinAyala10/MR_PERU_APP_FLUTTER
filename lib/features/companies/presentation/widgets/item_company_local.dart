@@ -11,7 +11,7 @@ class ItemCompanyLocal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      onTap: editCallOnTap,
+      //onTap: editCallOnTap,
       title: Text(
         companyLocal.localNombre == "" ? "LOCAL SIN NOMBRE" : companyLocal.localNombre , 
         style: TextStyle(fontWeight: FontWeight.w500, color: companyLocal.localNombre == "" ? Colors.black45: Colors.black)),
@@ -41,9 +41,20 @@ class ItemCompanyLocal extends StatelessWidget {
         ],
       ),
       leading: const Icon(Icons.home_work_outlined, size: 34,),
-      trailing: GestureDetector(
-        onTap: companyLocal.coordenadasLatitud=="" ? null : callbackOnTap,
-        child: Icon(Icons.place, size: 38, color: companyLocal.coordenadasLatitud=="" ? const Color.fromARGB(255, 239, 210, 200) : Colors.deepOrangeAccent),
+      trailing: Column(
+        children: [
+          GestureDetector(
+            onTap: editCallOnTap,
+            child: const Icon(Icons.edit, size: 30, color: Color.fromARGB(255, 45, 45, 45)),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          GestureDetector(
+            onTap: companyLocal.coordenadasLatitud=="" ? null : callbackOnTap,
+            child: Icon(Icons.place, size: 30, color: companyLocal.coordenadasLatitud=="" ? const Color.fromARGB(255, 239, 210, 200) : Colors.deepOrangeAccent),
+          ),
+        ],
       ),
       //onTap: ,
     );

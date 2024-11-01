@@ -2,6 +2,7 @@
 import 'dart:async';
 
 import 'package:animate_do/animate_do.dart';
+import 'package:crm_app/features/shared/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -24,11 +25,22 @@ class _ViewMapScreenState extends State<ViewMapScreen> {
   }
 
   Future<void> _loadMarkerIcon() async {
-    markerIcon = await BitmapDescriptor.asset(
-      const ImageConfiguration(size: Size(30, 30)),
-      'assets/images/marker_map.png',
-    );
-    setState(() {}); // Actualiza el estado después de cargar el icono
+
+    try {
+      markerIcon = await BitmapDescriptor.asset(
+        const ImageConfiguration(size: Size(30, 30)),
+        'assets/images/marker_map.png',
+      );
+
+      setState(() {}); 
+      // Actualiza el estado después de cargar el icono
+    } catch (e) {
+       mostrarModalMensaje(
+          context, 'AVISO', 'Error', () {
+        Navigator.of(context).pop();
+      });
+    }
+    
   }
 
   @override

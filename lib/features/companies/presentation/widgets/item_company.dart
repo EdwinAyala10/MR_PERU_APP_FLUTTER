@@ -15,7 +15,7 @@ class ItemCompany extends StatelessWidget {
     numCantidadLocal = numCantidadLocal ?? 0;
 
     return ListTile(
-      title: Text('${company.razon}',
+      title: Text(company.razon,
           style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -67,7 +67,7 @@ class ItemCompany extends StatelessWidget {
               width: 100,
               child: Text(
                 company.calificacion ?? '',
-                style: TextStyle(fontSize: 10, overflow: TextOverflow.ellipsis),
+                style: const TextStyle(fontSize: 10, overflow: TextOverflow.ellipsis),
               )),
           Text(company.userreporteName ?? '')
         ],
