@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:crm_app/features/location/presentation/providers/location_provider.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../domain/domain.dart';
 import '../../domain/entities/create_update_company_local_response.dart';
@@ -33,9 +35,8 @@ class CompanyLocalScreen extends ConsumerWidget {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: Text('${ids[0] == 'new' ? 'Crear' : 'Editar'} Local', style: TextStyle(
-            fontWeight: FontWeight.w500
-          )),
+          title: Text('${ids[0] == 'new' ? 'Crear' : 'Editar'} Local',
+              style: TextStyle(fontWeight: FontWeight.w500)),
           /*leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
@@ -61,8 +62,15 @@ class CompanyLocalScreen extends ConsumerWidget {
                   showSnackbar(context, value.message);
                   if (value.response) {
                     //Timer(const Duration(seconds: 3), () {
-                    ref.watch(companyProvider(companyLocalState.companyLocal?.ruc ?? '').notifier).loadSecundaryLocales();
-                    ref.read(companiesProvider.notifier).loadAddressCompanyByRuc(companyLocalState.companyLocal?.ruc ?? '');
+                    ref
+                        .watch(companyProvider(
+                                companyLocalState.companyLocal?.ruc ?? '')
+                            .notifier)
+                        .loadSecundaryLocales();
+                    ref
+                        .read(companiesProvider.notifier)
+                        .loadAddressCompanyByRuc(
+                            companyLocalState.companyLocal?.ruc ?? '');
                     context.pop();
 
                     //context.push('/company_local/${ruc}');
@@ -326,8 +334,15 @@ class _CompanyLocalInformationState
 
                   var stateSelectedMap = selectedMapNotifier.state;
 
-                  var lat = stateSelectedMap.location?.latitude;
-                  var lng = stateSelectedMap.location?.longitude;
+                  /*var lat = stateSelectedMap.location?.latitude;
+                  var lng = stateSelectedMap.location?.longitude;*/
+
+                  LatLng location = await ref
+                      .watch(locationProvider.notifier)
+                      .currentPosition();
+
+                  var lat = location.latitude;
+                  var lng = location.longitude;
 
                   ref
                       .read(companyLocalFormProvider(companyLocal).notifier)

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:crm_app/features/companies/presentation/delegates/search_company_active_delegate.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/location/presentation/providers/providers.dart';
 import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
@@ -9,12 +8,10 @@ import 'package:crm_app/features/route-planner/domain/entities/create_event_plan
 import 'package:crm_app/features/route-planner/presentation/providers/forms/event_planner_form_provider.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/search_users_planner_provider.dart';
-import 'package:crm_app/features/route-planner/presentation/screens/search_users_planner.dart';
 import 'package:crm_app/features/route-planner/presentation/widgets/route_card.dart';
 import 'package:crm_app/features/shared/shared.dart';
 import 'package:crm_app/features/shared/widgets/format_distance.dart';
 import 'package:crm_app/features/shared/widgets/format_from_seconds.dart';
-import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../shared/domain/entities/dropdown_option.dart';
