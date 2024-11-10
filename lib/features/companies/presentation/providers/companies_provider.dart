@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:crm_app/config/constants/environment.dart';
@@ -24,6 +25,15 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
   final CompaniesRepository companiesRepository;
   Dio client = Dio();
   final User? user;
+
+  Timer? _debounce;
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
+
 
   CompaniesNotifier({
     required this.companiesRepository,
@@ -220,6 +230,9 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
   Future loadNextPage({bool isRefresh = false}) async {
     final search = state.textSearch;
 
+    // Cancelar el debounce anterior si está activo
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+
     if (isRefresh) {
       if (state.isLoading) return;
       state = state.copyWith(isLoading: true);
@@ -227,9 +240,6 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
       if (state.isReload || state.isLastPage) return;
       state = state.copyWith(isReload: true);
     }
-
-    //if (state.isLoading) return;
-    //state = state.copyWith(isLoading: true);
 
     int sLimit = state.limit;
     int sOffset = state.offset;
@@ -241,65 +251,53 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
       sOffset = state.offset + 10;
     }
 
-    print('sLimit x: ${sLimit}');
-    print('sOffset x: ${sOffset}');
+    _debounce = Timer(const Duration(milliseconds: 500), () async {
+      // Llamada al repositorio de búsqueda
+      //final companies = await getCompanies(search: search, limit: limit, offset: offset);
+      //state = companies; // Actualizar el estado con los resultados
 
-    final companies = await companiesRepository.getCompanies(
+      final companies = await companiesRepository.getCompanies(
         search: search, limit: sLimit, offset: sOffset);
 
-    if (companies.isEmpty) {
-      //state = state.copyWith(isLoading: false, isLastPage: true);
-      //state = state.copyWith(isLoading: false, companies: []);
-      if (isRefresh) {
-        state = state.copyWith(isLoading: false, isLastPage: true);
+      if (companies.isEmpty) {
+        if (isRefresh) {
+          state = state.copyWith(isLoading: false, isLastPage: true);
+        } else {
+          state = state.copyWith(isReload: false, isLastPage: true);
+        }
+        return;
       } else {
-        state = state.copyWith(isReload: false, isLastPage: true);
+        int newOffset;
+        List<Company> newCompanies;
+
+        if (isRefresh) {
+          newOffset = 0;
+          newCompanies = companies;
+        } else {
+          newOffset = sOffset;
+          newCompanies = [...state.companies, ...companies];
+        }
+
+        if (isRefresh) {
+          state = state.copyWith(
+              isLastPage: false,
+              isLoading: false,
+              offset: newOffset,
+              companies: newCompanies);
+        } else {
+          state = state.copyWith(
+              isLastPage: false,
+              isReload: false,
+              offset: newOffset,
+              companies: newCompanies);
+        }
       }
-      return;
-    } else {
-      int newOffset;
-      List<Company> newCompanies;
 
-      if (isRefresh) {
-        newOffset = 0;
-        newCompanies = companies;
-      } else {
-        //newOffset = state.offset + 10;
-        newOffset = sOffset;
-        newCompanies = [...state.companies, ...companies];
-      }
+   
+    });
 
-      print('Offset: ${newOffset}');
+   
 
-      if (isRefresh) {
-        state = state.copyWith(
-            isLastPage: false,
-            isLoading: false,
-            offset: newOffset,
-            companies: newCompanies);
-      } else {
-        state = state.copyWith(
-            isLastPage: false,
-            isReload: false,
-            offset: newOffset,
-            companies: newCompanies);
-      }
-    }
-
-    /*state = state.copyWith(
-        isLastPage: false,
-        isLoading: false,
-        //offset: state.offset + 10,
-        companies: companies
-    );*/
-
-    /*state = state.copyWith(
-        isLastPage: false,
-        isLoading: false,
-        offset: state.offset + 10,
-        companies: [...state.companies, ...companies]
-        //companies: companies
-        );*/
   }
 
   /*Future loadNextPage(String search) async {

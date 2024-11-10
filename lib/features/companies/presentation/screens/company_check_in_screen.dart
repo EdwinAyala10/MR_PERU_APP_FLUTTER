@@ -326,11 +326,12 @@ class _CompanyCheckInformationState
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      Text(distanceLocationAddressDiff.toString()),
                       Container(
-                        color: allowSave ? Colors.green : Colors.deepOrange,
+                        color: distanceLocationAddressDiff < 100 ? Colors.green : Colors.deepOrange,
                         padding: const EdgeInsets.all(11.0),
                         child: Text(
-                          distanceLocationAddressDiff == 0
+                          distanceLocationAddressDiff < 100
                               ? 'Estas en el local!'
                               : 'Estas a ${formatDistance(distanceLocationAddressDiff)} de distancia del local',
                           style: const TextStyle(

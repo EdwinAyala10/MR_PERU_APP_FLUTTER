@@ -67,6 +67,7 @@ class _AgendaViewState extends ConsumerState {
 
     //_selectedEvents = ValueNotifier(_getEventsForDay(_focusedDay.value));
     WidgetsBinding.instance?.addPostFrameCallback((_) {
+      ref.read(eventsProvider.notifier).loadNextPage();
       ref.read(eventsProvider.notifier).onSelectedEvents(DateTime.now());
     });
   }
