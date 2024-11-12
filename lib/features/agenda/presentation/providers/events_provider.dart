@@ -144,7 +144,7 @@ class EventsNotifier extends StateNotifier<EventsState> {
 
   Future loadNextPage() async {
     //if (state.isLoading || state.isLastPage) return;
-    if (state.isLoading) return;
+    //if (state.isLoading) return;
 
     state = state.copyWith(isLoading: true);
 
@@ -156,6 +156,7 @@ class EventsNotifier extends StateNotifier<EventsState> {
       state = state.copyWith(isLoading: false);
       return;
     }
+    print('SE ACTUALIZO EVENTOS');
 
     state = state.copyWith(
         //isLastPage: false,

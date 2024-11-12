@@ -223,10 +223,13 @@ class __SearchComponentState extends ConsumerState<_SearchComponent> {
             controller: searchController,
             onChanged: (String value) {
               if (debounce?.isActive ?? false) debounce?.cancel();
-              debounce = Timer(const Duration(milliseconds: 500), () {
+              debounce = Timer(const Duration(seconds: 1), () {
                 //ref.read(companiesProvider.notifier).loadNextPage(value);
                 ref.read(activitiesProvider.notifier).onChangeTextSearch(value);
               });
+            },
+            onFieldSubmitted: (value) {
+                ref.read(activitiesProvider.notifier).onChangeTextSearch(value);
             },
             decoration: InputDecoration(
               hintText: 'Buscar actividad...',

@@ -231,7 +231,7 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
     final search = state.textSearch;
 
     // Cancelar el debounce anterior si está activo
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    //if (_debounce?.isActive ?? false) _debounce!.cancel();
 
     if (isRefresh) {
       if (state.isLoading) return;
@@ -251,7 +251,7 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
       sOffset = state.offset + 10;
     }
 
-    _debounce = Timer(const Duration(milliseconds: 500), () async {
+   // _debounce = Timer(const Duration(milliseconds: 1000), () async {
       // Llamada al repositorio de búsqueda
       //final companies = await getCompanies(search: search, limit: limit, offset: offset);
       //state = companies; // Actualizar el estado con los resultados
@@ -294,7 +294,7 @@ class CompaniesNotifier extends StateNotifier<CompaniesState> {
       }
 
    
-    });
+    //});
 
    
 
