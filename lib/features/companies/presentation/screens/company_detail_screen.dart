@@ -1,6 +1,8 @@
 import 'dart:developer';
 
 import 'package:crm_app/config/config.dart';
+import 'package:crm_app/features/auth/domain/domain.dart';
+import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crm_app/features/companies/presentation/providers/providers.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
@@ -130,6 +132,8 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
     TextStyle styleContent =
         const TextStyle(fontWeight: FontWeight.w400, fontSize: 16);
     SizedBox spacingHeight = const SizedBox(height: 14);
+
+    
 
     return DefaultTabController(
       length: 6, // Ahora tenemos 6 pestañas
@@ -436,12 +440,17 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
       SizedBox spacingHeight,
       List<CompanyLocal> companyLocales,
       bool isLoading) {
+
+    User authUser = ref.watch(authProvider).user!;
+    bool isAdmin = authUser.isAdmin;
+
     if (isLoading) {
       return const LoadingModal();
     } else {
       return companyLocales.isNotEmpty
           ? _ListCompanyLocales(
               companyLocales: companyLocales,
+              isAdmin: isAdmin,
               onRefreshCallback: _refreshLocales)
           : NoExistData(
               icon: Icons.business,
@@ -717,9 +726,12 @@ class _ListContacts extends StatelessWidget {
 class _ListCompanyLocales extends StatelessWidget {
   final List<CompanyLocal> companyLocales;
   final Future<void> Function() onRefreshCallback;
+  final bool isAdmin;
 
   const _ListCompanyLocales(
-      {required this.companyLocales, required this.onRefreshCallback});
+      {required this.companyLocales, 
+      required this.isAdmin,
+      required this.onRefreshCallback});
 
   @override
   Widget build(BuildContext context) {
@@ -736,6 +748,7 @@ class _ListCompanyLocales extends StatelessWidget {
 
             return ItemCompanyLocal(
                 companyLocal: companyLocal,
+                isAdmin: isAdmin,
                 editCallOnTap: () {
                   String ruc = companyLocal.ruc;
                   String ids = '${companyLocal.id}*$ruc';
