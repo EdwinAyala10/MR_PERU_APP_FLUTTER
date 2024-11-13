@@ -71,26 +71,26 @@ class ItemEvent extends StatelessWidget {
                       style: const TextStyle(fontSize: 13, color: Colors.black),
                     ),
                   ),
+                  // Visibility(
+                  //   visible: event.cckkIdEstadoCheck == 'VISITADO',
+                  //   child: Container(
+                  //     decoration: BoxDecoration(
+                  //       borderRadius: BorderRadius.circular(25),
+                  //       color: Colors.white,
+                  //     ),
+                  //     padding: const EdgeInsets.symmetric(
+                  //       horizontal: 10,
+                  //       vertical: 2,
+                  //     ),
+                  //     child: Text(
+                  //       event.cckkIdEstadoCheck ?? '',
+                  //       style:
+                  //           const TextStyle(color: primaryColor, fontSize: 14),
+                  //     ),
+                  //   ),
+                  // ),
                   Visibility(
-                    visible: event.cckkIdEstadoCheck == 'Visitado',
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(25),
-                        color: Colors.green,
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 2,
-                      ),
-                      child: Text(
-                        event.cckkIdEstadoCheck ?? '',
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 14),
-                      ),
-                    ),
-                  ),
-                  Visibility(
-                    visible: event.cckkIdEstadoCheck == 'Visitado',
+                    visible: event.cckkIdEstadoCheck == 'VISITADO',
                     child: Text(
                       '${event.cchkFechaRegistroCheckIn}',
                       style: const TextStyle(fontSize: 13, color: Colors.black),
@@ -120,21 +120,21 @@ class ItemEvent extends StatelessWidget {
                   //   ),
                   // ),
                   Visibility(
-                    visible: event.cckkIdEstadoCheck == 'Visitado',
+                    visible: event.cckkIdEstadoCheck == 'VISITADO',
                     child: MaterialButton(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25),
                       ),
-                      color: primaryColor,
-                      onPressed: null,
+                      color: Colors.green,
+                      onPressed: () {},
                       child: Text(
                         event.cckkIdEstadoCheck ?? '',
-                        style: const TextStyle(color: Colors.green),
+                        style: const TextStyle(color: Colors.white),
                       ),
                     ),
                   ),
                   Visibility(
-                    visible: event.cckkIdEstadoCheck != 'Visitado',
+                    visible: event.cckkIdEstadoCheck != 'VISITADO',
                     child: MaterialButton(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25),
