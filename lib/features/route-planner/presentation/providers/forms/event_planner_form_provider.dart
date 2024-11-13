@@ -64,7 +64,7 @@ class EventPlannerFormNotifier extends StateNotifier<EventPlannerFormState> {
     //String strDistance = formatDistanceV2(totalDistance);
     //String strDuration = formatTimeFromSeconds(totalDuration);
 
-    final eventLike = {
+    final eventLike = { 
       //'EVNT_ASUNTO': state.evntAsunto,
       'PLRT_FECHA_INICIO':
           "${state.evntFechaInicioEvento?.year.toString().padLeft(4, '0')}-${state.evntFechaInicioEvento?.month.toString().padLeft(2, '0')}-${state.evntFechaInicioEvento?.day.toString().padLeft(2, '0')}",
@@ -80,7 +80,7 @@ class EventPlannerFormNotifier extends StateNotifier<EventPlannerFormState> {
       'PLRT_TIEMPO_RUTA': state.tiempoRuta,
       'PLRT_DISTANCIA_RUTA': state.distanciaRuta,
       'PLRT_ID_USUARIO_RESPONSABLE': state.plrtIdUsuarioResponsable,
-      'EVNT_ID_USUARIO_RESPONSABLE': state.evntIdUsuarioResponsable,
+      'PLRT_ID_USUARIO_REGISTRO': state.evntIdUsuarioResponsable,
       //'EVNT_NOMBRE_USUARIO_RESPONSABLE': state.evntNombreUsuarioResponsable,
       'EVENTOS_PLANIFICADOR_RUTA': state.arrayEventosPlanificadorRuta != null
           ? List<dynamic>.from(

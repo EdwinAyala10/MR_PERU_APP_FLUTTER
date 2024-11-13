@@ -319,16 +319,16 @@ class _CompanyCheckInformationState
           ),
           const SizedBox(height: 10),
           //(!allowSave && distanceLocationAddressDiff > 0)
-          (selectedLocationAddressDiff)
+          (selectedLocationAddressDiff && distanceLocationAddressDiff > 0)
               ? Container(
                   color: Colors.white,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text(distanceLocationAddressDiff.toString()),
+                      //sText(distanceLocationAddressDiff.toString()),
                       Container(
-                        color: distanceLocationAddressDiff < 100 ? Colors.green : Colors.deepOrange,
+                        color: distanceLocationAddressDiff < 100 ? Colors.green : const Color.fromARGB(255, 255, 106, 6),
                         padding: const EdgeInsets.all(11.0),
                         child: Text(
                           distanceLocationAddressDiff < 100
