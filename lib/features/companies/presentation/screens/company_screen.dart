@@ -1,7 +1,9 @@
 import 'package:crm_app/config/config.dart';
 import 'package:crm_app/features/auth/domain/domain.dart';
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:crm_app/features/location/presentation/providers/location_provider.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../domain/domain.dart';
 import '../providers/providers.dart';
@@ -35,9 +37,9 @@ class CompanyScreen extends ConsumerWidget {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: Text('${rucId == 'new' ? 'Crear' : 'Editar'} Empresa', style: const TextStyle(
-              fontWeight: FontWeight.w700
-            ),
+          title: Text(
+            '${rucId == 'new' ? 'Crear' : 'Editar'} Empresa',
+            style: const TextStyle(fontWeight: FontWeight.w700),
           ),
           /*leading: IconButton(
             icon: const Icon(Icons.close),
@@ -66,7 +68,9 @@ class CompanyScreen extends ConsumerWidget {
                   showSnackbar(context, value.message);
                   if (value.response) {
                     ref.read(companyProvider(rucId).notifier).loadCompany();
-                    ref.read(companiesProvider.notifier).loadNextPage(isRefresh: true);
+                    ref
+                        .read(companiesProvider.notifier)
+                        .loadNextPage(isRefresh: true);
                     //Timer(const Duration(seconds: 3), () {
                     //context.push('/companies');
                     context.pop();
@@ -75,12 +79,9 @@ class CompanyScreen extends ConsumerWidget {
                 }
 
                 Navigator.pop(context);
-
               });
 
               ref.read(companyProvider(rucId).notifier).isNotLoading();
-
-
             },
             iconData: Icons.save),
       ),
@@ -146,30 +147,41 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
     _fieldKeyLocalName = UniqueKey();
 
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      await ref.read(resourceDetailsProvider.notifier).loadCatalogById(groupId: '02').then((value) => {
-        setState(() {
-          optionsTipoCliente = value;
-        })
-      });
+      await ref
+          .read(resourceDetailsProvider.notifier)
+          .loadCatalogById(groupId: '02')
+          .then((value) => {
+                setState(() {
+                  optionsTipoCliente = value;
+                })
+              });
 
-      await ref.read(resourceDetailsProvider.notifier).loadCatalogById(groupId: '03').then((value) => {
-        setState(() {
-          optionsEstado = value;
-        })
-      });
+      await ref
+          .read(resourceDetailsProvider.notifier)
+          .loadCatalogById(groupId: '03')
+          .then((value) => {
+                setState(() {
+                  optionsEstado = value;
+                })
+              });
 
-      await ref.read(resourceDetailsProvider.notifier).loadCatalogById(groupId: '04').then((value) => {
-        setState(() {
-          optionsCalificacion = value;
-        })
-      });
+      await ref
+          .read(resourceDetailsProvider.notifier)
+          .loadCatalogById(groupId: '04')
+          .then((value) => {
+                setState(() {
+                  optionsCalificacion = value;
+                })
+              });
 
-      await ref.read(resourceDetailsProvider.notifier).loadCatalogById(groupId: '16').then((value) => {
-        setState(() {
-          optionsRubro = value;
-        })
-      });
-
+      await ref
+          .read(resourceDetailsProvider.notifier)
+          .loadCatalogById(groupId: '16')
+          .then((value) => {
+                setState(() {
+                  optionsRubro = value;
+                })
+              });
     });
   }
 
@@ -182,10 +194,9 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
 
   @override
   Widget build(BuildContext context) {
-
     List<DropdownOption> optionsLocalTipo = [
       DropdownOption(id: '', name: 'Seleccione tipo de local'),
-      DropdownOption(id: '2',name: 'PLANTA'),
+      DropdownOption(id: '2', name: 'PLANTA'),
     ];
 
     final swIsCreate = widget.company.rucId == 'new';
@@ -283,57 +294,66 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
                 .onRucChanged,
             errorMessage: companyForm.ruc.errorMessage,
           ),
-          optionsRubro.length > 1 ? SelectCustomForm(
-            label: 'Rubro',
-            value: companyForm.idRubro.value,
-            callbackChange: (String? newValue) {
-              ref
-                  .read(companyFormProvider(widget.company).notifier)
-                  .onRubroChanged(newValue!);
-            },
-            items: optionsRubro,
-            errorMessage: companyForm.idRubro.errorMessage,
-          ): PlaceholderInput(text: 'Cargando Rubro...'),
-          optionsTipoCliente.length > 1 ? SelectCustomForm(
-            label: 'Tipo',
-            value: companyForm.tipoCliente.value,
-            callbackChange: (String? newValue) {
-              DropdownOption searchDropdown = optionsTipoCliente
-                  .where((option) => option.id == newValue!)
-                  .first;
+          optionsRubro.length > 1
+              ? SelectCustomForm(
+                  label: 'Rubro',
+                  value: companyForm.idRubro.value,
+                  callbackChange: (String? newValue) {
+                    ref
+                        .read(companyFormProvider(widget.company).notifier)
+                        .onRubroChanged(newValue!);
+                  },
+                  items: optionsRubro,
+                  errorMessage: companyForm.idRubro.errorMessage,
+                )
+              : PlaceholderInput(text: 'Cargando Rubro...'),
+          optionsTipoCliente.length > 1
+              ? SelectCustomForm(
+                  label: 'Tipo',
+                  value: companyForm.tipoCliente.value,
+                  callbackChange: (String? newValue) {
+                    DropdownOption searchDropdown = optionsTipoCliente
+                        .where((option) => option.id == newValue!)
+                        .first;
 
-              ref
-                  .read(companyFormProvider(widget.company).notifier)
-                  .onTipoChanged(newValue!, searchDropdown.name);
-            },
-            items: optionsTipoCliente,
-            errorMessage: companyForm.tipoCliente.errorMessage,
-          ): PlaceholderInput(text: 'Cargando...'),
-          optionsEstado.length > 1 ? SelectCustomForm(
-            label: 'Estado',
-            value: companyForm.estado.value,
-            callbackChange: (String? newValue) {
-              DropdownOption searchDropdown =
-                  optionsEstado.where((option) => option.id == newValue!).first;
+                    ref
+                        .read(companyFormProvider(widget.company).notifier)
+                        .onTipoChanged(newValue!, searchDropdown.name);
+                  },
+                  items: optionsTipoCliente,
+                  errorMessage: companyForm.tipoCliente.errorMessage,
+                )
+              : PlaceholderInput(text: 'Cargando...'),
+          optionsEstado.length > 1
+              ? SelectCustomForm(
+                  label: 'Estado',
+                  value: companyForm.estado.value,
+                  callbackChange: (String? newValue) {
+                    DropdownOption searchDropdown = optionsEstado
+                        .where((option) => option.id == newValue!)
+                        .first;
 
-              ref
-                  .read(companyFormProvider(widget.company).notifier)
-                  .onEstadoChanged(newValue!, searchDropdown.name);
-            },
-            items: optionsEstado,
-            errorMessage: companyForm.estado.errorMessage,
-          ): PlaceholderInput(text: 'Cargando...'),
-          optionsCalificacion.length > 1 ? SelectCustomForm(
-            label: 'Calificación',
-            value: companyForm.calificacion.value,
-            callbackChange: (String? newValue) {
-              ref
-                  .read(companyFormProvider(widget.company).notifier)
-                  .onCalificacionChanged(newValue!);
-            },
-            items: optionsCalificacion,
-            errorMessage: companyForm.calificacion.errorMessage,
-          ): PlaceholderInput(text: 'Cargando...'),
+                    ref
+                        .read(companyFormProvider(widget.company).notifier)
+                        .onEstadoChanged(newValue!, searchDropdown.name);
+                  },
+                  items: optionsEstado,
+                  errorMessage: companyForm.estado.errorMessage,
+                )
+              : PlaceholderInput(text: 'Cargando...'),
+          optionsCalificacion.length > 1
+              ? SelectCustomForm(
+                  label: 'Calificación',
+                  value: companyForm.calificacion.value,
+                  callbackChange: (String? newValue) {
+                    ref
+                        .read(companyFormProvider(widget.company).notifier)
+                        .onCalificacionChanged(newValue!);
+                  },
+                  items: optionsCalificacion,
+                  errorMessage: companyForm.calificacion.errorMessage,
+                )
+              : PlaceholderInput(text: 'Cargando...'),
           const SizedBox(height: 5),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -356,9 +376,8 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
           ),
           const SizedBox(height: 15),
           //Text('rucId: ${companyForm.rucId}'),
-          const Text('Responsable ', style: TextStyle(
-            fontWeight: FontWeight.w600
-           )),
+          const Text('Responsable ',
+              style: TextStyle(fontWeight: FontWeight.w600)),
           Row(
             children: [
               Expanded(
@@ -373,14 +392,21 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
                                         label: Text(item.userreportName ?? '',
                                             style:
                                                 const TextStyle(fontSize: 12)),
-                                        onDeleted: !isAdmin ? null 
-                                          : item.cresIdUsuarioResponsable != authUser.code ? () {
-                                            ref
-                                                .read(companyFormProvider(
-                                                        widget.company)
-                                                    .notifier)
-                                                .onDeleteUserChanged(item);
-                                          } : null,
+                                        onDeleted: !isAdmin
+                                            ? null
+                                            : item.cresIdUsuarioResponsable !=
+                                                    authUser.code
+                                                ? () {
+                                                    ref
+                                                        .read(
+                                                            companyFormProvider(
+                                                                    widget
+                                                                        .company)
+                                                                .notifier)
+                                                        .onDeleteUserChanged(
+                                                            item);
+                                                  }
+                                                : null,
                                       )))
                               : [],
                         )
@@ -389,9 +415,11 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
                 ],
               )),
               ElevatedButton(
-                onPressed: isAdmin ?  () {
-                  _openSearchUsers(context, ref);
-                } : null,
+                onPressed: isAdmin
+                    ? () {
+                        _openSearchUsers(context, ref);
+                      }
+                    : null,
                 child: const Row(
                   children: [
                     Icon(Icons.add),
@@ -451,61 +479,65 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
           const SizedBox(
             height: 10,
           ),*/
-          if(swIsCreate)
-            TitleSectionForm(title: 'DATOS DE PRIMER LOCAL'),
-          if(swIsCreate) SelectCustomForm(
-            label: 'Tipo de local',
-            value: companyForm.localTipo.value,
-            callbackChange: (String? newValue) {
-              ref
-                  .read(companyFormProvider(widget.company).notifier)
-                  .onTipoLocalChanged(newValue!);
-            },
-            items: optionsLocalTipo,
-            errorMessage: companyForm.localTipo.errorMessage,
-          ),
-          if(swIsCreate) const SizedBox(
-            height: 6,
-          ),
-          if(swIsCreate) TextAddress(
-              text: companyForm.localDireccion.value,
-              error: companyForm.localDireccion.errorMessage,
-              placeholder: 'Dirección de local',
-              callback: () {
-                showModalSearch(context, ref, companyForm.rucId ?? '',
-                    'direction-local', widget.company);
-                //context.push('/company_map/${companyForm.rucId}/direction');
+          if (swIsCreate) TitleSectionForm(title: 'DATOS DE PRIMER LOCAL'),
+          if (swIsCreate)
+            SelectCustomForm(
+              label: 'Tipo de local',
+              value: companyForm.localTipo.value,
+              callbackChange: (String? newValue) {
+                ref
+                    .read(companyFormProvider(widget.company).notifier)
+                    .onTipoLocalChanged(newValue!);
               },
-              paramContext: context),
-          if(swIsCreate) const SizedBox(
-            height: 4,
-          ),
-          if(swIsCreate) companyForm.isEditLocalNombre
-              ? CustomCompanyField(
-                  key: _fieldKeyLocalName,
-                  label: 'Nombre de local',
-                  initialValue: companyForm.localNombre,
-                  controller: _controllerLocalName,
-                  onChanged: ref
-                      .read(companyFormProvider(widget.company).notifier)
-                      .onNombreLocalChanged,
-                )
-              : GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _fieldKeyLocalName = UniqueKey();
-                      _controllerLocalName.text = companyForm.localNombre;
-                    });
-
-                    ref
+              items: optionsLocalTipo,
+              errorMessage: companyForm.localTipo.errorMessage,
+            ),
+          if (swIsCreate)
+            const SizedBox(
+              height: 6,
+            ),
+          if (swIsCreate)
+            TextAddress(
+                text: companyForm.localDireccion.value,
+                error: companyForm.localDireccion.errorMessage,
+                placeholder: 'Dirección de local',
+                callback: () {
+                  showModalSearch(context, ref, companyForm.rucId ?? '',
+                      'direction-local', widget.company);
+                  //context.push('/company_map/${companyForm.rucId}/direction');
+                },
+                paramContext: context),
+          if (swIsCreate)
+            const SizedBox(
+              height: 4,
+            ),
+          if (swIsCreate)
+            companyForm.isEditLocalNombre
+                ? CustomCompanyField(
+                    key: _fieldKeyLocalName,
+                    label: 'Nombre de local',
+                    initialValue: companyForm.localNombre,
+                    controller: _controllerLocalName,
+                    onChanged: ref
                         .read(companyFormProvider(widget.company).notifier)
-                        .onChangeEditLocalNombre();
-                  },
-                  child: TextViewCustom(
-                      text: companyForm.localNombre,
-                      label: 'Nombre de local',
-                      placeholder: 'Nombre de local'),
-                ),
+                        .onNombreLocalChanged,
+                  )
+                : GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _fieldKeyLocalName = UniqueKey();
+                        _controllerLocalName.text = companyForm.localNombre;
+                      });
+
+                      ref
+                          .read(companyFormProvider(widget.company).notifier)
+                          .onChangeEditLocalNombre();
+                    },
+                    child: TextViewCustom(
+                        text: companyForm.localNombre,
+                        label: 'Nombre de local',
+                        placeholder: 'Nombre de local'),
+                  ),
           /*Column(
             children: [
               Row(
@@ -523,30 +555,36 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
           /*const SizedBox(
             height: 4,
           ),*/
-          if(swIsCreate) TextViewCustom(
-              text: companyForm.localDepartamentoDesc,
-              label: 'Departamento local',
-              placeholder: 'Departamento del local'),
-          if(swIsCreate) TextViewCustom(
-              text: companyForm.localProvinciaDesc,
-              label: 'Provincia local',
-              placeholder: 'Provincia del local'),
-          if(swIsCreate) TextViewCustom(
-              text: companyForm.localDistritoDesc,
-              label: 'Distrito local',
-              placeholder: 'Distrito del local'),
-          if(swIsCreate) TextViewCustom(
-              text: companyForm.localCodigoPostal ?? '',
-              label: 'Código postal local',
-              placeholder: 'Código postal del local'),
-          if(swIsCreate) TextViewCustom(
-              text: companyForm.coordenadasLatitud,
-              label: 'Latitud',
-              placeholder: 'Latitud'),
-          if(swIsCreate) TextViewCustom(
-              text: companyForm.coordenadasLongitud,
-              label: 'Longitud',
-              placeholder: 'Longitud'),
+          if (swIsCreate)
+            TextViewCustom(
+                text: companyForm.localDepartamentoDesc,
+                label: 'Departamento local',
+                placeholder: 'Departamento del local'),
+          if (swIsCreate)
+            TextViewCustom(
+                text: companyForm.localProvinciaDesc,
+                label: 'Provincia local',
+                placeholder: 'Provincia del local'),
+          if (swIsCreate)
+            TextViewCustom(
+                text: companyForm.localDistritoDesc,
+                label: 'Distrito local',
+                placeholder: 'Distrito del local'),
+          if (swIsCreate)
+            TextViewCustom(
+                text: companyForm.localCodigoPostal ?? '',
+                label: 'Código postal local',
+                placeholder: 'Código postal del local'),
+          if (swIsCreate)
+            TextViewCustom(
+                text: companyForm.coordenadasLatitud,
+                label: 'Latitud',
+                placeholder: 'Latitud'),
+          if (swIsCreate)
+            TextViewCustom(
+                text: companyForm.coordenadasLongitud,
+                label: 'Longitud',
+                placeholder: 'Longitud'),
           /*SelectCustomForm(
             label: 'Departamento',
             value: companyForm.localDepartamento,
@@ -638,14 +676,22 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
                   //_openSearchContacts(context, ref);
                   final selectedMapNotifier =
                       ref.read(selectedMapProvider.notifier);
+
                   bool isNew = ruc == 'new' ? true : false;
                   await selectedMapNotifier.onSelectMapLocation(
                       true, isNew, ruc, 'company', identificator, company);
 
                   var stateSelectedMap = selectedMapNotifier.state;
 
-                  var lat = stateSelectedMap.location?.latitude;
-                  var lng = stateSelectedMap.location?.longitude;
+                  //var lat = stateSelectedMap.location?.latitude;
+                  //var lng = stateSelectedMap.location?.longitude;
+
+                  LatLng location = await ref
+                      .watch(locationProvider.notifier)
+                      .currentPosition();
+
+                  var lat = location.latitude;
+                  var lng = location.longitude;
 
                   if (identificator == 'direction') {
                     /*ref
@@ -726,22 +772,19 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
     final user = ref.watch(authProvider).user;
 
     final swIsCreate = widget.company.rucId == 'new';
-    
+
     showSearch<UserMaster?>(
-            query: searchQuery,
-            context: context,
-            delegate: SearchUserDelegate(
-              idItemDelete: swIsCreate ? user!.code : null,
-              initialUsers: searchedUsers,
-              searchUsers: ref
-                  .read(searchedUsersProvider.notifier)
-                  .searchUsersByQuery,
-              resetSearchQuery: () {
-                ref.read(searchQueryUsersProvider.notifier).update((state) => '');
-              },
-            ))
-        .then((user) {
-      
+        query: searchQuery,
+        context: context,
+        delegate: SearchUserDelegate(
+          idItemDelete: swIsCreate ? user!.code : null,
+          initialUsers: searchedUsers,
+          searchUsers:
+              ref.read(searchedUsersProvider.notifier).searchUsersByQuery,
+          resetSearchQuery: () {
+            ref.read(searchQueryUsersProvider.notifier).update((state) => '');
+          },
+        )).then((user) {
       //if (user == null) return;
 
       if (user == null) {

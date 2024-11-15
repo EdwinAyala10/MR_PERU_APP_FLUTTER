@@ -120,7 +120,7 @@ class LocationNotifier extends StateNotifier<LocationState> {
     try {
       Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high,
-          timeLimit: const Duration(seconds: 10));
+          timeLimit: const Duration(seconds: 60));
 
       state = state.copyWith(
           lastKnownLocation: LatLng(position.latitude, position.longitude));
