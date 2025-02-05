@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:crm_app/config/config.dart';
 import 'package:crm_app/features/activities/presentation/providers/providers.dart';
 import 'package:crm_app/features/contacts/presentation/providers/providers.dart';
-import 'package:crm_app/features/opportunities/presentation/providers/docs_opportunitie_provider.dart';
 import 'package:crm_app/features/opportunities/presentation/screens/opportunity_detail_screen.dart';
 import 'package:crm_app/features/shared/presentation/providers/send_whatsapp_provider.dart';
 import 'package:crm_app/features/shared/shared.dart';
@@ -47,14 +46,15 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
         ListTile(
           title: Text(
             widget.opportunity.razon ?? '',
-            style: const TextStyle(fontWeight: FontWeight.w500),
+            
+            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
           ),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 widget.opportunity.oprtNombreContacto ?? '',
-                style: const TextStyle(fontWeight: FontWeight.w400),
+                style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 12),
               ),
               Text(
                 widget.opportunity.oprtNombre == ''
@@ -111,7 +111,7 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
                     ],
                   ),
                 ),
-              SizedBox(
+              const SizedBox(
                 height: 4,
               ),
               if (widget.opportunity.actiComentario != "")
@@ -175,10 +175,16 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
               )
             ],
           ),
-          leading: const Icon(
-            Icons.work_rounded,
-            color: secondaryColor,
-            size: 40,
+          leading: const Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.work_rounded,
+                color: secondaryColor,
+                size: 30,
+              ),
+            ],
           ),
           onTap: widget.callbackOnTap,
         ),

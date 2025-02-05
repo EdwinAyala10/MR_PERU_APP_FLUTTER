@@ -1,5 +1,7 @@
 import 'dart:developer';
 
+import 'package:flutter/services.dart';
+
 import '../../../auth/domain/domain.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../../firebase_options.dart';
@@ -85,13 +87,29 @@ class NotificationsNotifier extends StateNotifier<NotificationsState> {
   }
 
   void _getFCMToken() async {
-    final settings = await messaging.getNotificationSettings();
-    if (settings.authorizationStatus != AuthorizationStatus.authorized) return;
+    try {
+      final settings = await messaging.getNotificationSettings();
+      if (settings.authorizationStatus != AuthorizationStatus.authorized) {
+        log('Notificaciones no autorizadas');
+        return;
+      }
 
-    final token = await messaging.getToken();
-    log('This is my token $token');
-    //Guardar Token Device
-    await onUpdateDeviceCallback!(token!);
+      final token = await messaging.getToken();
+      if (token == null) {
+        log('No se pudo obtener el token de FCM');
+        return;
+      }
+
+      log('Token de FCM: $token');
+      // Guardar Token Device
+      await onUpdateDeviceCallback!(token);
+    } on PlatformException catch (e) {
+      log('Error al obtener el token de FCM: ${e.message}');
+      log('Detalles del error: ${e.details}');
+      // Manejar el error adecuadamente
+    } catch (e) {
+      log('Error inesperado al obtener el token de FCM: $e');
+    }
   }
 
   void notificationStatusChanged(AuthorizationStatus status) {

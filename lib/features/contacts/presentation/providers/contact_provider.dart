@@ -59,26 +59,31 @@ class ContactNotifier extends StateNotifier<ContactState> {
   Future<void> loadContact(String idContact) async {
     try {
       if (idContact == 'new') {
-        state = state.copyWith(
-          isLoading: false,
-          contact: newEmptyContact(),
-        );
-
-        state.contact?.opt = 'INSERT';
+        if (mounted) {
+          state = state.copyWith(
+            isLoading: false,
+            contact: newEmptyContact(),
+          );
+          state.contact?.opt = 'INSERT';
+        }
         return;
       } else {
-        state.contact?.opt = 'UPDATE';
-        state.contact?.contactIdIn = state.id;
+        if (mounted) {
+          state.contact?.opt = 'UPDATE';
+          state.contact?.contactIdIn = state.id;
+        }
       }
 
       final contact = await contactsRepository.getContactById(idContact);
 
-      state = state.copyWith(isLoading: false, contact: contact, id: idContact);
+      if (mounted) {
+        state = state.copyWith(isLoading: false, contact: contact, id: idContact);
+      }
     } catch (e) {
       if (mounted) {
         state = state.copyWith(isLoading: false, contact: null);
       }
-      // 404 product not found
+      // Manejar el error adecuadamente
     }
   }
 }

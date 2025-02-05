@@ -46,7 +46,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '296671498266',
     projectId: 'crm-app-flutter-a1740',
     authDomain: 'crm-app-flutter-a1740.firebaseapp.com',
-    storageBucket: 'crm-app-flutter-a1740.appspot.com',
+    storageBucket: 'crm-app-flutter-a1740.firebasestorage.app',
     measurementId: 'G-VBVLB32GEW',
   );
 
@@ -55,25 +55,25 @@ class DefaultFirebaseOptions {
     appId: '1:296671498266:android:8ca35bdf1d2306a33741a3',
     messagingSenderId: '296671498266',
     projectId: 'crm-app-flutter-a1740',
-    storageBucket: 'crm-app-flutter-a1740.appspot.com',
+    storageBucket: 'crm-app-flutter-a1740.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCLHzFAQ1b6kpiYpUSaJIjz7smyN0Ht-Fg',
-    appId: '1:296671498266:ios:0b3f9d0d4482313f3741a3',
+    appId: '1:296671498266:ios:24f1846e2564d16c3741a3',
     messagingSenderId: '296671498266',
     projectId: 'crm-app-flutter-a1740',
-    storageBucket: 'crm-app-flutter-a1740.appspot.com',
-    iosBundleId: 'com.mr_peru.crmApp',
+    storageBucket: 'crm-app-flutter-a1740.firebasestorage.app',
+    iosBundleId: 'com.mrperu.crmapp',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyCLHzFAQ1b6kpiYpUSaJIjz7smyN0Ht-Fg',
-    appId: '1:296671498266:ios:0b3f9d0d4482313f3741a3',
+    appId: '1:296671498266:ios:24f1846e2564d16c3741a3',
     messagingSenderId: '296671498266',
     projectId: 'crm-app-flutter-a1740',
-    storageBucket: 'crm-app-flutter-a1740.appspot.com',
-    iosBundleId: 'com.mr_peru.crmApp',
+    storageBucket: 'crm-app-flutter-a1740.firebasestorage.app',
+    iosBundleId: 'com.mrperu.crmapp',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

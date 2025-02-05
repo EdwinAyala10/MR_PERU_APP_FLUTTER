@@ -96,8 +96,7 @@ class ItemActivity extends StatelessWidget {
               children: [
                 const Icon(Icons.mode_comment, size: 14),
                 const SizedBox(width: 4),
-                SizedBox(
-                  width: 160,
+                Expanded(
                   child: Text(activity.actiComentario,
                     style: const TextStyle(
                       fontSize: 12,
@@ -112,13 +111,13 @@ class ItemActivity extends StatelessWidget {
                 const Icon(Icons.mode_comment, size: 14),
                 const Icon(Icons.keyboard_arrow_right_rounded, size: 14),
                 const SizedBox(width: 4),
-                SizedBox(
-                  width: 160,
-                  child: Text(activity.cchkComentarioCheckIn ?? '',
-                      style: const TextStyle(
-                        fontSize: 12,
-                      ),
-                      overflow: TextOverflow.ellipsis),
+                Expanded(
+                  child: Text(
+                    activity.cchkComentarioCheckIn ?? '',
+                    style: const TextStyle(
+                      fontSize: 12,
+                    ),
+                    overflow: TextOverflow.ellipsis),
                 ),
               ],
             ),
@@ -130,8 +129,7 @@ class ItemActivity extends StatelessWidget {
                 const Icon(Icons.keyboard_arrow_left_rounded, size: 14),
 
                 const SizedBox(width: 4),
-                SizedBox(
-                  width: 160,
+                Expanded(
                   child: Text(activity.cchkComentarioCheckOut ?? '',
                     style: const TextStyle(
                         fontSize: 12,
@@ -146,11 +144,13 @@ class ItemActivity extends StatelessWidget {
               children: [
                 const Icon(Icons.lock_clock, size: 16),
                 const SizedBox(width: 4),
-                Text(activity.actiTiempoGestion ?? '',
-                  style: const TextStyle(
-                    fontSize: 12,
-                  ),
-                  overflow: TextOverflow.ellipsis),
+                Expanded(
+                  child: Text(activity.actiTiempoGestion ?? '',
+                    style: const TextStyle(
+                      fontSize: 12,
+                    ),
+                    overflow: TextOverflow.ellipsis),
+                ),
               ],
             )
           

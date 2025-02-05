@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_is_empty
 
 import 'package:crm_app/config/config.dart';
+import 'package:crm_app/features/activities/presentation/widgets/item_activity.dart';
 import 'package:crm_app/features/dashboard/presentation/providers/home_notificaciones_provider.dart';
 import 'package:crm_app/features/dashboard/presentation/screens/notification_screen.dart';
 import 'package:crm_app/features/dashboard/presentation/widgets/widgets.dart';
@@ -12,7 +13,6 @@ import 'package:flutter_app_badge/flutter_app_badge.dart';
 
 import '../../../activities/domain/domain.dart';
 import '../../../activities/presentation/providers/activities_provider.dart';
-import '../../../activities/presentation/widgets/item_activity_small.dart';
 import '../../../agenda/domain/domain.dart';
 import '../../../agenda/presentation/providers/events_provider.dart';
 import '../../../agenda/presentation/widgets/item_event_small.dart';
@@ -260,7 +260,7 @@ class _DashboardViewState extends ConsumerState {
             ),
             Text(
               dateCurrent,
-              style: const TextStyle(fontSize: 22, color: Colors.black54),
+              style: const TextStyle(fontSize: 18, color: Colors.black54),
             ),
             const SizedBox(
               height: 4,
@@ -549,7 +549,7 @@ class _ContainerDashboardActivities extends StatelessWidget {
                   itemBuilder: (context, index) {
                     final activity = activities[index];
 
-                    return ItemActivitySmall(
+                    return ItemActivity(
                       activity: activity,
                     );
                   }),
@@ -931,10 +931,10 @@ class progressKpi extends StatelessWidget {
             alignment: Alignment.center,
             children: <Widget>[
               SizedBox(
-                width: 80,
-                height: 80,
+                width: 86,
+                height: 86,
                 child: CircularProgressIndicator(
-                  strokeWidth: 5,
+                  strokeWidth: 7,
                   value: ((percentage) / 100).toDouble(),
                   valueColor: AlwaysStoppedAnimation<Color>(isColorIndicator(
                       percentage)), // Color cuando está marcado
@@ -947,7 +947,7 @@ class progressKpi extends StatelessWidget {
                   Text(
                     advance,
                     style: const TextStyle(
-                      fontSize: 18,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -961,7 +961,7 @@ class progressKpi extends StatelessWidget {
                   Text(
                     total,
                     style: const TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

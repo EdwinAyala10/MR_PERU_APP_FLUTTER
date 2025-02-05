@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 class LoadingModal extends StatelessWidget {
@@ -28,7 +29,7 @@ class LoadingModal extends StatelessWidget {
                 SizedBox(height: 16.0),
                 Text(
                   'Cargando...', // Mensaje de carga
-                  style: TextStyle(fontSize: 16.0),
+                  style: TextStyle(fontSize: 13.0),
                 ),
               ],
             ),

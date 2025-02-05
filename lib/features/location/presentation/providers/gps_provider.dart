@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../shared/infrastructure/services/key_value_storage_service.dart';
@@ -19,6 +20,7 @@ class GpsNotifier extends StateNotifier<GpsState> {
   //final AuthRepository authRepository;
   final KeyValueStorageService keyValueStorageService;
   StreamSubscription? gpsServiceSubscription;
+  bool _isRequestingPermission = false;
 
   GpsNotifier({
     //required this.authRepository,
@@ -61,6 +63,14 @@ class GpsNotifier extends StateNotifier<GpsState> {
   }
 
   Future<void> askGpsAccess() async {
+  if (_isRequestingPermission) {
+    log('Ya hay una solicitud de permisos en curso.');
+    return;
+  }
+
+  _isRequestingPermission = true;
+
+  try {
     final status = await Permission.location.request();
 
     switch (status) {
@@ -75,10 +85,14 @@ class GpsNotifier extends StateNotifier<GpsState> {
       case PermissionStatus.permanentlyDenied:
         state = state.copyWith(
             isGpsEnabled: state.isGpsEnabled, isGpsPermissionGranted: false);
-        openAppSettings();
+        break;
       case PermissionStatus.provisional:
+        // TODO: Handle this case.
     }
+  } finally {
+    _isRequestingPermission = false;
   }
+}
 
 }
 
