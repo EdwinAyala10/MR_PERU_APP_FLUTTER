@@ -1,6 +1,7 @@
 import 'package:crm_app/config/config.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../domain/domain.dart';
 import 'package:flutter/material.dart';
@@ -30,19 +31,20 @@ class ItemEvent extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                      DateFormat('hh:mm a').format(
-                          event.evntHoraInicioEvento != null
-                              ? DateFormat('HH:mm:ss')
-                                  .parse(event.evntHoraInicioEvento ?? '')
-                              : DateTime.now()),
-                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                    DateFormat('hh:mm a').format(
+                        event.evntHoraInicioEvento != null
+                            ? DateFormat('HH:mm:ss')
+                                .parse(event.evntHoraInicioEvento ?? '')
+                            : DateTime.now()),
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
                   Text(
-                      DateFormat('hh:mm a').format(
-                          event.evntHoraFinEvento != null
-                              ? DateFormat('HH:mm:ss')
-                                  .parse(event.evntHoraFinEvento ?? '')
-                              : DateTime.now()),
-                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                    DateFormat('hh:mm a').format(event.evntHoraFinEvento != null
+                        ? DateFormat('HH:mm:ss')
+                            .parse(event.evntHoraFinEvento ?? '')
+                        : DateTime.now()),
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
                 ],
               ),
               title: Column(
@@ -63,6 +65,16 @@ class ItemEvent extends StatelessWidget {
                     event.evntAsunto,
                     style: const TextStyle(
                         fontSize: 16, fontWeight: FontWeight.w500),
+                  ),
+
+                  /// SHOW DIRECTION OF EVENT IN MAP
+                  Text(
+                    '${event.evntDireccionMapa}',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: primaryColor,
+                    ),
                   ),
                   Visibility(
                     visible: event.evntNombreTipoGestion == '' ? false : true,
@@ -145,6 +157,27 @@ class ItemEvent extends StatelessWidget {
                         'CHECK-IN',
                         style: TextStyle(color: Colors.white),
                       ),
+                    ),
+                  ),
+                  MaterialButton(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    color: primaryColor,
+                    onPressed: () async {
+                      final lat = event.evntCoordenadaLatitud;
+                      final lng = event.evntCoordenadaLongitud;
+                      final url = 'waze://?ll=$lat,$lng&navigate=yes';
+                      if (await canLaunch(url)) {
+                        await launch(url);
+                      } else {
+                        // Maneja el caso en que Waze no esté instalado, por ejemplo, redirigiendo a la App Store
+                        throw 'No se pudo lanzar $url';
+                      }
+                    },
+                    child: const Text(
+                      'WAZE',
+                      style: TextStyle(color: Colors.white),
                     ),
                   ),
                 ],

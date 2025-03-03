@@ -9,7 +9,7 @@ import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   await NotificationsNotifier.initialFCM();
   await LocalNotifications.initializeLocalNotifications();
@@ -19,13 +19,11 @@ void main() async {
     (_) => {
       runApp(
         const ProviderScope(
-          child: MainApp(), 
+          child: MainApp(),
         ),
       ),
     },
   );
-
-
 }
 
 class MainApp extends ConsumerWidget {

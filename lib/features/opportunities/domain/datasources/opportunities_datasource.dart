@@ -7,7 +7,22 @@ abstract class OpportunitiesDatasource {
     String search,
     int limit = 10,
     int offset = 0,
-    String idUsuario = ''
+    String idUsuario = '',
+  });
+
+  Future<List<Opportunity>> getListOpportunities({
+    String ruc,
+    String search,
+    int limit = 10,
+    int offset = 0,
+    String idUsuario = '',
+    String estado = '',
+    String startDate = '',
+    String endDate = '',
+    String startValue = '',
+    String endValue = '',
+    String startPercent = '',
+    String endPercent = '',
   });
 
   Future<List<Opportunity>> getOpportunitiesByName({
