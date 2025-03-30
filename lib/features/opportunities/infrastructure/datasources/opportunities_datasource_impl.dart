@@ -102,30 +102,34 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
     String search = '',
     int offset = 0,
     int limit = 10,
-    String idUsuario = '',
-    String estado = '',
-    String startDate = '',
-    String endDate = '',
-    String startValue = '',
-    String endValue = '',
-    String startPercent = '',
-    String endPercent = '',
+    String? idUsuario,
+    String? estado,
+    String? estadoOP,
+    String? startDate,
+    String? endDate,
+    String? startValue,
+    String? endValue,
+    String? startPercent,
+    String? endPercent,
   }) async {
+    log("THIS END PERCENT: $endPercent");
     final data = {
       "RUC": ruc,
       "SEARCH": search,
       "OFFSET": offset,
       "TOP": limit,
-      "ID_USUARIO_RESPONSABLE": idUsuario,
-      "ESTADO": estado,
-      "PROBABILIDAD_DESDE": startPercent,
-      "PROBABILIDAD_HASTA": endPercent,
-      "VALOR_DESDE": startValue,
-      "VALOR_HASTA": endValue,
-      "FECHAPREVISTADEVENTA_DESDE": startDate,
-      "FECHA_PREVISTADEVENTA_HASTA": endDate,
+      "OPRT_ID_ESTADO_OPORTUNIDAD": estadoOP??'', 
+      "ID_USUARIO_RESPONSABLE": idUsuario ?? '',
+      "ESTADO": estado ?? '',
+      "PROBABILIDAD_DESDE": startPercent ?? '',
+      "PROBABILIDAD_HASTA": endPercent ?? '',
+      "VALOR_DESDE": startValue ?? '',
+      "VALOR_HASTA": endValue ?? '',
+      "FECHAPREVISTADEVENTA_DESDE": startDate ?? '',
+      "FECHAPREVISTADEVENTA_HASTA": endDate ?? ''
+
     };
-    log(data.toString());
+    log("THIS$data");
     final response =
         await dio.post('/oportunidad/listar-oportunidades', data: data);
 

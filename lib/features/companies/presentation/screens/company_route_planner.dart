@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:developer';
 
+import 'package:crm_app/features/companies/presentation/providers/module_providers.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/location/presentation/providers/providers.dart';
 import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
@@ -23,8 +25,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-class RegisterRoutePlannerScreen extends ConsumerWidget {
-  const RegisterRoutePlannerScreen({super.key});
+class CompanyRouterPlanner extends ConsumerWidget {
+  const CompanyRouterPlanner({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -33,7 +35,7 @@ class RegisterRoutePlannerScreen extends ConsumerWidget {
         child: Scaffold(
           appBar: AppBar(
             title: const Text(
-              'Planificador de rutas',
+              'Planificador de rutas Company',
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
             leading: IconButton(
@@ -59,7 +61,6 @@ class RegisterRoutePlannerScreen extends ConsumerWidget {
                     Navigator.pop(context);
                     if (value.response) {
                       //Timer(const Duration(seconds: 3), () {
-                      //TODO: LIMPIAR LOS SELECT ITEMS Y TODO EL FORMULARIO
                       /*ref
                           .read(routePlannerProvider.notifier)
                           .clearSelectedLocales();
@@ -78,7 +79,7 @@ class RegisterRoutePlannerScreen extends ConsumerWidget {
                             .read(routePlannerProvider.notifier)
                             .loadNextPage(isRefresh: false);
 
-                        context.replace('/route_planner');
+                        context.pop();
                         //});
                       });
                     } else {
@@ -150,9 +151,7 @@ class _EventPlannerInformationState
   @override
   void initState() {
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      var filterSuccess = ref.read(routePlannerProvider).filtersSuccess;
-
-      FilterOption? horarioTrabajo = encontrarHorarioTrabajo(filterSuccess);
+      print('INIT STATE REGISTER');
 
       final totalDistance = ref.read(mapProvider).totalDistance;
       final totalDuration = ref.read(mapProvider).totalDuration;
@@ -167,17 +166,20 @@ class _EventPlannerInformationState
       print('strDuracion: ${strDuracion}');
       print('strDistancia: ${strDistancia}');
 
+      final idHorario = ref.read(idHorarioProviderCompany);
+      final horarioName = ref.read(idNameProviderCompany);
       //SETEAR HORARIO TRABAJO
       await ref.watch(eventPlannerFormProvider.notifier).onChangeHorarioTrabajo(
-          horarioTrabajo?.id ?? '',
-          horarioTrabajo?.name ?? '',
-          strDuracion,
-          strDistancia);
+            idHorario ?? '',
+            horarioName ?? '',
+            strDuracion,
+            strDistancia,
+          );
 
-      String? dateIniHorario =
-          await ref.read(routePlannerProvider).dateTimeInitial;
-      String? dateFinHorario = await ref.read(routePlannerProvider).dateTimeEnd;
-
+      String? dateIniHorario = ref.read(routePlannerProvider).dateTimeInitial;
+      String? dateFinHorario = ref.read(routePlannerProvider).dateTimeEnd;
+      log("PABLO $dateIniHorario");
+      log("PABLO $dateFinHorario");
       DateTime dateInitialHorarioFormat = DateTime.parse(dateIniHorario ?? '');
       DateTime dateEndHorarioFormat = DateTime.parse(dateFinHorario ?? '');
 
@@ -189,18 +191,19 @@ class _EventPlannerInformationState
           .onFechaTerminoChanged(dateEndHorarioFormat);
 
       print('INIT STATE REGISTER');
-      print(horarioTrabajo?.id);
-      print(horarioTrabajo?.name);
       //ref.read(eventPlannerFormProvider.notifier).onDurationAndDistanceChanged(strDuracion, strDistancia);
 
       await ref
           .read(resourceDetailsProvider.notifier)
           .loadCatalogById(groupId: '26')
-          .then((value) => {
-                setState(() {
-                  optionsRecordatorio = value;
-                })
-              });
+          .then(
+            (value) => {
+              setState(() {
+                optionsRecordatorio = value;
+              })
+            },
+          );
+
       /*await ref.read(resourceDetailsProvider.notifier).loadCatalogById('19').then((value) => {
         setState(() {
           optionsHorarioTrabajo = value;
@@ -214,6 +217,7 @@ class _EventPlannerInformationState
                   optionsTiempoEntreVisitas = value;
                 })
               });
+      print('INIT STATE REGISTER');
     });
     super.initState();
   }

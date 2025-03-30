@@ -56,12 +56,13 @@ class OpportunitiesRepositoryImpl extends OpportunitiesRepository {
     required int offset,
     required String idUsuario,
     required String estado,
-    String startDate = '',
-    String endDate = '',
-    String startValue = '',
-    String endValue = '',
-    String startPercent = '',
-    String endPercent = '',
+    String? estadoOP,
+    String? startDate,
+    String? endDate,
+    String? startValue,
+    String? endValue,
+    String? startPercent,
+    String? endPercent,
   }) {
     return datasource.getListOpportunities(
       ruc: ruc,
@@ -75,6 +76,8 @@ class OpportunitiesRepositoryImpl extends OpportunitiesRepository {
       startValue: startValue,
       endValue: endValue,
       startPercent: startPercent,
+      endPercent: endPercent,
+      estadoOP: estadoOP,
     );
   }
 }

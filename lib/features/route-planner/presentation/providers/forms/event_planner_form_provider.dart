@@ -64,7 +64,7 @@ class EventPlannerFormNotifier extends StateNotifier<EventPlannerFormState> {
     //String strDistance = formatDistanceV2(totalDistance);
     //String strDuration = formatTimeFromSeconds(totalDuration);
 
-    final eventLike = { 
+    final eventLike = {
       //'EVNT_ASUNTO': state.evntAsunto,
       'PLRT_FECHA_INICIO':
           "${state.evntFechaInicioEvento?.year.toString().padLeft(4, '0')}-${state.evntFechaInicioEvento?.month.toString().padLeft(2, '0')}-${state.evntFechaInicioEvento?.day.toString().padLeft(2, '0')}",
@@ -138,17 +138,17 @@ class EventPlannerFormNotifier extends StateNotifier<EventPlannerFormState> {
   Future<void> onChangeHorarioTrabajo(
       String id, String name, String duracion, String distancia) async {
     print('llego a onChangeHorarioTrabajo');
-
     print('id: ${id}');
     print('name: ${name}');
     print('duracion: ${duracion}');
     print('distancia: ${distancia}');
 
     state = state.copyWith(
-        horarioTrabajoId: id,
-        horarioTrabajoNombre: name,
-        tiempoRuta: duracion,
-        distanciaRuta: distancia);
+      horarioTrabajoId: id,
+      horarioTrabajoNombre: name,
+      tiempoRuta: duracion,
+      distanciaRuta: distancia,
+    );
   }
 
   void onTipoGestionChanged(String id, String name) {

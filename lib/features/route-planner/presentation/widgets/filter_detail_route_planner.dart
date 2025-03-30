@@ -15,14 +15,21 @@ class FilterDetailRoutePlanner extends ConsumerStatefulWidget {
   bool? isSearch = false;
   bool? isMulti = false;
 
-  FilterDetailRoutePlanner({super.key, required this.title, required this.type, this.isSearch, this.isMulti});
+  FilterDetailRoutePlanner({
+    super.key,
+    required this.title,
+    required this.type,
+    this.isSearch,
+    this.isMulti,
+  });
 
   @override
-  _FilterDetailRoutePlannerState createState() => _FilterDetailRoutePlannerState();
+  ConsumerState<FilterDetailRoutePlanner> createState() =>
+      _FilterDetailRoutePlannerState();
 }
 
-class _FilterDetailRoutePlannerState extends ConsumerState<FilterDetailRoutePlanner>  {
-  
+class _FilterDetailRoutePlannerState
+    extends ConsumerState<FilterDetailRoutePlanner> {
   /*List<DropdownOption> optionsList = [
     //DropdownOption('', 'Cargando...')
   ];*/
@@ -42,123 +49,184 @@ class _FilterDetailRoutePlannerState extends ConsumerState<FilterDetailRoutePlan
 
   loadingData() async {
     setState(() {
-        isLoading = true;
+      isLoading = true;
     });
 
-    final List<FilterOption> listFilters = ref.watch(routePlannerProvider).filters;
+    final List<FilterOption> listFilters =
+        ref.watch(routePlannerProvider).filters;
 
-      switch (widget.type) {
-        case 'HRTR_ID_HORARIO_TRABAJO':
-          await ref.read(routePlannerProvider.notifier).loadFilterHorarioTrabajo().then((value) => {
-            setState(() {
-              optionsMaster = getOptionProcess(value, listFilters, widget.isMulti);
-              isLoading = false;
-            })
-          });
-          break;
-
-        case 'ESTADO':
-          await ref.read(resourceDetailsProvider.notifier).loadCatalogById(groupId: '18').then((value) => {
-            setState(() {
-              optionsMaster = getOptionProcess(value, listFilters, widget.isMulti);
-              isLoading = false;
-            })
-          });
-          break;
-
-        case 'ULTIMAS_VISITAS':
-          await ref.read(routePlannerProvider.notifier).loadFilterActivity().then((value) => {
-            setState(() {
-              optionsMaster = getOptionProcess(value, listFilters, widget.isMulti);
-              isLoading = false;
-            })
-          });
+    switch (widget.type) {
+      case 'HRTR_ID_HORARIO_TRABAJO':
+        await ref
+            .read(routePlannerProvider.notifier)
+            .loadFilterHorarioTrabajo()
+            .then((value) => {
+                  setState(() {
+                    optionsMaster =
+                        getOptionProcess(value, listFilters, widget.isMulti);
+                    isLoading = false;
+                  })
+                });
         break;
 
-        case 'TIPOCLIENTE':
-          await ref.read(resourceDetailsProvider.notifier).loadCatalogById(groupId: '02').then((value) => {
-            setState(() {
-              optionsMaster = getOptionProcess(value, listFilters, widget.isMulti);
-              isLoading = false;
-            })
-          });
+      case 'ESTADO':
+        await ref
+            .read(resourceDetailsProvider.notifier)
+            .loadCatalogById(groupId: '18')
+            .then((value) => {
+                  setState(() {
+                    optionsMaster =
+                        getOptionProcess(value, listFilters, widget.isMulti);
+                    isLoading = false;
+                  })
+                });
         break;
 
-        case 'ESTADO_CRM':
-          await ref.read(resourceDetailsProvider.notifier).loadCatalogById(groupId: '03').then((value) => {
-            setState(() {
-              optionsMaster = getOptionProcess(value, listFilters, widget.isMulti);
-              isLoading = false;
-            })
-          });
+      case 'ULTIMAS_VISITAS':
+        await ref
+            .read(routePlannerProvider.notifier)
+            .loadFilterActivity()
+            .then((value) => {
+                  setState(() {
+                    optionsMaster =
+                        getOptionProcess(value, listFilters, widget.isMulti);
+                    isLoading = false;
+                  })
+                });
         break;
 
-        case 'CALIFICACION':
-          await ref.read(resourceDetailsProvider.notifier).loadCatalogById(groupId: '04').then((value) => {
-            setState(() {
-              optionsMaster = getOptionProcess(value, listFilters, widget.isMulti);
-              isLoading = false;
-            })
-          });
+      case 'TIPOCLIENTE':
+        await ref
+            .read(resourceDetailsProvider.notifier)
+            .loadCatalogById(groupId: '02')
+            .then((value) => {
+                  setState(() {
+                    optionsMaster =
+                        getOptionProcess(value, listFilters, widget.isMulti);
+                    isLoading = false;
+                  })
+                });
         break;
 
-        case 'ID_USUARIO_RESPONSABLE':
-          await ref.read(routePlannerProvider.notifier).loadFilterResponsable().then((value) => {
-            setState(() {
-              optionsMaster = getOptionProcess(value, listFilters, widget.isMulti);
-              isLoading = false;
-            })
-          });
+      case 'ESTADO_CRM':
+        await ref
+            .read(resourceDetailsProvider.notifier)
+            .loadCatalogById(groupId: '03')
+            .then((value) => {
+                  setState(() {
+                    optionsMaster =
+                        getOptionProcess(value, listFilters, widget.isMulti);
+                    isLoading = false;
+                  })
+                });
         break;
 
-        case 'CODIGO_POSTAL':
-          await ref.read(routePlannerProvider.notifier).loadFilterCodigoPostal(textSearch).then((value) => {
-            setState(() {
-              optionsMaster = getOptionProcess(value, listFilters, widget.isMulti);
-              isLoading = false;
-            })
-          });
+      case 'CALIFICACION':
+        await ref
+            .read(resourceDetailsProvider.notifier)
+            .loadCatalogById(groupId: '04')
+            .then((value) => {
+                  setState(() {
+                    optionsMaster =
+                        getOptionProcess(value, listFilters, widget.isMulti);
+                    isLoading = false;
+                  })
+                });
         break;
 
-        case 'DISTRITO':
-          await ref.read(routePlannerProvider.notifier).loadFilterDistrito(textSearch).then((value) => {
-            setState(() {
-              optionsMaster = getOptionProcess(value, listFilters, widget.isMulti);
-              isLoading = false;
-            })
-          });
+      case 'ID_USUARIO_RESPONSABLE':
+        await ref
+            .read(routePlannerProvider.notifier)
+            .loadFilterResponsable()
+            .then((value) => {
+                  setState(() {
+                    optionsMaster =
+                        getOptionProcess(value, listFilters, widget.isMulti);
+                    isLoading = false;
+                  })
+                });
         break;
 
-        case 'RUC':
-          await ref.read(routePlannerProvider.notifier).loadFilterRuc(textSearch).then((value) => {
-            setState(() {
-              optionsMaster = getOptionProcess(value, listFilters, widget.isMulti);
-              isLoading = false;
-            })
-          });
+      case 'ID_TIPO_OPORTUNIDAD':
+        await ref
+            .read(routePlannerProvider.notifier)
+            .loadFilterTypeOpportunity()
+            .then((value) => {
+                  setState(() {
+                    optionsMaster =
+                        getOptionProcess(value, listFilters, widget.isMulti);
+                    isLoading = false;
+                  })
+                });
         break;
 
-        case 'ID_RUBRO':
-          await ref.read(resourceDetailsProvider.notifier).loadCatalogById(groupId: '16').then((value) => {
-            setState(() {
-              optionsMaster = getOptionProcess(value, listFilters, widget.isMulti);
-              isLoading = false;
-            })
-          });
+      case 'CODIGO_POSTAL':
+        await ref
+            .read(routePlannerProvider.notifier)
+            .loadFilterCodigoPostal(textSearch)
+            .then((value) => {
+                  setState(() {
+                    optionsMaster =
+                        getOptionProcess(value, listFilters, widget.isMulti);
+                    isLoading = false;
+                  })
+                });
         break;
 
-        case 'RAZON_COMERCIAL':
-          await ref.read(routePlannerProvider.notifier).loadFiltecRazonComercial(textSearch).then((value) => {
-            setState(() {
-              optionsMaster = getOptionProcess(value, listFilters, widget.isMulti);
-              isLoading = false;
-            })
-          });
+      case 'DISTRITO':
+        await ref
+            .read(routePlannerProvider.notifier)
+            .loadFilterDistrito(textSearch)
+            .then((value) => {
+                  setState(() {
+                    optionsMaster =
+                        getOptionProcess(value, listFilters, widget.isMulti);
+                    isLoading = false;
+                  })
+                });
         break;
 
-        default:
-      }
-      
+      case 'RUC':
+        await ref
+            .read(routePlannerProvider.notifier)
+            .loadFilterRuc(textSearch)
+            .then((value) => {
+                  setState(() {
+                    optionsMaster =
+                        getOptionProcess(value, listFilters, widget.isMulti);
+                    isLoading = false;
+                  })
+                });
+        break;
+
+      case 'ID_RUBRO':
+        await ref
+            .read(resourceDetailsProvider.notifier)
+            .loadCatalogById(groupId: '16')
+            .then((value) => {
+                  setState(() {
+                    optionsMaster =
+                        getOptionProcess(value, listFilters, widget.isMulti);
+                    isLoading = false;
+                  })
+                });
+        break;
+
+      case 'RAZON_COMERCIAL':
+        await ref
+            .read(routePlannerProvider.notifier)
+            .loadFiltecRazonComercial(textSearch)
+            .then((value) => {
+                  setState(() {
+                    optionsMaster =
+                        getOptionProcess(value, listFilters, widget.isMulti);
+                    isLoading = false;
+                  })
+                });
+        break;
+
+      default:
+    }
   }
 
   //Function(String)
@@ -177,14 +245,16 @@ class _FilterDetailRoutePlannerState extends ConsumerState<FilterDetailRoutePlan
     });
   }
 
-  List<FilterOptionContainer> getOptionProcess(List<DropdownOption> value, List<FilterOption> listFilters, bool? isMulti) {
+  List<FilterOptionContainer> getOptionProcess(List<DropdownOption> value,
+      List<FilterOption> listFilters, bool? isMulti) {
     List<DropdownOption> optionsList = value;
     List<FilterOptionContainer> optionsM = [];
-    
-    final String? idFilter = findFilterOptionByType(listFilters, widget.type, 'id', '');
+
+    final String? idFilter =
+        findFilterOptionByType(listFilters, widget.type, 'id', '');
 
     print('aqui esta: ${idFilter}');
-    
+
     optionsM = optionsList.asMap().entries.map((entry) {
       DropdownOption option = entry.value;
 
@@ -192,84 +262,78 @@ class _FilterDetailRoutePlannerState extends ConsumerState<FilterDetailRoutePlan
 
       bool selectFilter = false;
 
-    
       if (isMulti == true) {
-        
         if (idFilter != "") {
           List<String> lists = idFilter!.split(',');
           if (lists.contains(option.id)) {
             selectFilter = true;
           }
-
         }
-        
-
       } else {
-        selectFilter = listFilters.isNotEmpty  
-        ? idFilter == option.id: false;
+        selectFilter = listFilters.isNotEmpty ? idFilter == option.id : false;
       }
 
-   
-    
       return FilterOptionContainer(
-        id: option.id, 
-        title: widget.title, 
-        name: option.name, 
-        onSelect: handleSelect, 
-        isSelected: selectFilter,
-        type: widget.type,
-        subTitle: option.subTitle,
-        secundary: option.secundary,
-        isMulti: isMulti
-      );
+          id: option.id,
+          title: widget.title,
+          name: option.name,
+          onSelect: handleSelect,
+          isSelected: selectFilter,
+          type: widget.type,
+          subTitle: option.subTitle,
+          secundary: option.secundary,
+          isMulti: isMulti);
     }).toList();
 
     return optionsM;
-    
   }
 
-  void handleSelect(String id, String name, String type ,String title, bool isMulti) {
+  void handleSelect(
+      String id, String name, String type, String title, bool isMulti) {
+    FilterOption anotherNewFilter =
+        FilterOption(id: id, type: type, name: name, title: title);
 
-    FilterOption anotherNewFilter = FilterOption(id: id, type: type, name: name, title: title);
-  
-    ref.read(routePlannerProvider.notifier).onSelectedFilter(anotherNewFilter, isMulti); 
-    
+    ref
+        .read(routePlannerProvider.notifier)
+        .onSelectedFilter(anotherNewFilter, isMulti);
+
     setState(() {
       print('optionsMaster: ${optionsMaster.length}');
 
-        var optionsNew = [...optionsMaster];
+      var optionsNew = [...optionsMaster];
 
       var indexdelete;
 
-        print('imprimir.--------');
+      print('imprimir.--------');
       for (var i = 0; i < optionsMaster.length; i++) {
         if (optionsMaster[i].id == id) {
           optionsNew[i] = FilterOptionContainer(
-            id: optionsMaster[i].id, 
-            name: optionsMaster[i].name, 
-            title: optionsMaster[i].title, 
-            type: optionsMaster[i].type, 
-            isSelected: !optionsMaster[i].isSelected, 
+            id: optionsMaster[i].id,
+            name: optionsMaster[i].name,
+            title: optionsMaster[i].title,
+            type: optionsMaster[i].type,
+            isSelected: !optionsMaster[i].isSelected,
             onSelect: optionsMaster[i].onSelect,
             isMulti: optionsMaster[i].isMulti,
             key: optionsMaster[i].key,
             secundary: optionsMaster[i].secundary,
             subTitle: optionsMaster[i].subTitle,
           );
-        //} else {
+          //} else {
           //optionsNew.removeAt(i);
         }
       }
-        print('imprimir end.--------');
+      print('imprimir end.--------');
 
       optionsMaster = optionsNew;
     });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final double screenHeight = MediaQuery.of(context).size.height;
-    final double desiredHeight = screenHeight * 0.95; // 85% de la altura de la pantalla
+    final double desiredHeight =
+        screenHeight * 0.95; // 85% de la altura de la pantalla
 
     //final List<FilterOption> listFilters = ref.watch(routePlannerProvider).filters;
 
@@ -319,38 +383,44 @@ class _FilterDetailRoutePlannerState extends ConsumerState<FilterDetailRoutePlan
             ),
           ),
           const SizedBox(height: 10),
-
-          if (widget.isSearch == true) 
-            _SearchComponent(placeholder: widget.title, onChange: setTextSearch, textSearch: textSearch, onDelete: deleteTextSearch,),
-
-          if (isLoading)
-            const Center(child: CircularProgressIndicator()),
-
+          if (widget.isSearch == true)
+            _SearchComponent(
+              placeholder: widget.title,
+              onChange: setTextSearch,
+              textSearch: textSearch,
+              onDelete: deleteTextSearch,
+            ),
+          if (isLoading) const Center(child: CircularProgressIndicator()),
           if (!isLoading)
             Expanded(
-              child:  optionsMaster.isNotEmpty 
-              ? ListView.builder(
-                itemBuilder: ( context, index) {
-                  /*final options = [
+              child: optionsMaster.isNotEmpty
+                  ? ListView.builder(
+                      itemBuilder: (context, index) {
+                        /*final options = [
                     FilterOption(id: '1', title: 'Sí'),
                     FilterOption(id: '2', title: 'No'),
                     FilterOption(id: '3', title: 'Todos'),
                   ];*/
 
-                  return Column(
-                    children: [
-                      if (index > 0) const Divider(height: 1),
-                      optionsMaster[index],
-                    ],
-                  );
-                },
-                //separatorBuilder: (context, index) => const Divider(),
-                itemCount: optionsMaster.length,
-              ) : Container(
-                padding: const EdgeInsets.all(14),
-                width: double.infinity,
-                child: const Text('Sin opciones', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18), textAlign: TextAlign.center, )
-              ),
+                        return Column(
+                          children: [
+                            if (index > 0) const Divider(height: 1),
+                            optionsMaster[index],
+                          ],
+                        );
+                      },
+                      //separatorBuilder: (context, index) => const Divider(),
+                      itemCount: optionsMaster.length,
+                    )
+                  : Container(
+                      padding: const EdgeInsets.all(14),
+                      width: double.infinity,
+                      child: const Text(
+                        'Sin opciones',
+                        style: TextStyle(
+                            fontWeight: FontWeight.w600, fontSize: 18),
+                        textAlign: TextAlign.center,
+                      )),
             ),
         ],
       ),
@@ -364,40 +434,35 @@ class FilterOptionContainer extends StatelessWidget {
   final String title;
   final String type;
   final bool isSelected;
-  final Function(String,String,String, String, bool) onSelect;
+  final Function(String, String, String, String, bool) onSelect;
   final String? subTitle;
   final String? secundary;
   final bool? isMulti;
 
-  FilterOptionContainer({
-    super.key,
-    required this.id, 
-    required this.name,
-    required this.title,
-    required this.type,
-    required this.isSelected,
-    required this.onSelect,
-    this.subTitle,
-    this.secundary,
-    this.isMulti
-    });
+  FilterOptionContainer(
+      {super.key,
+      required this.id,
+      required this.name,
+      required this.title,
+      required this.type,
+      required this.isSelected,
+      required this.onSelect,
+      this.subTitle,
+      this.secundary,
+      this.isMulti});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        if(isMulti == true) {
-
+        if (isMulti == true) {
           if (id != '') {
             onSelect(id, name, type, title, true);
           }
-
         } else {
           Navigator.pop(context);
           onSelect(id, name, type, title, false);
         }
-
-        
       },
       child: Container(
         color: isSelected ? primaryColor.withOpacity(0.1) : Colors.transparent,
@@ -412,17 +477,30 @@ class FilterOptionContainer extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      if(isMulti == true && id != "")
-                      Icon(isSelected ? Icons.check_box : Icons.check_box_outline_blank_outlined, size: 26, color: primaryColor),
-                      if(isMulti == true && id != "")
-                      const SizedBox(
+                      if (isMulti == true && id != "")
+                        Icon(
+                            isSelected
+                                ? Icons.check_box
+                                : Icons.check_box_outline_blank_outlined,
+                            size: 26,
+                            color: primaryColor),
+                      if (isMulti == true && id != "")
+                        const SizedBox(
                           width: 10,
                         ),
                       Column(
                         children: [
-                          Text(name, style: const TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500 )),
-                          if (subTitle != null) Text(subTitle ?? '', style: const TextStyle(fontSize: 15.0, fontWeight: FontWeight.w400)),
-                          if (secundary != null) Text(secundary ?? '', style: const TextStyle(fontSize: 15.0)),
+                          Text(name,
+                              style: const TextStyle(
+                                  fontSize: 17.0, fontWeight: FontWeight.w500)),
+                          if (subTitle != null)
+                            Text(subTitle ?? '',
+                                style: const TextStyle(
+                                    fontSize: 15.0,
+                                    fontWeight: FontWeight.w400)),
+                          if (secundary != null)
+                            Text(secundary ?? '',
+                                style: const TextStyle(fontSize: 15.0)),
                         ],
                       )
                     ],
@@ -443,17 +521,21 @@ class _SearchComponent extends ConsumerStatefulWidget {
   Function onDelete;
   String textSearch;
 
-  _SearchComponent({super.key, required this.placeholder, required this.onChange, required this.onDelete, required this.textSearch});
+  _SearchComponent(
+      {super.key,
+      required this.placeholder,
+      required this.onChange,
+      required this.onDelete,
+      required this.textSearch});
 
   @override
   ConsumerState<_SearchComponent> createState() => __SearchComponentState();
 }
 
 class __SearchComponentState extends ConsumerState<_SearchComponent> {
-   TextEditingController searchController = TextEditingController(
+  TextEditingController searchController = TextEditingController(
       //text: ref.read(routePlannerProvider).textSearch
-    );
-
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -502,7 +584,7 @@ class __SearchComponentState extends ConsumerState<_SearchComponent> {
               hintStyle: const TextStyle(fontSize: 14.0, color: Colors.black38),
             ),
           ),
-         
+
           // TODO: DESCOMENTAR ESTA LINEAS
           if (widget.textSearch != "")
             IconButton(
@@ -523,5 +605,3 @@ class __SearchComponentState extends ConsumerState<_SearchComponent> {
     );
   }
 }
-
-

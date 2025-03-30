@@ -69,7 +69,7 @@ class ItemEvent extends StatelessWidget {
 
                   /// SHOW DIRECTION OF EVENT IN MAP
                   Text(
-                    '${event.evntDireccionMapa}',
+                    '${event.localDirection}',
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
@@ -101,13 +101,18 @@ class ItemEvent extends StatelessWidget {
                   //     ),
                   //   ),
                   // ),
-                  Visibility(
-                    visible: event.cckkIdEstadoCheck == 'VISITADO',
-                    child: Text(
-                      '${event.cchkFechaRegistroCheckIn}',
-                      style: const TextStyle(fontSize: 13, color: Colors.black),
+                  // Visibility(
+                  //   visible: event.cckkIdEstadoCheck == 'VISITADO',
+                  //   child: Text(
+                  //     '${event.cchkFechaRegistroCheckIn}',
+                  //     style: const TextStyle(fontSize: 13, color: Colors.black),
+                  //   ),
+                  // ),
+                  if (event.cchkFechaRegistroCheckIn != null)
+                    Text(
+                      'Ult Visita. ${event.cchkFechaRegistroCheckIn}',
+                      style: const TextStyle(fontSize: 13, color: Colors.green),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -167,7 +172,8 @@ class ItemEvent extends StatelessWidget {
                     onPressed: () async {
                       final lat = event.evntCoordenadaLatitud;
                       final lng = event.evntCoordenadaLongitud;
-                      final url = 'waze://?ll=$lat,$lng&navigate=yes';
+                      final url =
+                          'https://www.waze.com/ul?ll=$lat,$lng&navigate=yes';
                       if (await canLaunch(url)) {
                         await launch(url);
                       } else {

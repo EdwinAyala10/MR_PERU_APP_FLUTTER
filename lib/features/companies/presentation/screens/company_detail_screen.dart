@@ -3,14 +3,25 @@ import 'dart:developer';
 import 'package:crm_app/config/config.dart';
 import 'package:crm_app/features/auth/domain/domain.dart';
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:crm_app/features/companies/presentation/providers/module_providers.dart';
 import 'package:crm_app/features/companies/presentation/providers/providers.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
+import 'package:crm_app/features/kpis/domain/entities/array_user.dart';
+import 'package:crm_app/features/location/presentation/providers/map_provider.dart';
+import 'package:crm_app/features/route-planner/domain/entities/company_local_route_planner.dart';
+import 'package:crm_app/features/route-planner/domain/entities/coordenada.dart';
+import 'package:crm_app/features/route-planner/presentation/providers/forms/event_planner_form_provider.dart';
+import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
+import 'package:crm_app/features/route-planner/presentation/providers/route_planner_repository_provider.dart';
 import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
+import 'package:crm_app/features/shared/widgets/format_distance.dart';
+import 'package:crm_app/features/shared/widgets/format_from_seconds.dart';
 import 'package:crm_app/features/shared/widgets/loading_modal.dart';
 import 'package:crm_app/features/shared/widgets/no_exist_listview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../activities/domain/domain.dart';
 import '../../../activities/presentation/widgets/item_activity.dart';
@@ -132,8 +143,6 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
     TextStyle styleContent =
         const TextStyle(fontWeight: FontWeight.w400, fontSize: 16);
     SizedBox spacingHeight = const SizedBox(height: 14);
-
-    
 
     return DefaultTabController(
       length: 6, // Ahora tenemos 6 pestañas
@@ -440,7 +449,6 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
       SizedBox spacingHeight,
       List<CompanyLocal> companyLocales,
       bool isLoading) {
-
     User authUser = ref.watch(authProvider).user!;
     bool isAdmin = authUser.isAdmin;
 
@@ -451,7 +459,10 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
           ? _ListCompanyLocales(
               companyLocales: companyLocales,
               isAdmin: isAdmin,
-              onRefreshCallback: _refreshLocales)
+              onRefreshCallback: _refreshLocales,
+              responasable: widget.company.arrayresponsables ?? [],
+              company: widget.company,
+            )
           : NoExistData(
               icon: Icons.business,
               onRefreshCallback: _refreshLocales,
@@ -691,7 +702,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
   }
 }
 
-class _ListContacts extends StatelessWidget {
+class _ListContacts extends ConsumerWidget {
   final List<Contact> contacts;
   final Future<void> Function() onRefreshCallback;
 
@@ -699,7 +710,7 @@ class _ListContacts extends StatelessWidget {
       {required this.contacts, required this.onRefreshCallback});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return RefreshIndicator(
       onRefresh: onRefreshCallback,
       child: Padding(
@@ -723,18 +734,23 @@ class _ListContacts extends StatelessWidget {
   }
 }
 
-class _ListCompanyLocales extends StatelessWidget {
+class _ListCompanyLocales extends ConsumerWidget {
   final List<CompanyLocal> companyLocales;
   final Future<void> Function() onRefreshCallback;
   final bool isAdmin;
+  final List<ArrayUser> responasable;
+  final Company company;
 
-  const _ListCompanyLocales(
-      {required this.companyLocales, 
-      required this.isAdmin,
-      required this.onRefreshCallback});
+  const _ListCompanyLocales({
+    required this.companyLocales,
+    required this.isAdmin,
+    required this.onRefreshCallback,
+    required this.responasable,
+    required this.company,
+  });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return RefreshIndicator(
       onRefresh: onRefreshCallback,
       child: Padding(
@@ -747,16 +763,118 @@ class _ListCompanyLocales extends StatelessWidget {
             final companyLocal = companyLocales[index];
 
             return ItemCompanyLocal(
-                companyLocal: companyLocal,
-                isAdmin: isAdmin,
-                editCallOnTap: () {
-                  String ruc = companyLocal.ruc;
-                  String ids = '${companyLocal.id}*$ruc';
-                  context.push('/company_local/$ids');
-                },
-                callbackOnTap: () {
-                  context.push('/view-map/${companyLocal.coordenadasGeo}');
-                });
+              companyLocal: companyLocal,
+              isAdmin: isAdmin,
+              editCallOnTap: () {
+                String ruc = companyLocal.ruc;
+                String ids = '${companyLocal.id}*$ruc';
+                context.push('/company_local/$ids');
+              },
+              callbackOnTap: () {
+                context.push('/view-map/${companyLocal.coordenadasGeo}');
+              },
+              programCallOnTap: () async {
+                if (responasable.isEmpty) {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Información'),
+                        content: const Text(
+                          'No se puede programar porque no hay responsables asignados a esta empresa.',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text('Cerrar'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                  return;
+                }
+                showLoadingMessage(context);
+                final companiesRepository =
+                    ref.watch(companiesRepositoryProvider);
+                final listCmp =
+                    await companiesRepository.getCompanyLocales(company.ruc);
+                List<CompanyLocalRoutePlanner> listSelectedItems =
+                    CompanyLocalRoutePlanner.convertCompanyLocalList(
+                  [companyLocal],
+                );
+
+                await ref
+                    .read(routePlannerProvider.notifier)
+                    .setSelectedItemsOrder(listSelectedItems);
+                final routePlannerRepository =
+                    ref.watch(routePlannerRepositoryProvider);
+                final respHorario =
+                    await routePlannerRepository.getFilterHorarioTrabajo();
+                final idHorario = respHorario[3].hrtrIdHorarioTrabajo;
+                final idHorarioName = respHorario[3].hrtrDescricion;
+                ref.read(idHorarioProviderCompany.notifier).state = idHorario;
+                ref.read(idNameProviderCompany.notifier).state = idHorarioName;
+                final idresponsable = responasable[0].cresIdUsuarioResponsable;
+                final idResponsableName = responasable[0].userreportName;
+
+                var validatePlanner = await ref
+                    .read(routePlannerProvider.notifier)
+                    .validatePlanner(
+                      idHorario ?? '',
+                      idresponsable ?? '',
+                    );
+                log("CHAPOLIN ${validatePlanner.data?.toJson()}");
+                ref.read(routePlannerProvider.notifier).updateFechasRegister(
+                      validatePlanner.data?.fechaIni ?? '',
+                      validatePlanner.data?.fechaFin ?? '',
+                    );
+                Coordenada coorsLocal = await ref
+                    .read(routePlannerProvider.notifier)
+                    .cargarCoordena();
+                //LatLng location = await ref.watch(locationProvider.notifier).currentPosition();
+                LatLng location = LatLng(
+                  double.parse(coorsLocal.latitud),
+                  double.parse(coorsLocal.longitud),
+                );
+
+                List<CompanyLocalRoutePlanner> orderSelectedItems = await ref
+                    .read(mapProvider.notifier)
+                    .sortLocalesByDistance(location, listSelectedItems);
+
+                await ref
+                    .read(routePlannerProvider.notifier)
+                    .setSelectedItemsOrder(orderSelectedItems);
+                await ref.read(routePlannerProvider.notifier).initialOrderkey();
+
+                ref.watch(eventPlannerFormProvider.notifier).setInitialForm();
+                await ref
+                    .read(eventPlannerFormProvider.notifier)
+                    .setLocalesArray(orderSelectedItems);
+
+                ref.read(mapProvider.notifier).setLocation(location);
+
+                //final mapState = ref.watch(mapProvider.notifier);
+
+                ref
+                    .watch(mapProvider.notifier)
+                    .addMarkersAndLocation(listSelectedItems, location);
+
+                /// [set id responsable]
+                ref
+                    .read(eventPlannerFormProvider.notifier)
+                    .onUpdateUserPlannerSelector(idresponsable ?? '');
+                ref
+                    .read(eventPlannerFormProvider.notifier)
+                    .onUpdatePlrtNameUserResponsable(idResponsableName ?? '');
+                // ignore: use_build_context_synchronously
+                Navigator.pop(context);
+                // ignore: use_build_context_synchronously
+                context.push('/company_router_planner');
+              },
+            );
           },
         ),
       ),

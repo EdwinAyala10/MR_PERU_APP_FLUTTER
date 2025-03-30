@@ -54,7 +54,10 @@ class ItemRoutePlannerLocal extends ConsumerWidget {
               Text(local.clienteNombreTipo ?? ''),
             ],
           ),
-          Text ((numCantidadLocal>1 ? local.localDistrito : local.localDireccion) ?? '' , style: const TextStyle(color: Colors.black45))
+          Text ((numCantidadLocal>1 ? local.localDistrito : local.localDireccion) ?? '' , style: const TextStyle(color: Colors.black45)),
+          if(local.cchkFechaRegistroCheckIn !=null)
+          Text (local.cchkFechaRegistroCheckIn?? '' , style: const TextStyle(color: Colors.green))
+
         ],
       ),
       leading: 

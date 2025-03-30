@@ -1,3 +1,4 @@
+import 'package:crm_app/features/companies/domain/entities/company_local.dart';
 import 'package:flutter/material.dart';
 
 class CompanyLocalRoutePlanner {
@@ -29,8 +30,8 @@ class CompanyLocalRoutePlanner {
   String localCoordenadasLatitud;
   String? localUbigeoCodigo;
   String? localCodigoPostal;
+  String? cchkFechaRegistroCheckIn;
   Key? key;
-
 
   CompanyLocalRoutePlanner(
       {required this.id,
@@ -61,16 +62,17 @@ class CompanyLocalRoutePlanner {
       required this.localCoordenadasLatitud,
       this.localUbigeoCodigo,
       this.localCodigoPostal,
-      this.key
-      });
+      this.cchkFechaRegistroCheckIn,
+      this.key});
 
-  factory CompanyLocalRoutePlanner.fromJson(Map<String, dynamic> json) => CompanyLocalRoutePlanner(
+  factory CompanyLocalRoutePlanner.fromJson(Map<String, dynamic> json) =>
+      CompanyLocalRoutePlanner(
         ruc: json["EVNT_RUC"],
-        localCodigo: json["EVNT_LOCAL_CODIGO"], 
-        id: '', 
-        localNombre: '', 
-        localCoordenadasGeo: '', 
-        localCoordenadasLongitud: '', 
+        localCodigo: json["EVNT_LOCAL_CODIGO"],
+        id: '',
+        localNombre: '',
+        localCoordenadasGeo: '',
+        localCoordenadasLongitud: '',
         localCoordenadasLatitud: '',
       );
 
@@ -79,4 +81,42 @@ class CompanyLocalRoutePlanner {
         "EVNT_LOCAL_CODIGO": localCodigo,
       };
 
+  /// Refactor after
+  static List<CompanyLocalRoutePlanner> convertCompanyLocalList(
+      List<CompanyLocal> companyLocalList) {
+    return companyLocalList.map((company) {
+      return CompanyLocalRoutePlanner(
+        id: company.id,
+        ruc: company.ruc,
+        localCodigo: company.id,
+        localNombre: company.localNombre,
+        razon: company.razon,
+        direccion: company.localDireccion,
+        localDireccion: company.localDireccion,
+        localDistrito: company.localDistrito,
+        localCoordenadasGeo:
+            company.localCoordenadasGeo ?? company.coordenadasGeo ?? "",
+        localCoordenadasLongitud: company.coordenadasLongitud ?? "",
+        localCoordenadasLatitud: company.coordenadasLatitud ?? "",
+        codigoPostal: company.localCodigoPostal,
+        localUbigeoCodigo: company.ubigeoCodigo,
+        localCodigoPostal: company.localCodigoPostal,
+        razonComercial: company.localTipoDescripcion,
+        telefono: null,
+        email: null,
+        tipocliente: null,
+        observaciones: null,
+        estado: null,
+        calificacion: null,
+        visibleTodos: null,
+        idUsuarioRegistro: company.idUsuarioResponsable,
+        clienteNombreEstado: null,
+        clienteNombreTipo: null,
+        userreportName1: null,
+        userreportName: null,
+        localCantidad: null,
+        key: null,
+      );
+    }).toList();
+  }
 }

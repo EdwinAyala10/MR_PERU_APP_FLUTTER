@@ -2,10 +2,12 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:crm_app/features/activities/presentation/providers/providers.dart';
-import 'package:crm_app/features/opportunities/presentation/widgets/filter_active_opportunity.dart';
+import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:crm_app/features/opportunities/presentation/providers/filter_active_opportunity_provider.dart';
+import 'package:crm_app/features/opportunities/presentation/widgets/custom_acctive_opportunity.dart';
+import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
 import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
 import 'package:crm_app/features/shared/widgets/no_exist_listview.dart';
-import 'package:flutter/widgets.dart';
 
 import '../../domain/domain.dart';
 import '../providers/providers.dart';
@@ -43,11 +45,20 @@ class _OpportunitiesScreenState extends ConsumerState<OpportunitiesScreen>
             activeFilter = true;
           });
           return;
+        } else {
+          // ref.read(routePlannerProvider.notifier).clearValues();
+          // resetAllProvidersFilterOP(ref);
+          ref.read(searchControllerProvider).text = "";
         }
         setState(() {
           activeFilter = false;
         });
       }
+    });
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      ref.read(routePlannerProvider.notifier).clearValues();
+      resetAllProvidersFilterOP(ref);
+      ref.read(searchControllerProvider).text = '';
     });
     super.initState();
   }
@@ -97,7 +108,8 @@ class _OpportunitiesScreenState extends ConsumerState<OpportunitiesScreen>
                       maxHeight: MediaQuery.of(context).size.height * 0.9,
                       minHeight: MediaQuery.of(context).size.height * 0.9,
                     ),
-                    builder: (context) => const FilterOpportunityActive(),
+                    // builder: (context) => const FilterOpportunityActive(),
+                    builder: (context) => const FilterActivityOpportunity(),
                   );
                 },
                 icon: const Icon(
@@ -152,10 +164,11 @@ class _OpportunitiesScreenState extends ConsumerState<OpportunitiesScreen>
             const _SearchComponent(),
             Expanded(
               child: TabBarView(
+                physics: const NeverScrollableScrollPhysics(),
                 controller: _tabController,
                 children: const [
                   Center(
-                    child: _OpportunitiesView(
+                    child: _OpportunitiesViewCustom(
                       type: "01,02,03,04",
                     ),
                   ),
@@ -209,19 +222,24 @@ class _OpportunitiesViewState extends ConsumerState<_OpportunitiesView> {
       if (scrollController.position.pixels >=
           scrollController.position.maxScrollExtent - 200) {
         print('CARGANDO MAS');
-        ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: false);
+        ref
+            .read(opportunitiesProvider.notifier)
+            .loadNextPageByType(isRefresh: false);
       }
     });
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      ref
-          .read(opportunitiesProvider.notifier)
-          .updateTypeOpportunity(widget.type);
+      ref.read(opportunitiesProvider.notifier).clearOpList();
 
       ref
           .read(opportunitiesProvider.notifier)
+          .updateTypeOpportunity(widget.type);
+      ref
+          .read(opportunitiesProvider.notifier)
           .onChangeNotIsActiveSearchSinRefresh();
-      ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: true);
+      ref
+          .read(opportunitiesProvider.notifier)
+          .loadNextPageByType(isRefresh: true);
       log('HERE SE LLAMA AQUI ');
     });
   }
@@ -234,7 +252,10 @@ class _OpportunitiesViewState extends ConsumerState<_OpportunitiesView> {
 
   Future<void> _refresh() async {
     //String text = ref.watch(opportunitiesProvider).textSearch;
-    ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: true);
+    ref.read(opportunitiesProvider.notifier).clearOpList();
+    ref
+        .read(opportunitiesProvider.notifier)
+        .loadNextPageByType(isRefresh: true);
   }
 
   @override
@@ -268,10 +289,6 @@ class _SearchComponent extends ConsumerStatefulWidget {
 }
 
 class __SearchComponentState extends ConsumerState<_SearchComponent> {
-  TextEditingController searchController = TextEditingController(
-      //text: ref.read(routePlannerProvider).textSearch
-      );
-
   @override
   Widget build(BuildContext context) {
     Timer? debounce;
@@ -286,20 +303,86 @@ class __SearchComponentState extends ConsumerState<_SearchComponent> {
         children: [
           TextFormField(
             style: const TextStyle(fontSize: 14.0),
-            controller: searchController,
+            controller: ref.read(searchControllerProvider),
             onChanged: (String value) {
               if (debounce?.isActive ?? false) debounce?.cancel();
               debounce = Timer(const Duration(seconds: 1), () {
                 //ref.read(companiesProvider.notifier).loadNextPage(value);
                 ref
                     .read(opportunitiesProvider.notifier)
-                    .onChangeTextSearch(value);
+                    .onChangeTextSearch(value, () {
+                  ref.read(opportunitiesProvider.notifier).clearOpList();
+                  final user = ref.read(authProvider).user;
+                  ref
+                      .read(opportunitiesProvider.notifier)
+                      .loadFiltersOpportunity(
+                        isRefresh: true,
+                        endDate: (ref.read(endDateProvider) ?? "").toString(),
+                        startDate:
+                            (ref.read(startDateProvider) ?? "").toString(),
+                        estadoOP: findFilterByType(
+                                    ref.read(routePlannerProvider).filters,
+                                    "ID_TIPO_OPORTUNIDAD")
+                                ?.id ??
+                            '',
+                        endPercents:
+                            ref.read(rangeProbProvider).end.round().toString(),
+                        startPercent: ref
+                            .read(rangeProbProvider)
+                            .start
+                            .round()
+                            .toString(),
+                        startValue: ref.read(startValueProvider) != 0
+                            ? ref.read(startValueProvider).toInt().toString()
+                            : "",
+                        endValue: ref.read(startValueProvider) != 0
+                            ? ref.read(endValueProvider).toInt().toString()
+                            : "",
+                        userResponsable: (user?.isAdmin ?? false) == false
+                            ? user?.code ?? ""
+                            : findFilterByType(
+                                        ref.read(routePlannerProvider).filters,
+                                        "ID_USUARIO_RESPONSABLE")
+                                    ?.id ??
+                                '',
+                      );
+                });
               });
             },
             onFieldSubmitted: (value) {
-              ref
-                  .read(opportunitiesProvider.notifier)
-                  .onChangeTextSearch(value);
+              ref.read(opportunitiesProvider.notifier).clearOpList();
+
+              ref.read(opportunitiesProvider.notifier).onChangeTextSearch(value,
+                  () {
+                final user = ref.read(authProvider).user;
+                ref.read(opportunitiesProvider.notifier).loadFiltersOpportunity(
+                      isRefresh: true,
+                      endDate: (ref.read(endDateProvider) ?? "").toString(),
+                      startDate: (ref.read(startDateProvider) ?? "").toString(),
+                      estadoOP: findFilterByType(
+                                  ref.read(routePlannerProvider).filters,
+                                  "ID_TIPO_OPORTUNIDAD")
+                              ?.id ??
+                          '',
+                      endPercents:
+                          ref.read(rangeProbProvider).end.round().toString(),
+                      startPercent:
+                          ref.read(rangeProbProvider).start.round().toString(),
+                      startValue: ref.read(startValueProvider) != 0
+                          ? ref.read(startValueProvider).toInt().toString()
+                          : "",
+                      endValue: ref.read(startValueProvider) != 0
+                          ? ref.read(endValueProvider).toInt().toString()
+                          : "",
+                      userResponsable: (user?.isAdmin ?? false) == false
+                          ? user?.code ?? ""
+                          : findFilterByType(
+                                      ref.read(routePlannerProvider).filters,
+                                      "ID_USUARIO_RESPONSABLE")
+                                  ?.id ??
+                              '',
+                    );
+              });
             },
             decoration: InputDecoration(
               hintText: 'Buscar oportunidad...',
@@ -325,10 +408,47 @@ class __SearchComponentState extends ConsumerState<_SearchComponent> {
           if (ref.watch(opportunitiesProvider).textSearch != "")
             IconButton(
               onPressed: () {
+                ref.read(opportunitiesProvider.notifier).clearOpList();
+
                 ref
                     .read(opportunitiesProvider.notifier)
-                    .onChangeNotIsActiveSearch();
-                searchController.text = '';
+                    .onChangeNotIsActiveSearch(() {
+                  final user = ref.read(authProvider).user;
+                  ref
+                      .read(opportunitiesProvider.notifier)
+                      .loadFiltersOpportunity(
+                        isRefresh: true,
+                        endDate: (ref.read(endDateProvider) ?? "").toString(),
+                        startDate:
+                            (ref.read(startDateProvider) ?? "").toString(),
+                        estadoOP: findFilterByType(
+                                    ref.read(routePlannerProvider).filters,
+                                    "ID_TIPO_OPORTUNIDAD")
+                                ?.id ??
+                            '',
+                        endPercents:
+                            ref.read(rangeProbProvider).end.round().toString(),
+                        startPercent: ref
+                            .read(rangeProbProvider)
+                            .start
+                            .round()
+                            .toString(),
+                        startValue: ref.read(startValueProvider) != 0
+                            ? ref.read(startValueProvider).toInt().toString()
+                            : "",
+                        endValue: ref.read(startValueProvider) != 0
+                            ? ref.read(endValueProvider).toInt().toString()
+                            : "",
+                        userResponsable: (user?.isAdmin ?? false) == false
+                            ? user?.code ?? ""
+                            : findFilterByType(
+                                        ref.read(routePlannerProvider).filters,
+                                        "ID_USUARIO_RESPONSABLE")
+                                    ?.id ??
+                                '',
+                      );
+                });
+                ref.read(searchControllerProvider).text = '';
               },
               icon: const Icon(Icons.clear, size: 18.0),
             ),
@@ -338,6 +458,145 @@ class __SearchComponentState extends ConsumerState<_SearchComponent> {
   }
 }
 
+class _OpportunitiesViewCustom extends ConsumerStatefulWidget {
+  final String type;
+  const _OpportunitiesViewCustom({required this.type});
+  @override
+  _OpportunitiesViewCustomState createState() =>
+      _OpportunitiesViewCustomState();
+}
+
+class _OpportunitiesViewCustomState
+    extends ConsumerState<_OpportunitiesViewCustom> {
+  final ScrollController scrollController = ScrollController();
+  @override
+  void initState() {
+    super.initState();
+    scrollController.addListener(() {
+      if (scrollController.position.pixels >=
+          scrollController.position.maxScrollExtent - 200) {
+        final user = ref.read(authProvider).user;
+        ref.read(opportunitiesProvider.notifier).loadFiltersOpportunity(
+              isRefresh: false,
+              endDate: (ref.read(endDateProvider) ?? "").toString(),
+              startDate: (ref.read(startDateProvider) ?? "").toString(),
+              estadoOP: findFilterByType(ref.read(routePlannerProvider).filters,
+                          "ID_TIPO_OPORTUNIDAD")
+                      ?.id ??
+                  '',
+              endPercents: ref.read(rangeProbProvider).end.round().toString(),
+              startPercent:
+                  ref.read(rangeProbProvider).start.round().toString(),
+              startValue: ref.read(startValueProvider) != 0
+                  ? ref.read(startValueProvider).toInt().toString()
+                  : "",
+              endValue: ref.read(startValueProvider) != 0
+                  ? ref.read(endValueProvider).toInt().toString()
+                  : "",
+              userResponsable: (user?.isAdmin ?? false) == false
+                  ? user?.code ?? ""
+                  : findFilterByType(ref.read(routePlannerProvider).filters,
+                              "ID_USUARIO_RESPONSABLE")
+                          ?.id ??
+                      '',
+            );
+      }
+    });
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      ref.read(opportunitiesProvider.notifier).clearOpList();
+      ref
+          .read(opportunitiesProvider.notifier)
+          .updateTypeOpportunity(widget.type);
+      ref
+          .read(opportunitiesProvider.notifier)
+          .onChangeNotIsActiveSearchSinRefresh();
+      final user = ref.read(authProvider).user;
+      ref.read(opportunitiesProvider.notifier).loadFiltersOpportunity(
+            isRefresh: true,
+            endDate: (ref.read(endDateProvider) ?? "").toString(),
+            startDate: (ref.read(startDateProvider) ?? "").toString(),
+            estadoOP: findFilterByType(ref.read(routePlannerProvider).filters,
+                        "ID_TIPO_OPORTUNIDAD")
+                    ?.id ??
+                '',
+            endPercents: ref.read(rangeProbProvider).end.round().toString(),
+            startPercent: ref.read(rangeProbProvider).start.round().toString(),
+            startValue: ref.read(startValueProvider) != 0
+                ? ref.read(startValueProvider).toInt().toString()
+                : "",
+            endValue: ref.read(startValueProvider) != 0
+                ? ref.read(endValueProvider).toInt().toString()
+                : "",
+            userResponsable: (user?.isAdmin ?? false) == false
+                ? user?.code ?? ""
+                : findFilterByType(ref.read(routePlannerProvider).filters,
+                            "ID_USUARIO_RESPONSABLE")
+                        ?.id ??
+                    '',
+          );
+      log('HERE SE LLAMA AQUI ');
+    });
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _refresh() async {
+    //String text = ref.watch(opportunitiesProvider).textSearch;
+    ref.read(opportunitiesProvider.notifier).clearOpList();
+    final user = ref.read(authProvider).user;
+    ref.read(opportunitiesProvider.notifier).loadFiltersOpportunity(
+          isRefresh: true,
+          endDate: (ref.read(endDateProvider) ?? "").toString(),
+          startDate: (ref.read(startDateProvider) ?? "").toString(),
+          estadoOP: findFilterByType(ref.read(routePlannerProvider).filters,
+                      "ID_TIPO_OPORTUNIDAD")
+                  ?.id ??
+              '',
+          endPercents: ref.read(rangeProbProvider).end.round().toString(),
+          startPercent: ref.read(rangeProbProvider).start.round().toString(),
+          startValue: ref.read(startValueProvider) != 0
+              ? ref.read(startValueProvider).toInt().toString()
+              : "",
+          endValue: ref.read(startValueProvider) != 0
+              ? ref.read(endValueProvider).toInt().toString()
+              : "",
+          userResponsable: (user?.isAdmin ?? false) == false
+              ? user?.code ?? ""
+              : findFilterByType(ref.read(routePlannerProvider).filters,
+                          "ID_USUARIO_RESPONSABLE")
+                      ?.id ??
+                  '',
+        );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final opportunitiesState = ref.watch(opportunitiesProvider);
+    final isReload = opportunitiesState.isReload;
+
+    if (opportunitiesState.isLoading) {
+      return const LoadingModal();
+    }
+
+    return opportunitiesState.opportunities.isNotEmpty
+        ? _ListOpportunities(
+            opportunities: opportunitiesState.opportunities,
+            onRefreshCallback: _refresh,
+            isReload: isReload,
+            scrollController: scrollController,
+          )
+        : NoExistData(
+            textCenter: 'No hay actividades registradas',
+            onRefreshCallback: _refresh,
+            icon: Icons.graphic_eq,
+          );
+  }
+}
 /*
 
 class _SearchComponent extends ConsumerWidget {

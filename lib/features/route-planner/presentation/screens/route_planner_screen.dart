@@ -26,7 +26,7 @@ class RoutePlannerScreen extends ConsumerWidget {
   const RoutePlannerScreen({super.key});
 
   bool existeHorarioTrabajo(List<FilterOption> options) {
-    if (options.length > 0) {
+    if (options.isNotEmpty) {
       return options.any((option) => option.type == "HRTR_ID_HORARIO_TRABAJO");
     } else {
       return false;
@@ -85,7 +85,7 @@ class RoutePlannerScreen extends ConsumerWidget {
       floatingActionButton: listSelectedItems.isNotEmpty
           ? Stack(
               alignment:
-                  Alignment.center, // Alineación central del FAB y el contador
+                  Alignment.center, // Alineación central del FAB ey el contador
               children: [
                 SizedBox(
                   width: 46 + 9.0 * 2,
@@ -97,8 +97,6 @@ class RoutePlannerScreen extends ConsumerWidget {
                           ref.read(routePlannerProvider).filtersSuccess;
                       var filter = ref.read(routePlannerProvider).filters;
                       bool existFilter = existeHorarioTrabajo(filterSuccess);
-                      log("${filter}");
-
                       if (!existFilter) {
                         mostrarModalMensaje(context, 'AVISO',
                             'Debes seleccionar el filtro de Horario de trabajo.',
@@ -147,8 +145,9 @@ class RoutePlannerScreen extends ConsumerWidget {
                           ref
                               .read(routePlannerProvider.notifier)
                               .updateFechasRegister(
-                                  validatePlanner.data?.fechaIni ?? '',
-                                  validatePlanner.data?.fechaFin ?? '');
+                                validatePlanner.data?.fechaIni ?? '',
+                                validatePlanner.data?.fechaFin ?? '',
+                              );
 
                           /*final gpsState = ref.read(gpsProvider.notifier).state;
 
@@ -209,7 +208,8 @@ class RoutePlannerScreen extends ConsumerWidget {
                               .onUpdateUserPlannerSelector(idResponsable);
                           ref
                               .read(eventPlannerFormProvider.notifier)
-                              .onUpdatePlrtNameUserResponsable(idResponsableName);
+                              .onUpdatePlrtNameUserResponsable(
+                                  idResponsableName);
                           Navigator.pop(context);
 
                           context.push('/register_route_planner');
@@ -434,7 +434,7 @@ class _SearchComponentState extends ConsumerState<_SearchComponent> {
               });
             },
             onFieldSubmitted: (value) {
-                ref.read(routePlannerProvider.notifier).onChangeTextSearch(value);
+              ref.read(routePlannerProvider.notifier).onChangeTextSearch(value);
             },
             decoration: InputDecoration(
               hintText: 'Buscar locales...',

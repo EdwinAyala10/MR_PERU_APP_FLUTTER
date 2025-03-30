@@ -20,6 +20,7 @@ final companiesProvider =
   );
 });
 
+
 /// [Para agilizar el desarroollo de los clientes incorpore directamente DIO en el providoer state, esto de momento en cuanto haya la oportunidad se necesatara realizar un refactor]
 class CompaniesNotifier extends StateNotifier<CompaniesState> {
   final CompaniesRepository companiesRepository;

@@ -23,11 +23,12 @@ abstract class OpportunitiesRepository {
     required int offset,
     required String idUsuario,
     required String estado,
-    String startDate = '',
-    String endDate = '',
-    String startValue = '',
-    String endValue = '',
-    String startPercent = '',
-    String endPercent = '',
+    String? estadoOP,
+    String? startDate,
+    String? endDate,
+    String? startValue,
+    String? endValue,
+    String? startPercent,
+    String? endPercent,
   });
 }

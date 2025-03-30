@@ -26,7 +26,8 @@ final mapProvider = StateNotifierProvider<MapNotifier, MapState>((ref) {
       keyValueStorageService: keyValueStorageService);
 });
 
-typedef SearchDistanceAndDurationCallback = Future<DistanceMatrix> Function({double originLat, double originLng, double destLat, double destLng});
+typedef SearchDistanceAndDurationCallback = Future<DistanceMatrix> Function(
+    {double originLat, double originLng, double destLat, double destLng});
 
 class MapNotifier extends StateNotifier<MapState> {
   //final AuthRepository authRepository;
@@ -35,7 +36,6 @@ class MapNotifier extends StateNotifier<MapState> {
   GoogleMapController? _mapController;
   StreamSubscription<LocationState>? locationStateSubscription;
   final SearchDistanceAndDurationCallback searchDistanceAndDuration;
-  
 
   MapNotifier({
     //required this.authRepository,
@@ -49,10 +49,7 @@ class MapNotifier extends StateNotifier<MapState> {
   }
 
   void onChangeMapCenter(LatLng latLng) {
-    state = state.copyWith(
-      mapCenter: latLng,
-      selectedPlace: null
-    );
+    state = state.copyWith(mapCenter: latLng, selectedPlace: null);
   }
 
   void onChangeSelectedPlaceCenter(Place place) {
@@ -67,19 +64,19 @@ class MapNotifier extends StateNotifier<MapState> {
   }
 
   void setLocation(LatLng location) {
-    state = state.copyWith(
-      mapCenter: location,
-      locationCurrent: location
-    );
+    state = state.copyWith(mapCenter: location, locationCurrent: location);
   }
 
-  double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+  double _calculateDistance(
+      double lat1, double lon1, double lat2, double lon2) {
     const R = 6371; // Radio de la Tierra en kilómetros
     final dLat = _deg2rad(lat2 - lat1);
     final dLon = _deg2rad(lon2 - lon1);
     final a = sin(dLat / 2) * sin(dLat / 2) +
-        cos(_deg2rad(lat1)) * cos(_deg2rad(lat2)) *
-            sin(dLon / 2) * sin(dLon / 2);
+        cos(_deg2rad(lat1)) *
+            cos(_deg2rad(lat2)) *
+            sin(dLon / 2) *
+            sin(dLon / 2);
     final c = 2 * atan2(sqrt(a), sqrt(1 - a));
     final distance = R * c; // Distancia en kilómetros
     return distance;
@@ -89,26 +86,31 @@ class MapNotifier extends StateNotifier<MapState> {
     return deg * (pi / 180);
   }
 
-
-  Future<List<CompanyLocalRoutePlanner>> sortLocalesByDistance(LatLng position, List<CompanyLocalRoutePlanner> locales) async {
+  Future<List<CompanyLocalRoutePlanner>> sortLocalesByDistance(
+      LatLng position, List<CompanyLocalRoutePlanner> locales) async {
     locales.sort((a, b) {
       final distanceA = _calculateDistance(
-        position.latitude, position.longitude, double.parse(a.localCoordenadasLatitud), double.parse(a.localCoordenadasLongitud));
+          position.latitude,
+          position.longitude,
+          double.parse(a.localCoordenadasLatitud),
+          double.parse(a.localCoordenadasLongitud));
       final distanceB = _calculateDistance(
-        position.latitude, position.longitude, double.parse(b.localCoordenadasLatitud), double.parse(b.localCoordenadasLongitud));
+        position.latitude,
+        position.longitude,
+        double.parse(b.localCoordenadasLatitud),
+        double.parse(b.localCoordenadasLongitud),
+      );
       return distanceA.compareTo(distanceB);
     });
 
     return locales;
   }
 
+  void addMarkersAndLocation(
+      List<CompanyLocalRoutePlanner> locales, LatLng location) async {
+    final currentMarkers = Map<String, Marker>.from({});
+    final currentPolylines = Map<String, Polyline>.from({});
 
-
-  void addMarkersAndLocation(List<CompanyLocalRoutePlanner> locales, LatLng location) async {
-
-    final currentMarkers = Map<String, Marker>.from( {} );
-    final currentPolylines = Map<String, Polyline>.from( {} );
-    
     PolylinePoints polylinePoints = PolylinePoints();
 
     // LOCATION
@@ -134,126 +136,126 @@ class MapNotifier extends StateNotifier<MapState> {
 
     //MARKERS
     for (var i = 0; i < locales.length; i++) {
-        var number = i + 1;
-        var companyLocal = locales[i];
-        List<LatLng> polylineCoordinates = [];
+      var number = i + 1;
+      var companyLocal = locales[i];
+      List<LatLng> polylineCoordinates = [];
 
-        var position = LatLng(double.parse(companyLocal.localCoordenadasLatitud), double.parse(companyLocal.localCoordenadasLongitud));
-      
-        final endMaker = await getCustomMarker(number);
+      var position = LatLng(double.parse(companyLocal.localCoordenadasLatitud),
+          double.parse(companyLocal.localCoordenadasLongitud));
 
-        final endMarker = Marker(
-          //anchor: const Offset(0.1, 1),
-          markerId: MarkerId(number.toString()),
-          position: position,
-          icon: endMaker,
-          // infoWindow: InfoWindow(
-          //   title: 'Inicio',
-          //   snippet: 'Kms: $kms, duration: $tripDuration',
-          // )
-        );
+      final endMaker = await getCustomMarker(number);
 
-        currentMarkers[number.toString()] = endMarker;  
+      final endMarker = Marker(
+        //anchor: const Offset(0.1, 1),
+        markerId: MarkerId(number.toString()),
+        position: position,
+        icon: endMaker,
+        // infoWindow: InfoWindow(
+        //   title: 'Inicio',
+        //   snippet: 'Kms: $kms, duration: $tripDuration',
+        // )
+      );
 
-        
-        LatLng positionDestination = position;
-        LatLng positionOrigin = location;
+      currentMarkers[number.toString()] = endMarker;
 
-        if (i == 0) {
-          positionOrigin = location;
-          positionDestination = position;
-        } else {
-          var positionOrig = LatLng(double.parse(locales[i-1].localCoordenadasLatitud), double.parse(locales[i-1].localCoordenadasLongitud));
-          var positionDest = position;
+      LatLng positionDestination = position;
+      LatLng positionOrigin = location;
 
-          positionDestination = positionDest;
-          positionOrigin = positionOrig;
-        }
+      if (i == 0) {
+        positionOrigin = location;
+        positionDestination = position;
+      } else {
+        var positionOrig = LatLng(
+            double.parse(locales[i - 1].localCoordenadasLatitud),
+            double.parse(locales[i - 1].localCoordenadasLongitud));
+        var positionDest = position;
 
-        //Calcular distancia
-        //final resultDistanceAndDuration = await getDistanceAndDuration(apiKey, originLat, originLng, destLat, destLng);
-        final distanceAndDuration = await searchDistanceAndDuration(
-          originLat: positionOrigin.latitude, 
-          originLng: positionOrigin.longitude, 
-          destLat: positionDestination.latitude, 
-          destLng: positionDestination.longitude
-        );
+        positionDestination = positionDest;
+        positionOrigin = positionOrig;
+      }
 
-        totalDistanceLocal += distanceAndDuration.distanceValue;
-        totalDurationLocal += distanceAndDuration.durationValue;
+      //Calcular distancia
+      //final resultDistanceAndDuration = await getDistanceAndDuration(apiKey, originLat, originLng, destLat, destLng);
+      final distanceAndDuration = await searchDistanceAndDuration(
+          originLat: positionOrigin.latitude,
+          originLng: positionOrigin.longitude,
+          destLat: positionDestination.latitude,
+          destLng: positionDestination.longitude);
 
-        print('LOG FLUTTER - Distancia: ${distanceAndDuration.distanceText}');
-        print('LOG FLUTTER - Duración: ${distanceAndDuration.durationText}');
+      totalDistanceLocal += distanceAndDuration.distanceValue;
+      totalDurationLocal += distanceAndDuration.durationValue;
 
-        PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-          googleApiKey: Environment.apiKeyGoogleMaps,
-          request: PolylineRequest(
-            origin: PointLatLng(positionOrigin.latitude, positionOrigin.longitude),
-            destination: PointLatLng(positionDestination.latitude, positionDestination.longitude),
-            mode: TravelMode.driving,
-            //wayPoints: [PolylineWayPoint(location: "Sabo, Yaba Lagos Nigeria")],
-          ),
-        );
+      print('LOG FLUTTER - Distancia: ${distanceAndDuration.distanceText}');
+      print('LOG FLUTTER - Duración: ${distanceAndDuration.durationText}');
 
-        if (result.points.isNotEmpty) {
-          result.points.forEach((PointLatLng point) {
-            polylineCoordinates.add(LatLng(point.latitude, point.longitude));
-          });
-        }
+      PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+        googleApiKey: Environment.apiKeyGoogleMaps,
+        request: PolylineRequest(
+          origin:
+              PointLatLng(positionOrigin.latitude, positionOrigin.longitude),
+          destination: PointLatLng(
+              positionDestination.latitude, positionDestination.longitude),
+          mode: TravelMode.driving,
+          //wayPoints: [PolylineWayPoint(location: "Sabo, Yaba Lagos Nigeria")],
+        ),
+      );
 
-        PolylineId id = PolylineId("poly_${number}");
-        Polyline polyline = Polyline(
-            polylineId: id, 
-            points: polylineCoordinates,
-            color: primaryColor,
-            width: 5,
-            startCap: Cap.roundCap,
-            endCap: Cap.roundCap,
-          );
-        currentPolylines[id.toString()] = polyline;
+      if (result.points.isNotEmpty) {
+        result.points.forEach((PointLatLng point) {
+          polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+        });
+      }
+
+      PolylineId id = PolylineId("poly_${number}");
+      Polyline polyline = Polyline(
+        polylineId: id,
+        points: polylineCoordinates,
+        color: primaryColor,
+        width: 5,
+        startCap: Cap.roundCap,
+        endCap: Cap.roundCap,
+      );
+      currentPolylines[id.toString()] = polyline;
     }
 
     state = state.copyWith(
-      markers: currentMarkers,
-      polylines: currentPolylines,
-      totalDistance: totalDistanceLocal,
-      totalDuration: totalDurationLocal
-    );
+        markers: currentMarkers,
+        polylines: currentPolylines,
+        totalDistance: totalDistanceLocal,
+        totalDuration: totalDurationLocal);
   }
 
   void addMarkers(List<CompanyLocalRoutePlanner> locales) async {
-    
-    final currentMarkers = Map<String, Marker>.from( state.markers );
+    final currentMarkers = Map<String, Marker>.from(state.markers);
 
     for (var i = 0; i < locales.length; i++) {
-        var number = i + 1;
-        var companyLocal = locales[i];
+      var number = i + 1;
+      var companyLocal = locales[i];
 
-        var location = LatLng(double.parse(companyLocal.localCoordenadasLatitud), double.parse(companyLocal.localCoordenadasLongitud));
-      
-        final startMaker = await getCustomMarker(number);
+      var location = LatLng(double.parse(companyLocal.localCoordenadasLatitud),
+          double.parse(companyLocal.localCoordenadasLongitud));
 
-        final startMarker = Marker(
-          //anchor: const Offset(0.1, 1),
-          markerId: MarkerId(number.toString()),
-          position: location,
-          icon: startMaker,
-          // infoWindow: InfoWindow(
-          //   title: 'Inicio',
-          //   snippet: 'Kms: $kms, duration: $tripDuration',
-          // )
-        );
+      final startMaker = await getCustomMarker(number);
 
-        currentMarkers[number.toString()] = startMarker;
+      final startMarker = Marker(
+        //anchor: const Offset(0.1, 1),
+        markerId: MarkerId(number.toString()),
+        position: location,
+        icon: startMaker,
+        // infoWindow: InfoWindow(
+        //   title: 'Inicio',
+        //   snippet: 'Kms: $kms, duration: $tripDuration',
+        // )
+      );
+
+      currentMarkers[number.toString()] = startMarker;
     }
 
-    state = state.copyWith(
-      markers: currentMarkers
-    );
+    state = state.copyWith(markers: currentMarkers);
   }
 
-  void addMarker(LatLng position, String id, BitmapDescriptor descriptor, int number) async {
-   
+  void addMarker(LatLng position, String id, BitmapDescriptor descriptor,
+      int number) async {
     final startMaker = await getCustomMarker(number);
 
     final startMarker = Marker(
@@ -267,12 +269,10 @@ class MapNotifier extends StateNotifier<MapState> {
       // )
     );
 
-    final currentMarkers = Map<String, Marker>.from( state.markers );
+    final currentMarkers = Map<String, Marker>.from(state.markers);
     currentMarkers[id] = startMarker;
 
-    state = state.copyWith(
-      markers: currentMarkers
-    );
+    state = state.copyWith(markers: currentMarkers);
   }
 
   void addMarkerLocation(LatLng position) async {
@@ -289,15 +289,12 @@ class MapNotifier extends StateNotifier<MapState> {
       // )
     );
 
-    final currentMarkers = Map<String, Marker>.from( state.markers );
+    final currentMarkers = Map<String, Marker>.from(state.markers);
     currentMarkers['location'] = startMarker;
 
-    state = state.copyWith(
-      markers: currentMarkers
-    );
+    state = state.copyWith(markers: currentMarkers);
   }
 }
-
 
 class MapState {
   final bool isMapInitialized;
@@ -309,27 +306,25 @@ class MapState {
   final int totalDistance;
   final int totalDuration;
 
-  MapState({
-    this.isMapInitialized = false, 
-    this.mapCenter, 
-    this.locationCurrent, 
-    this.selectedPlace,
-    this.markers = const {},
-    this.polylines = const {},
-    this.totalDistance = 0,
-    this.totalDuration = 0
-  });
+  MapState(
+      {this.isMapInitialized = false,
+      this.mapCenter,
+      this.locationCurrent,
+      this.selectedPlace,
+      this.markers = const {},
+      this.polylines = const {},
+      this.totalDistance = 0,
+      this.totalDuration = 0});
 
-  MapState copyWith({
-    bool? isMapInitialized,
-    LatLng? mapCenter,
-    LatLng? locationCurrent,
-    Place? selectedPlace,
-    Map<String, Marker>? markers,
-    Map<String, Polyline>? polylines,
-    int? totalDistance,
-    int? totalDuration
-  }) =>
+  MapState copyWith(
+          {bool? isMapInitialized,
+          LatLng? mapCenter,
+          LatLng? locationCurrent,
+          Place? selectedPlace,
+          Map<String, Marker>? markers,
+          Map<String, Polyline>? polylines,
+          int? totalDistance,
+          int? totalDuration}) =>
       MapState(
         isMapInitialized: isMapInitialized ?? this.isMapInitialized,
         mapCenter: mapCenter ?? this.mapCenter,
