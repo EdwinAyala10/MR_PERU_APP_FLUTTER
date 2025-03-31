@@ -3,32 +3,39 @@ import 'package:crm_app/features/route-planner/domain/domain.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ItemRoutePlannerLocal extends ConsumerWidget {
   CompanyLocalRoutePlanner local;
   final Function()? callbackOnTap;
 
-  ItemRoutePlannerLocal({super.key, required this.local, required this.callbackOnTap});
+  ItemRoutePlannerLocal(
+      {super.key, required this.local, required this.callbackOnTap});
 
   @override
-  Widget build(BuildContext context,WidgetRef ref) {
+  Widget build(BuildContext context, WidgetRef ref) {
     int? numCantidadLocal = int.tryParse(local.localCantidad ?? '0');
     numCantidadLocal = numCantidadLocal ?? 0;
 
-    final List<CompanyLocalRoutePlanner> listItems = ref.watch(routePlannerProvider).selectedItems;
+    final List<CompanyLocalRoutePlanner> listItems =
+        ref.watch(routePlannerProvider).selectedItems;
 
     print('DAVID LIST ITEMS: ${listItems.length}');
-   
-    bool exists = listItems.any((item) => item.ruc == local.ruc && item.localCodigo == local.localCodigo);
+
+    bool exists = listItems.any((item) =>
+        item.ruc == local.ruc && item.localCodigo == local.localCodigo);
 
     return ListTile(
       title: Text(local.localNombre,
-          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15, overflow: TextOverflow.ellipsis)),
+          style: const TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 15,
+              overflow: TextOverflow.ellipsis)),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (local.localCoordenadasLatitud=="") 
+          if (local.localCoordenadasLatitud == "")
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
@@ -46,7 +53,8 @@ class ItemRoutePlannerLocal extends ConsumerWidget {
               ),
             ),
           Text(local.razon ?? '',
-            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)),  
+              style:
+                  const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)),
           Row(
             children: [
               Text(local.clienteNombreEstado ?? ''),
@@ -54,14 +62,24 @@ class ItemRoutePlannerLocal extends ConsumerWidget {
               Text(local.clienteNombreTipo ?? ''),
             ],
           ),
-          Text ((numCantidadLocal>1 ? local.localDistrito : local.localDireccion) ?? '' , style: const TextStyle(color: Colors.black45)),
-          if(local.cchkFechaRegistroCheckIn !=null)
-          Text (local.cchkFechaRegistroCheckIn?? '' , style: const TextStyle(color: Colors.green))
-
+          Text(
+              (numCantidadLocal > 1
+                      ? local.localDistrito
+                      : local.localDireccion) ??
+                  '',
+              style: const TextStyle(color: Colors.black45)),
+          Visibility(
+            visible: local.cchkFechaRegistroCheckIn != null &&
+                local.cchkFechaRegistroCheckIn != '',
+            child: Text(
+              "ULt. visita: ${local.cchkFechaRegistroCheckIn ?? ''}",
+              style: const TextStyle(color: Colors.green),
+            ),
+          )
         ],
       ),
-      leading: 
-      /*Transform.scale(
+      leading:
+          /*Transform.scale(
         scale: 1.5,
         child: Checkbox(
           value: true, 
@@ -70,11 +88,11 @@ class ItemRoutePlannerLocal extends ConsumerWidget {
           },
         ),
       )*/
-      Icon(
+          Icon(
         //Icons.check_box_outline_blank_outlined, size: 40,
-        exists ? Icons.check_box : Icons.check_box_outline_blank, 
+        exists ? Icons.check_box : Icons.check_box_outline_blank,
 
-        size: 40, 
+        size: 40,
         color: primaryColor,
       )
       /*Stack(
@@ -94,13 +112,18 @@ class ItemRoutePlannerLocal extends ConsumerWidget {
             ),
           ),
         ],
-      )*/,
+      )*/
+      ,
       trailing: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           SizedBox(
-            width: 100,
-            child: Text(local.calificacion ?? '', style: const TextStyle(fontSize: 10, overflow: TextOverflow.ellipsis), )),
+              width: 100,
+              child: Text(
+                local.calificacion ?? '',
+                style: const TextStyle(
+                    fontSize: 10, overflow: TextOverflow.ellipsis),
+              )),
           Text(local.userreportName ?? '')
         ],
       ),

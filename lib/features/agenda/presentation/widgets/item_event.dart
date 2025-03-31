@@ -108,11 +108,14 @@ class ItemEvent extends StatelessWidget {
                   //     style: const TextStyle(fontSize: 13, color: Colors.black),
                   //   ),
                   // ),
-                  if (event.cchkFechaRegistroCheckIn != null)
-                    Text(
-                      'Ult Visita. ${event.cchkFechaRegistroCheckIn}',
+                  Visibility(
+                    visible: event.cchkFechaRegistroCheckIn != null &&
+                        event.cchkFechaRegistroCheckIn != '',
+                    child: Text(
+                      'ULt. visita: ${event.cchkFechaRegistroCheckIn}',
                       style: const TextStyle(fontSize: 13, color: Colors.green),
                     ),
+                  ),
                 ],
               ),
             ),
