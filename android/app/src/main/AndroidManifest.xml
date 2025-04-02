@@ -37,7 +37,7 @@
     </queries>
 
     <application
-        android:label="@string/appName"
+        android:label="Force MR"
         android:requestLegacyExternalStorage="true"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
