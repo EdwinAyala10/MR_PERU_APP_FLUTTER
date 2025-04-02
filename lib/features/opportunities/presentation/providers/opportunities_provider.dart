@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:crm_app/features/auth/domain/domain.dart';
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 
@@ -6,8 +8,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/domain.dart';
 
 import 'opportunities_repository_provider.dart';
-
-
 
 final rucOpportunitieProvider = StateProvider<String?>((ref) => null);
 final idOportunidadMotivo = StateProvider<String?>((ref) => null);
@@ -19,9 +19,9 @@ final opportunitiesProvider =
   final user = ref.watch(authProvider).user;
 
   return OpportunitiesNotifier(
-      opportunitiesRepository: opportunitiesRepository,
-      user: user!,
-    );
+    opportunitiesRepository: opportunitiesRepository,
+    user: user!,
+  );
 });
 
 class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
@@ -31,8 +31,7 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
   OpportunitiesNotifier({
     required this.opportunitiesRepository,
     required this.user,
-  })
-      : super(OpportunitiesState()) {
+  }) : super(OpportunitiesState()) {
     loadNextPage(isRefresh: true);
   }
 
@@ -83,22 +82,42 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
     );
   }
 
-  void onChangeTextSearch(String text) {
+  void onChangeTextSearch(String text, Function filterActiveCAllback) {
     state = state.copyWith(textSearch: text);
-    loadNextPage(isRefresh: true);
+    // loadNextPage(isRefresh: true);
+    if (state.typeOpportunity == "01,02,03,04") {
+      filterActiveCAllback();
+      return;
+    }
+    loadNextPageByType(isRefresh: true);
   }
 
-  void onChangeNotIsActiveSearch() {
-    state = state.copyWith(isActiveSearch: false, textSearch: '');
+  void onChangeNotIsActiveSearch(Function filterActiveCAllback) {
+    state = state.copyWith(
+      isActiveSearch: false,
+      textSearch: '',
+    );
     //if (state.textSearch != "") {
-      loadNextPage(isRefresh: true);
+    // loadNextPage(isRefresh: true);
     //}
+    if (state.typeOpportunity == "01,02,03,04") {
+      filterActiveCAllback();
+      return;
+    }
+    loadNextPageByType(isRefresh: true);
   }
 
   void onChangeNotIsActiveSearchSinRefresh() {
     state = state.copyWith(isActiveSearch: false, textSearch: '');
     //if (state.textSearch != "") {
-      //loadNextPage(isRefresh: true);
+    //loadNextPage(isRefresh: true);
+    //}
+  }
+
+  void clearOpList() {
+    state = state.copyWith(opportunities: []);
+    //if (state.textSearch != "") {
+    //loadNextPage(isRefresh: true);
     //}
   }
 
@@ -109,7 +128,7 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
       if (state.isLoading) return;
       state = state.copyWith(isLoading: true);
     } else {
-      if (state.isReload || state.isLastPage) return;  
+      if (state.isReload || state.isLastPage) return;
       state = state.copyWith(isReload: true);
     }
 
@@ -123,28 +142,26 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
       sOffset = state.offset + 10;
     }
 
-    final opportunities =
-        await opportunitiesRepository.getOpportunities(
-          ruc: '', 
-          search: search, 
-          limit: sLimit,
-          offset: sOffset,
-          idUsuario: user.code
-        );
+    final opportunities = await opportunitiesRepository.getOpportunities(
+      ruc: '',
+      search: search,
+      limit: sLimit,
+      offset: sOffset,
+      idUsuario: user.code,
+    );
 
     if (opportunities.isEmpty) {
       //state = state.copyWith(isLoading: false, isLastPage: true);
       //state = state.copyWith(isLoading: false);
 
       if (isRefresh) {
-        state = state.copyWith(isLoading: false, isLastPage: true);    
+        state = state.copyWith(isLoading: false, isLastPage: true);
       } else {
         state = state.copyWith(isReload: false, isLastPage: true);
       }
 
       return;
     } else {
-
       int newOffset;
       List<Opportunity> newOpportunities;
 
@@ -158,25 +175,179 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
 
       if (isRefresh) {
         state = state.copyWith(
-          isLastPage: false,
-          isLoading: false,
-          offset: newOffset,
-          //opportunities: [...state.opportunities, ...opportunities]);
-          opportunities: newOpportunities
-        );
+            isLastPage: false,
+            isLoading: false,
+            offset: newOffset,
+            //opportunities: [...state.opportunities, ...opportunities]);
+            opportunities: newOpportunities);
       } else {
         state = state.copyWith(
-          isLastPage: false,
-          isReload: false,
-          offset: newOffset,
-          //opportunities: [...state.opportunities, ...opportunities]);
-          opportunities: newOpportunities
-        );
+            isLastPage: false,
+            isReload: false,
+            offset: newOffset,
+            //opportunities: [...state.opportunities, ...opportunities]);
+            opportunities: newOpportunities);
       }
-     
+    }
+  }
+
+  Future loadNextPageByType({bool isRefresh = false}) async {
+    // if (state.typeOpportunity != state.previusTypeOpportunity) {
+    //   log("Entrooooo");
+    // }
+    final search = state.textSearch;
+
+    if (isRefresh) {
+      if (state.isLoading) return;
+      state = state.copyWith(isLoading: true);
+    } else {
+      if (state.isReload || state.isLastPage) return;
+      state = state.copyWith(isReload: true);
     }
 
-    
+    int sLimit = state.limit;
+    int sOffset = state.offset;
+
+    if (isRefresh) {
+      sLimit = 10;
+      sOffset = 0;
+    } else {
+      sOffset = state.offset + 10;
+    }
+
+    final opportunities = await opportunitiesRepository.getListOpportunities(
+      ruc: '',
+      search: search,
+      limit: sLimit,
+      offset: sOffset,
+      idUsuario: user.isAdmin ? "" : user.code,
+      estado: state.typeOpportunity,
+    );
+
+    if (opportunities.isEmpty) {
+      //state = state.copyWith(isLoading: false, isLastPage: true);
+      //state = state.copyWith(isLoading: false);
+
+      if (isRefresh) {
+        state = state.copyWith(isLoading: false, isLastPage: true);
+      } else {
+        state = state.copyWith(isReload: false, isLastPage: true);
+      }
+
+      return;
+    } else {
+      int newOffset;
+      List<Opportunity> newOpportunities;
+
+      if (isRefresh) {
+        newOffset = 0;
+        newOpportunities = opportunities;
+      } else {
+        newOffset = sOffset;
+        newOpportunities = [...state.opportunities, ...opportunities];
+      }
+
+      if (isRefresh) {
+        state = state.copyWith(
+            isLastPage: false,
+            isLoading: false,
+            offset: newOffset,
+            //opportunities: [...state.opportunities, ...opportunities]);
+            opportunities: newOpportunities);
+      } else {
+        state = state.copyWith(
+            isLastPage: false,
+            isReload: false,
+            offset: newOffset,
+            //opportunities: [...state.opportunities, ...opportunities]);
+            opportunities: newOpportunities);
+      }
+    }
+  }
+
+  /// This methos is copy of loadNextPage refactor after
+  Future loadFiltersOpportunity({
+    bool isRefresh = false,
+    String? startDate,
+    String? startPercent,
+    String? startValue,
+    String? endDate,
+    String? endPercents,
+    String? endValue,
+    String? userResponsable,
+    String? estadoOP,
+  }) async {
+    final search = state.textSearch;
+    if (isRefresh) {
+      if (state.isLoading) return;
+      state = state.copyWith(isLoading: true);
+    } else {
+      if (state.isReload || state.isLastPage) return;
+      state = state.copyWith(isReload: true);
+    }
+    int sLimit = state.limit;
+    int sOffset = state.offset;
+
+    if (isRefresh) {
+      sLimit = 10;
+      sOffset = 0;
+    } else {
+      sOffset = state.offset + 10;
+    }
+    final opportunities = await opportunitiesRepository.getListOpportunities(
+        ruc: '',
+        endPercent: endPercents ?? '',
+        search: search,
+        limit: sLimit,
+        offset: sOffset,
+        idUsuario: userResponsable ?? '',
+        estado: state.typeOpportunity,
+        endDate: endDate ?? '',
+        endValue: endValue ?? '',
+        startDate: startDate ?? '',
+        startPercent: startPercent ?? '',
+        startValue: startValue ?? '',
+        estadoOP: estadoOP);
+
+    if (opportunities.isEmpty) {
+      //state = state.copyWith(isLoading: false, isLastPage: true);
+      //state = state.copyWith(isLoading: false);
+
+      if (isRefresh) {
+        state = state.copyWith(isLoading: false, isLastPage: true);
+      } else {
+        state = state.copyWith(isReload: false, isLastPage: true);
+      }
+
+      return;
+    } else {
+      int newOffset;
+      List<Opportunity> newOpportunities;
+
+      if (isRefresh) {
+        newOffset = 0;
+        newOpportunities = opportunities;
+      } else {
+        newOffset = sOffset;
+        newOpportunities = [...state.opportunities, ...opportunities];
+      }
+
+      if (isRefresh) {
+        state = state.copyWith(
+            isLastPage: false,
+            isLoading: false,
+            offset: newOffset,
+            //opportunities: [...state.opportunities, ...opportunities]);
+            opportunities: newOpportunities);
+      } else {
+        state = state.copyWith(
+            isLastPage: false,
+            isReload: false,
+            offset: newOffset,
+            //opportunities: [...state.opportunities, ...opportunities]);
+            opportunities: newOpportunities);
+      }
+    }
   }
 
   Future loadStatusOpportunity() async {
@@ -193,9 +364,20 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
     }
 
     state = state.copyWith(
-        isLoadingStatus: false,
-        statusOpportunity: statusOpportunitiy
-    );
+        isLoadingStatus: false, statusOpportunity: statusOpportunitiy);
+  }
+
+  void updateTypeOpportunity(String type) {
+    state = state.copyWith(typeOpportunity: type);
+  }
+
+  @override
+  bool updateShouldNotify(OpportunitiesState old, OpportunitiesState current) {
+    if (old.typeOpportunity != current.typeOpportunity) {
+      state = state.copyWith(opportunities: List.empty(), isLoading: false);
+      return super.updateShouldNotify(old, current);
+    }
+    return super.updateShouldNotify(old, current);
   }
 }
 
@@ -210,18 +392,21 @@ class OpportunitiesState {
   final List<StatusOpportunity> statusOpportunity;
   final bool isActiveSearch;
   final String textSearch;
+  final String typeOpportunity;
 
-  OpportunitiesState(
-      {this.isLastPage = false,
-      this.isReload = false,
-      this.limit = 10,
-      this.offset = 0,
-      this.isLoading = false,
-      this.isLoadingStatus = false,
-      this.isActiveSearch = false,
-      this.textSearch = '',
-      this.statusOpportunity = const [],
-      this.opportunities = const []});
+  OpportunitiesState({
+    this.isLastPage = false,
+    this.isReload = false,
+    this.limit = 10,
+    this.offset = 0,
+    this.isLoading = false,
+    this.isLoadingStatus = false,
+    this.isActiveSearch = false,
+    this.textSearch = '',
+    this.typeOpportunity = '',
+    this.statusOpportunity = const [],
+    this.opportunities = const [],
+  });
 
   OpportunitiesState copyWith({
     bool? isLastPage,
@@ -234,12 +419,14 @@ class OpportunitiesState {
     List<StatusOpportunity>? statusOpportunity,
     bool? isActiveSearch,
     String? textSearch,
+    String? typeOpportunity,
   }) =>
       OpportunitiesState(
         isLastPage: isLastPage ?? this.isLastPage,
         isReload: isReload ?? this.isReload,
         limit: limit ?? this.limit,
         offset: offset ?? this.offset,
+        typeOpportunity: typeOpportunity ?? this.typeOpportunity,
         isLoading: isLoading ?? this.isLoading,
         isLoadingStatus: isLoadingStatus ?? this.isLoadingStatus,
         opportunities: opportunities ?? this.opportunities,

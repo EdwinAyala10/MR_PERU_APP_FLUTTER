@@ -29,3 +29,6 @@ https://es.erome.com/a/sgJixzRz
 
 edwin.rccperu@gmail.com
 74047949
+
+richard.ramirez@mrperu.com.pe
+43502560

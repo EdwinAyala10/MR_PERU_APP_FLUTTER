@@ -18,7 +18,7 @@ Future<BitmapDescriptor> getLocationCustomMarker() async {
   final image = await picture.toImage(size.width.toInt(), size.height.toInt());
   final byteData = await image.toByteData( format: ui.ImageByteFormat.png );
 
-  return BitmapDescriptor.bytes(byteData!.buffer.asUint8List());
+  return BitmapDescriptor.fromBytes(byteData!.buffer.asUint8List());
 
 }
 
@@ -35,7 +35,7 @@ Future<BitmapDescriptor> getCustomMarker( int number ) async {
   final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
   final buffer = byteData!.buffer.asUint8List();
 
-  return BitmapDescriptor.bytes(buffer);
+  return BitmapDescriptor.fromBytes(buffer);
 
 }
 

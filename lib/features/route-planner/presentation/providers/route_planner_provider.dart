@@ -2,6 +2,8 @@ import 'dart:developer';
 
 import 'package:crm_app/features/auth/domain/entities/user.dart';
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:crm_app/features/resource-detail/domain/repositories/resource_details_repository.dart';
+import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_repository_provider.dart';
 import 'package:crm_app/features/route-planner/domain/entities/coordenada.dart';
 import 'package:crm_app/features/route-planner/domain/entities/create_event_planner_response.dart';
 import 'package:crm_app/features/route-planner/domain/entities/validate_event_planner_response.dart';
@@ -16,9 +18,11 @@ import '../../domain/domain.dart';
 final routePlannerProvider =
     StateNotifierProvider<RoutePlannerNotifier, RoutePlannerState>((ref) {
   final routePlannerRepository = ref.watch(routePlannerRepositoryProvider);
+  final resourceDetailsRepProvider = ref.read(resourceDetailsRepositoryProvider);
   final user = ref.read(authProvider);
   return RoutePlannerNotifier(
     routePlannerRepository: routePlannerRepository,
+    resourceDetailsRepository: resourceDetailsRepProvider,
     user: user.user,
   );
 });
@@ -28,11 +32,13 @@ final userResponsableProvider = StateProvider<String>((ref) => '');
 /// [Para agilizar el desarroollo de los clientes incorpore directamente DIO en el providoer state, esto de momento en cuanto haya la oportunidad se necesatara realizar un refactor]
 class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
   final RoutePlannerRepository routePlannerRepository;
+  final ResourceDetailsRepository resourceDetailsRepository;
   final User? user;
   Dio client = Dio();
 
   RoutePlannerNotifier({
     required this.routePlannerRepository,
+    required this.resourceDetailsRepository,
     this.user,
   }) : super(RoutePlannerState()) {
     //loadNextPage(isRefresh: true);
@@ -230,6 +236,17 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     await loadNextPage(isRefresh: true);
   }
 
+  void clearValues() async {
+    state = state.copyWith(
+        filtersSuccess: [],
+        filters: [],
+        selectedItems: [],
+        isActiveSearch: false,
+        textSearch: '',
+        isLoading: false,
+        );
+  }
+
   Future<void> onDeleteAllFilter() async {
     state = state.copyWith(filtersSuccess: [], filters: []);
     loadNextPage(isRefresh: true);
@@ -296,6 +313,36 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     for (final filter in filters) {
       options.add(DropdownOption(
           id: filter.userreportCodigo, name: filter.userreportName));
+    }
+
+    return options;
+  }
+
+  Future<List<DropdownOption>> loadFilterTypeOpportunity() async {
+    //state = state.copyWith(isLoading: true);
+
+    // List<Map<String, dynamic>> filters = [
+    //   {"id": "01", "name": "Leads Abiertos"},
+    //   {"id": "02", "name": "Contactado"},
+    //   {"id": "03", "name": "Oferta Enviada"},
+    //   {"id": "04", "name": "En Negociación"}
+    // ];
+
+    final filters = await resourceDetailsRepository.getResourceDetailsVisibleByGroup(
+      idCodigo: "01,02,03,04",
+      idGroup: "05"
+    );
+    List<DropdownOption> options = [];
+
+    options.add(DropdownOption(id: '', name: 'Selecciona'));
+
+    for (final filter in filters) {
+      options.add(
+        DropdownOption(
+          id: filter.recdCodigo,
+          name: filter.recdNombre,
+        ),
+      );
     }
 
     return options;
@@ -440,17 +487,22 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     ValidateEventPlannerResponse validate =
         await routePlannerRepository.validateEventPlanner(event);
     log('''
-  ${validate.message}
-  ${validate.status}
-${validate.type}
+    VALIDATE RESPONSE
+        ${validate.message}
+        ${validate.status}
+        ${validate.type}
      ''');
 
     return validate;
   }
 
   void sendLoadFilter() {
-    state = state.copyWith(filtersSuccess: state.filters, selectedItems: [] );
+    state = state.copyWith(filtersSuccess: state.filters, selectedItems: []);
     loadNextPage(isRefresh: true);
+  }
+
+  void updateFilters() {
+    state = state.copyWith(filtersSuccess: state.filters, selectedItems: []);
   }
 
   Future<List<DropdownOption>> loadFilterRuc(String search) async {
@@ -558,18 +610,26 @@ ${validate.type}
 
       if (!state.isLastPage) {
         if (isRefresh) {
-          state = state.copyWith(isLoading: false, isLastPage: true, );
+          state = state.copyWith(
+            isLoading: false,
+            isLastPage: true,
+          );
         } else {
-          state = state.copyWith(isReload: false, isLastPage: true, );
+          state = state.copyWith(
+            isReload: false,
+            isLastPage: true,
+          );
         }
-      }else {
+      } else {
         if (isRefresh) {
-          state = state.copyWith(isLoading: false, isLastPage: true, locales: [] );
+          state =
+              state.copyWith(isLoading: false, isLastPage: true, locales: []);
         } else {
-          state = state.copyWith(isReload: false, isLastPage: true, locales: [] );
+          state =
+              state.copyWith(isReload: false, isLastPage: true, locales: []);
         }
       }
-     
+
       //state = state.copyWith(isLoading: false, locales: []);
       return;
     } else {

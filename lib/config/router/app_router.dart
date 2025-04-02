@@ -1,4 +1,5 @@
 import 'package:crm_app/features/agenda/presentation/screens/event_detail_screen.dart';
+import 'package:crm_app/features/companies/presentation/screens/company_route_planner.dart';
 import 'package:crm_app/features/dashboard/presentation/screens/notification_screen.dart';
 import 'package:crm_app/features/documents/presentation/screens/enlace_screen.dart';
 import 'package:crm_app/features/kpis/presentation/screens/kpi_detail_screen.dart';
@@ -48,8 +49,7 @@ final goRouterProvider = Provider((ref) {
       /// * SearchDelegate
       GoRoute(
         path: '/${SearchUsersPlanner.name}',
-        builder: (_,state)=> const SearchUsersPlanner(),
-
+        builder: (_, state) => const SearchUsersPlanner(),
       ),
 
       ///* Auth Routes
@@ -165,6 +165,10 @@ final goRouterProvider = Provider((ref) {
       GoRoute(
         path: '/register_route_planner',
         builder: (context, state) => const RegisterRoutePlannerScreen(),
+      ),
+      GoRoute(
+        path: '/company_router_planner',
+        builder: (context, state) => const CompanyRouterPlanner(),
       ),
       GoRoute(
         path: '/route_day_planner',

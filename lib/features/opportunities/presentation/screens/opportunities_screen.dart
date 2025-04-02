@@ -2,6 +2,10 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:crm_app/features/activities/presentation/providers/providers.dart';
+import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:crm_app/features/opportunities/presentation/providers/filter_active_opportunity_provider.dart';
+import 'package:crm_app/features/opportunities/presentation/widgets/custom_acctive_opportunity.dart';
+import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
 import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
 import 'package:crm_app/features/shared/widgets/no_exist_listview.dart';
 
@@ -16,106 +20,227 @@ import 'package:go_router/go_router.dart';
 
 import '../../../shared/shared.dart';
 
-class OpportunitiesScreen extends ConsumerWidget {
+class OpportunitiesScreen extends ConsumerStatefulWidget {
   const OpportunitiesScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final scaffoldKey = GlobalKey<ScaffoldState>();
+  ConsumerState<OpportunitiesScreen> createState() =>
+      _OpportunitiesScreenState();
+}
 
-    return Scaffold(
-      drawer: SideMenu(scaffoldKey: scaffoldKey),
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text(
-          'Oportunidades',
-          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
-          textAlign: TextAlign.center,
-        ),
-        /*actions: [
-          if (isActiveSearch) const SizedBox(width: 58),
-          if (isActiveSearch)
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: TextFormField(
-                  //controller: _searchController,
-                  onChanged: (String value) {
-                    if (_debounce?.isActive ?? false) _debounce?.cancel();
-                    _debounce = Timer(const Duration(milliseconds: 500), () {
-                      print('Searching for: $value');
-                      ref
-                          .read(opportunitiesProvider.notifier)
-                          .onChangeTextSearch(value);
-                    });
-                  },
-                  decoration: const InputDecoration(
-                    hintText: 'Buscar oportunidad...',
-                    //border: InputBorder.none,
-                  ),
+class _OpportunitiesScreenState extends ConsumerState<OpportunitiesScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  bool activeFilter = true;
+
+  @override
+  void initState() {
+    _tabController = TabController(length: 4, vsync: this);
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        log("Tab seleccionada: ${_tabController.index}");
+        if (_tabController.index == 0) {
+          log("CUSTOM LOGIC FOR ACTIVO");
+          setState(() {
+            activeFilter = true;
+          });
+          return;
+        } else {
+          // ref.read(routePlannerProvider.notifier).clearValues();
+          // resetAllProvidersFilterOP(ref);
+          ref.read(searchControllerProvider).text = "";
+        }
+        setState(() {
+          activeFilter = false;
+        });
+      }
+    });
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      ref.read(routePlannerProvider.notifier).clearValues();
+      resetAllProvidersFilterOP(ref);
+      ref.read(searchControllerProvider).text = '';
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scaffoldKey = GlobalKey<ScaffoldState>();
+    return DefaultTabController(
+      length: 4,
+      child: Scaffold(
+        drawer: SideMenu(scaffoldKey: scaffoldKey),
+        appBar: AppBar(
+          centerTitle: true,
+          bottom: TabBar(
+            controller: _tabController,
+            onTap: (int index) {
+              log("message: $index");
+              _tabController.animateTo(index);
+            },
+            tabs: const [
+              Tab(text: 'Activo'),
+              Tab(text: 'En pausa'),
+              Tab(text: 'Ganado'),
+              Tab(text: 'Perdida'),
+            ],
+          ),
+          title: const Text(
+            'Oportunidades',
+            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
+            textAlign: TextAlign.center,
+          ),
+          actions: [
+            Visibility(
+              visible: activeFilter,
+              child: IconButton(
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height * 0.9,
+                      minHeight: MediaQuery.of(context).size.height * 0.9,
+                    ),
+                    // builder: (context) => const FilterOpportunityActive(),
+                    builder: (context) => const FilterActivityOpportunity(),
+                  );
+                },
+                icon: const Icon(
+                  Icons.filter_alt_sharp,
                 ),
               ),
             ),
-          if (isActiveSearch)
-            IconButton(
-              onPressed: () {
-                //_searchController.clear();
-                ref.read(opportunitiesProvider.notifier).onChangeNotIsActiveSearch();
-              },
-              icon: const Icon(Icons.clear),
-            ),
-            
-          if (!isActiveSearch)
-            IconButton(
+          ],
+          /*actions: [
+            if (isActiveSearch) const SizedBox(width: 58),
+            if (isActiveSearch)
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: TextFormField(
+                    //controller: _searchController,
+                    onChanged: (String value) {
+                      if (_debounce?.isActive ?? false) _debounce?.cancel();
+                      _debounce = Timer(const Duration(milliseconds: 500), () {
+                        print('Searching for: $value');
+                        ref
+                            .read(opportunitiesProvider.notifier)
+                            .onChangeTextSearch(value);
+                      });
+                    },
+                    decoration: const InputDecoration(
+                      hintText: 'Buscar oportunidad...',
+                      //border: InputBorder.none,
+                    ),
+                  ),
+                ),
+              ),
+            if (isActiveSearch)
+              IconButton(
                 onPressed: () {
-                  ref.read(opportunitiesProvider.notifier).onChangeIsActiveSearch();
+                  //_searchController.clear();
+                  ref.read(opportunitiesProvider.notifier).onChangeNotIsActiveSearch();
                 },
-                icon: const Icon(Icons.search_rounded))
-        ],*/
+                icon: const Icon(Icons.clear),
+              ),
+              
+            if (!isActiveSearch)
+              IconButton(
+                  onPressed: () {
+                    ref.read(opportunitiesProvider.notifier).onChangeIsActiveSearch();
+                  },
+                  icon: const Icon(Icons.search_rounded))
+          ],*/
+        ),
+        body: Column(
+          children: [
+            const _SearchComponent(),
+            Expanded(
+              child: TabBarView(
+                physics: const NeverScrollableScrollPhysics(),
+                controller: _tabController,
+                children: const [
+                  Center(
+                    child: _OpportunitiesViewCustom(
+                      type: "01,02,03,04",
+                    ),
+                  ),
+                  Center(
+                    child: _OpportunitiesView(
+                      type: "05",
+                    ),
+                  ),
+                  Center(
+                    child: _OpportunitiesView(
+                      type: "06",
+                    ),
+                  ),
+                  Center(
+                    child: _OpportunitiesView(
+                      type: "07",
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            /// COMENTADO POR PABLO
+            // Expanded(child: _OpportunitiesView()),
+          ],
+        ),
+        floatingActionButton: FloatingActionButtonCustom(
+            iconData: Icons.add,
+            callOnPressed: () {
+              ref.read(uiProvider.notifier).deleteCompanyActivity();
+              context.push('/opportunity/new');
+            }),
       ),
-      body: const Column(
-        children: [
-          _SearchComponent(),
-          Expanded(child: _OpportunitiesView()),
-        ],
-      ),
-      floatingActionButton: FloatingActionButtonCustom(
-          iconData: Icons.add,
-          callOnPressed: () {
-            ref.read(uiProvider.notifier).deleteCompanyActivity();
-            context.push('/opportunity/new');
-          }),
     );
   }
 }
 
 class _OpportunitiesView extends ConsumerStatefulWidget {
-  const _OpportunitiesView();
-
+  final String type;
+  const _OpportunitiesView({required this.type});
   @override
   _OpportunitiesViewState createState() => _OpportunitiesViewState();
 }
 
-class _OpportunitiesViewState extends ConsumerState {
+class _OpportunitiesViewState extends ConsumerState<_OpportunitiesView> {
   final ScrollController scrollController = ScrollController();
-
   @override
   void initState() {
     super.initState();
-
     scrollController.addListener(() {
       if (scrollController.position.pixels >=
           scrollController.position.maxScrollExtent - 200) {
         print('CARGANDO MAS');
-        ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: false);
+        ref
+            .read(opportunitiesProvider.notifier)
+            .loadNextPageByType(isRefresh: false);
       }
     });
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
+      ref.read(opportunitiesProvider.notifier).clearOpList();
+
+      ref
+          .read(opportunitiesProvider.notifier)
+          .updateTypeOpportunity(widget.type);
       ref
           .read(opportunitiesProvider.notifier)
           .onChangeNotIsActiveSearchSinRefresh();
-      ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: true);
+      ref
+          .read(opportunitiesProvider.notifier)
+          .loadNextPageByType(isRefresh: true);
+      log('HERE SE LLAMA AQUI ');
     });
   }
 
@@ -127,7 +252,10 @@ class _OpportunitiesViewState extends ConsumerState {
 
   Future<void> _refresh() async {
     //String text = ref.watch(opportunitiesProvider).textSearch;
-    ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: true);
+    ref.read(opportunitiesProvider.notifier).clearOpList();
+    ref
+        .read(opportunitiesProvider.notifier)
+        .loadNextPageByType(isRefresh: true);
   }
 
   @override
@@ -161,10 +289,6 @@ class _SearchComponent extends ConsumerStatefulWidget {
 }
 
 class __SearchComponentState extends ConsumerState<_SearchComponent> {
-  TextEditingController searchController = TextEditingController(
-      //text: ref.read(routePlannerProvider).textSearch
-      );
-
   @override
   Widget build(BuildContext context) {
     Timer? debounce;
@@ -179,18 +303,86 @@ class __SearchComponentState extends ConsumerState<_SearchComponent> {
         children: [
           TextFormField(
             style: const TextStyle(fontSize: 14.0),
-            controller: searchController,
+            controller: ref.read(searchControllerProvider),
             onChanged: (String value) {
               if (debounce?.isActive ?? false) debounce?.cancel();
               debounce = Timer(const Duration(seconds: 1), () {
                 //ref.read(companiesProvider.notifier).loadNextPage(value);
                 ref
                     .read(opportunitiesProvider.notifier)
-                    .onChangeTextSearch(value);
+                    .onChangeTextSearch(value, () {
+                  ref.read(opportunitiesProvider.notifier).clearOpList();
+                  final user = ref.read(authProvider).user;
+                  ref
+                      .read(opportunitiesProvider.notifier)
+                      .loadFiltersOpportunity(
+                        isRefresh: true,
+                        endDate: (ref.read(endDateProvider) ?? "").toString(),
+                        startDate:
+                            (ref.read(startDateProvider) ?? "").toString(),
+                        estadoOP: findFilterByType(
+                                    ref.read(routePlannerProvider).filters,
+                                    "ID_TIPO_OPORTUNIDAD")
+                                ?.id ??
+                            '',
+                        endPercents:
+                            ref.read(rangeProbProvider).end.round().toString(),
+                        startPercent: ref
+                            .read(rangeProbProvider)
+                            .start
+                            .round()
+                            .toString(),
+                        startValue: ref.read(startValueProvider) != 0
+                            ? ref.read(startValueProvider).toInt().toString()
+                            : "",
+                        endValue: ref.read(startValueProvider) != 0
+                            ? ref.read(endValueProvider).toInt().toString()
+                            : "",
+                        userResponsable: (user?.isAdmin ?? false) == false
+                            ? user?.code ?? ""
+                            : findFilterByType(
+                                        ref.read(routePlannerProvider).filters,
+                                        "ID_USUARIO_RESPONSABLE")
+                                    ?.id ??
+                                '',
+                      );
+                });
               });
             },
             onFieldSubmitted: (value) {
-                ref.read(opportunitiesProvider.notifier).onChangeTextSearch(value);
+              ref.read(opportunitiesProvider.notifier).clearOpList();
+
+              ref.read(opportunitiesProvider.notifier).onChangeTextSearch(value,
+                  () {
+                final user = ref.read(authProvider).user;
+                ref.read(opportunitiesProvider.notifier).loadFiltersOpportunity(
+                      isRefresh: true,
+                      endDate: (ref.read(endDateProvider) ?? "").toString(),
+                      startDate: (ref.read(startDateProvider) ?? "").toString(),
+                      estadoOP: findFilterByType(
+                                  ref.read(routePlannerProvider).filters,
+                                  "ID_TIPO_OPORTUNIDAD")
+                              ?.id ??
+                          '',
+                      endPercents:
+                          ref.read(rangeProbProvider).end.round().toString(),
+                      startPercent:
+                          ref.read(rangeProbProvider).start.round().toString(),
+                      startValue: ref.read(startValueProvider) != 0
+                          ? ref.read(startValueProvider).toInt().toString()
+                          : "",
+                      endValue: ref.read(startValueProvider) != 0
+                          ? ref.read(endValueProvider).toInt().toString()
+                          : "",
+                      userResponsable: (user?.isAdmin ?? false) == false
+                          ? user?.code ?? ""
+                          : findFilterByType(
+                                      ref.read(routePlannerProvider).filters,
+                                      "ID_USUARIO_RESPONSABLE")
+                                  ?.id ??
+                              '',
+                    );
+              });
             },
             decoration: InputDecoration(
               hintText: 'Buscar oportunidad...',
@@ -216,10 +408,47 @@ class __SearchComponentState extends ConsumerState<_SearchComponent> {
           if (ref.watch(opportunitiesProvider).textSearch != "")
             IconButton(
               onPressed: () {
+                ref.read(opportunitiesProvider.notifier).clearOpList();
+
                 ref
                     .read(opportunitiesProvider.notifier)
-                    .onChangeNotIsActiveSearch();
-                searchController.text = '';
+                    .onChangeNotIsActiveSearch(() {
+                  final user = ref.read(authProvider).user;
+                  ref
+                      .read(opportunitiesProvider.notifier)
+                      .loadFiltersOpportunity(
+                        isRefresh: true,
+                        endDate: (ref.read(endDateProvider) ?? "").toString(),
+                        startDate:
+                            (ref.read(startDateProvider) ?? "").toString(),
+                        estadoOP: findFilterByType(
+                                    ref.read(routePlannerProvider).filters,
+                                    "ID_TIPO_OPORTUNIDAD")
+                                ?.id ??
+                            '',
+                        endPercents:
+                            ref.read(rangeProbProvider).end.round().toString(),
+                        startPercent: ref
+                            .read(rangeProbProvider)
+                            .start
+                            .round()
+                            .toString(),
+                        startValue: ref.read(startValueProvider) != 0
+                            ? ref.read(startValueProvider).toInt().toString()
+                            : "",
+                        endValue: ref.read(startValueProvider) != 0
+                            ? ref.read(endValueProvider).toInt().toString()
+                            : "",
+                        userResponsable: (user?.isAdmin ?? false) == false
+                            ? user?.code ?? ""
+                            : findFilterByType(
+                                        ref.read(routePlannerProvider).filters,
+                                        "ID_USUARIO_RESPONSABLE")
+                                    ?.id ??
+                                '',
+                      );
+                });
+                ref.read(searchControllerProvider).text = '';
               },
               icon: const Icon(Icons.clear, size: 18.0),
             ),
@@ -229,6 +458,145 @@ class __SearchComponentState extends ConsumerState<_SearchComponent> {
   }
 }
 
+class _OpportunitiesViewCustom extends ConsumerStatefulWidget {
+  final String type;
+  const _OpportunitiesViewCustom({required this.type});
+  @override
+  _OpportunitiesViewCustomState createState() =>
+      _OpportunitiesViewCustomState();
+}
+
+class _OpportunitiesViewCustomState
+    extends ConsumerState<_OpportunitiesViewCustom> {
+  final ScrollController scrollController = ScrollController();
+  @override
+  void initState() {
+    super.initState();
+    scrollController.addListener(() {
+      if (scrollController.position.pixels >=
+          scrollController.position.maxScrollExtent - 200) {
+        final user = ref.read(authProvider).user;
+        ref.read(opportunitiesProvider.notifier).loadFiltersOpportunity(
+              isRefresh: false,
+              endDate: (ref.read(endDateProvider) ?? "").toString(),
+              startDate: (ref.read(startDateProvider) ?? "").toString(),
+              estadoOP: findFilterByType(ref.read(routePlannerProvider).filters,
+                          "ID_TIPO_OPORTUNIDAD")
+                      ?.id ??
+                  '',
+              endPercents: ref.read(rangeProbProvider).end.round().toString(),
+              startPercent:
+                  ref.read(rangeProbProvider).start.round().toString(),
+              startValue: ref.read(startValueProvider) != 0
+                  ? ref.read(startValueProvider).toInt().toString()
+                  : "",
+              endValue: ref.read(startValueProvider) != 0
+                  ? ref.read(endValueProvider).toInt().toString()
+                  : "",
+              userResponsable: (user?.isAdmin ?? false) == false
+                  ? user?.code ?? ""
+                  : findFilterByType(ref.read(routePlannerProvider).filters,
+                              "ID_USUARIO_RESPONSABLE")
+                          ?.id ??
+                      '',
+            );
+      }
+    });
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      ref.read(opportunitiesProvider.notifier).clearOpList();
+      ref
+          .read(opportunitiesProvider.notifier)
+          .updateTypeOpportunity(widget.type);
+      ref
+          .read(opportunitiesProvider.notifier)
+          .onChangeNotIsActiveSearchSinRefresh();
+      final user = ref.read(authProvider).user;
+      ref.read(opportunitiesProvider.notifier).loadFiltersOpportunity(
+            isRefresh: true,
+            endDate: (ref.read(endDateProvider) ?? "").toString(),
+            startDate: (ref.read(startDateProvider) ?? "").toString(),
+            estadoOP: findFilterByType(ref.read(routePlannerProvider).filters,
+                        "ID_TIPO_OPORTUNIDAD")
+                    ?.id ??
+                '',
+            endPercents: ref.read(rangeProbProvider).end.round().toString(),
+            startPercent: ref.read(rangeProbProvider).start.round().toString(),
+            startValue: ref.read(startValueProvider) != 0
+                ? ref.read(startValueProvider).toInt().toString()
+                : "",
+            endValue: ref.read(startValueProvider) != 0
+                ? ref.read(endValueProvider).toInt().toString()
+                : "",
+            userResponsable: (user?.isAdmin ?? false) == false
+                ? user?.code ?? ""
+                : findFilterByType(ref.read(routePlannerProvider).filters,
+                            "ID_USUARIO_RESPONSABLE")
+                        ?.id ??
+                    '',
+          );
+      log('HERE SE LLAMA AQUI ');
+    });
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _refresh() async {
+    //String text = ref.watch(opportunitiesProvider).textSearch;
+    ref.read(opportunitiesProvider.notifier).clearOpList();
+    final user = ref.read(authProvider).user;
+    ref.read(opportunitiesProvider.notifier).loadFiltersOpportunity(
+          isRefresh: true,
+          endDate: (ref.read(endDateProvider) ?? "").toString(),
+          startDate: (ref.read(startDateProvider) ?? "").toString(),
+          estadoOP: findFilterByType(ref.read(routePlannerProvider).filters,
+                      "ID_TIPO_OPORTUNIDAD")
+                  ?.id ??
+              '',
+          endPercents: ref.read(rangeProbProvider).end.round().toString(),
+          startPercent: ref.read(rangeProbProvider).start.round().toString(),
+          startValue: ref.read(startValueProvider) != 0
+              ? ref.read(startValueProvider).toInt().toString()
+              : "",
+          endValue: ref.read(startValueProvider) != 0
+              ? ref.read(endValueProvider).toInt().toString()
+              : "",
+          userResponsable: (user?.isAdmin ?? false) == false
+              ? user?.code ?? ""
+              : findFilterByType(ref.read(routePlannerProvider).filters,
+                          "ID_USUARIO_RESPONSABLE")
+                      ?.id ??
+                  '',
+        );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final opportunitiesState = ref.watch(opportunitiesProvider);
+    final isReload = opportunitiesState.isReload;
+
+    if (opportunitiesState.isLoading) {
+      return const LoadingModal();
+    }
+
+    return opportunitiesState.opportunities.isNotEmpty
+        ? _ListOpportunities(
+            opportunities: opportunitiesState.opportunities,
+            onRefreshCallback: _refresh,
+            isReload: isReload,
+            scrollController: scrollController,
+          )
+        : NoExistData(
+            textCenter: 'No hay actividades registradas',
+            onRefreshCallback: _refresh,
+            icon: Icons.graphic_eq,
+          );
+  }
+}
 /*
 
 class _SearchComponent extends ConsumerWidget {

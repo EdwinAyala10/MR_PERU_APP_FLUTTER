@@ -72,25 +72,71 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
   }
 
   @override
-  Future<List<Opportunity>> getOpportunities(
-      {String ruc = '', String search = '', int offset = 0, int limit = 10,String idUsuario = ''}) async {
+  Future<List<Opportunity>> getOpportunities({
+    String ruc = '',
+    String search = '',
+    int offset = 0,
+    int limit = 10,
+    String idUsuario = '',
+  }) async {
     final data = {
-      "RUC": ruc, 
-      "SEARCH": search, 
-      "OFFSET": offset, 
+      "RUC": ruc,
+      "SEARCH": search,
+      "OFFSET": offset,
       "TOP": limit,
       "ID_USUARIO_RESPONSABLE": idUsuario
     };
-
     log(data.toString());
     final response = await dio
         .post('/oportunidad/listar-oportunidades-by-ruc-est', data: data);
+    final List<Opportunity> opportunities = [];
+    for (final opportunity in response.data['data'] ?? []) {
+      opportunities.add(OpportunityMapper.jsonToEntity(opportunity));
+    }
+    return opportunities;
+  }
+
+  @override
+  Future<List<Opportunity>> getListOpportunities({
+    String ruc = '',
+    String search = '',
+    int offset = 0,
+    int limit = 10,
+    String? idUsuario,
+    String? estado,
+    String? estadoOP,
+    String? startDate,
+    String? endDate,
+    String? startValue,
+    String? endValue,
+    String? startPercent,
+    String? endPercent,
+  }) async {
+    log("THIS END PERCENT: $endPercent");
+    final data = {
+      "RUC": ruc,
+      "SEARCH": search,
+      "OFFSET": offset,
+      "TOP": limit,
+      "OPRT_ID_ESTADO_OPORTUNIDAD": estadoOP??'', 
+      "ID_USUARIO_RESPONSABLE": idUsuario ?? '',
+      "ESTADO": estado ?? '',
+      "PROBABILIDAD_DESDE": startPercent ?? '',
+      "PROBABILIDAD_HASTA": endPercent ?? '',
+      "VALOR_DESDE": startValue ?? '',
+      "VALOR_HASTA": endValue ?? '',
+      "FECHAPREVISTADEVENTA_DESDE": startDate ?? '',
+      "FECHAPREVISTADEVENTA_HASTA": endDate ?? ''
+
+    };
+    log("THIS$data");
+    final response =
+        await dio.post('/oportunidad/listar-oportunidades', data: data);
 
     final List<Opportunity> opportunities = [];
     for (final opportunity in response.data['data'] ?? []) {
       opportunities.add(OpportunityMapper.jsonToEntity(opportunity));
     }
-
     return opportunities;
   }
 
