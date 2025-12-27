@@ -55,6 +55,8 @@ class EventMapper {
         opt: json['OPT'] ?? '',
         todoDia: json['TODO_DIA'] ?? '',
         cchkFechaRegistroCheckIn: json['CCHK_FECHA_REGISTRO_CHECK_IN'] ?? '',
+        cchkComentarioCheckIn: json['CCHK_COMENTARIO_CHECK_IN'] ?? '',
+        cchkComentarioCheckOut: json['CCHK_COMENTARIO_CHECK_OUT'] ?? '',
         cckkIdEstadoCheck: json['CCHK_ID_ESTADO_CHECK'] ?? '',
         localDirection: json['LOCAL_DIRECCION'],
       );

@@ -112,8 +112,49 @@ class ItemEvent extends StatelessWidget {
                     visible: event.cchkFechaRegistroCheckIn != null &&
                         event.cchkFechaRegistroCheckIn != '',
                     child: Text(
-                      'ULt. visita: ${event.cchkFechaRegistroCheckIn}',
+                      'Ult. visita: ${event.cchkFechaRegistroCheckIn}',
                       style: const TextStyle(fontSize: 13, color: Colors.green),
+                    ),
+                  ),
+                  Visibility(
+                    visible: event.cchkComentarioCheckIn != null &&
+                        event.cchkComentarioCheckIn != '',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.mode_comment, size: 14),
+                        const Icon(Icons.keyboard_arrow_right_rounded,
+                            size: 14),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            'Últ. check-in: ${event.cchkComentarioCheckIn}',
+                            style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                overflow: TextOverflow.ellipsis),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Visibility(
+                    visible: event.cchkComentarioCheckOut != null &&
+                        event.cchkComentarioCheckOut != '',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.mode_comment, size: 14),
+                        const Icon(Icons.keyboard_arrow_left_rounded, size: 14),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            'Últ. check-out: ${event.cchkComentarioCheckOut}',
+                            style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                overflow: TextOverflow.ellipsis),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
