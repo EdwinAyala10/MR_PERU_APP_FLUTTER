@@ -1,0 +1,2 @@
+/Users/axelloaces/development/Freelance/App Edwin MR FORCE PERU/Codigo/MR_PERU_APP_FLUTTER/android/app/.cxx/RelWithDebInfo/633o302x/x86/CMakeFiles/edit_cache.dir
+/Users/axelloaces/development/Freelance/App Edwin MR FORCE PERU/Codigo/MR_PERU_APP_FLUTTER/android/app/.cxx/RelWithDebInfo/633o302x/x86/CMakeFiles/rebuild_cache.dir

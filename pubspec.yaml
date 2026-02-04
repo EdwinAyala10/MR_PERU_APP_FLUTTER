@@ -2,7 +2,7 @@ name: crm_app
 description: "Una app CRM"
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.0+15
+version: 2.4.1+29
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
@@ -22,7 +22,7 @@ dependencies:
   flutter_callkit_incoming: ^2.0.4+1
   flutter_custom_clippers: ^2.1.0
   flutter_dotenv: ^5.1.0
-  flutter_dynamic_icon: ^2.1.0
+  # flutter_dynamic_icon: ^2.1.0  # Removed: incompatible with Flutter v1 embedding removal
   flutter_file_downloader: ^1.2.1
   flutter_local_notifications: ^17.1.2
   flutter_native_splash: ^2.4.0
@@ -55,6 +55,7 @@ dependencies:
   table_calendar: ^3.1.0
   telephony: ^0.2.0
   url_launcher: ^6.2.6
+  fl_chart: ^0.66.2
 
 dev_dependencies:
   change_app_package_name: ^1.1.0
@@ -85,3 +86,6 @@ flutter:
     - assets/images/
     - assets/icon/
     - google_fonts/montserrat_alternates/
+
+dependency_overrides:
+  win32: 5.5.4

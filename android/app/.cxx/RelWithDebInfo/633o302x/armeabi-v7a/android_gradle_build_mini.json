@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/Users/axelloaces/development/flutter/packages/flutter_tools/gradle/src/main/groovy/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/axelloaces/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/axelloaces/development/Freelance/App Edwin MR FORCE PERU/Codigo/MR_PERU_APP_FLUTTER/android/app/.cxx/RelWithDebInfo/633o302x/armeabi-v7a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/axelloaces/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/axelloaces/development/Freelance/App Edwin MR FORCE PERU/Codigo/MR_PERU_APP_FLUTTER/android/app/.cxx/RelWithDebInfo/633o302x/armeabi-v7a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}
