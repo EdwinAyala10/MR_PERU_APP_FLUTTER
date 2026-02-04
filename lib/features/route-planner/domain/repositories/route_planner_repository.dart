@@ -1,5 +1,5 @@
-
 import 'package:crm_app/features/route-planner/domain/entities/coordenada.dart';
+import 'package:crm_app/features/route-planner/domain/entities/distance_filter.dart';
 import 'package:crm_app/features/route-planner/domain/entities/event_planner_response.dart';
 import 'package:crm_app/features/route-planner/domain/entities/validate_event_planner_response.dart';
 import 'package:crm_app/features/route-planner/domain/entities/validate_horario_trabajo_response.dart';
@@ -7,28 +7,32 @@ import 'package:crm_app/features/route-planner/domain/entities/validate_horario_
 import '../domain.dart';
 
 abstract class RoutePlannerRepository {
-
-  Future<List<CompanyLocalRoutePlanner>> getCompanyLocals({ 
-    int limit = 10, 
-    int offset = 0, 
-    String search,
-    List<FilterOption> filters = const []
-  });
+  Future<List<CompanyLocalRoutePlanner>> getCompanyLocals(
+      {int limit = 10,
+      int offset = 0,
+      String search,
+      List<FilterOption> filters = const [],
+      double? latMin,
+      double? latMax,
+      double? lngMin,
+      double? lngMax});
   Future<List<FilterActivity>> getFilterActivities();
 
-  Future<List<FilterResponsable>> getFilterResponsable({ String search });
-  Future<List<FilterCodigoPostal>> getFilterCodigoPostal({ String search });
-  Future<List<FilterDistrito>> getFilterDistrito({ String search });
-  Future<List<FilterRucRazonSocial>> getFilterRucRazonSocial({ String search });
-  Future<List<FilterHorarioTrabajo>> getFilterHorarioTrabajo({ String search });
+  Future<List<FilterResponsable>> getFilterResponsable({String search});
+  Future<List<FilterCodigoPostal>> getFilterCodigoPostal({String search});
+  Future<List<FilterDistrito>> getFilterDistrito({String search});
+  Future<List<FilterRucRazonSocial>> getFilterRucRazonSocial({String search});
+  Future<List<FilterHorarioTrabajo>> getFilterHorarioTrabajo({String search});
 
-  Future<EventPlannerResponse> createEventPlanner( Map<dynamic,dynamic> eventLike );
+  Future<EventPlannerResponse> createEventPlanner(
+      Map<dynamic, dynamic> eventLike);
 
-  Future<ValidateEventPlannerResponse> validateEventPlanner( Map<dynamic,dynamic> event );
+  Future<ValidateEventPlannerResponse> validateEventPlanner(
+      Map<dynamic, dynamic> event);
 
   Future<Coordenada> getCoordenadas();
 
   Future<ValidateHorarioTrabajoResponse> getHorarioTrabajo();
 
+  Future<List<DistanceFilter>> getDistanceFilters();
 }
-

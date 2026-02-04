@@ -81,7 +81,9 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
       'ACTI_RUC': state.actiRuc.value,
       'ACTI_RAZON': state.actiRazon,
       'ACTI_ID_TIPO_REGISTRO': state.actiIdTipoRegistro,
-      'ACTI_ID_OPORTUNIDAD': state.actiIdOportunidad.value,
+      'ACTI_ID_OPORTUNIDAD': state.actiIdOportunidad.value.isEmpty
+          ? '0'
+          : state.actiIdOportunidad.value,
       //'ACTI_ID_CONTACTO': state.actiIdContacto.value,
       'ACTI_ID_CONTACTO': state.actividadesContacto?[0].acntIdContacto ?? '',
       'ACTI_COMENTARIO': state.actiComentario,
@@ -123,7 +125,7 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
     state = state.copyWith(
         actiRuc: StateCompany.dirty(value),
         actiRazon: name,
-        actiIdOportunidad: Oportunidad.dirty(''),
+        actiIdOportunidad: const Oportunidad.dirty(''),
         actividadesContacto: [],
         isFormValid: Formz.validate([
           StateCompany.dirty(value),
@@ -171,7 +173,8 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
         isFormValid: Formz.validate([
           StateCompany.dirty(state.actiRuc.value),
           TipoGestion.dirty(state.actiIdTipoGestion.value),
-          Oportunidad.dirty(id)
+          // Oportunidad ya NO es obligatoria
+          //Oportunidad.dirty(id)
           //Contacto.dirty(state.actiIdContacto.value)
         ]));
   }

@@ -113,7 +113,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
     _tabController = TabController(length: 6, vsync: this);
     _tabController.addListener(_handleTabChange);
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
           .watch(companyProvider(widget.company.ruc).notifier)
           .loadSecundaryDetails();
@@ -963,6 +963,7 @@ class _ListEvents extends StatelessWidget {
           itemBuilder: (context, index) {
             final event = events[index];
             return ItemEvent(
+                isMainScreen: false,
                 event: event,
                 callbackOnTap: () {
                   context.push('/event_detail/${event.id}');

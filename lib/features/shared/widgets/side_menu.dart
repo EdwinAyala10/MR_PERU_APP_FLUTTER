@@ -12,7 +12,11 @@ class _NavigationItem {
   final String label;
   final String url;
 
-  _NavigationItem({required this.id, required this.icon, required this.label, required this.url});
+  _NavigationItem(
+      {required this.id,
+      required this.icon,
+      required this.label,
+      required this.url});
 }
 
 class SideMenu extends ConsumerStatefulWidget {
@@ -26,28 +30,93 @@ class SideMenu extends ConsumerStatefulWidget {
 
 class SideMenuState extends ConsumerState<SideMenu> {
   int navDrawerIndex = 0;
-  
-  final List<_NavigationItem>  _navigationItemsOther =[
-    _NavigationItem(id: 0, icon: Icons.dashboard_outlined, label: 'Dashboard', url: '/dashboard' ),
-    _NavigationItem(id: 1, icon: Icons.account_balance_rounded, label: 'Empresas', url: '/companies' ),
-    _NavigationItem(id: 2, icon: Icons.perm_contact_cal, label: 'Contactos', url: '/contacts' ),
-    _NavigationItem(id: 3, icon: Icons.work, label: 'Oportunidades', url: '/opportunities' ),
-    _NavigationItem(id: 4, icon: Icons.local_activity_outlined, label: 'Actividades', url: '/activities' ),
-    _NavigationItem(id: 5, icon: Icons.calendar_month, label: 'Eventos', url: '/agenda' ),
-    _NavigationItem(id: 6, icon: Icons.document_scanner_sharp, label: 'Documentos', url: '/documents' ),
+
+  final List<_NavigationItem> _navigationItemsOther = [
+    _NavigationItem(
+        id: 0,
+        icon: Icons.dashboard_outlined,
+        label: 'Dashboard',
+        url: '/dashboard'),
+    _NavigationItem(
+        id: 1,
+        icon: Icons.account_balance_rounded,
+        label: 'Empresas',
+        url: '/companies'),
+    _NavigationItem(
+        id: 2,
+        icon: Icons.map_outlined,
+        label: 'Planificar de rutas',
+        url: '/route_planner'),
+    _NavigationItem(
+        id: 3,
+        icon: Icons.perm_contact_cal,
+        label: 'Contactos',
+        url: '/contacts'),
+    _NavigationItem(
+        id: 4, icon: Icons.work, label: 'Oportunidades', url: '/opportunities'),
+    _NavigationItem(
+        id: 5,
+        icon: Icons.local_activity_outlined,
+        label: 'Actividades',
+        url: '/activities'),
+    _NavigationItem(
+        id: 6, icon: Icons.task, label: 'Objetivos', url: '/kpis/stats'),
+    _NavigationItem(
+        id: 7, icon: Icons.calendar_month, label: 'Eventos', url: '/agenda'),
+    _NavigationItem(
+        id: 8,
+        icon: Icons.document_scanner_sharp,
+        label: 'Documentos',
+        url: '/documents'),
   ];
 
   final List<_NavigationItem> _navigationItemsAdmin = [
-    _NavigationItem(id: 0, icon: Icons.dashboard_outlined, label: 'Dashboard', url: '/dashboard' ),
-    _NavigationItem(id: 1, icon: Icons.account_balance_rounded, label: 'Empresas', url: '/companies' ),
-    _NavigationItem(id: 2, icon: Icons.map_outlined, label: 'Planificar de rutas', url: '/route_planner' ),
-    _NavigationItem(id: 3, icon: Icons.perm_contact_cal, label: 'Contactos', url: '/contacts' ),
-    _NavigationItem(id: 4, icon: Icons.work, label: 'Oportunidades', url: '/opportunities' ),
-    _NavigationItem(id: 5, icon: Icons.local_activity_outlined, label: 'Actividades', url: '/activities' ),
-    _NavigationItem(id: 6, icon: Icons.calendar_month, label: 'Eventos', url: '/agenda' ),
-    _NavigationItem(id: 7, icon: Icons.task, label: 'Objetivos', url: '/kpi/new' ),
-    _NavigationItem(id: 8, icon: Icons.auto_graph_outlined, label: 'Indicadores', url: '/indicators' ),
-    _NavigationItem(id: 9, icon: Icons.document_scanner_sharp, label: 'Documentos', url: '/documents' ),
+    _NavigationItem(
+        id: 0,
+        icon: Icons.dashboard_outlined,
+        label: 'Dashboard',
+        url: '/dashboard'),
+    _NavigationItem(
+        id: 1,
+        icon: Icons.account_balance_rounded,
+        label: 'Empresas',
+        url: '/companies'),
+    _NavigationItem(
+        id: 2,
+        icon: Icons.map_outlined,
+        label: 'Planificar de rutas',
+        url: '/route_planner'),
+    _NavigationItem(
+        id: 3,
+        icon: Icons.perm_contact_cal,
+        label: 'Contactos',
+        url: '/contacts'),
+    _NavigationItem(
+        id: 4, icon: Icons.work, label: 'Oportunidades', url: '/opportunities'),
+    _NavigationItem(
+        id: 5,
+        icon: Icons.local_activity_outlined,
+        label: 'Actividades',
+        url: '/activities'),
+    _NavigationItem(
+        id: 6, icon: Icons.calendar_month, label: 'Eventos', url: '/agenda'),
+    _NavigationItem(
+        id: 7, icon: Icons.bar_chart, label: 'Objetivos', url: '/kpis/stats'),
+    _NavigationItem(
+        id: 8,
+        icon: Icons.task,
+        label: 'Establecer objetivos',
+        url: '/kpi/new'),
+    _NavigationItem(
+        id: 9,
+        icon: Icons.auto_graph_outlined,
+        label: 'Indicadores',
+        url: '/indicators'),
+    _NavigationItem(
+        id: 10,
+        icon: Icons.document_scanner_sharp,
+        label: 'Documentos',
+        url: '/documents'),
   ];
 
   @override
@@ -75,7 +144,7 @@ class SideMenuState extends ConsumerState<SideMenu> {
           } else {
             context.go(_navigationItemsOther[navDrawerIndex].url);
           }
-          
+
           /*switch (value) {
             case 0:
               context.go('/dashboard');
@@ -124,7 +193,7 @@ class SideMenuState extends ConsumerState<SideMenu> {
                   CircleAvatar(
                     backgroundColor: Theme.of(context).hintColor,
                     child: Text(
-                      user?.name.substring(0, 1) ?? '',
+                      user.name.substring(0, 1) ?? '',
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -133,7 +202,7 @@ class SideMenuState extends ConsumerState<SideMenu> {
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    'Hola, ${user?.name ?? ''}',
+                    'Hola, ${user.name ?? ''}',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -143,23 +212,20 @@ class SideMenuState extends ConsumerState<SideMenu> {
               ),
             ),
           ),
-
-          if (isAdmin) 
+          if (isAdmin)
             ..._navigationItemsAdmin.map((item) {
               return NavigationDrawerDestination(
                 icon: Icon(item.icon),
                 label: Text(item.label),
               );
             }).toList(),
-
-          if (!isAdmin) 
+          if (!isAdmin)
             ..._navigationItemsOther.map((item) {
               return NavigationDrawerDestination(
                 icon: Icon(item.icon),
                 label: Text(item.label),
               );
             }).toList(),
-
           const Padding(
             padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
             child: Divider(),

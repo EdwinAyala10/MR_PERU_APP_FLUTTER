@@ -72,7 +72,11 @@ class ItemEventSmall extends StatelessWidget {
                 event.cchkFechaRegistroCheckIn != '',
             child: Text(
               'Últ. visita: ${event.cchkFechaRegistroCheckIn}',
-              style: const TextStyle(fontSize: 13, color: Colors.green),
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: Colors.green,
+              ),
             ),
           ),
           Visibility(
@@ -86,7 +90,9 @@ class ItemEventSmall extends StatelessWidget {
                 Expanded(
                   child: Text(event.cchkComentarioCheckIn ?? '',
                       style: const TextStyle(
-                          fontSize: 14, overflow: TextOverflow.ellipsis)),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          overflow: TextOverflow.ellipsis)),
                 )
               ],
             ),
@@ -102,7 +108,9 @@ class ItemEventSmall extends StatelessWidget {
                   Expanded(
                     child: Text(event.cchkComentarioCheckOut ?? '',
                         style: const TextStyle(
-                            fontSize: 14, overflow: TextOverflow.ellipsis)),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            overflow: TextOverflow.ellipsis)),
                   )
                 ],
               )),

@@ -1,5 +1,6 @@
 import 'package:crm_app/features/kpis/domain/entities/objetive_by_category.dart';
 import 'package:crm_app/features/kpis/domain/entities/objetive_by_category_response.dart';
+import 'package:crm_app/features/users/domain/domain.dart';
 
 import '../../domain/domain.dart';
 import '../../domain/entities/periodicidad.dart';
@@ -30,16 +31,42 @@ class KpisRepositoryImpl extends KpisRepository {
   }
 
   @override
-  Future< 
-   ObjetiveByCategoryResponse> listObjetiveByCategory(
+  Future<ObjetiveByCategoryResponse> listObjetiveByCategory(
     Map<dynamic, dynamic> kpiForm,
   ) {
     return datasource.listObjetiveByCategory(kpiForm);
   }
 
   @override
-  Future<KpiResponse> updateOrderKpis({ String idKpiOld = '', String orderKpiOld = '', String idKpiNew = '', String orderKpiNew = '' }) {
-    return datasource.updateOrderKpis(idKpiOld : idKpiOld, orderKpiOld: orderKpiOld, idKpiNew: idKpiNew, orderKpiNew: orderKpiNew);
+  Future<KpiResponse> updateOrderKpis(
+      {String idKpiOld = '',
+      String orderKpiOld = '',
+      String idKpiNew = '',
+      String orderKpiNew = ''}) {
+    return datasource.updateOrderKpis(
+        idKpiOld: idKpiOld,
+        orderKpiOld: orderKpiOld,
+        idKpiNew: idKpiNew,
+        orderKpiNew: orderKpiNew);
   }
 
+  @override
+  Future<List<KpisByAsesor>> getKpisByAsesor() {
+    return datasource.getKpisByAsesor();
+  }
+
+  @override
+  Future<List<UserMaster>> getUsersByType(String search) {
+    return datasource.getUsersByType(search);
+  }
+
+  @override
+  Future<bool> updateUsersOrder(List<Map<String, String>> usuarios) {
+    return datasource.updateUsersOrder(usuarios);
+  }
+
+  @override
+  Future<List<KpiStats>> getKpiStats(String userId, int year) {
+    return datasource.getKpiStats(userId, year);
+  }
 }

@@ -19,6 +19,8 @@ class CustomCompanyField extends StatefulWidget {
   final String? Function(String?)? validator;
   final String? initialValue;
   final int? maxLength; // Nuevo parámetro para el límite de caracteres
+  final List<TextInputFormatter>?
+      inputFormatters; // Formateadores personalizados
 
   const CustomCompanyField({
     Key? key,
@@ -39,6 +41,7 @@ class CustomCompanyField extends StatefulWidget {
     this.validator,
     this.initialValue,
     this.maxLength, // Incluir el nuevo parámetro
+    this.inputFormatters, // Incluir formateadores personalizados
   }) : super(key: key);
 
   @override
@@ -52,7 +55,8 @@ class _CustomCompanyFieldState extends State<CustomCompanyField> {
   void initState() {
     super.initState();
     _internalController = widget.controller ?? TextEditingController();
-    _internalController.text = widget.initialValue ?? ''; // Usar el valor inicial si está disponible
+    _internalController.text =
+        widget.initialValue ?? ''; // Usar el valor inicial si está disponible
   }
 
   @override
@@ -72,7 +76,9 @@ class _CustomCompanyFieldState extends State<CustomCompanyField> {
         Container(
           padding: const EdgeInsets.only(bottom: 10.0),
           decoration: BoxDecoration(
-            color: widget.readOnly ? Colors.grey[200] : Colors.white, // Cambiar color de fondo cuando es readonly
+            color: widget.readOnly
+                ? Colors.grey[200]
+                : Colors.white, // Cambiar color de fondo cuando es readonly
             borderRadius: BorderRadius.circular(8),
             boxShadow: [
               if (widget.isBottomField)
@@ -95,9 +101,7 @@ class _CustomCompanyFieldState extends State<CustomCompanyField> {
             keyboardType: widget.keyboardType,
             style: const TextStyle(fontSize: 15, color: Colors.black87),
             maxLines: widget.maxLines,
-            inputFormatters: widget.maxLength != null
-                ? [LengthLimitingTextInputFormatter(widget.maxLength)]
-                : null, // Agregar el limitador de caracteres
+            inputFormatters: _buildInputFormatters(),
             decoration: InputDecoration(
               border: border,
               floatingLabelBehavior: widget.maxLines > 1
@@ -136,6 +140,24 @@ class _CustomCompanyFieldState extends State<CustomCompanyField> {
         )
       ],
     );
+  }
+
+  /// Construye la lista de input formatters combinando los personalizados con maxLength
+  List<TextInputFormatter>? _buildInputFormatters() {
+    final List<TextInputFormatter> formatters = [];
+
+    // Agregar formateadores personalizados primero
+    if (widget.inputFormatters != null) {
+      formatters.addAll(widget.inputFormatters!);
+    }
+
+    // Agregar el limitador de longitud si está definido
+    if (widget.maxLength != null) {
+      formatters.add(LengthLimitingTextInputFormatter(widget.maxLength));
+    }
+
+    // Retornar null si no hay formateadores, o la lista si hay
+    return formatters.isEmpty ? null : formatters;
   }
 
   @override

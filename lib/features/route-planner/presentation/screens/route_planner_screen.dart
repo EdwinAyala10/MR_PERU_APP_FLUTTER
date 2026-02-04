@@ -14,6 +14,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../shared/widgets/loading_modal.dart';
 import '../../../shared/widgets/no_exist_listview.dart';
+import '../../../shared/widgets/show_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -62,7 +63,7 @@ class RoutePlannerScreen extends ConsumerWidget {
               showModalBottomSheet(
                 context: context,
                 isScrollControlled: true,
-                builder: (context) => FilterBottomRouterPlannerSheet(),
+                builder: (context) => const FilterBottomRouterPlannerSheet(),
               );
             },
             icon: Icon(
@@ -77,7 +78,7 @@ class RoutePlannerScreen extends ConsumerWidget {
         children: [
           const _SearchComponent(),
           listFiltersSuccess.isNotEmpty
-              ? TagRowRoutePlanner()
+              ? const TagRowRoutePlanner()
               : const SizedBox(),
           const Expanded(child: _RoutePlannerView()),
         ],
@@ -261,6 +262,7 @@ class _RoutePlannerView extends ConsumerStatefulWidget {
 
 class _RoutePlannerViewState extends ConsumerState {
   final ScrollController scrollController = ScrollController();
+  bool _hasInitialized = false;
 
   @override
   void initState() {
@@ -274,13 +276,31 @@ class _RoutePlannerViewState extends ConsumerState {
       }
     });
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      //await ref.read(routePlannerProvider.notifier).onDeleteAllFilter();
-      //await ref.read(routePlannerProvider.notifier).loadFilterHorario();
-      //await ref.read(routePlannerProvider.notifier).onChangeNotIsActiveSearchSinRefresh();
-      //await ref.read(routePlannerProvider.notifier).loadNextPage(isRefresh: true);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (_hasInitialized) return;
+      _hasInitialized = true;
 
-      ref.read(routePlannerProvider.notifier).initialPlannerLoad();
+      // Obtener ubicación una sola vez al iniciar la pantalla
+      try {
+        final location =
+            await ref.read(locationProvider.notifier).currentPosition();
+        ref.read(routePlannerProvider.notifier).setUserLocation(location);
+        print(
+            '📍 Ubicación obtenida al abrir planificador: lat=${location.latitude}, lng=${location.longitude}');
+      } catch (e) {
+        print('❌ Error al obtener ubicación en planificador: $e');
+        ref.read(routePlannerProvider.notifier).setUserLocation(null);
+
+        // Mostrar snackbar informando que no se pudo obtener la ubicación
+        if (mounted) {
+          showSnackbar(
+            context,
+            'No se pudo obtener tu ubicación. Los filtros de distancia no estarán disponibles.',
+          );
+        }
+      }
+
+      await ref.read(routePlannerProvider.notifier).initialPlannerLoad();
     });
   }
 

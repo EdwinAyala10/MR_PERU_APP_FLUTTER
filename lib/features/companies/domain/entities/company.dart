@@ -1,4 +1,5 @@
 import '../../../kpis/domain/entities/array_user.dart';
+import 'company_check_in_ultima_visita.dart';
 
 class Company {
   String rucId;
@@ -11,6 +12,7 @@ class Company {
   String? observaciones;
   String? usuarioActualizacion;
   String? estado;
+  String? estadoCliente;
   String? departamento;
   String idRubro;
   String? nombreRubro;
@@ -54,9 +56,11 @@ class Company {
   String? userreporteName;
   String? localCantidad;
   String? razonComercial;
+  List<String>? localCoordenadas; // Formato: ["lng,lat", "lng,lat", ...]
+  String? actiComentario;
+  List<CompanyCheckInUltimaVisita>? cchkUltimaVisita;
 
   //ARRAYRESPONSABLES
-
   Company(
       {required this.rucId,
       required this.ruc,
@@ -71,6 +75,7 @@ class Company {
       this.usuarioActualizacion,
       this.idUsuarioActualizacion,
       this.estado,
+      this.estadoCliente,
       this.departamento,
       this.provincia,
       this.distrito,
@@ -110,6 +115,8 @@ class Company {
       this.localCodigoPostal,
       this.clienteNombreEstado,
       this.userreporteName,
-      this.razonComercial
-      });
+      this.razonComercial,
+      this.localCoordenadas,
+      this.actiComentario,
+      this.cchkUltimaVisita});
 }

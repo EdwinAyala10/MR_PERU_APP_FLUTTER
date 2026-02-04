@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:crm_app/config/config.dart';
-import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
 import 'package:crm_app/features/route-planner/domain/domain.dart';
+import 'package:crm_app/features/route-planner/domain/entities/distance_filter.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
 import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
 import 'package:crm_app/features/shared/widgets/find_filter_option_by_type.dart';
@@ -42,7 +42,7 @@ class _FilterDetailRoutePlannerState
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       loadingData();
     });
   }
@@ -57,100 +57,19 @@ class _FilterDetailRoutePlannerState
 
     switch (widget.type) {
       case 'HRTR_ID_HORARIO_TRABAJO':
-        await ref
-            .read(routePlannerProvider.notifier)
-            .loadFilterHorarioTrabajo()
-            .then((value) => {
-                  setState(() {
-                    optionsMaster =
-                        getOptionProcess(value, listFilters, widget.isMulti);
-                    isLoading = false;
-                  })
-                });
-        break;
-
       case 'ESTADO':
-        await ref
-            .read(resourceDetailsProvider.notifier)
-            .loadCatalogById(groupId: '18')
-            .then((value) => {
-                  setState(() {
-                    optionsMaster =
-                        getOptionProcess(value, listFilters, widget.isMulti);
-                    isLoading = false;
-                  })
-                });
-        break;
-
       case 'ULTIMAS_VISITAS':
-        await ref
-            .read(routePlannerProvider.notifier)
-            .loadFilterActivity()
-            .then((value) => {
-                  setState(() {
-                    optionsMaster =
-                        getOptionProcess(value, listFilters, widget.isMulti);
-                    isLoading = false;
-                  })
-                });
-        break;
-
       case 'TIPOCLIENTE':
-        await ref
-            .read(resourceDetailsProvider.notifier)
-            .loadCatalogById(groupId: '02')
-            .then((value) => {
-                  setState(() {
-                    optionsMaster =
-                        getOptionProcess(value, listFilters, widget.isMulti);
-                    isLoading = false;
-                  })
-                });
-        break;
-
       case 'ESTADO_CRM':
-        await ref
-            .read(resourceDetailsProvider.notifier)
-            .loadCatalogById(groupId: '03')
-            .then((value) => {
-                  setState(() {
-                    optionsMaster =
-                        getOptionProcess(value, listFilters, widget.isMulti);
-                    isLoading = false;
-                  })
-                });
-        break;
-
       case 'CALIFICACION':
-        await ref
-            .read(resourceDetailsProvider.notifier)
-            .loadCatalogById(groupId: '04')
-            .then((value) => {
-                  setState(() {
-                    optionsMaster =
-                        getOptionProcess(value, listFilters, widget.isMulti);
-                    isLoading = false;
-                  })
-                });
-        break;
-
       case 'ID_USUARIO_RESPONSABLE':
-        await ref
-            .read(routePlannerProvider.notifier)
-            .loadFilterResponsable()
-            .then((value) => {
-                  setState(() {
-                    optionsMaster =
-                        getOptionProcess(value, listFilters, widget.isMulti);
-                    isLoading = false;
-                  })
-                });
-        break;
-
       case 'ID_TIPO_OPORTUNIDAD':
+      case 'ID_RUBRO':
+      case 'DISTANCIA':
+        // Filtros estáticos que usan cache
         await ref
             .read(routePlannerProvider.notifier)
-            .loadFilterTypeOpportunity()
+            .getFilterOptions(widget.type, search: textSearch)
             .then((value) => {
                   setState(() {
                     optionsMaster =
@@ -161,61 +80,13 @@ class _FilterDetailRoutePlannerState
         break;
 
       case 'CODIGO_POSTAL':
-        await ref
-            .read(routePlannerProvider.notifier)
-            .loadFilterCodigoPostal(textSearch)
-            .then((value) => {
-                  setState(() {
-                    optionsMaster =
-                        getOptionProcess(value, listFilters, widget.isMulti);
-                    isLoading = false;
-                  })
-                });
-        break;
-
       case 'DISTRITO':
-        await ref
-            .read(routePlannerProvider.notifier)
-            .loadFilterDistrito(textSearch)
-            .then((value) => {
-                  setState(() {
-                    optionsMaster =
-                        getOptionProcess(value, listFilters, widget.isMulti);
-                    isLoading = false;
-                  })
-                });
-        break;
-
       case 'RUC':
-        await ref
-            .read(routePlannerProvider.notifier)
-            .loadFilterRuc(textSearch)
-            .then((value) => {
-                  setState(() {
-                    optionsMaster =
-                        getOptionProcess(value, listFilters, widget.isMulti);
-                    isLoading = false;
-                  })
-                });
-        break;
-
-      case 'ID_RUBRO':
-        await ref
-            .read(resourceDetailsProvider.notifier)
-            .loadCatalogById(groupId: '16')
-            .then((value) => {
-                  setState(() {
-                    optionsMaster =
-                        getOptionProcess(value, listFilters, widget.isMulti);
-                    isLoading = false;
-                  })
-                });
-        break;
-
       case 'RAZON_COMERCIAL':
+        // Filtros dinámicos con búsqueda que no usan cache
         await ref
             .read(routePlannerProvider.notifier)
-            .loadFiltecRazonComercial(textSearch)
+            .getFilterOptions(widget.type, search: textSearch)
             .then((value) => {
                   setState(() {
                     optionsMaster =
@@ -250,10 +121,17 @@ class _FilterDetailRoutePlannerState
     List<DropdownOption> optionsList = value;
     List<FilterOptionContainer> optionsM = [];
 
-    final String? idFilter =
-        findFilterOptionByType(listFilters, widget.type, 'id', '');
+    String? idFilter;
 
-    print('aqui esta: ${idFilter}');
+    if (widget.type == 'DISTANCIA') {
+      final selectedDist =
+          ref.read(routePlannerProvider).selectedDistanceFilter;
+      idFilter = selectedDist?.valor;
+    } else {
+      idFilter = findFilterOptionByType(listFilters, widget.type, 'id', '');
+    }
+
+    print('aqui esta: $idFilter');
 
     optionsM = optionsList.asMap().entries.map((entry) {
       DropdownOption option = entry.value;
@@ -290,6 +168,18 @@ class _FilterDetailRoutePlannerState
 
   void handleSelect(
       String id, String name, String type, String title, bool isMulti) {
+    if (type == 'DISTANCIA') {
+      ref
+          .read(routePlannerProvider.notifier)
+          .onChangeDistanceFilter(DistanceFilter(valor: id, descripcion: name));
+    }
+
+    // Si se selecciona "Selecciona", eliminar el filtro de ese tipo
+    if (name.contains('Selecciona')) {
+      ref.read(routePlannerProvider.notifier).onDeleteFilterByType(type);
+      return;
+    }
+
     FilterOption anotherNewFilter =
         FilterOption(id: id, type: type, name: name, title: title);
 
@@ -439,7 +329,7 @@ class FilterOptionContainer extends StatelessWidget {
   final String? secundary;
   final bool? isMulti;
 
-  FilterOptionContainer(
+  const FilterOptionContainer(
       {super.key,
       required this.id,
       required this.name,

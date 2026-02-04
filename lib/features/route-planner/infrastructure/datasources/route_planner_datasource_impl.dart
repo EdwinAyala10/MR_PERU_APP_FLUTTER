@@ -1,9 +1,11 @@
 import 'package:crm_app/features/route-planner/domain/entities/coordenada.dart';
+import 'package:crm_app/features/route-planner/domain/entities/distance_filter.dart';
 import 'package:crm_app/features/route-planner/domain/entities/event_planner_response.dart';
 import 'package:crm_app/features/route-planner/domain/entities/validate_event_planner_response.dart';
 import 'package:crm_app/features/route-planner/domain/entities/validate_horario_trabajo_response.dart';
 import 'package:crm_app/features/route-planner/infrastructure/errors/route_planner_errors.dart';
 import 'package:crm_app/features/route-planner/infrastructure/mappers/coordenada_mapper.dart';
+import 'package:crm_app/features/route-planner/infrastructure/mappers/distance_filter_mapper.dart';
 import 'package:crm_app/features/route-planner/infrastructure/mappers/event_planner_response_mapper.dart';
 import 'package:crm_app/features/route-planner/infrastructure/mappers/validar_horario_trabajo_mapper.dart';
 import 'package:crm_app/features/route-planner/infrastructure/mappers/validate_event_planner_response_mapper.dart';
@@ -31,24 +33,48 @@ class RoutePlannerDatasourceImpl extends RoutePlannerDatasource {
       {int limit = 10,
       int offset = 0,
       String search = '',
-      List<FilterOption> filters = const []}) async {
-    var data = {
+      List<FilterOption> filters = const [],
+      double? latMin,
+      double? latMax,
+      double? lngMin,
+      double? lngMax}) async {
+    // El endpoint espera form-data; alineamos con el cURL proporcionado
+    final Map<String, dynamic> data = {
       'SEARCH': search,
       'OFFSET': offset,
       'TOP': limit,
+      'RUC': '',
+      'TIPOCLIENTE': '',
+      'ESTADO_CRM': '',
+      'CALIFICACION': '',
+      'ID_USUARIO_RESPONSABLE': '',
+      'ULTIMAS_VISITAS': '',
+      'CODIGO_POSTAL': '',
+      'DISTRITO': '',
+      'ID_RUBRO': '',
+      'RAZON_COMERCIAL': '',
+      'ESTADO': '',
     };
 
-    //print('OFFSET: ${offset}');
-    //print('TOP: ${limit}');
-
+    // Mapear filtros (excepto distancia) a los campos que el backend espera
     if (filters.isNotEmpty) {
       for (var filter in filters) {
-        data[filter.type] = filter.id;
+        if (filter.type != 'DISTANCIA') {
+          data[filter.type] = filter.id;
+        }
       }
     }
 
-    final response =
-        await dio.post('/cliente/listar-clientes-local', data: data);
+    // Bounding box si está disponible
+    data['LAT_MIN'] = latMin?.toString() ?? '';
+    data['LAT_MAX'] = latMax?.toString() ?? '';
+    data['LNG_MIN'] = lngMin?.toString() ?? '';
+    data['LNG_MAX'] = lngMax?.toString() ?? '';
+
+    final response = await dio.post(
+      '/cliente/listar-clientes-local',
+      data: FormData.fromMap(data),
+    );
 
     final List<CompanyLocalRoutePlanner> locales = [];
 
@@ -81,7 +107,7 @@ class RoutePlannerDatasourceImpl extends RoutePlannerDatasource {
     final List<FilterResponsable> filters = [];
 
     for (final filter in response.data['data'] ?? []) {
-      filters.add(FilterResposanbleMapper.jsonToEntity(filter));
+      filters.add(FilterResponsableMapper.jsonToEntity(filter));
     }
 
     return filters;
@@ -213,6 +239,19 @@ class RoutePlannerDatasourceImpl extends RoutePlannerDatasource {
     } catch (e) {
       throw Exception();
     }
+  }
+
+  @override
+  Future<List<DistanceFilter>> getDistanceFilters() async {
+    final response = await dio.get('/cliente/listar-distancia');
+
+    final List<DistanceFilter> filters = [];
+
+    for (final filter in response.data['data'] ?? []) {
+      filters.add(DistanceFilterMapper.jsonToEntity(filter));
+    }
+
+    return filters;
   }
 
   @override

@@ -16,8 +16,8 @@ import '../../../activities/presentation/providers/activities_provider.dart';
 import '../../../agenda/domain/domain.dart';
 import '../../../agenda/presentation/providers/events_provider.dart';
 import '../../../agenda/presentation/widgets/item_event_small.dart';
+import '../../../kpis/presentation/providers/kpis_by_asesor_provider.dart';
 import '../../../kpis/domain/domain.dart';
-import '../../../kpis/presentation/providers/kpis_provider.dart';
 import '../../../opportunities/domain/domain.dart';
 import '../../../opportunities/presentation/providers/providers.dart';
 import '../../../shared/shared.dart';
@@ -197,7 +197,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   Future<void> _refreshData() async {
     // Put here the operations you want to execute when refreshing
     await Future.wait([
-      ref.read(kpisProvider.notifier).loadNextPage(),
+      ref.read(kpisByAsesorProvider.notifier).loadKpis(),
       ref.read(eventsProvider.notifier).loadNextPage(),
       ref.read(activitiesProvider.notifier).loadNextPage(isRefresh: true),
       ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: true),
@@ -217,8 +217,8 @@ class _DashboardViewState extends ConsumerState {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
-      ref.read(kpisProvider.notifier).loadNextPage();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(kpisByAsesorProvider.notifier).loadKpis();
       ref.read(eventsProvider.notifier).loadNextPage();
       ref.read(activitiesProvider.notifier).loadNextPage(isRefresh: true);
       ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: true);
@@ -241,7 +241,7 @@ class _DashboardViewState extends ConsumerState {
 
   @override
   Widget build(BuildContext context) {
-    final kpisState = ref.watch(kpisProvider);
+    final kpisState = ref.watch(kpisByAsesorProvider);
 
     final activitiesState = ref.watch(activitiesProvider);
     final opportunitiesState = ref.watch(opportunitiesProvider);
@@ -381,12 +381,23 @@ class _ContainerDashboardOpportunitiesStatus extends StatelessWidget {
 */
 
 class _ContainerDashboardKpis extends StatelessWidget {
-  List<Kpi> kpis;
+  List<KpisByAsesor> kpis;
 
   _ContainerDashboardKpis({required this.kpis});
 
   @override
   Widget build(BuildContext context) {
+    // Flatten goals for display (taking first 3 from all available)
+    int asesorIndex = 0;
+    List<Kpi> semanalKpis = kpis[asesorIndex].semanal.toList();
+    List<Kpi> mensualKpis = kpis[asesorIndex].mensual.toList();
+
+    TextStyle periodicidadTitleTextStyle = const TextStyle(
+      fontWeight: FontWeight.w700,
+      fontSize: 16,
+      color: Colors.black,
+    );
+
     return kpis.isNotEmpty
         ? Center(
             child: Container(
@@ -407,19 +418,121 @@ class _ContainerDashboardKpis extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
+                    DefaultTextStyle(
+                      style: periodicidadTitleTextStyle,
+                      child: Stack(
+                        children: [
+                          Center(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                border:
+                                    Border.all(color: primaryColor, width: 2),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 3),
+                              child: const Text("Semanal"),
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  border:
+                                      Border.all(color: primaryColor, width: 2),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 3),
+                                child: Text(kpis.isNotEmpty
+                                    ? kpis[asesorIndex].asesorAbbrt ?? ''
+                                    : ''),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: semanalKpis.length == 1
+                          ? MainAxisAlignment.start
+                          : MainAxisAlignment.spaceBetween,
                       children: [
-                        //for (var kpi in kpisState.kpis)
-                        for (var i = 0; i < 3 && i < kpis.length; i++)
-                          progressKpi(
-                              percentage: (kpis[i].porcentaje ?? 0).toDouble(),
-                              title: kpis[i].objrNombre ?? '',
-                              category: kpis[i].objrNombreCategoria ?? '',
-                              subTitle: kpis[i].objrNombrePeriodicidad ?? '',
-                              subSubTitle: kpis[i].objrNombreAsignacion ?? '',
-                              advance: kpis[i].totalRegistro.toString(),
-                              total: convertTypeCategory(kpis[i]) ?? '0'),
+                        for (var i = 0; i < 3 && i < semanalKpis.length; i++)
+                          Expanded(
+                            child: Align(
+                              alignment: semanalKpis.length == 1
+                                  ? Alignment.centerLeft
+                                  : Alignment.center,
+                              child: progressKpi(
+                                  percentage: (semanalKpis[i].porcentaje ?? 0)
+                                      .toDouble(),
+                                  title: semanalKpis[i].objrNombre ?? '',
+                                  category:
+                                      semanalKpis[i].objrNombreCategoria ?? '',
+                                  subTitle:
+                                      semanalKpis[i].objrNombrePeriodicidad ??
+                                          '',
+                                  subSubTitle:
+                                      semanalKpis[i].objrNombreAsignacion ?? '',
+                                  advance:
+                                      semanalKpis[i].totalRegistro.toString(),
+                                  total: convertTypeCategory(semanalKpis[i]) ??
+                                      '0'),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    Center(
+                      child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: primaryColor, width: 2),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 3),
+                          child: Text("Mensual",
+                              style: periodicidadTitleTextStyle)),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: mensualKpis.length == 1
+                          ? MainAxisAlignment.start
+                          : MainAxisAlignment.spaceBetween,
+                      children: [
+                        for (var i = 0; i < 3 && i < mensualKpis.length; i++)
+                          Expanded(
+                            child: Align(
+                              alignment: mensualKpis.length == 1
+                                  ? Alignment.centerLeft
+                                  : Alignment.center,
+                              child: progressKpi(
+                                  percentage: (mensualKpis[i].porcentaje ?? 0)
+                                      .toDouble(),
+                                  title: mensualKpis[i].objrNombre ?? '',
+                                  category:
+                                      mensualKpis[i].objrNombreCategoria ?? '',
+                                  subTitle:
+                                      mensualKpis[i].objrNombrePeriodicidad ??
+                                          '',
+                                  subSubTitle:
+                                      mensualKpis[i].objrNombreAsignacion ?? '',
+                                  advance:
+                                      mensualKpis[i].totalRegistro.toString(),
+                                  total: convertTypeCategory(mensualKpis[i]) ??
+                                      '0'),
+                            ),
+                          ),
                       ],
                     ),
                     const SizedBox(
@@ -892,102 +1005,101 @@ class progressKpi extends StatelessWidget {
       returnColors = Colors.green;
     }
 
-    print('PORCENTAJE: ${porc}');
+    print('PORCENTAJE: $porc');
     return returnColors;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontWeight: FontWeight.w500,
-              fontSize: 14,
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+          ),
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+        Text(
+          category,
+          style: const TextStyle(
+            fontWeight: FontWeight.w500,
+            color: Colors.black45,
+            fontSize: 12,
+          ),
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        Stack(
+          alignment: Alignment.center,
+          children: <Widget>[
+            SizedBox(
+              width: 86,
+              height: 86,
+              child: CircularProgressIndicator(
+                strokeWidth: 7,
+                value: ((percentage) / 100).toDouble(),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                    isColorIndicator(percentage)), // Color cuando está marcado
+                backgroundColor: Colors.grey,
+              ),
             ),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          Text(
-            category,
-            style: const TextStyle(
-              fontWeight: FontWeight.w500,
-              color: Colors.black45,
-              fontSize: 12,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          Stack(
-            alignment: Alignment.center,
-            children: <Widget>[
-              SizedBox(
-                width: 86,
-                height: 86,
-                child: CircularProgressIndicator(
-                  strokeWidth: 7,
-                  value: ((percentage) / 100).toDouble(),
-                  valueColor: AlwaysStoppedAnimation<Color>(isColorIndicator(
-                      percentage)), // Color cuando está marcado
-                  backgroundColor: Colors.grey,
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  advance,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    advance,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                const SizedBox(height: 1),
+                Container(
+                  width: 40,
+                  height: 1,
+                  color: Colors.black38,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  total,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(height: 1),
-                  Container(
-                    width: 40,
-                    height: 1,
-                    color: Colors.black38,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    total,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(
-            height: 6,
-          ),
-          Text(
-            subTitle,
-            style: const TextStyle(
-              fontWeight: FontWeight.w500,
-              fontSize: 13,
+                ),
+              ],
             ),
+          ],
+        ),
+        const SizedBox(
+          height: 6,
+        ),
+        Text(
+          subTitle,
+          style: const TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 13,
           ),
-          Text(
-            subSubTitle,
-            style: const TextStyle(
-              fontWeight: FontWeight.w300,
-              fontSize: 11,
-            ),
+        ),
+        Text(
+          subSubTitle,
+          style: const TextStyle(
+            fontWeight: FontWeight.w300,
+            fontSize: 11,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

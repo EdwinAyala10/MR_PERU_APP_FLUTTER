@@ -23,6 +23,7 @@ import '../../../shared/shared.dart';
 
 import '../../../opportunities/presentation/search/search_opportunities_active_provider.dart';
 import '../../../opportunities/presentation/delegates/search_opportunity_active_delegate.dart';
+import '../../../opportunities/presentation/providers/opportunities_repository_provider.dart';
 import '../../../shared/widgets/floating_action_button_custom.dart';
 import '../../../shared/widgets/select_custom_form.dart';
 
@@ -149,6 +150,9 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
     DropdownOption(id: '', name: 'Cargando...')
   ];
 
+  bool _isLoadingOpportunities = true;
+  bool _hasOpportunities = true;
+
   Future<bool> requestPermission() async {
     var status = await Permission.phone.request();
 
@@ -169,9 +173,9 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       ref
-          .read(activityFormProvider(widget.activity ).notifier)
+          .read(activityFormProvider(widget.activity).notifier)
           .onOportunidadChanged(
             ref.read(selectOpportunity)?.id ?? '',
             ref.read(selectOpportunity)?.oprtNombre ?? '',
@@ -185,6 +189,41 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
                   optionsTipoGestion = value;
                 })
               });
+
+      // Verificar si hay oportunidades disponibles para la empresa
+      final activityForm = ref.watch(activityFormProvider(widget.activity));
+      final ruc = activityForm.actiRuc.value;
+      if (ruc.isNotEmpty) {
+        try {
+          final opportunitiesRepository =
+              ref.read(opportunitiesRepositoryProvider);
+          final opportunities =
+              await opportunitiesRepository.searchOpportunities(
+            ruc,
+            '',
+          );
+          setState(() {
+            _hasOpportunities = opportunities.isNotEmpty;
+            _isLoadingOpportunities = false;
+          });
+
+          if (!_hasOpportunities) {
+            ref
+                .read(activityFormProvider(widget.activity).notifier)
+                .onOportunidadChanged('0', 'Oportunidad no definida');
+          }
+        } catch (e) {
+          setState(() {
+            _hasOpportunities = false;
+            _isLoadingOpportunities = false;
+          });
+        }
+      } else {
+        setState(() {
+          _hasOpportunities = false;
+          _isLoadingOpportunities = false;
+        });
+      }
     });
 
     _callDurationService.onCallEnded = (duration) {
@@ -195,7 +234,7 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
 
     if (Platform.isIOS) setStream();
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       //ref.read(activitiesProvider.notifier).loadNextPage();
       _showModalBottomSheet(context, widget.phone, widget.activity);
       ref.read(activityCallProvider.notifier).loadActivityCall(widget.activity);
@@ -211,7 +250,7 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
 
       print('NUMERO AA');
       print('widget.phone: ${widget.phone}');
-      print('number: ${number}');
+      print('number: $number');
 
       if (!sendActivityCall) {
         if (number == widget.phone &&
@@ -295,83 +334,86 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
                   text: activityForm.actiRazon,
                   placeholder: 'aaa',
                   label: 'Empresa'),
-              Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Oportunidad',
-                      style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: activityForm.actiIdOportunidad.value == ''
-                              ? Colors.red
-                              : Colors.black),
-                    ),
-                    const SizedBox(height: 6),
-                    GestureDetector(
-                      onTap: () {
-                        if (activityForm.actiRuc.value == null) {
-                          showSnackbar(context, 'Seleccione una empresa');
-                          return;
-                        }
-                        _openSearchOportunities(
-                            context, ref, activityForm.actiRuc.value, activity);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.grey,
+              _isLoadingOpportunities
+                  ? PlaceholderInput(text: 'Cargando Oportunidades...')
+                  : Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Oportunidad',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: _hasOpportunities &&
+                                      activityForm.actiIdOportunidad.value == ''
+                                  ? Colors.red
+                                  : Colors.black,
+                            ),
                           ),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                activityForm.actiIdOportunidad.value == ''
-                                    ? 'Seleccione Oportunidad'
-                                    : activityForm.actiNombreOportunidad,
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    color:
-                                        activityForm.actiIdOportunidad.value ==
-                                                ''
+                          const SizedBox(height: 6),
+                          GestureDetector(
+                            onTap: () {
+                              _openSearchOportunities(context, ref,
+                                  activityForm.actiRuc.value, activity);
+                            },
+                            child: Container(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Colors.grey,
+                                ),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      activityForm.actiIdOportunidad.value == ''
+                                          ? 'Seleccione Oportunidad'
+                                          : activityForm.actiNombreOportunidad,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: _hasOpportunities &&
+                                                activityForm.actiIdOportunidad
+                                                        .value ==
+                                                    ''
                                             ? Colors.red
-                                            : Colors.black),
+                                            : Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.search),
+                                    onPressed: () {
+                                      _openSearchOportunities(context, ref,
+                                          activityForm.actiRuc.value, activity);
+                                    },
+                                  ),
+                                ],
                               ),
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.search),
-                              onPressed: () {
-                                if (activityForm.actiRuc.value == null) {
-                                  showSnackbar(
-                                      context, 'Seleccione una empresa');
-                                  return;
-                                }
-                                _openSearchOportunities(context, ref,
-                                    activityForm.actiRuc.value, activity);
-                              },
-                            ),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(height: 4),
+                          _hasOpportunities &&
+                                  activityForm.actiIdOportunidad.errorMessage !=
+                                      null
+                              ? Padding(
+                                  padding: const EdgeInsets.only(left: 4),
+                                  child: Text(
+                                    activityForm
+                                            .actiIdOportunidad.errorMessage ??
+                                        '',
+                                    style: const TextStyle(color: Colors.red),
+                                  ),
+                                )
+                              : const SizedBox(),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-              activityForm.actiIdOportunidad.errorMessage != null
-                  ? Padding(
-                      padding: const EdgeInsets.only(left: 4),
-                      child: Text(
-                        activityForm.actiIdOportunidad.errorMessage ?? '',
-                        style: const TextStyle(color: Colors.red),
-                      ),
-                    )
-                  : const SizedBox(),
-              const SizedBox(height: 10),
+              const SizedBox(height: 6),
               CustomCompanyField(
                 label: 'Comentarios',
                 maxLines: 2,

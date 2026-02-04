@@ -1,8 +1,8 @@
 import 'dart:developer';
 
-import 'package:crm_app/features/kpis/domain/entities/objetive_by_category.dart';
 import 'package:crm_app/features/kpis/domain/entities/objetive_by_category_response.dart';
-import 'package:crm_app/features/kpis/infrastructure/mappers/objetive_by_category_mapper.dart';
+import 'package:crm_app/features/users/domain/domain.dart';
+import 'package:crm_app/features/users/infrastructure/mappers/user_master_mapper.dart';
 
 import '../../domain/entities/periodicidad.dart';
 import '../mappers/kpi_response_mapper.dart';
@@ -13,6 +13,8 @@ import '../../domain/domain.dart';
 
 import '../errors/kpi_errors.dart';
 import '../mappers/kpi_mapper.dart';
+import '../mappers/kpi_by_asesor_mapper.dart';
+import '../mappers/kpi_stats_mapper.dart';
 
 class KpisDatasourceImpl extends KpisDatasource {
   late final Dio dio;
@@ -73,9 +75,8 @@ class KpisDatasourceImpl extends KpisDatasource {
 
   @override
   Future<List<Kpi>> getKpis(String idUsuario) async {
-    final response = await dio.get('/objetivo/listar-objetivo-dashboard', data: {
-      'ID_USUARIO_ASIGNACION': idUsuario
-    });
+    final response = await dio.get('/objetivo/listar-objetivo-dashboard',
+        data: {'ID_USUARIO_ASIGNACION': idUsuario});
 
     final List<Kpi> kpis = [];
     for (final kpi in response.data['data'] ?? []) {
@@ -83,6 +84,15 @@ class KpisDatasourceImpl extends KpisDatasource {
     }
 
     return kpis;
+  }
+
+  @override
+  Future<List<KpisByAsesor>> getKpisByAsesor() async {
+    final response = await dio.get(
+        '/objetivo/listar-objetivo-dashboard-by-asesor',
+        data: {'SEARCH': '', 'ID_USUARIO_ASIGNACION': ''});
+
+    return KpiByAsesorMapper.jsonToListEntity(response.data);
   }
 
   @override
@@ -128,32 +138,30 @@ class KpisDatasourceImpl extends KpisDatasource {
   }
 
   @override
-  Future<KpiResponse> updateOrderKpis({ String idKpiOld = '', String orderKpiOld = '', String idKpiNew = '', String orderKpiNew = '' }) async {
+  Future<KpiResponse> updateOrderKpis(
+      {String idKpiOld = '',
+      String orderKpiOld = '',
+      String idKpiNew = '',
+      String orderKpiNew = ''}) async {
     try {
       const String method = 'POST';
       const String url = '/objetivo/actualiar-orden';
 
       Object data = {
         "OBJETIVO": [
-          {
-              "OBJR_ID_OBJETIVO":idKpiOld,
-              "OBJR_ORDEN":orderKpiOld
-          },
-          {
-              "OBJR_ID_OBJETIVO": idKpiNew,
-              "OBJR_ORDEN":orderKpiNew
-          }      
+          {"OBJR_ID_OBJETIVO": idKpiOld, "OBJR_ORDEN": orderKpiOld},
+          {"OBJR_ID_OBJETIVO": idKpiNew, "OBJR_ORDEN": orderKpiNew}
         ]
       };
 
-      final response = await dio.request(url,
-          data: data, options: Options(method: method));
+      final response =
+          await dio.request(url, data: data, options: Options(method: method));
 
       final KpiResponse kpiResponse =
           KpiResponseMapper.jsonToEntity(response.data);
 
-          print('MENSAJE ORDENAR OBJ');
-          print(kpiResponse.message);
+      print('MENSAJE ORDENAR OBJ');
+      print(kpiResponse.message);
 
       return kpiResponse;
     } on DioException catch (e) {
@@ -162,5 +170,53 @@ class KpisDatasourceImpl extends KpisDatasource {
     } catch (e) {
       throw Exception();
     }
+  }
+
+  @override
+  Future<List<UserMaster>> getUsersByType(String search) async {
+    try {
+      final response = await dio.get(
+        '/user/listar-usuarios-by-tipo',
+        queryParameters: {'SEARCH': search, 'OPCION': '01'},
+      );
+
+      return UserMasterMapper.jsonToListEntity(response.data);
+    } catch (e) {
+      log('Error getting users by type: $e');
+      return [];
+    }
+  }
+
+  @override
+  Future<bool> updateUsersOrder(List<Map<String, String>> usuarios) async {
+    try {
+      const String method = 'POST';
+      const String url = '/user/actualizar-orden-objetivo';
+
+      Object data = {"OBJETIVO": usuarios};
+
+      final response =
+          await dio.request(url, data: data, options: Options(method: method));
+
+      log('MENSAJE ORDENAR USUARIOS');
+      log(response.data.toString());
+
+      return response.data['status'] ?? false;
+    } on DioException catch (e) {
+      log('Error updating users order: ${e.message}');
+      return false;
+    } catch (e) {
+      log('Error updating users order: $e');
+      return false;
+    }
+  }
+
+  @override
+  Future<List<KpiStats>> getKpiStats(String userId, int year) async {
+    final response = await dio.get(
+        '/objetivo/listar-reporte-venta-ganada-by-user',
+        queryParameters: {'ID_USUARIO': userId, 'ANIO': year});
+
+    return KpiStatsMapper.jsonToListEntity(response.data['data'] ?? []);
   }
 }

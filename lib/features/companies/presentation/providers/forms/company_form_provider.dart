@@ -462,31 +462,33 @@ class CompanyFormNotifier extends StateNotifier<CompanyFormState> {
     List<ArrayUser> arrayUsuariosEliminar = [];
 
     if (state.rucId != "new") {
-      bool objExist = state.arrayresponsablesEliminar!
-          .any((objeto) => objeto.cresIdClienteResp == item.cresIdClienteResp);
+      // Solo agregar a la lista de eliminación si tiene cresIdClienteResp (usuario existente en BD)
+      if (item.cresIdClienteResp != null && item.cresIdClienteResp!.isNotEmpty) {
+        bool objExist = state.arrayresponsablesEliminar!
+            .any((objeto) => objeto.cresIdClienteResp == item.cresIdClienteResp);
 
-      if (!objExist) {
-        ArrayUser array = ArrayUser();
-        array.cresIdClienteResp = item.cresIdClienteResp;
+        if (!objExist) {
+          ArrayUser array = ArrayUser();
+          array.cresIdClienteResp = item.cresIdClienteResp;
 
-        arrayUsuariosEliminar = [
-          ...state.arrayresponsablesEliminar ?? [],
-          array
-        ];
+          arrayUsuariosEliminar = [
+            ...state.arrayresponsablesEliminar ?? [],
+            array
+          ];
+        } else {
+          arrayUsuariosEliminar = state.arrayresponsablesEliminar ?? [];
+        }
+      } else {
+        arrayUsuariosEliminar = state.arrayresponsablesEliminar ?? [];
       }
     }
 
     List<ArrayUser> arrayUsuarios = [];
 
-    if (state.rucId == "new") {
-      arrayUsuarios = state.arrayresponsables!
+    // Usar cresIdUsuarioResponsable como identificador principal ya que siempre está presente
+    arrayUsuarios = state.arrayresponsables!
         .where((user) => user.cresIdUsuarioResponsable != item.cresIdUsuarioResponsable)
         .toList();
-    } else {
-      arrayUsuarios = state.arrayresponsables!
-        .where((user) => user.cresIdClienteResp != item.cresIdClienteResp)
-        .toList();
-    }
 
     state = state.copyWith(
         arrayresponsables: arrayUsuarios,

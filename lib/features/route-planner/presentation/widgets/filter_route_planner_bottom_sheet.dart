@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FilterBottomRouterPlannerSheet extends ConsumerStatefulWidget {
+  const FilterBottomRouterPlannerSheet({super.key});
+
   @override
   _FilterBottomRouterPlannerSheetState createState() =>
       _FilterBottomRouterPlannerSheetState();
@@ -13,6 +15,15 @@ class FilterBottomRouterPlannerSheet extends ConsumerStatefulWidget {
 
 class _FilterBottomRouterPlannerSheetState
     extends ConsumerState<FilterBottomRouterPlannerSheet> {
+  @override
+  void initState() {
+    super.initState();
+    // Cargar todas las opciones de filtro al abrir el bottom sheet
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(routePlannerProvider.notifier).loadAllFilterOptions();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final double screenHeight = MediaQuery.of(context).size.height;
@@ -69,53 +80,57 @@ class _FilterBottomRouterPlannerSheetState
             child: ListView.separated(
               itemBuilder: (context, index) {
                 final options = [
-                  FilterOptionContainerFil(
+                  const FilterOptionContainerFil(
                       title: 'Horario de trabajo',
                       trailing: 'Selecciona',
                       type: 'HRTR_ID_HORARIO_TRABAJO'),
-                  FilterOptionContainerFil(
+                  const FilterOptionContainerFil(
                       title: 'Muestra sólo en seguimiento',
                       trailing: 'Selecciona',
                       type: 'ESTADO'),
-                  FilterOptionContainerFil(
+                  const FilterOptionContainerFil(
                       title: 'Actividad',
                       trailing: 'Selecciona',
                       type: 'ULTIMAS_VISITAS'),
-                  FilterOptionContainerFil(
+                  const FilterOptionContainerFil(
+                      title: 'Distancia',
+                      trailing: 'Selecciona',
+                      type: 'DISTANCIA'),
+                  const FilterOptionContainerFil(
                       title: 'Tipo',
                       trailing: 'Selecciona',
                       type: 'TIPOCLIENTE'),
-                  FilterOptionContainerFil(
+                  const FilterOptionContainerFil(
                       title: 'Estado',
                       trailing: 'Selecciona',
                       type: 'ESTADO_CRM'),
-                  FilterOptionContainerFil(
+                  const FilterOptionContainerFil(
                       title: 'Calificación',
                       trailing: 'Selecciona',
                       type: 'CALIFICACION'),
-                  FilterOptionContainerFil(
+                  const FilterOptionContainerFil(
                       title: 'Responsable',
                       trailing: 'Selecciona',
                       type: 'ID_USUARIO_RESPONSABLE'),
-                  FilterOptionContainerFil(
+                  const FilterOptionContainerFil(
                       title: 'Código postal',
                       trailing: 'Selecciona',
                       type: 'CODIGO_POSTAL',
                       search: true),
-                  FilterOptionContainerFil(
+                  const FilterOptionContainerFil(
                       title: 'Distrito',
                       trailing: 'Selecciona',
                       type: 'DISTRITO',
                       search: true,
                       multi: true),
-                  FilterOptionContainerFil(
+                  const FilterOptionContainerFil(
                       title: 'RUC',
                       trailing: 'Selecciona',
                       type: 'RUC',
                       search: true),
-                  FilterOptionContainerFil(
+                  const FilterOptionContainerFil(
                       title: 'RUBRO', trailing: 'Selecciona', type: 'ID_RUBRO'),
-                  FilterOptionContainerFil(
+                  const FilterOptionContainerFil(
                       title: 'Razón comercial',
                       trailing: 'Selecciona',
                       type: 'RAZON_COMERCIAL',
@@ -125,7 +140,7 @@ class _FilterBottomRouterPlannerSheetState
                 return options[index];
               },
               separatorBuilder: (context, index) => const Divider(),
-              itemCount: 12,
+              itemCount: 13,
             ),
           ),
         ],
@@ -141,8 +156,9 @@ class FilterOptionContainerFil extends ConsumerWidget {
   final bool? search;
   final bool? multi;
 
-  FilterOptionContainerFil(
-      {required this.title,
+  const FilterOptionContainerFil(
+      {super.key,
+      required this.title,
       required this.trailing,
       required this.type,
       this.search,
@@ -153,13 +169,14 @@ class FilterOptionContainerFil extends ConsumerWidget {
     final List<FilterOption> listFilters =
         ref.watch(routePlannerProvider).filters;
 
-    //final String? nameFilter = findFilterOptionIdByType(listFilters, type);
-    final String? nameFilter =
+    String? nameFilter;
+
+    nameFilter =
         findFilterOptionByType(listFilters, type, 'name', 'Selecciona');
 
     //options[index].trailing = '';
     return InkWell(
-      onTap: ()async {
+      onTap: () async {
         await showModalBottomSheet(
           context: context,
           isScrollControlled: true,

@@ -1,4 +1,5 @@
 import 'package:crm_app/features/kpis/domain/entities/objetive_by_category_response.dart';
+import 'package:crm_app/features/users/domain/domain.dart';
 
 import '../domain.dart';
 import '../entities/periodicidad.dart';
@@ -15,5 +16,16 @@ abstract class KpisDatasource {
     Map<dynamic, dynamic> kpiForm,
   );
 
-  Future<KpiResponse> updateOrderKpis({ String idKpiOld = '', String orderKpiOld = '', String idKpiNew = '', String orderKpiNew = '' });
+  Future<KpiResponse> updateOrderKpis(
+      {String idKpiOld = '',
+      String orderKpiOld = '',
+      String idKpiNew = '',
+      String orderKpiNew = ''});
+
+  Future<List<KpisByAsesor>> getKpisByAsesor();
+
+  // User reorder methods
+  Future<List<UserMaster>> getUsersByType(String search);
+  Future<bool> updateUsersOrder(List<Map<String, String>> usuarios);
+  Future<List<KpiStats>> getKpiStats(String userId, int year);
 }

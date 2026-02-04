@@ -146,7 +146,7 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
         TextEditingController(text: widget.company.localNombre);
     _fieldKeyLocalName = UniqueKey();
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       await ref
           .read(resourceDetailsProvider.notifier)
           .loadCatalogById(groupId: '02')
@@ -295,16 +295,71 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
             errorMessage: companyForm.ruc.errorMessage,
           ),
           optionsRubro.length > 1
-              ? SelectCustomForm(
-                  label: 'Rubro',
-                  value: companyForm.idRubro.value,
-                  callbackChange: (String? newValue) {
-                    ref
-                        .read(companyFormProvider(widget.company).notifier)
-                        .onRubroChanged(newValue!);
-                  },
-                  items: optionsRubro,
-                  errorMessage: companyForm.idRubro.errorMessage,
+              ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: SelectCustomForm(
+                        label: 'Rubro',
+                        value: companyForm.idRubro.value,
+                        callbackChange: (String? newValue) {
+                          ref
+                              .read(
+                                  companyFormProvider(widget.company).notifier)
+                              .onRubroChanged(newValue!);
+                        },
+                        items: optionsRubro,
+                        errorMessage: companyForm.idRubro.errorMessage,
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                    Column(
+                      children: [
+                        const SizedBox(
+                          height: 6,
+                        ),
+                        const Text(
+                          ".",
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.transparent,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 6,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 0),
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: primaryColor,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: InkWell(
+                              onTap: () {
+                                context.push('/rubro').then((value) async {
+                                  if (value == true) {
+                                    // Se guardó un rubro, recargar la lista
+                                    await ref
+                                        .read(resourceDetailsProvider.notifier)
+                                        .loadCatalogById(groupId: '16')
+                                        .then((value) => {
+                                              setState(() {
+                                                optionsRubro = value;
+                                              })
+                                            });
+                                  }
+                                });
+                              },
+                              child: const Icon(Icons.add, color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 )
               : PlaceholderInput(text: 'Cargando Rubro...'),
           optionsTipoCliente.length > 1
@@ -394,19 +449,13 @@ class __CompanyInformationv2State extends ConsumerState<_CompanyInformationv2> {
                                                 const TextStyle(fontSize: 12)),
                                         onDeleted: !isAdmin
                                             ? null
-                                            : item.cresIdUsuarioResponsable !=
-                                                    authUser.code
-                                                ? () {
-                                                    ref
-                                                        .read(
-                                                            companyFormProvider(
-                                                                    widget
-                                                                        .company)
-                                                                .notifier)
-                                                        .onDeleteUserChanged(
-                                                            item);
-                                                  }
-                                                : null,
+                                            : () {
+                                                ref
+                                                    .read(companyFormProvider(
+                                                            widget.company)
+                                                        .notifier)
+                                                    .onDeleteUserChanged(item);
+                                              },
                                       )))
                               : [],
                         )

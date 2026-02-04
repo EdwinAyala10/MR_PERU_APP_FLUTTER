@@ -1,12 +1,15 @@
-
-
 export 'datasources/companies_datasource.dart';
 export 'entities/company.dart';
 export 'entities/company_local.dart';
 export 'entities/company_check_in.dart';
 export 'entities/company_response.dart';
 export 'entities/company_local_response.dart';
+export 'entities/check_in_by_ruc_local_response.dart';
+export 'entities/filter_departamento.dart';
+export 'entities/filter_provincia.dart';
+export 'entities/filter_estado.dart';
 export 'entities/company_check_in_response.dart';
+export 'entities/company_check_in_ultima_visita.dart';
 export 'entities/create_update_company_response.dart';
 export 'entities/create_update_company_check_in_response.dart';
 export 'repositories/companies_repository.dart';

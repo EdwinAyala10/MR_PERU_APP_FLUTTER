@@ -51,21 +51,35 @@ class ResourceDetailsNotifier extends StateNotifier<ResourceDetailsState> {
   }
   */
 
-  Future<List<DropdownOption>> loadCatalogById({String groupId = '', String codigoId = ''}) async {
+  Future<List<ResourceDetail>> searchResourceDetailsByGroup(
+      {String groupId = '', String search = ''}) async {
+    return await resourceDetailsRepository.getResourceDetailsByGroup(
+        idGroup: groupId, search: search);
+  }
+
+  Future<RubroResponse> createRubro(String nombre) async {
+    return await resourceDetailsRepository.createRubro(nombre);
+  }
+
+  Future<RubroResponse> editRubro(String nombre, String idRecursos) async {
+    return await resourceDetailsRepository.editRubro(nombre, idRecursos);
+  }
+
+  Future<List<DropdownOption>> loadCatalogById(
+      {String groupId = '', String codigoId = ''}) async {
     //state = state.copyWith(isLoading: true);
 
-    List<ResourceDetail> resourceDetails =
-        await resourceDetailsRepository.getResourceDetailsByGroup(idGroup: groupId, idCodigo: codigoId);
+    List<ResourceDetail> resourceDetails = await resourceDetailsRepository
+        .getResourceDetailsByGroup(idGroup: groupId, idCodigo: codigoId);
 
     List<DropdownOption> options = [];
 
     options.add(DropdownOption(id: '', name: 'Selecciona'));
 
     for (final resourceDetail in resourceDetails) {
-
       if (resourceDetail.recdCodigo != '00') {
-        options.add(
-          DropdownOption(id: resourceDetail.recdCodigo, name: resourceDetail.recdNombre));
+        options.add(DropdownOption(
+            id: resourceDetail.recdCodigo, name: resourceDetail.recdNombre));
       }
     }
 
@@ -79,21 +93,21 @@ class ResourceDetailsNotifier extends StateNotifier<ResourceDetailsState> {
     return options;
   }
 
-  Future<List<DropdownOption>> loadCatalogVisibleById({String groupId = '', String codigoId = ''}) async {
+  Future<List<DropdownOption>> loadCatalogVisibleById(
+      {String groupId = '', String codigoId = ''}) async {
     //state = state.copyWith(isLoading: true);
 
-    List<ResourceDetail> resourceDetails =
-        await resourceDetailsRepository.getResourceDetailsVisibleByGroup(idGroup: groupId, idCodigo: codigoId);
+    List<ResourceDetail> resourceDetails = await resourceDetailsRepository
+        .getResourceDetailsVisibleByGroup(idGroup: groupId, idCodigo: codigoId);
 
     List<DropdownOption> options = [];
 
     options.add(DropdownOption(id: '', name: 'Selecciona'));
 
     for (final resourceDetail in resourceDetails) {
-
       if (resourceDetail.recdCodigo != '00') {
-        options.add(
-          DropdownOption(id: resourceDetail.recdCodigo, name: resourceDetail.recdNombre));
+        options.add(DropdownOption(
+            id: resourceDetail.recdCodigo, name: resourceDetail.recdNombre));
       }
     }
 

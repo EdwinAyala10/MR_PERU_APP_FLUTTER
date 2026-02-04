@@ -1,8 +1,10 @@
 import 'package:crm_app/features/agenda/presentation/screens/event_detail_screen.dart';
 import 'package:crm_app/features/companies/presentation/screens/company_route_planner.dart';
+import 'package:crm_app/features/companies/presentation/screens/rubro_screen.dart';
 import 'package:crm_app/features/dashboard/presentation/screens/notification_screen.dart';
 import 'package:crm_app/features/documents/presentation/screens/enlace_screen.dart';
 import 'package:crm_app/features/kpis/presentation/screens/kpi_detail_screen.dart';
+import 'package:crm_app/features/kpis/presentation/screens/kpi_reorder_by_user.dart';
 import 'package:crm_app/features/opportunities/presentation/screens/opportunity_detail_screen.dart';
 import 'package:crm_app/features/route-planner/presentation/screens/register_route_planner_screen.dart';
 import 'package:crm_app/features/route-planner/presentation/screens/route_day_screen.dart';
@@ -140,6 +142,15 @@ final goRouterProvider = Provider((ref) {
       ),
 
       GoRoute(
+        path: '/users_reorder',
+        builder: (context, state) => const KpiReorderByUserScreen(),
+      ),
+      GoRoute(
+        path: '/kpis/stats',
+        builder: (context, state) => const KpiStatsScreen(),
+      ),
+
+      GoRoute(
         path: '/event/:id', // /event/new
         builder: (context, state) => EventScreen(
           eventId: state.pathParameters['id'] ?? 'no-id',
@@ -185,6 +196,10 @@ final goRouterProvider = Provider((ref) {
         builder: (context, state) => CompanyScreen(
           rucId: state.pathParameters['rucId'] ?? 'no-id',
         ),
+      ),
+      GoRoute(
+        path: '/rubro',
+        builder: (context, state) => const RubroScreen(),
       ),
       GoRoute(
         path: '/company_map/:rucId/:identificator', // /company/new
