@@ -50,3 +50,7 @@ app.*.map.json
 # Local secrets / credentials
 token_key.json
 
+# Node.js
+node_modules/
+package-lock.json
+
