@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:crm_app/config/config.dart';
+import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crm_app/features/route-planner/domain/domain.dart';
 import 'package:crm_app/features/route-planner/domain/entities/distance_filter.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
@@ -54,6 +55,29 @@ class _FilterDetailRoutePlannerState
 
     final List<FilterOption> listFilters =
         ref.watch(routePlannerProvider).filters;
+    final user = ref.watch(authProvider).user;
+    final isAdmin = user?.isAdmin ?? false;
+
+    // Si es filtro de responsable y NO es admin, mostrar solo su usuario
+    if (widget.type == 'ID_USUARIO_RESPONSABLE' && !isAdmin && user != null) {
+      setState(() {
+        optionsMaster = [
+          FilterOptionContainer(
+            id: user.code,
+            title: widget.title,
+            name: user.name,
+            onSelect: (_, __, ___, ____, _____) {
+              // No hacer nada, está bloqueado para vendedores
+            },
+            isSelected: true,
+            type: widget.type,
+            isMulti: false,
+          )
+        ];
+        isLoading = false;
+      });
+      return;
+    }
 
     switch (widget.type) {
       case 'HRTR_ID_HORARIO_TRABAJO':
@@ -361,41 +385,47 @@ class FilterOptionContainer extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      if (isMulti == true && id != "")
-                        Icon(
-                            isSelected
-                                ? Icons.check_box
-                                : Icons.check_box_outline_blank_outlined,
-                            size: 26,
-                            color: primaryColor),
-                      if (isMulti == true && id != "")
-                        const SizedBox(
-                          width: 10,
-                        ),
-                      Column(
-                        children: [
-                          Text(name,
-                              style: const TextStyle(
-                                  fontSize: 17.0, fontWeight: FontWeight.w500)),
-                          if (subTitle != null)
-                            Text(subTitle ?? '',
-                                style: const TextStyle(
-                                    fontSize: 15.0,
-                                    fontWeight: FontWeight.w400)),
-                          if (secundary != null)
-                            Text(secundary ?? '',
-                                style: const TextStyle(fontSize: 15.0)),
-                        ],
-                      )
-                    ],
-                  ),
-                ],
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        if (isMulti == true && id != "")
+                          Icon(
+                              isSelected
+                                  ? Icons.check_box
+                                  : Icons.check_box_outline_blank_outlined,
+                              size: 26,
+                              color: primaryColor),
+                        if (isMulti == true && id != "")
+                          const SizedBox(
+                            width: 10,
+                          ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(name,
+                                  style: const TextStyle(
+                                      fontSize: 17.0,
+                                      fontWeight: FontWeight.w500)),
+                              if (subTitle != null)
+                                Text(subTitle ?? '',
+                                    style: const TextStyle(
+                                        fontSize: 15.0,
+                                        fontWeight: FontWeight.w400)),
+                              if (secundary != null)
+                                Text(secundary ?? '',
+                                    style: const TextStyle(fontSize: 15.0)),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ],
+                ),
               )
             ],
           ),

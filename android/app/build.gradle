@@ -33,7 +33,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace "com.mr_peru.crm_app"
-    compileSdk 35
+    compileSdk 36
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -54,10 +54,10 @@ android {
         applicationId "com.mr_peru.crm_app"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion 23
-        targetSdkVersion 35
-        versionCode 29
-        versionName "2.4.1"
+        minSdkVersion flutter.minSdkVersion
+        targetSdkVersion 36
+        versionCode 30
+        versionName "2.4.2"
         multiDexEnabled true
         // Soporte para 16 KB memory page sizes
         ndk {

@@ -265,6 +265,19 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
 
     List<FilterOption> initialFilters = [...filtersHorario, ...filtersDistance];
 
+    // Auto-setear filtro de responsable si el usuario NO es admin
+    if (user != null && !user!.isAdmin) {
+      // Agregar filtro de responsable automáticamente para vendedores
+      final responsableFilter = FilterOption(
+        id: user!.code,
+        type: 'ID_USUARIO_RESPONSABLE',
+        title: 'Responsable',
+        name: user!.name,
+      );
+      initialFilters.add(responsableFilter);
+      print('✅ Filtro de responsable auto-seteado para vendedor: ${user!.name}');
+    }
+
     state = state.copyWith(
         filtersSuccess: initialFilters,
         filters: initialFilters,
@@ -335,8 +348,19 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
   }
 
   Future<void> onDeleteAllFilter() async {
+    List<FilterOption> remainingFilters = [];
+
+    // Si no es admin, mantener el filtro de responsable
+    if (user != null && !user!.isAdmin) {
+      remainingFilters = state.filtersSuccess
+          .where((filter) => filter.type == 'ID_USUARIO_RESPONSABLE')
+          .toList();
+    }
+
     state = state.copyWith(
-        filters: [], filtersSuccess: [], selectedDistanceFilter: null);
+        filters: remainingFilters,
+        filtersSuccess: remainingFilters,
+        selectedDistanceFilter: null);
 
     loadNextPage(isRefresh: true);
   }
@@ -344,6 +368,12 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
   void onDeleteFilter(int index) {
     var filterSuccessNew = [...state.filtersSuccess];
     var deletedFilter = filterSuccessNew[index];
+
+    // Evitar que vendedores eliminen su propio filtro de responsable
+    if (user != null && !user!.isAdmin && deletedFilter.type == 'ID_USUARIO_RESPONSABLE') {
+      print('⚠️ Los vendedores no pueden eliminar el filtro de responsable');
+      return;
+    }
 
     filterSuccessNew.removeAt(index);
 
