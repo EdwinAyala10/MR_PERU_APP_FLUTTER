@@ -21,6 +21,7 @@ import '../../../kpis/domain/domain.dart';
 import '../../../opportunities/domain/domain.dart';
 import '../../../opportunities/presentation/providers/providers.dart';
 import '../../../shared/shared.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import 'package:floating_action_bubble_custom/floating_action_bubble_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -380,15 +381,39 @@ class _ContainerDashboardOpportunitiesStatus extends StatelessWidget {
 }
 */
 
-class _ContainerDashboardKpis extends StatelessWidget {
+class _ContainerDashboardKpis extends ConsumerWidget {
   List<KpisByAsesor> kpis;
 
   _ContainerDashboardKpis({required this.kpis});
 
   @override
-  Widget build(BuildContext context) {
-    // Flatten goals for display (taking first 3 from all available)
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentUser = ref.watch(authProvider).user;
+
+    // DEBUG: Imprimir todos los KPIs disponibles
+    print('=== DEBUG KPIS ===');
+    print(
+        'Usuario autenticado: ${currentUser?.name} (Código: ${currentUser?.code})');
+    print('Total de KPIs: ${kpis.length}');
+    for (int i = 0; i < kpis.length; i++) {
+      print(
+          '  [$i] ${kpis[i].asesorNombre} (Código: ${kpis[i].asesorCodigo}, Abbr: ${kpis[i].asesorAbbrt})');
+    }
+
+    // Find the index of KPI that matches the current user's code
     int asesorIndex = 0;
+    if (currentUser != null && kpis.isNotEmpty) {
+      asesorIndex =
+          kpis.indexWhere((kpi) => kpi.asesorCodigo == currentUser.code);
+      if (asesorIndex == -1) {
+        asesorIndex = 0;
+      }
+    }
+
+    print(
+        'Índice seleccionado: $asesorIndex (${kpis[asesorIndex].asesorNombre})');
+    print('==================');
+
     List<Kpi> semanalKpis = kpis[asesorIndex].semanal.toList();
     List<Kpi> mensualKpis = kpis[asesorIndex].mensual.toList();
 
