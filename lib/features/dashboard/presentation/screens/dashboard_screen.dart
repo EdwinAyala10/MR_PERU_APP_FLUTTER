@@ -21,7 +21,6 @@ import '../../../kpis/domain/domain.dart';
 import '../../../opportunities/domain/domain.dart';
 import '../../../opportunities/presentation/providers/providers.dart';
 import '../../../shared/shared.dart';
-import '../../../auth/presentation/providers/auth_provider.dart';
 import 'package:floating_action_bubble_custom/floating_action_bubble_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -381,27 +380,15 @@ class _ContainerDashboardOpportunitiesStatus extends StatelessWidget {
 }
 */
 
-class _ContainerDashboardKpis extends ConsumerWidget {
+class _ContainerDashboardKpis extends StatelessWidget {
   List<KpisByAsesor> kpis;
 
   _ContainerDashboardKpis({required this.kpis});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // Get current authenticated user
-    final currentUser = ref.watch(authProvider).user;
-
-    // Find the index of KPI that matches the current user's code
+  Widget build(BuildContext context) {
+    // Flatten goals for display (taking first 3 from all available)
     int asesorIndex = 0;
-    if (currentUser != null && kpis.isNotEmpty) {
-      asesorIndex =
-          kpis.indexWhere((kpi) => kpi.asesorCodigo == currentUser.code);
-      // If no match found, use index 0 as fallback
-      if (asesorIndex == -1) {
-        asesorIndex = 0;
-      }
-    }
-
     List<Kpi> semanalKpis = kpis[asesorIndex].semanal.toList();
     List<Kpi> mensualKpis = kpis[asesorIndex].mensual.toList();
 
