@@ -33,7 +33,7 @@ class KpisByAsesorNotifier extends StateNotifier<KpisByAsesorState> {
     state = state.copyWith(isLoading: true);
 
     try {
-      final kpis = await kpisRepository.getKpisByAsesor();
+      final kpis = await kpisRepository.getKpisByAsesor(user.code);
       state = state.copyWith(
         isLoading: false,
         kpis: kpis,

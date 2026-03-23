@@ -1,4 +1,3 @@
-import 'package:crm_app/features/kpis/domain/entities/objetive_by_category.dart';
 import 'package:crm_app/features/kpis/domain/entities/objetive_by_category_response.dart';
 import 'package:crm_app/features/users/domain/domain.dart';
 
@@ -51,8 +50,8 @@ class KpisRepositoryImpl extends KpisRepository {
   }
 
   @override
-  Future<List<KpisByAsesor>> getKpisByAsesor() {
-    return datasource.getKpisByAsesor();
+  Future<List<KpisByAsesor>> getKpisByAsesor(String idUsuarioAsignacion) {
+    return datasource.getKpisByAsesor(idUsuarioAsignacion);
   }
 
   @override

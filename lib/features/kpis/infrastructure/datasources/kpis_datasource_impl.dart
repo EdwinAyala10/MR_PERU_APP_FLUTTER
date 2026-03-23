@@ -87,10 +87,14 @@ class KpisDatasourceImpl extends KpisDatasource {
   }
 
   @override
-  Future<List<KpisByAsesor>> getKpisByAsesor() async {
+  Future<List<KpisByAsesor>> getKpisByAsesor(String idUsuarioAsignacion) async {
     final response = await dio.get(
-        '/objetivo/listar-objetivo-dashboard-by-asesor',
-        data: {'SEARCH': '', 'ID_USUARIO_ASIGNACION': ''});
+      '/objetivo/listar-objetivo-dashboard-by-asesor',
+      queryParameters: {
+        'SEARCH': '',
+        'ID_USUARIO_ASIGNACION': idUsuarioAsignacion,
+      },
+    );
 
     return KpiByAsesorMapper.jsonToListEntity(response.data);
   }

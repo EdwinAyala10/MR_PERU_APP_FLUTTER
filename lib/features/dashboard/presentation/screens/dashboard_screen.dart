@@ -401,13 +401,17 @@ class _ContainerDashboardKpis extends ConsumerWidget {
     }
 
     // Find the index of KPI that matches the current user's code
-    int asesorIndex = 0;
+    int asesorIndex = -1;
     if (currentUser != null && kpis.isNotEmpty) {
       asesorIndex =
           kpis.indexWhere((kpi) => kpi.asesorCodigo == currentUser.code);
-      if (asesorIndex == -1) {
-        asesorIndex = 0;
-      }
+    }
+
+    // Si no se encuentra el KPI del usuario actual, mostrar mensaje
+    if (kpis.isEmpty || asesorIndex == -1) {
+      print('No se encontraron KPIs para el usuario: ${currentUser?.code}');
+      print('==================');
+      return _emptyObjectivesMessage();
     }
 
     print(
@@ -423,190 +427,206 @@ class _ContainerDashboardKpis extends ConsumerWidget {
       color: Colors.black,
     );
 
-    return kpis.isNotEmpty
-        ? Center(
-            child: Container(
-                margin: const EdgeInsets.only(
-                    left: 20, right: 20, top: 10, bottom: 8),
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(6),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.3),
-                      spreadRadius: 3,
-                      blurRadius: 5,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Column(
+    return Center(
+      child: Container(
+          margin:
+              const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 8),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(6),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.3),
+                spreadRadius: 3,
+                blurRadius: 5,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              DefaultTextStyle(
+                style: periodicidadTitleTextStyle,
+                child: Stack(
                   children: [
-                    DefaultTextStyle(
-                      style: periodicidadTitleTextStyle,
-                      child: Stack(
-                        children: [
-                          Center(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                border:
-                                    Border.all(color: primaryColor, width: 2),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 3),
-                              child: const Text("Semanal"),
-                            ),
-                          ),
-                          Row(
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  border:
-                                      Border.all(color: primaryColor, width: 2),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 3),
-                                child: Text(kpis.isNotEmpty
-                                    ? kpis[asesorIndex].asesorAbbrt ?? ''
-                                    : ''),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: semanalKpis.length == 1
-                          ? MainAxisAlignment.start
-                          : MainAxisAlignment.spaceBetween,
-                      children: [
-                        for (var i = 0; i < 3 && i < semanalKpis.length; i++)
-                          Expanded(
-                            child: Align(
-                              alignment: semanalKpis.length == 1
-                                  ? Alignment.centerLeft
-                                  : Alignment.center,
-                              child: progressKpi(
-                                  percentage: (semanalKpis[i].porcentaje ?? 0)
-                                      .toDouble(),
-                                  title: semanalKpis[i].objrNombre ?? '',
-                                  category:
-                                      semanalKpis[i].objrNombreCategoria ?? '',
-                                  subTitle:
-                                      semanalKpis[i].objrNombrePeriodicidad ??
-                                          '',
-                                  subSubTitle:
-                                      semanalKpis[i].objrNombreAsignacion ?? '',
-                                  advance:
-                                      semanalKpis[i].totalRegistro.toString(),
-                                  total: convertTypeCategory(semanalKpis[i]) ??
-                                      '0'),
-                            ),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 16,
-                    ),
                     Center(
                       child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: primaryColor, width: 2),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 3),
+                        child: const Text("Semanal"),
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Container(
                           decoration: BoxDecoration(
                             border: Border.all(color: primaryColor, width: 2),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 3),
-                          child: Text("Mensual",
-                              style: periodicidadTitleTextStyle)),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: mensualKpis.length == 1
-                          ? MainAxisAlignment.start
-                          : MainAxisAlignment.spaceBetween,
-                      children: [
-                        for (var i = 0; i < 3 && i < mensualKpis.length; i++)
-                          Expanded(
-                            child: Align(
-                              alignment: mensualKpis.length == 1
-                                  ? Alignment.centerLeft
-                                  : Alignment.center,
-                              child: progressKpi(
-                                  percentage: (mensualKpis[i].porcentaje ?? 0)
-                                      .toDouble(),
-                                  title: mensualKpis[i].objrNombre ?? '',
-                                  category:
-                                      mensualKpis[i].objrNombreCategoria ?? '',
-                                  subTitle:
-                                      mensualKpis[i].objrNombrePeriodicidad ??
-                                          '',
-                                  subSubTitle:
-                                      mensualKpis[i].objrNombreAsignacion ?? '',
-                                  advance:
-                                      mensualKpis[i].totalRegistro.toString(),
-                                  total: convertTypeCategory(mensualKpis[i]) ??
-                                      '0'),
-                            ),
-                          ),
+                          child: Text(kpis.isNotEmpty
+                              ? kpis[asesorIndex].asesorAbbrt ?? ''
+                              : ''),
+                        ),
                       ],
                     ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.black12, // Color de fondo del botón
-                        borderRadius: BorderRadius.circular(
-                            4), // Bordes redondeados del botón
+                  ],
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: semanalKpis.length == 1
+                    ? MainAxisAlignment.start
+                    : MainAxisAlignment.spaceBetween,
+                children: [
+                  for (var i = 0; i < 3 && i < semanalKpis.length; i++)
+                    Expanded(
+                      child: Align(
+                        alignment: semanalKpis.length == 1
+                            ? Alignment.centerLeft
+                            : Alignment.center,
+                        child: progressKpi(
+                            percentage:
+                                (semanalKpis[i].porcentaje ?? 0).toDouble(),
+                            title: semanalKpis[i].objrNombre ?? '',
+                            category: semanalKpis[i].objrNombreCategoria ?? '',
+                            subTitle:
+                                semanalKpis[i].objrNombrePeriodicidad ?? '',
+                            subSubTitle:
+                                semanalKpis[i].objrNombreAsignacion ?? '',
+                            advance: semanalKpis[i].totalRegistro.toString(),
+                            total: convertTypeCategory(semanalKpis[i]) ?? '0'),
                       ),
-                      child: TextButton(
-                        onPressed: () {
-                          context.go('/kpis');
-                          // Aquí puedes implementar la lógica para "Mostrar Todo"
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text(
-                              'Mostrar Todo',
-                              style: TextStyle(
-                                color: Colors.blue, // Color del texto del botón
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Container(
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: primaryColor, // Color del círculo
-                              ),
-                              padding: const EdgeInsets.all(
-                                  8), // Espacio interior alrededor del número
-                              child: Text(
-                                (kpis.length).toString(),
-                                style: const TextStyle(
-                                  color: Colors.white, // Color del número
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
+                    ),
+                ],
+              ),
+              const SizedBox(
+                height: 16,
+              ),
+              Center(
+                child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: primaryColor, width: 2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                    child: Text("Mensual", style: periodicidadTitleTextStyle)),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: mensualKpis.length == 1
+                    ? MainAxisAlignment.start
+                    : MainAxisAlignment.spaceBetween,
+                children: [
+                  for (var i = 0; i < 3 && i < mensualKpis.length; i++)
+                    Expanded(
+                      child: Align(
+                        alignment: mensualKpis.length == 1
+                            ? Alignment.centerLeft
+                            : Alignment.center,
+                        child: progressKpi(
+                            percentage:
+                                (mensualKpis[i].porcentaje ?? 0).toDouble(),
+                            title: mensualKpis[i].objrNombre ?? '',
+                            category: mensualKpis[i].objrNombreCategoria ?? '',
+                            subTitle:
+                                mensualKpis[i].objrNombrePeriodicidad ?? '',
+                            subSubTitle:
+                                mensualKpis[i].objrNombreAsignacion ?? '',
+                            advance: mensualKpis[i].totalRegistro.toString(),
+                            total: convertTypeCategory(mensualKpis[i]) ?? '0'),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.black12, // Color de fondo del botón
+                  borderRadius:
+                      BorderRadius.circular(4), // Bordes redondeados del botón
+                ),
+                child: TextButton(
+                  onPressed: () {
+                    context.go('/kpis');
+                    // Aquí puedes implementar la lógica para "Mostrar Todo"
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'Mostrar Todo',
+                        style: TextStyle(
+                          color: Colors.blue, // Color del texto del botón
                         ),
                       ),
-                    ),
-                  ],
-                )),
-          )
-        : Container();
+                      const SizedBox(width: 8),
+                      Container(
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: primaryColor, // Color del círculo
+                        ),
+                        padding: const EdgeInsets.all(
+                            8), // Espacio interior alrededor del número
+                        child: Text(
+                          (kpis.length).toString(),
+                          style: const TextStyle(
+                            color: Colors.white, // Color del número
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          )),
+    );
+  }
+
+  Widget _emptyObjectivesMessage() {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(6),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.3),
+            spreadRadius: 3,
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: const Text(
+        'Ustede no tiene objetivos asignado',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: Colors.black54,
+        ),
+      ),
+    );
   }
 
   convertTypeCategory(Kpi kpi) {

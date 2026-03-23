@@ -242,7 +242,7 @@ SPEC CHECKSUMS:
   FirebaseCoreInternal: df84dd300b561c27d5571684f389bf60b0a5c934
   FirebaseInstallations: 913cf60d0400ebd5d6b63a28b290372ab44590dd
   FirebaseMessaging: 88950ba9485052891ebe26f6c43a52bb62248952
-  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_app_badge: ca742dd659a157c1090ef7cd881cb78f48f3bcdf
   flutter_callkit_incoming: cb8138af67cda6dd981f7101a5d709003af21502
   flutter_local_notifications: ad39620c743ea4c15127860f4b5641649a988100
@@ -267,6 +267,6 @@ SPEC CHECKSUMS:
   telephony: 092fd9f86ca076809b22f4efe52e5d4e57a4e674
   url_launcher_ios: 694010445543906933d732453a59da0a173ae33d
 
-PODFILE CHECKSUM: f6240aedbd71e7fb0784ba1b09b708b79b49b9f9
+PODFILE CHECKSUM: 19a348bd7aabc895649006a4bd68799456a59259
 
 COCOAPODS: 1.16.2

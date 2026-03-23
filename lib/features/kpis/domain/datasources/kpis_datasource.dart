@@ -22,7 +22,7 @@ abstract class KpisDatasource {
       String idKpiNew = '',
       String orderKpiNew = ''});
 
-  Future<List<KpisByAsesor>> getKpisByAsesor();
+  Future<List<KpisByAsesor>> getKpisByAsesor(String idUsuarioAsignacion);
 
   // User reorder methods
   Future<List<UserMaster>> getUsersByType(String search);
