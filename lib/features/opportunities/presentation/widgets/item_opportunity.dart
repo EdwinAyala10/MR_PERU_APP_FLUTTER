@@ -46,7 +46,6 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
         ListTile(
           title: Text(
             widget.opportunity.razon ?? '',
-            
             style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
           ),
           subtitle: Column(
@@ -54,7 +53,8 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
             children: [
               Text(
                 widget.opportunity.oprtNombreContacto ?? '',
-                style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 12),
+                style:
+                    const TextStyle(fontWeight: FontWeight.w400, fontSize: 12),
               ),
               Text(
                 widget.opportunity.oprtNombre == ''
@@ -235,8 +235,11 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
                     if (contact == null) {
                       return;
                     }
-                    ref.read(sendWhatsappProvider.notifier).initialSend(contact,
-                        agregarPrefijoPeru(contact?.contactoTelefonoc ?? ''));
+                    ref.read(sendWhatsappProvider.notifier).initialSend(
+                          contact,
+                          agregarPrefijoPeru(contact?.contactoTelefonoc ?? ''),
+                          opportunity: widget.opportunity,
+                        );
                     context.push('/text');
                   },
                   child: Image.asset(
