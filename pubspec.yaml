@@ -56,6 +56,7 @@ dependencies:
   telephony: ^0.2.0
   url_launcher: ^6.2.6
   fl_chart: ^0.66.2
+  logger: ^2.7.0
 
 dev_dependencies:
   change_app_package_name: ^1.1.0
