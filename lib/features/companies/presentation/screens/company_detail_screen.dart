@@ -627,7 +627,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
                 );
             context.pop();
             if (ref.watch(companiesProvider).isValidateCheckIn) {
-              context.push('/company_check_in/$ids');
+              context.push('/company_check_in', extra: ids);
               return;
             } else {
               log(ref.read(companiesProvider).validationCheckinMessage);
@@ -642,7 +642,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
                 ),
               );
             }
-            // context.push('/company_check_in/$ids');
+            // context.push('/company_check_in', extra: ids);
           },
           iconData: Icons.check_circle_outline_outlined,
         );

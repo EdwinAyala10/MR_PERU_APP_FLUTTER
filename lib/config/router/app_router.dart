@@ -226,7 +226,13 @@ final goRouterProvider = Provider((ref) {
       ),
 
       GoRoute(
-        path: '/company_check_in/:id', // /company/new
+        path: '/company_check_in', // /company/new
+        builder: (context, state) => CompanyCheckInScreen(
+          id: state.extra is String ? state.extra as String : 'no-id',
+        ),
+      ),
+      GoRoute(
+        path: '/company_check_in/:id', // backward compatibility
         builder: (context, state) => CompanyCheckInScreen(
           id: state.pathParameters['id'] ?? 'no-id',
         ),

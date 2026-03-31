@@ -269,9 +269,8 @@ class _AgendaViewState extends ConsumerState {
                                       .watch(companiesProvider)
                                       .isValidateCheckIn) {
                                     log(ids);
-
                                     context
-                                        .push('/company_check_in/$ids')
+                                        .push('/company_check_in', extra: ids)
                                         .then((value) async {
                                       ref
                                           .read(isFromEventProvider.notifier)
