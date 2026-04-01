@@ -52,3 +52,27 @@ edwin.rccperu@gmail.com
 
 richard.ramirez@mrperu.com.pe
 43502560
+
+
+Gorouter:
+Pista : Analizar como trabajan las navegaciones por path en un navegador web ya que 
+go router trabaja de esa manera
+
+
+
+
+.push('/company_check_in/$ids')
+
+Pushea hacia esa ruta concatenando el valor ids.
+El problema ocurre porque ids contiene texto largo con caracteres especiales, y si dentro viene un / el router lo interpreta como si fuera otro segmento de ruta y termina cortando el valor, provocando que no llegue completo y falle la navegación
+
+Ejemplo donde falla porque contiene s/n (tiene /) que es el caso donde se reprodujo el error
+01*20104582428*2*PLANTA LURÍN Cayma s/n, Lurín 15823, Peru*-12.2963481*-76.8373387
+
+Ejemplo donde tampoco esta funcionando porque no contiene pero lo esta leyendo de la siguiente forma, el aplicativo en esta parte:
+
+01*20100019516*2*PLANTA CALLAO Av. Bocanegra 135, Callao 07031, Peru*-12.0115429*-77.11019329999999
+
+
+GoException: no routes for location: /company_check_in/
+01*20100019516*2*PLANTA%20CALLAO%20Av.%20Bocanegra%20 /%20135,%20Callao%2007031,%20Peru*-12.0115429*-77.11019329 999999
