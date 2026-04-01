@@ -2,7 +2,7 @@ name: crm_app
 description: "Una app CRM"
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
-version: 2.4.1+29
+version: 2.4.4+32
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
