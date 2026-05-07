@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:crm_app/config/config.dart';
 import 'package:crm_app/features/activities/presentation/providers/providers.dart';
 import 'package:crm_app/features/contacts/presentation/providers/providers.dart';
+import 'package:crm_app/features/shared/infrastructure/services/key_value_storage_service_impl.dart';
 import 'package:crm_app/features/opportunities/presentation/screens/opportunity_detail_screen.dart';
 import 'package:crm_app/features/shared/presentation/providers/send_whatsapp_provider.dart';
 import 'package:crm_app/features/shared/shared.dart';
@@ -24,9 +25,35 @@ class ItemOpportunity extends ConsumerStatefulWidget {
 }
 
 class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
+  bool _microsoftSynced = false;
+
+  Future<void> _loadMicrosoftSyncState() async {
+    final synced = await KeyValueStorageServiceImpl().getValue<bool>('microsoft_synced');
+    if (!mounted) return;
+    setState(() {
+      _microsoftSynced = synced == true;
+    });
+  }
+
+  Color? _staleColor() {
+    final hasActivity = (widget.opportunity.actiIdTipoGestion ?? '').isNotEmpty &&
+        (widget.opportunity.actiFechaRegistro ?? '').isNotEmpty;
+
+    if (!hasActivity) return Colors.yellow.shade100;
+
+    final lastActivityDate = DateTime.tryParse(widget.opportunity.actiFechaRegistro!);
+    if (lastActivityDate == null) return null;
+
+    final daysWithoutActivity = DateTime.now().difference(lastActivityDate).inDays;
+    if (daysWithoutActivity > 15) return Colors.red.shade100;
+    if (daysWithoutActivity > 7) return Colors.yellow.shade100;
+    return null;
+  }
+
   @override
   void initState() {
     super.initState();
+    _loadMicrosoftSyncState();
     WidgetsBinding.instance.addPostFrameCallback(
       (_) {
         ref
@@ -40,10 +67,12 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
   Widget build(BuildContext context) {
     final contactState =
         ref.watch(contactProvider(widget.opportunity.contactId ?? ''));
+    final staleColor = _staleColor();
 
     return Stack(
       children: [
         ListTile(
+          tileColor: staleColor,
           title: Text(
             widget.opportunity.razon ?? '',
             style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
@@ -246,6 +275,49 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
                     'assets/images/icon_whatsapp.png',
                     width: 30,
                     height: 30,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                InkWell(
+                  borderRadius: const BorderRadius.all(Radius.circular(25)),
+                  onTap: () async {
+                    final contact = contactState.contact;
+                    if (contact == null || (contact.contactoEmail ?? '').isEmpty) {
+                      return;
+                    }
+
+                    await KeyValueStorageServiceImpl().setKeyValue<String>(
+                      'email_return_route',
+                      '/opportunities',
+                    );
+                    await KeyValueStorageServiceImpl().setKeyValue<String>(
+                      'email_opportunity_id',
+                      widget.opportunity.id,
+                    );
+
+                    if (_microsoftSynced) {
+                      context.push('/email_compose/${contact.id}');
+                      return;
+                    }
+
+                    showDialog(
+                      context: context,
+                      builder: (_) => const EmailSyncDialog(
+                        message:
+                            'Para enviar correos electronicos a traves de Sage Sales Management, necesitas habilitar la sincronizacion para tu cuenta de correo electronico.',
+                      ),
+                    ).then((_) => _loadMicrosoftSyncState());
+                  },
+                  child: Container(
+                    width: 30,
+                    height: 30,
+                    decoration: BoxDecoration(
+                      color: _microsoftSynced
+                          ? const Color(0xFF4FC3F7)
+                          : const Color.fromARGB(255, 155, 155, 155),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.email, color: Colors.white, size: 18),
                   ),
                 ),
                 const SizedBox(

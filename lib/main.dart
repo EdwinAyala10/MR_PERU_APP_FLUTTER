@@ -1,4 +1,7 @@
 import 'package:crm_app/features/shared/presentation/providers/notifications_provider.dart';
+// borrar luego prueba de cuenta de microsfot
+import 'package:crm_app/features/shared/infrastructure/services/key_value_storage_service_impl.dart';
+//borrar lo de arriba
 import 'package:crm_app/local_notifications/local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
@@ -15,6 +18,9 @@ void main() async {
   await LocalNotifications.initializeLocalNotifications();
 
   await Environment.initEnvironment();
+  // borrar luego prueba de cuenta de microsfot
+  await KeyValueStorageServiceImpl().setKeyValue<bool>('microsoft_synced', false);
+  //borrar lo de arriba
   initializeDateFormatting('es_ES', null).then(
     (_) => {
       runApp(

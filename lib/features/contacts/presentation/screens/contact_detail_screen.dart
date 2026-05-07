@@ -1,3 +1,4 @@
+import 'package:crm_app/config/theme/app_theme.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../domain/domain.dart';
@@ -5,9 +6,12 @@ import '../providers/contact_provider.dart';
 import '../providers/providers.dart';
 import '../../../shared/presentation/providers/send_whatsapp_provider.dart';
 import '../../../shared/shared.dart';
+import 'package:crm_app/features/shared/widgets/email_feedback_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:crm_app/features/shared/infrastructure/services/key_value_storage_service_impl.dart';
 
 class ContactDetailScreen extends ConsumerStatefulWidget {
   final String contactId;
@@ -28,8 +32,9 @@ class _ContactDetailScreenState extends ConsumerState<ContactDetailScreen> {
     initializedServices();
   }
 
+  @override
   initializedServices() async {
-    await Future.delayed(const Duration(milliseconds: 500));
+    await KeyValueStorageServiceImpl().setKeyValue('current_contact_id', widget.contactId);
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       ref
           .read(contactProvider(widget.contactId).notifier)
@@ -59,7 +64,7 @@ class _ContactDetailScreenState extends ConsumerState<ContactDetailScreen> {
   }
 }
 
-class _ViewContactDetailScreen extends ConsumerWidget {
+class _ViewContactDetailScreen extends ConsumerStatefulWidget {
   final Contact contact;
 
   const _ViewContactDetailScreen({
@@ -67,7 +72,41 @@ class _ViewContactDetailScreen extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_ViewContactDetailScreen> createState() =>
+      _ViewContactDetailScreenState();
+}
+
+class _ViewContactDetailScreenState extends ConsumerState<_ViewContactDetailScreen>
+    {
+  bool _microsoftSynced = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMicrosoftSyncState();
+  }
+
+  Future<void> _loadMicrosoftSyncState() async {
+    final synced = await KeyValueStorageServiceImpl().getValue<bool>('microsoft_synced');
+    final showMessage = await KeyValueStorageServiceImpl().getValue<bool>('show_sync_message');
+    if (!mounted) return;
+    setState(() {
+      _microsoftSynced = synced == true;
+    });
+
+    if (showMessage == true) {
+      await KeyValueStorageServiceImpl().setKeyValue<bool>('show_sync_message', false);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        EmailFeedbackSnackbar.showSyncSuccess(context);
+      });
+    }
+
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final contact = widget.contact;
     //ref.read(contactProvider(contactId).notifier).loadContact();
     //final contactState = ref.watch(contactProvider(contactId));
 
@@ -101,6 +140,12 @@ class _ViewContactDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            context.go('/contacts');
+          },
+        ),
         title: const Text('Detalles del contacto',
         style: TextStyle(
           fontWeight: FontWeight.w500
@@ -216,6 +261,20 @@ class _ViewContactDetailScreen extends ConsumerWidget {
               ContainerCustom(
                 label: 'Correo electrónico:',
                 text: contact.contactoEmail ?? '',
+                icon2: _InlineEmailButton(isConnected: _microsoftSynced),
+                callbackIcon2: () {
+                  if ((contact.contactoEmail ?? '').isEmpty) return;
+                  if (_microsoftSynced) {
+                    context.push('/email_compose/${contact.id}');
+                    return;
+                  }
+                  showDialog(
+                    context: context,
+                    builder: (_) => const EmailSyncDialog(
+                      message: 'Para enviar correos electronicos a traves de Sage Sales Management, necesitas habilitar la sincronizacion para tu cuenta de correo electronico.',
+                    ),
+                  );
+                },
               ),
               ContainerCustom(
                 label: 'Comentarios:',
@@ -225,6 +284,26 @@ class _ViewContactDetailScreen extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _InlineEmailButton extends StatelessWidget {
+  final bool isConnected;
+  const _InlineEmailButton({required this.isConnected});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 34,
+      height: 34,
+      decoration: BoxDecoration(
+        color: isConnected
+            ? const Color(0xFF4FC3F7)
+            : const Color.fromARGB(255, 155, 155, 155),
+        shape: BoxShape.circle,
+      ),
+      child: const Icon(Icons.email, color: Colors.white, size: 20),
     );
   }
 }

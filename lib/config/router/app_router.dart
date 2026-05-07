@@ -18,6 +18,10 @@ import '../../features/indicators/indicators.dart';
 import '../../features/location/presentation/screens/map_screen.dart';
 import '../../features/location/presentation/screens/view_map_screen.dart';
 import '../../features/shared/presentation/screens/send_whatsapp_screen.dart';
+import '../../features/shared/presentation/screens/email_sync_setup_screen.dart';
+import '../../features/shared/presentation/screens/email_compose_screen.dart';
+import '../../features/shared/presentation/screens/microsoft_sync_welcome_screen.dart';
+import '../../features/shared/presentation/screens/microsoft_login_screen.dart';
 import '../../features/shared/presentation/screens/text_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -101,6 +105,29 @@ final goRouterProvider = Provider((ref) {
       GoRoute(
         path: '/send_whatsapp', // /activity/new
         builder: (context, GoRouterState state) => const SendWhatsappScreen(),
+      ),
+
+      GoRoute(
+        path: '/email_sync_setup',
+        builder: (context, GoRouterState state) => const EmailSyncSetupScreen(),
+      ),
+      GoRoute(
+        path: '/email_compose/:id',
+        builder: (context, GoRouterState state) => EmailComposeScreen(
+          contactId: state.pathParameters['id'] ?? 'no-id',
+        ),
+      ),
+
+      GoRoute(
+        path: '/microsoft_sync_welcome',
+        builder: (context, GoRouterState state) => const MicrosoftSyncWelcomeScreen(),
+      ),
+
+      GoRoute(
+        path: '/microsoft_login',
+        builder: (context, GoRouterState state) => MicrosoftLoginScreen(
+          email: state.extra is String ? state.extra as String : '',
+        ),
       ),
 
       GoRoute(

@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:crm_app/config/theme/app_theme.dart';
 import 'package:crm_app/features/activities/presentation/providers/providers.dart';
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crm_app/features/opportunities/presentation/providers/filter_active_opportunity_provider.dart';
 import 'package:crm_app/features/opportunities/presentation/widgets/custom_acctive_opportunity.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
+import 'package:crm_app/features/shared/infrastructure/services/key_value_storage_service_impl.dart';
 import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
+import 'package:crm_app/features/shared/widgets/email_feedback_snackbar.dart';
 import 'package:crm_app/features/shared/widgets/no_exist_listview.dart';
 
 import '../../domain/domain.dart';
@@ -35,6 +38,7 @@ class _OpportunitiesScreenState extends ConsumerState<OpportunitiesScreen>
 
   @override
   void initState() {
+    _showPendingEmailFeedback();
     _tabController = TabController(length: 4, vsync: this);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
@@ -61,6 +65,30 @@ class _OpportunitiesScreenState extends ConsumerState<OpportunitiesScreen>
       ref.read(searchControllerProvider).text = '';
     });
     super.initState();
+  }
+
+  Future<void> _showPendingEmailFeedback() async {
+    final showSyncMessage = await KeyValueStorageServiceImpl().getValue<bool>('show_sync_message');
+    final emailSentTick = await KeyValueStorageServiceImpl().getValue<int>('email_sent_tick');
+    final lastShownTick = await KeyValueStorageServiceImpl().getValue<int>('email_sent_tick_shown') ?? 0;
+
+    if (!mounted) return;
+
+    if (showSyncMessage == true) {
+      await KeyValueStorageServiceImpl().setKeyValue<bool>('show_sync_message', false);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        EmailFeedbackSnackbar.showSyncSuccess(context);
+      });
+    }
+
+    if (emailSentTick != null && emailSentTick > lastShownTick) {
+      await KeyValueStorageServiceImpl().setKeyValue<int>('email_sent_tick_shown', emailSentTick);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        EmailFeedbackSnackbar.showEmailSent(context);
+      });
+    }
   }
 
   @override
