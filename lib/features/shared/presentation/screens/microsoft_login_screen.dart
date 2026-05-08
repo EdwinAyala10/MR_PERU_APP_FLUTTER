@@ -29,40 +29,129 @@ class MicrosoftLoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: secondaryColor),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 76,
-                height: 76,
+                width: 90,
+                height: 90,
                 decoration: BoxDecoration(
-                  color: primaryColor.withOpacity(0.14),
-                  borderRadius: BorderRadius.circular(12),
+                  gradient: LinearGradient(
+                    colors: [
+                      primaryColor.withOpacity(0.15),
+                      primaryColor.withOpacity(0.08),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: primaryColor.withOpacity(0.25),
+                    width: 2,
+                  ),
                 ),
-                child: const Icon(Icons.lock_outline_rounded, color: secondaryColor),
+                child: const Icon(
+                  Icons.lock_outline_rounded,
+                  color: primaryColor,
+                  size: 42,
+                ),
               ),
-              const SizedBox(height: 14),
-              const Text('Welcome', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700, color: secondaryColor)),
-              const SizedBox(height: 10),
-              Text('Log in to your $email', style: const TextStyle(fontSize: 18, color: secondaryColor)),
-              const SizedBox(height: 10),
+              const SizedBox(height: 24),
               const Text(
-                'Al continuar, Microsoft abrira el inicio de sesion para autorizar la sincronizacion.',
-                style: TextStyle(fontSize: 14, color: secondaryColor, height: 1.35),
+                'Bienvenido',
+                style: TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.w700,
+                  color: secondaryColor,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Iniciar sesión en $email',
+                style: const TextStyle(
+                  fontSize: 18,
+                  color: Color(0xFF4B5563),
+                  fontWeight: FontWeight.w500,
+                  height: 1.3,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8F9FA),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: const Color(0xFFE5E7EB),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: primaryColor.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.info_outline_rounded,
+                        color: primaryColor,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Text(
+                        'Al continuar, Microsoft abrirá el inicio de sesión para autorizar la sincronización.',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFF4B5563),
+                          height: 1.45,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const Spacer(),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () => _continueWithMicrosoft(context),
-                  child: const Text('Continue with Microsoft'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Continuar con Microsoft',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
                 ),
               ),
+              const SizedBox(height: 16),
             ],
           ),
         ),

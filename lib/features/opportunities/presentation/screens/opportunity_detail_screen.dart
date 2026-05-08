@@ -12,6 +12,7 @@ import 'package:crm_app/features/companies/presentation/widgets/show_loading_mes
 import 'package:crm_app/features/documents/presentation/screens/documents_screen.dart';
 import 'package:crm_app/features/opportunities/infrastructure/mappers/op_create_document_response.dart';
 import 'package:crm_app/features/opportunities/infrastructure/mappers/op_delete_document_mapper.dart';
+import 'package:crm_app/features/opportunities/presentation/widgets/opportunity_copilot_summary_card.dart';
 import 'package:crm_app/features/opportunities/presentation/widgets/op_document_card.dart';
 import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
@@ -183,15 +184,21 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
             ),
           ],
         ),
-        body: TabBarView(
-          controller: _tabController,
-          physics: const NeverScrollableScrollPhysics(), // Desactiva el scroll
+        body: Column(
           children: [
-            buildInformation(),
-            buildEventsOportunity(),
-            buildActivity(),
-            buildPhotos(),
-            buildDocuments()
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                physics: const NeverScrollableScrollPhysics(), // Desactiva el scroll
+                children: [
+                  buildInformation(),
+                  buildEventsOportunity(),
+                  buildActivity(),
+                  buildPhotos(),
+                  buildDocuments()
+                ],
+              ),
+            ),
           ],
         ),
         floatingActionButton: _itFloatingButton(currentIndex),
@@ -245,6 +252,9 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
   Widget buildInformation() {
     return OpportunityDetailView(
       opportunityId: widget.opportunityId,
+      onGenerateSummary: () {
+        context.push('/sage_copilot_activation');
+      },
     );
   }
 
@@ -259,10 +269,12 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
 
 class OpportunityDetailView extends ConsumerWidget {
   final String opportunityId;
+  final VoidCallback? onGenerateSummary;
 
   const OpportunityDetailView({
     super.key,
     required this.opportunityId,
+    this.onGenerateSummary,
   });
 
   @override
@@ -325,6 +337,9 @@ class OpportunityDetailView extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              OpportunityCopilotSummaryCard(
+                onGenerateSummary: onGenerateSummary,
+              ),
               const SizedBox(
                 height: 10,
               ),

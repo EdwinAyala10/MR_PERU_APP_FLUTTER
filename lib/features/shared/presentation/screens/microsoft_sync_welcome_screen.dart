@@ -21,45 +21,112 @@ class _MicrosoftSyncWelcomeScreenState extends State<MicrosoftSyncWelcomeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: secondaryColor),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
           child: Column(
             children: [
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
               Container(
-                width: 120,
-                height: 120,
+                width: 140,
+                height: 140,
                 decoration: BoxDecoration(
-                  color: primaryColor.withOpacity(0.14),
-                  borderRadius: BorderRadius.circular(12),
+                  gradient: LinearGradient(
+                    colors: [
+                      primaryColor.withOpacity(0.15),
+                      primaryColor.withOpacity(0.08),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(28),
+                  border: Border.all(
+                    color: primaryColor.withOpacity(0.2),
+                    width: 2,
+                  ),
                 ),
-                child: const Icon(Icons.mail_outline_rounded, color: secondaryColor, size: 52),
+                child: const Icon(
+                  Icons.mail_outline_rounded,
+                  color: primaryColor,
+                  size: 64,
+                ),
               ),
-              const SizedBox(height: 16),
-              const Text('Welcome', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: secondaryColor)),
-              const SizedBox(height: 8),
-              const Text('Synchronize Microsoft email', style: TextStyle(fontSize: 18, color: secondaryColor)),
-              const SizedBox(height: 8),
+              const SizedBox(height: 28),
               const Text(
-                'Ingresa el correo que deseas conectar. En el siguiente paso te enviaremos al inicio de sesion de Microsoft.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: secondaryColor, height: 1.35),
+                'Bienvenido',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w700,
+                  color: secondaryColor,
+                  letterSpacing: -0.5,
+                ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 10),
+              const Text(
+                'Sincronizar correo de Microsoft',
+                style: TextStyle(
+                  fontSize: 18,
+                  color: primaryColor,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8F9FA),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: const Color(0xFFE5E7EB),
+                    width: 1,
+                  ),
+                ),
+                child: const Text(
+                  'Ingresa el correo que deseas conectar. En el siguiente paso te enviaremos al inicio de sesión de Microsoft.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF4B5563),
+                    height: 1.45,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
               TextField(
                 controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
-                  hintText: 'Correo',
+                  labelText: 'Correo electrónico',
+                  hintText: 'ejemplo@empresa.com',
+                  prefixIcon: const Icon(Icons.email_outlined, color: primaryColor),
                   filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  fillColor: const Color(0xFFF9FAFB),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1.5),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: primaryColor, width: 2),
+                  ),
+                  labelStyle: const TextStyle(color: secondaryColor),
                 ),
               ),
-              const SizedBox(height: 12),
+              const Spacer(),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -67,9 +134,26 @@ class _MicrosoftSyncWelcomeScreenState extends State<MicrosoftSyncWelcomeScreen>
                     final email = _emailController.text.trim();
                     context.push('/microsoft_login', extra: email);
                   },
-                  child: const Text('Next'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Siguiente',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
                 ),
               ),
+              const SizedBox(height: 16),
             ],
           ),
         ),

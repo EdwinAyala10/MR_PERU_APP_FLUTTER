@@ -41,7 +41,24 @@ class _EmailComposeScreenState extends ConsumerState<EmailComposeScreen> {
     final contactState = ref.watch(contactProvider(widget.contactId));
     final email = contactState.contact?.contactoEmail ?? '';
     return Scaffold(
-      appBar: AppBar(title: const Text('Enviar correo')),
+      backgroundColor: const Color(0xFFFAFAFA),
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: secondaryColor),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Enviar correo',
+          style: TextStyle(
+            color: secondaryColor,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: Column(
         children: [
           EmailComposeHeader(
@@ -62,7 +79,6 @@ class _EmailComposeScreenState extends ConsumerState<EmailComposeScreen> {
             },
           ),
           EmailComposeFields(toEmail: email, subjectController: subjectController),
-          const Divider(height: 1),
           Expanded(child: EmailComposeBody(controller: bodyController)),
         ],
       ),
