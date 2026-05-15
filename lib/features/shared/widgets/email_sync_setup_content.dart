@@ -98,7 +98,7 @@ class EmailSyncSetupContent extends StatelessWidget {
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 8),
           child: Text(
-            'Al activarla, la sincronización bidireccional sincronizará los eventos entre Sage Sales Management y su proveedor de calendario, replicándolos en ambas direcciones.',
+            'Al activarla, la sincronización bidireccional sincronizará los eventos entre Force MR y su proveedor de calendario, replicándolos en ambas direcciones.',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 15,

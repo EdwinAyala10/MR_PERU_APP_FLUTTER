@@ -48,7 +48,7 @@ class OpportunityCopilotSummaryCard extends StatelessWidget {
                   ],
                 ),
                 child: const Text(
-                  'Sage',
+                  'FORCE ',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -59,7 +59,7 @@ class OpportunityCopilotSummaryCard extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               const Text(
-                'Copilot',
+                'MR',
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,

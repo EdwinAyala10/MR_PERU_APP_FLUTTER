@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class SageCopilotActivationScreen extends StatelessWidget {
-  const SageCopilotActivationScreen({super.key});
+  final String opportunityId;
+  
+  const SageCopilotActivationScreen({
+    super.key,
+    required this.opportunityId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +30,7 @@ class SageCopilotActivationScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Text(
-                'Sage',
+                'FORCE ',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -36,7 +41,7 @@ class SageCopilotActivationScreen extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             const Text(
-              'Copilot',
+              'MR',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -106,16 +111,16 @@ class SageCopilotActivationScreen extends StatelessWidget {
                     const SizedBox(height: 24),
                     _buildInfoSection(
                       icon: Icons.lightbulb_outline_rounded,
-                      title: '¿Qué es Sage Copilot?',
+                      title: '¿Qué es Force MR?',
                       content:
-                          'Estamos orgullosos de presentar a Sage Copilot, tu asistente de inteligencia artificial (IA) para simplificar y acelerar tu carga de trabajo diaria. Sage Copilot está actualmente en versión Beta y utiliza servicios de inteligencia artificial de terceros para brindarte la mejor experiencia posible.',
+                          'Estamos orgullosos de presentar a Force Mr, tu asistente de inteligencia artificial (IA) para simplificar y acelerar tu carga de trabajo diaria. Force MR está actualmente en versión Beta y utiliza servicios de inteligencia artificial de terceros para brindarte la mejor experiencia posible.',
                     ),
                     const SizedBox(height: 20),
                     _buildInfoSection(
                       icon: Icons.insights_rounded,
                       title: 'Capacidades principales',
                       content:
-                          'Con Sage Copilot podrás analizar oportunidades comerciales en segundos, identificar riesgos de cierre, detectar próximos pasos recomendados y obtener una lectura ejecutiva de cada cuenta sin perder contexto.',
+                          'Con Force MR podrás analizar oportunidades comerciales en segundos, identificar riesgos de cierre, detectar próximos pasos recomendados y obtener una lectura ejecutiva de cada cuenta sin perder contexto.',
                     ),
                     const SizedBox(height: 20),
                     _buildInfoSection(
@@ -129,7 +134,7 @@ class SageCopilotActivationScreen extends StatelessWidget {
                       icon: Icons.security_rounded,
                       title: 'Privacidad y uso de datos',
                       content:
-                          'Para operar, Sage Copilot puede procesar información relevante de la oportunidad (como estado, fechas, importes, actividades y comentarios) con fines exclusivos de generación de insights y resúmenes.',
+                          'Para operar, Force MR puede procesar información relevante de la oportunidad (como estado, fechas, importes, actividades y comentarios) con fines exclusivos de generación de insights y resúmenes.',
                     ),
                     const SizedBox(height: 20),
                     Container(
@@ -171,7 +176,7 @@ class SageCopilotActivationScreen extends StatelessWidget {
                                 ),
                                 SizedBox(height: 6),
                                 Text(
-                                  'Al hacer clic en "Aceptar y activar Sage Copilot", acepta nuestros términos y condiciones de uso de Sage Copilot, así como nuestra política de privacidad aplicable.\n\nPodrás revisar y actualizar tus preferencias más adelante desde la configuración de tu cuenta.',
+                                  'Al hacer clic en "Aceptar y activar Force MR", acepta nuestros términos y condiciones de uso de Force MR, así como nuestra política de privacidad aplicable.\n\nPodrás revisar y actualizar tus preferencias más adelante desde la configuración de tu cuenta.',
                                   style: TextStyle(
                                     fontSize: 13,
                                     color: Color(0xFF6B7280),
@@ -211,7 +216,7 @@ class SageCopilotActivationScreen extends StatelessWidget {
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        context.pop();
+                        context.push('/opportunity_summary/$opportunityId');
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00A8DD),
@@ -224,7 +229,7 @@ class SageCopilotActivationScreen extends StatelessWidget {
                       ),
                       icon: const Icon(Icons.check_circle_rounded, size: 20),
                       label: const Text(
-                        'Aceptar y activar Sage Copilot',
+                        'Aceptar y activar FORCE MR',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -252,7 +257,7 @@ class SageCopilotActivationScreen extends StatelessWidget {
                         ),
                       ),
                       child: const Text(
-                        'No activar a Sage Copilot',
+                        'No activar a Force MR',
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,

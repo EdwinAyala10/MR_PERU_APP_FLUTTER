@@ -270,8 +270,13 @@ class _ViewContactDetailScreenState extends ConsumerState<_ViewContactDetailScre
                   }
                   showDialog(
                     context: context,
-                    builder: (_) => const EmailSyncDialog(
-                      message: 'Para enviar correos electronicos a traves de Sage Sales Management, necesitas habilitar la sincronizacion para tu cuenta de correo electronico.',
+                    builder: (_) => EmailSyncDialog(
+                      message: 'Para enviar correos electronicos a traves de Force MR, necesitas habilitar la sincronizacion para tu cuenta de correo electronico.',
+                      onContinueWithoutConfig: () async {
+                        await KeyValueStorageServiceImpl().setKeyValue<bool>('microsoft_synced', true);
+                        if (!context.mounted) return;
+                        context.push('/email_compose/${contact.id}');
+                      },
                     ),
                   );
                 },

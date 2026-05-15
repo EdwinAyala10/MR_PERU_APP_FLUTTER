@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class EmailComposeHeader extends StatefulWidget {
   final VoidCallback onLogout;
-  final VoidCallback onSend;
+  final Future<void> Function(List<PlatformFile> files) onSend;
   const EmailComposeHeader({super.key, required this.onLogout, required this.onSend});
 
   @override
@@ -12,31 +12,31 @@ class EmailComposeHeader extends StatefulWidget {
 }
 
 class _EmailComposeHeaderState extends State<EmailComposeHeader> {
-  String? _attachedFileName;
+  final List<PlatformFile> _attachedFiles = [];
 
   Future<void> _pickDocument() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf', 'doc', 'docx'],
-      allowMultiple: false,
+      allowMultiple: true,
     );
 
     if (!mounted || result == null || result.files.isEmpty) return;
 
-    final fileName = result.files.single.name;
     setState(() {
-      _attachedFileName = fileName;
+      _attachedFiles.addAll(result.files.where((f) => f.path != null));
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Archivo adjuntado: $fileName')),
+      SnackBar(content: Text('Adjuntos: ${_attachedFiles.length} archivo(s)')),
     );
   }
 
-  void _sendEmail() {
+  Future<void> _sendEmail() async {
+    await widget.onSend(List<PlatformFile>.from(_attachedFiles));
+    if (!mounted) return;
     setState(() {
-      _attachedFileName = null;
+      _attachedFiles.clear();
     });
-    widget.onSend();
   }
 
   @override
@@ -120,7 +120,7 @@ class _EmailComposeHeaderState extends State<EmailComposeHeader> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: IconButton(
-                  onPressed: _sendEmail,
+                  onPressed: () async => _sendEmail(),
                   icon: const Icon(Icons.send_rounded, color: Colors.white),
                   tooltip: 'Enviar',
                   iconSize: 22,
@@ -128,7 +128,7 @@ class _EmailComposeHeaderState extends State<EmailComposeHeader> {
               ),
             ],
           ),
-          if (_attachedFileName != null)
+          if (_attachedFiles.isNotEmpty)
             Container(
               width: double.infinity,
               margin: const EdgeInsets.only(top: 12),
@@ -157,10 +157,10 @@ class _EmailComposeHeaderState extends State<EmailComposeHeader> {
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Text(
-                      _attachedFileName!,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                     child: Text(
+                       _attachedFiles.map((f) => f.name).join(', '),
+                       maxLines: 1,
+                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -169,11 +169,11 @@ class _EmailComposeHeaderState extends State<EmailComposeHeader> {
                     ),
                   ),
                   IconButton(
-                    onPressed: () {
-                      setState(() {
-                        _attachedFileName = null;
-                      });
-                    },
+                     onPressed: () {
+                       setState(() {
+                         _attachedFiles.clear();
+                       });
+                     },
                     icon: const Icon(Icons.close_rounded, size: 20),
                     tooltip: 'Quitar adjunto',
                     color: const Color(0xFF6B7280),

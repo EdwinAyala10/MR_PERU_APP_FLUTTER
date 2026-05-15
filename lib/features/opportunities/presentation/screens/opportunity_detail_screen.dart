@@ -253,7 +253,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
     return OpportunityDetailView(
       opportunityId: widget.opportunityId,
       onGenerateSummary: () {
-        context.push('/sage_copilot_activation');
+        context.push('/sage_copilot_activation/${widget.opportunityId}');
       },
     );
   }

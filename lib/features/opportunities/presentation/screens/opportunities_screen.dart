@@ -754,7 +754,7 @@ class _ListOpportunitiesState extends ConsumerState<_ListOpportunities> {
                 itemCount: widget.opportunities.length,
                 controller: widget.scrollController,
                 separatorBuilder: (BuildContext context, int index) =>
-                    const Divider(),
+                    const Divider(height: 4, thickness: 0.5),
                 itemBuilder: (context, index) {
                   final opportunity = widget.opportunities[index];
 

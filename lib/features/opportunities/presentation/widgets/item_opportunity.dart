@@ -35,18 +35,39 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
     });
   }
 
-  Color? _staleColor() {
+  ({Color? background, Color? border})? _staleColors() {
     final hasActivity = (widget.opportunity.actiIdTipoGestion ?? '').isNotEmpty &&
         (widget.opportunity.actiFechaRegistro ?? '').isNotEmpty;
 
-    if (!hasActivity) return Colors.yellow.shade100;
+    // Sin actividad: Amarillo suave con marco
+    if (!hasActivity) {
+      return (
+        background: const Color(0xFFFFFDE7), // Amarillo muy suave interior
+        border: const Color(0xFFFFEB3B), // Amarillo moderado marco
+      );
+    }
 
     final lastActivityDate = DateTime.tryParse(widget.opportunity.actiFechaRegistro!);
     if (lastActivityDate == null) return null;
 
     final daysWithoutActivity = DateTime.now().difference(lastActivityDate).inDays;
-    if (daysWithoutActivity > 15) return Colors.red.shade100;
-    if (daysWithoutActivity > 7) return Colors.yellow.shade100;
+    
+    // Más de 15 días: Rojo suave con marco (crítico)
+    if (daysWithoutActivity > 15) {
+      return (
+        background: const Color(0xFFFFEBEE), // Rojo muy suave interior
+        border: const Color(0xFFEF5350), // Rojo moderado marco
+      );
+    }
+    
+    // Más de 7 días: Naranja suave con marco (atención)
+    if (daysWithoutActivity > 7) {
+      return (
+        background: const Color(0xFFFFF3E0), // Naranja muy suave interior
+        border: const Color(0xFFFF9800), // Naranja moderado marco
+      );
+    }
+    
     return null;
   }
 
@@ -67,12 +88,26 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
   Widget build(BuildContext context) {
     final contactState =
         ref.watch(contactProvider(widget.opportunity.contactId ?? ''));
-    final staleColor = _staleColor();
+    final staleColors = _staleColors();
 
     return Stack(
       children: [
-        ListTile(
-          tileColor: staleColor,
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+          decoration: staleColors != null
+              ? BoxDecoration(
+                  color: staleColors.background,
+                  border: Border.all(
+                    color: staleColors.border!,
+                    width: 1.5,
+                  ),
+                  borderRadius: BorderRadius.circular(4),
+                )
+              : null,
+          child: ListTile(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4),
+            ),
           title: Text(
             widget.opportunity.razon ?? '',
             style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
@@ -215,7 +250,8 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
               ),
             ],
           ),
-          onTap: widget.callbackOnTap,
+            onTap: widget.callbackOnTap,
+          ),
         ),
         Visibility(
           visible: contactState.contact == null ? false : true,
@@ -302,9 +338,14 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
 
                     showDialog(
                       context: context,
-                      builder: (_) => const EmailSyncDialog(
+                      builder: (_) => EmailSyncDialog(
                         message:
-                            'Para enviar correos electronicos a traves de Sage Sales Management, necesitas habilitar la sincronizacion para tu cuenta de correo electronico.',
+                            'Para enviar correos electronicos a traves de Force MR, necesitas habilitar la sincronizacion para tu cuenta de correo electronico.',
+                        onContinueWithoutConfig: () async {
+                          await KeyValueStorageServiceImpl().setKeyValue<bool>('microsoft_synced', true);
+                          if (!context.mounted) return;
+                          context.push('/email_compose/${contact.id}');
+                        },
                       ),
                     ).then((_) => _loadMicrosoftSyncState());
                   },
