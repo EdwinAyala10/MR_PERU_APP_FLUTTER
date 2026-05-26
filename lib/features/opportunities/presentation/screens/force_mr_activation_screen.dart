@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class SageCopilotActivationScreen extends StatelessWidget {
+class ForceMrActivationScreen extends StatelessWidget {
   final String opportunityId;
   
-  const SageCopilotActivationScreen({
+  const ForceMrActivationScreen({
     super.key,
     required this.opportunityId,
   });

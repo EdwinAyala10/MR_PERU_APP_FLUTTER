@@ -16,22 +16,26 @@ class EmailSendState {
   final bool isLoading;
   final bool? success;
   final String? message;
+  final dynamic data;
 
   const EmailSendState({
     this.isLoading = false,
     this.success,
     this.message,
+    this.data,
   });
 
   EmailSendState copyWith({
     bool? isLoading,
     bool? success,
     String? message,
+    dynamic data,
   }) {
     return EmailSendState(
       isLoading: isLoading ?? this.isLoading,
       success: success,
       message: message,
+      data: data,
     );
   }
 }
@@ -49,6 +53,7 @@ class EmailSendNotifier extends StateNotifier<EmailSendState> {
       isLoading: false,
       success: response.success,
       message: response.message,
+      data: response.data,
     );
 
     return response.success;

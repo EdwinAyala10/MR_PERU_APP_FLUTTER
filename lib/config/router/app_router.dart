@@ -6,7 +6,7 @@ import 'package:crm_app/features/documents/presentation/screens/enlace_screen.da
 import 'package:crm_app/features/kpis/presentation/screens/kpi_detail_screen.dart';
 import 'package:crm_app/features/kpis/presentation/screens/kpi_reorder_by_user.dart';
 import 'package:crm_app/features/opportunities/presentation/screens/opportunity_detail_screen.dart';
-import 'package:crm_app/features/opportunities/presentation/screens/sage_copilot_activation_screen.dart';
+import 'package:crm_app/features/opportunities/presentation/screens/force_mr_activation_screen.dart';
 import 'package:crm_app/features/opportunities/presentation/screens/opportunity_summary_screen.dart';
 import 'package:crm_app/features/route-planner/presentation/screens/register_route_planner_screen.dart';
 import 'package:crm_app/features/route-planner/presentation/screens/route_day_screen.dart';
@@ -316,10 +316,10 @@ final goRouterProvider = Provider((ref) {
         ),
       ),
       GoRoute(
-        path: '/sage_copilot_activation/:opportunityId',
+        path: '/force_mr_activation/:opportunityId',
         builder: (context, state) {
           final opportunityId = state.pathParameters['opportunityId']!;
-          return SageCopilotActivationScreen(opportunityId: opportunityId);
+          return ForceMrActivationScreen(opportunityId: opportunityId);
         },
       ),
       GoRoute(

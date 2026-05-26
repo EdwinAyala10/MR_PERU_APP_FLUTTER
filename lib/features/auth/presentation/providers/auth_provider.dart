@@ -79,6 +79,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> logout([String? errorMessage]) async {
     await keyValueStorageService.removeKey('token');
+    
+    // Limpiar configuración de Microsoft al cerrar sesión
+    await keyValueStorageService.removeKey('microsoft_synced');
+    await keyValueStorageService.removeKey('show_sync_message');
+    await keyValueStorageService.removeKey('email_return_route');
 
     state = state.copyWith(
         authStatus: AuthStatus.notAuthenticated,

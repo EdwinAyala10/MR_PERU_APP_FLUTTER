@@ -9,7 +9,7 @@ import 'package:crm_app/features/opportunities/presentation/widgets/custom_accti
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
 import 'package:crm_app/features/shared/infrastructure/services/key_value_storage_service_impl.dart';
 import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
-import 'package:crm_app/features/shared/widgets/email_feedback_snackbar.dart';
+import 'package:crm_app/features/shared/infrastructure/services/notification_service.dart';
 import 'package:crm_app/features/shared/widgets/no_exist_listview.dart';
 
 import '../../domain/domain.dart';
@@ -76,17 +76,27 @@ class _OpportunitiesScreenState extends ConsumerState<OpportunitiesScreen>
 
     if (showSyncMessage == true) {
       await KeyValueStorageServiceImpl().setKeyValue<bool>('show_sync_message', false);
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(milliseconds: 500), () {
         if (!mounted) return;
-        EmailFeedbackSnackbar.showSyncSuccess(context);
+        NotificationService().showSuccess(
+          context: context,
+          title: 'Sincronización exitosa',
+          message: 'Tu cuenta de correo ha sido sincronizada correctamente',
+          duration: 4000,
+        );
       });
     }
 
     if (emailSentTick != null && emailSentTick > lastShownTick) {
       await KeyValueStorageServiceImpl().setKeyValue<int>('email_sent_tick_shown', emailSentTick);
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(milliseconds: 500), () {
         if (!mounted) return;
-        EmailFeedbackSnackbar.showEmailSent(context);
+        NotificationService().showSuccess(
+          context: context,
+          title: 'Correo enviado',
+          message: 'Tu correo electrónico ha sido enviado exitosamente',
+          duration: 4000,
+        );
       });
     }
   }

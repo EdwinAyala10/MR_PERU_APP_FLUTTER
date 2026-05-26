@@ -1,22 +1,26 @@
 class EmailRecipient {
   final String contactId;
+  final String name;
   final String email;
   final String type;
   final String isSystemEmail;
 
   const EmailRecipient({
     required this.contactId,
+    required this.name,
     required this.email,
     required this.type,
     this.isSystemEmail = 'SI',
   });
 
   Map<String, String> toFormData(int index) {
+    // Backend espera EMAIL_TO (no EMAIL_RECIPIENTS)
+    // Los índices empiezan en 1 (no en 0)
+    final idx = index + 1;
     return {
-      'EMAIL_TO[$index][EMLT_ID_CONTACTO]': contactId,
-      'EMAIL_TO[$index][EMLT_EMAIL_TO]': email,
-      'EMAIL_TO[$index][EMLT_ID_TIPO]': type,
-      'EMAIL_TO[$index][EMLT_CORREO_DE_SISTEMA]': isSystemEmail,
+      'EMAIL_TO[$idx][name]': name,
+      'EMAIL_TO[$idx][address]': email,
+      'EMAIL_TO[$idx][EMLT_ID_TIPO]': type,
     };
   }
 }

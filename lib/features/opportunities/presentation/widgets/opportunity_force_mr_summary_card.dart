@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class OpportunityCopilotSummaryCard extends StatelessWidget {
+class OpportunityForceMrSummaryCard extends StatelessWidget {
   final VoidCallback? onGenerateSummary;
 
-  const OpportunityCopilotSummaryCard({
+  const OpportunityForceMrSummaryCard({
     super.key,
     this.onGenerateSummary,
   });

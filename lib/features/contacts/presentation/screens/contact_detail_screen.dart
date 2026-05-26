@@ -6,7 +6,7 @@ import '../providers/contact_provider.dart';
 import '../providers/providers.dart';
 import '../../../shared/presentation/providers/send_whatsapp_provider.dart';
 import '../../../shared/shared.dart';
-import 'package:crm_app/features/shared/widgets/email_feedback_snackbar.dart';
+import 'package:crm_app/features/shared/infrastructure/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -96,9 +96,15 @@ class _ViewContactDetailScreenState extends ConsumerState<_ViewContactDetailScre
 
     if (showMessage == true) {
       await KeyValueStorageServiceImpl().setKeyValue<bool>('show_sync_message', false);
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Delay para asegurar que el overlay esté listo
+      Future.delayed(const Duration(milliseconds: 500), () {
         if (!mounted) return;
-        EmailFeedbackSnackbar.showSyncSuccess(context);
+        NotificationService().showSuccess(
+          context: context,
+          title: 'Sincronización exitosa',
+          message: 'Tu cuenta de correo ha sido sincronizada correctamente',
+          duration: 4000,
+        );
       });
     }
 
@@ -273,7 +279,6 @@ class _ViewContactDetailScreenState extends ConsumerState<_ViewContactDetailScre
                     builder: (_) => EmailSyncDialog(
                       message: 'Para enviar correos electronicos a traves de Force MR, necesitas habilitar la sincronizacion para tu cuenta de correo electronico.',
                       onContinueWithoutConfig: () async {
-                        await KeyValueStorageServiceImpl().setKeyValue<bool>('microsoft_synced', true);
                         if (!context.mounted) return;
                         context.push('/email_compose/${contact.id}');
                       },

@@ -342,7 +342,6 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
                         message:
                             'Para enviar correos electronicos a traves de Force MR, necesitas habilitar la sincronizacion para tu cuenta de correo electronico.',
                         onContinueWithoutConfig: () async {
-                          await KeyValueStorageServiceImpl().setKeyValue<bool>('microsoft_synced', true);
                           if (!context.mounted) return;
                           context.push('/email_compose/${contact.id}');
                         },

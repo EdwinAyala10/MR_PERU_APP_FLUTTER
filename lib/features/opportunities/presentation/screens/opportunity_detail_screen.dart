@@ -12,7 +12,7 @@ import 'package:crm_app/features/companies/presentation/widgets/show_loading_mes
 import 'package:crm_app/features/documents/presentation/screens/documents_screen.dart';
 import 'package:crm_app/features/opportunities/infrastructure/mappers/op_create_document_response.dart';
 import 'package:crm_app/features/opportunities/infrastructure/mappers/op_delete_document_mapper.dart';
-import 'package:crm_app/features/opportunities/presentation/widgets/opportunity_copilot_summary_card.dart';
+import 'package:crm_app/features/opportunities/presentation/widgets/opportunity_force_mr_summary_card.dart';
 import 'package:crm_app/features/opportunities/presentation/widgets/op_document_card.dart';
 import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
@@ -253,7 +253,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
     return OpportunityDetailView(
       opportunityId: widget.opportunityId,
       onGenerateSummary: () {
-        context.push('/sage_copilot_activation/${widget.opportunityId}');
+        context.push('/force_mr_activation/${widget.opportunityId}');
       },
     );
   }
@@ -337,7 +337,7 @@ class OpportunityDetailView extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              OpportunityCopilotSummaryCard(
+              OpportunityForceMrSummaryCard(
                 onGenerateSummary: onGenerateSummary,
               ),
               const SizedBox(

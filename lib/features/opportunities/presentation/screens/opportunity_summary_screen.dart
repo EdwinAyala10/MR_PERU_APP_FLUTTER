@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/opportunity_summary_provider.dart';
+import '../widgets/typewriter_text.dart';
 
 class OpportunitySummaryScreen extends ConsumerStatefulWidget {
   final String opportunityId;
@@ -96,38 +97,107 @@ class _OpportunitySummaryScreenState extends ConsumerState<OpportunitySummaryScr
   }
 
   Widget _buildLoading() {
-    return Center(
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(20),
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF00A8DD).withOpacity(0.1),
-              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                colors: [
+                  const Color(0xFF00A8DD).withOpacity(0.1),
+                  const Color(0xFF00607D).withOpacity(0.05),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: const Color(0xFF00A8DD).withOpacity(0.3),
+                width: 1.5,
+              ),
             ),
-            child: const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF00A8DD)),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF00A8DD).withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF00A8DD)),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Analizando oportunidad...',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF00607D),
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'Force MR está procesando la información',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF6B7280),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 24),
-          const Text(
-            'Generando resumen con IA...',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF00607D),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF9FAFB),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: const Color(0xFFE5E7EB),
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Esto puede tomar unos segundos',
-            style: TextStyle(
-              fontSize: 14,
-              color: Color(0xFF6B7280),
+            child: Column(
+              children: [
+                ...List.generate(3, (index) => Padding(
+                  padding: EdgeInsets.only(bottom: index < 2 ? 12 : 0),
+                  child: _buildSkeletonLine(
+                    width: index == 2 ? 0.6 : 1.0,
+                  ),
+                )),
+              ],
             ),
           ),
         ],
+      ),
+    );
+  }
+  
+  Widget _buildSkeletonLine({required double width}) {
+    return Container(
+      height: 16,
+      width: MediaQuery.of(context).size.width * width,
+      decoration: BoxDecoration(
+        color: const Color(0xFFE5E7EB),
+        borderRadius: BorderRadius.circular(4),
       ),
     );
   }
@@ -266,8 +336,10 @@ class _OpportunitySummaryScreenState extends ConsumerState<OpportunitySummaryScr
                 color: const Color(0xFFE5E7EB),
               ),
             ),
-            child: Text(
-              summary.data,
+            child: TypewriterText(
+              text: summary.data,
+              speed: const Duration(milliseconds: 22),
+              charactersPerTick: 5,
               style: const TextStyle(
                 fontSize: 15,
                 color: Color(0xFF374151),

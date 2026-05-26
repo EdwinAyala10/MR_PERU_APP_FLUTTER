@@ -14,5 +14,6 @@ export 'mostrar_modal_mensaje.dart';
 export 'email_sync_dialog.dart';
 export 'email_sync_setup_content.dart';
 export 'email_compose_header.dart';
-export 'email_compose_fields.dart';
-export 'email_compose_body.dart';
+export 'email_compose_fields_chips.dart';
+export 'email_recipients_chips.dart';
+export 'email_quill_editor.dart';

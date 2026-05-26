@@ -1,6 +1,7 @@
-import 'package:crm_app/features/shared/infrastructure/services/key_value_storage_service_impl.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:crm_app/config/theme/app_theme.dart';
+import 'package:crm_app/features/shared/infrastructure/services/notification_service.dart';
 
 class EmailComposeHeader extends StatefulWidget {
   final VoidCallback onLogout;
@@ -26,8 +27,13 @@ class _EmailComposeHeaderState extends State<EmailComposeHeader> {
     setState(() {
       _attachedFiles.addAll(result.files.where((f) => f.path != null));
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Adjuntos: ${_attachedFiles.length} archivo(s)')),
+    
+    if (!mounted) return;
+    NotificationService().showInfo(
+      context: context,
+      title: 'Archivos adjuntados',
+      message: '${_attachedFiles.length} archivo(s) agregado(s) al correo',
+      duration: 3000,
     );
   }
 
@@ -42,10 +48,10 @@ class _EmailComposeHeaderState extends State<EmailComposeHeader> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: Colors.white,
         border: Border(
-          bottom: BorderSide(color: Color(0xFFE5E7EB), width: 1),
+          bottom: BorderSide(color: Colors.grey.shade300, width: 1),
         ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -53,71 +59,56 @@ class _EmailComposeHeaderState extends State<EmailComposeHeader> {
         children: [
           Row(
             children: [
-              TextButton.icon(
-                onPressed: () async {
-                  await KeyValueStorageServiceImpl().removeKey('microsoft_synced');
-                  widget.onLogout();
-                },
-                icon: const Icon(
-                  Icons.logout_rounded,
-                  size: 18,
-                  color: Color(0xFF6B7280),
-                ),
-                label: const Text(
-                  'Cerrar sesión',
-                  style: TextStyle(
-                    color: Color(0xFF6B7280),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                ),
-              ),
-              const Expanded(
-                child: Center(
-                  child: Text(
-                    'Enviar correo',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                      color: Color(0xFF00607D),
-                      letterSpacing: -0.2,
-                    ),
+              Expanded(
+                child: Text(
+                  'Nuevo correo',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 18,
+                    color: Colors.black87,
+                    letterSpacing: 0.2,
                   ),
                 ),
               ),
               Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF9FAFB),
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey.shade300),
                 ),
                 child: IconButton(
                   onPressed: _pickDocument,
-                  icon: const Icon(Icons.attach_file_rounded, color: Color(0xFF00607D)),
+                  icon: Icon(Icons.attach_file_rounded, color: Colors.grey.shade700),
                   tooltip: 'Adjuntar archivo',
                   iconSize: 22,
                 ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 8),
               Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF9FAFB),
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey.shade300),
                 ),
                 child: IconButton(
                   onPressed: () {},
-                  icon: const Icon(Icons.description_outlined, color: Color(0xFF00607D)),
+                  icon: Icon(Icons.description_outlined, color: Colors.grey.shade700),
                   tooltip: 'Plantilla',
                   iconSize: 22,
                 ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 12),
               Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFF00A8DD),
+                  color: primaryColor,
                   borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: primaryColor.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: IconButton(
                   onPressed: () async => _sendEmail(),
@@ -134,10 +125,10 @@ class _EmailComposeHeaderState extends State<EmailComposeHeader> {
               margin: const EdgeInsets.only(top: 12),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               decoration: BoxDecoration(
-                color: const Color(0xFF00A8DD).withOpacity(0.08),
+                color: Colors.grey.shade50,
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: const Color(0xFF00A8DD).withOpacity(0.2),
+                  color: Colors.grey.shade300,
                   width: 1,
                 ),
               ),
@@ -146,13 +137,13 @@ class _EmailComposeHeaderState extends State<EmailComposeHeader> {
                   Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF00A8DD).withOpacity(0.15),
+                      color: Colors.grey.shade200,
                       borderRadius: BorderRadius.circular(6),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.insert_drive_file_outlined,
                       size: 18,
-                      color: Color(0xFF00607D),
+                      color: Colors.grey.shade700,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -161,10 +152,11 @@ class _EmailComposeHeaderState extends State<EmailComposeHeader> {
                        _attachedFiles.map((f) => f.name).join(', '),
                        maxLines: 1,
                        overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF00607D),
+                        color: Colors.grey.shade800,
+                        letterSpacing: 0.1,
                       ),
                     ),
                   ),
@@ -174,9 +166,8 @@ class _EmailComposeHeaderState extends State<EmailComposeHeader> {
                          _attachedFiles.clear();
                        });
                      },
-                    icon: const Icon(Icons.close_rounded, size: 20),
+                    icon: Icon(Icons.close_rounded, size: 20, color: Colors.grey.shade600),
                     tooltip: 'Quitar adjunto',
-                    color: const Color(0xFF6B7280),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                   ),

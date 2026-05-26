@@ -34,8 +34,8 @@ class SendEmailRequest {
       'ACTI_ID_CONTACTO': contactoId,
       'ACTI_COMENTARIO': comentario,
       'EMLS_ASUNTO': asunto,
-      'USERREPORT_EMAIL': userEmail,
       'EMLS_EMAIL_FROM': emailFrom,
+      // Backend espera ACNT_ID_CONTACTO (no ACTI_ID_CONTACTO)
       'ACTIVIDADES_CONTACTO[0][ACNT_ID_CONTACTO]': contactoId,
     };
 
