@@ -586,37 +586,35 @@ class _EmailQuillEditorState extends State<EmailQuillEditor> {
         border: Border.all(color: Colors.grey.shade300, width: 1),
       ),
       child: quill.QuillEditor(
-        scrollController: _scrollController,
+        controller: _controller,
         focusNode: _focusNode,
-        configurations: quill.QuillEditorConfigurations(
-          controller: _controller,
-          placeholder: 'Escribe el contenido del correo aquí...',
-          padding: const EdgeInsets.all(16),
-          autoFocus: false,
-          expands: false,
-          scrollable: true,
-          customStyles: quill.DefaultStyles(
-            paragraph: quill.DefaultTextBlockStyle(
-              const TextStyle(
-                fontSize: 14,
-                height: 1.6,
-                color: Colors.black,
-                letterSpacing: 0.2,
-              ),
-              const quill.VerticalSpacing(8, 0),
-              const quill.VerticalSpacing(0, 0),
-              null,
+        scrollController: _scrollController,
+        placeholder: 'Escribe el contenido del correo aquí...',
+        padding: const EdgeInsets.all(16),
+        autoFocus: false,
+        expands: false,
+        scrollable: true,
+        customStyles: quill.DefaultStyles(
+          paragraph: quill.DefaultTextBlockStyle(
+            const TextStyle(
+              fontSize: 14,
+              height: 1.6,
+              color: Colors.black,
+              letterSpacing: 0.2,
             ),
-            placeHolder: quill.DefaultTextBlockStyle(
-              TextStyle(
-                fontSize: 14,
-                color: Colors.grey.shade400,
-                fontStyle: FontStyle.italic,
-              ),
-              const quill.VerticalSpacing(8, 0),
-              const quill.VerticalSpacing(0, 0),
-              null,
+            const quill.VerticalSpacing(top: 8, bottom: 0),
+            const quill.VerticalSpacing(top: 0, bottom: 0),
+            null,
+          ),
+          placeHolder: quill.DefaultTextBlockStyle(
+            TextStyle(
+              fontSize: 14,
+              color: Colors.grey.shade400,
+              fontStyle: FontStyle.italic,
             ),
+            const quill.VerticalSpacing(top: 8, bottom: 0),
+            const quill.VerticalSpacing(top: 0, bottom: 0),
+            null,
           ),
         ),
       ),
