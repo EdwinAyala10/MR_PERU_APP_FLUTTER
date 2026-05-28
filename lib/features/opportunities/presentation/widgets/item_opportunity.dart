@@ -331,30 +331,13 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
                       widget.opportunity.id,
                     );
 
-                    if (_microsoftSynced) {
-                      context.push('/email_compose/${contact.id}');
-                      return;
-                    }
-
-                    showDialog(
-                      context: context,
-                      builder: (_) => EmailSyncDialog(
-                        message:
-                            'Para enviar correos electronicos a traves de Force MR, necesitas habilitar la sincronizacion para tu cuenta de correo electronico.',
-                        onContinueWithoutConfig: () async {
-                          if (!context.mounted) return;
-                          context.push('/email_compose/${contact.id}');
-                        },
-                      ),
-                    ).then((_) => _loadMicrosoftSyncState());
+                    context.push('/email_compose/${contact.id}');
                   },
                   child: Container(
                     width: 30,
                     height: 30,
-                    decoration: BoxDecoration(
-                      color: _microsoftSynced
-                          ? const Color(0xFF4FC3F7)
-                          : const Color.fromARGB(255, 155, 155, 155),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF00A8DD), // Color celeste siempre activo
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.email, color: Colors.white, size: 18),

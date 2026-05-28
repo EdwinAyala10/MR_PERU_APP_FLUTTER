@@ -89,15 +89,6 @@ class _OpportunitiesScreenState extends ConsumerState<OpportunitiesScreen>
 
     if (emailSentTick != null && emailSentTick > lastShownTick) {
       await KeyValueStorageServiceImpl().setKeyValue<int>('email_sent_tick_shown', emailSentTick);
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (!mounted) return;
-        NotificationService().showSuccess(
-          context: context,
-          title: 'Correo enviado',
-          message: 'Tu correo electrónico ha sido enviado exitosamente',
-          duration: 4000,
-        );
-      });
     }
   }
 

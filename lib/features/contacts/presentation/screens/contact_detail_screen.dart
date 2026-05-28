@@ -267,23 +267,10 @@ class _ViewContactDetailScreenState extends ConsumerState<_ViewContactDetailScre
               ContainerCustom(
                 label: 'Correo electrónico:',
                 text: contact.contactoEmail ?? '',
-                icon2: _InlineEmailButton(isConnected: _microsoftSynced),
+                icon2: const _InlineEmailButton(),
                 callbackIcon2: () {
                   if ((contact.contactoEmail ?? '').isEmpty) return;
-                  if (_microsoftSynced) {
-                    context.push('/email_compose/${contact.id}');
-                    return;
-                  }
-                  showDialog(
-                    context: context,
-                    builder: (_) => EmailSyncDialog(
-                      message: 'Para enviar correos electronicos a traves de Force MR, necesitas habilitar la sincronizacion para tu cuenta de correo electronico.',
-                      onContinueWithoutConfig: () async {
-                        if (!context.mounted) return;
-                        context.push('/email_compose/${contact.id}');
-                      },
-                    ),
-                  );
+                  context.push('/email_compose/${contact.id}');
                 },
               ),
               ContainerCustom(
@@ -299,18 +286,15 @@ class _ViewContactDetailScreenState extends ConsumerState<_ViewContactDetailScre
 }
 
 class _InlineEmailButton extends StatelessWidget {
-  final bool isConnected;
-  const _InlineEmailButton({required this.isConnected});
+  const _InlineEmailButton();
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: 34,
       height: 34,
-      decoration: BoxDecoration(
-        color: isConnected
-            ? const Color(0xFF4FC3F7)
-            : const Color.fromARGB(255, 155, 155, 155),
+      decoration: const BoxDecoration(
+        color: Color(0xFF00A8DD), // Color celeste siempre activo
         shape: BoxShape.circle,
       ),
       child: const Icon(Icons.email, color: Colors.white, size: 20),

@@ -34,6 +34,11 @@ class _EmailComposeScreenState extends ConsumerState<EmailComposeScreen> {
   
   bool _contactAdded = false;
 
+  // GlobalKeys para acceder a los estados de los campos de recipients
+  final GlobalKey<EmailRecipientsChipsState> _toKey = GlobalKey<EmailRecipientsChipsState>();
+  final GlobalKey<EmailRecipientsChipsState> _ccKey = GlobalKey<EmailRecipientsChipsState>();
+  final GlobalKey<EmailRecipientsChipsState> _bccKey = GlobalKey<EmailRecipientsChipsState>();
+
   @override
   void initState() {
     super.initState();
@@ -119,6 +124,9 @@ class _EmailComposeScreenState extends ConsumerState<EmailComposeScreen> {
                     onAddBcc: (recipient) => setState(() => _bccRecipients.add(recipient)),
                     onRemoveBcc: (index) => setState(() => _bccRecipients.removeAt(index)),
                     subjectController: subjectController,
+                    toKey: _toKey,
+                    ccKey: _ccKey,
+                    bccKey: _bccKey,
                   ),
                   
                   // Editor con altura fija más razonable
@@ -144,7 +152,45 @@ class _EmailComposeScreenState extends ConsumerState<EmailComposeScreen> {
     final asunto = subjectController.text.trim();
     final comentario = _emailBodyHtml.trim();
 
-    // Validaciones
+    // Mostrar loading inicial mientras se valida
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(
+        child: Card(
+          child: Padding(
+            padding: EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: 32,
+                  height: 32,
+                  child: CircularProgressIndicator(strokeWidth: 3),
+                ),
+                SizedBox(height: 12),
+                Text('Validando...', style: TextStyle(fontSize: 14)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // Pequeño delay para que el loading sea visible
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    // Cerrar loading antes de validar
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
+
+    // VALIDACIONES EN ORDEN: CORREOS (todos juntos) → ASUNTO → CUERPO
+    
+    // ============================================
+    // PRIORIDAD 1: Datos básicos del sistema
+    // ============================================
     if (user == null || contact == null) {
       if (!mounted) return;
       NotificationService().showError(
@@ -155,32 +201,122 @@ class _EmailComposeScreenState extends ConsumerState<EmailComposeScreen> {
       return;
     }
 
-    if (_toRecipients.isEmpty) {
-      if (!mounted) return;
-      NotificationService().showWarning(
-        context: context,
-        title: 'Falta destinatario',
-        message: 'Debe agregar al menos un destinatario para enviar el correo.',
-      );
-      return;
-    }
-
-    if (asunto.isEmpty || comentario.isEmpty) {
-      if (!mounted) return;
-      NotificationService().showWarning(
-        context: context,
-        title: 'Campos obligatorios',
-        message: 'El asunto y el mensaje son obligatorios.',
-      );
-      return;
-    }
-
     if (contact.ruc.trim().isEmpty) {
       if (!mounted) return;
       NotificationService().showError(
         context: context,
         title: 'Datos incompletos',
         message: 'El contacto no tiene RUC asociado.',
+      );
+      return;
+    }
+
+    // ============================================
+    // PRIORIDAD 2: Validar CORREOS (PARA + CC + BCC juntos)
+    // ============================================
+    
+    // 2.1: PARA debe tener al menos un destinatario
+    if (_toRecipients.isEmpty) {
+      if (!mounted) return;
+      NotificationService().showWarning(
+        context: context,
+        title: 'Falta destinatario',
+        message: 'Debe agregar al menos un destinatario en PARA.',
+      );
+      return;
+    }
+
+    // 2.2: Validar texto pendiente en TODOS los campos (PARA + CC + BCC)
+    final List<String> pendingEmails = [];
+    
+    final pendingToEmail = _toKey.currentState?.getPendingEmail();
+    if (pendingToEmail != null) {
+      pendingEmails.add('PARA: $pendingToEmail');
+    }
+
+    final pendingCcEmail = _ccKey.currentState?.getPendingEmail();
+    if (pendingCcEmail != null) {
+      pendingEmails.add('CC: $pendingCcEmail');
+    }
+
+    final pendingBccEmail = _bccKey.currentState?.getPendingEmail();
+    if (pendingBccEmail != null) {
+      pendingEmails.add('BCC: $pendingBccEmail');
+    }
+
+    if (pendingEmails.isNotEmpty) {
+      if (!mounted) return;
+      final message = pendingEmails.length == 1
+          ? 'Tienes un email sin agregar: ${pendingEmails[0]}\nPresiona Enter para agregarlo o bórralo.'
+          : 'Tienes ${pendingEmails.length} emails sin agregar:\n${pendingEmails.join('\n')}\nPresiona Enter para agregarlos o bórralos.';
+      
+      NotificationService().showWarning(
+        context: context,
+        title: 'Emails pendientes',
+        message: message,
+      );
+      return;
+    }
+
+    // 2.3: Validar formato de TODOS los emails agregados (PARA + CC + BCC en conjunto)
+    final List<String> invalidEmails = [];
+    
+    for (final recipient in _toRecipients) {
+      if (!_isValidEmail(recipient.email)) {
+        invalidEmails.add(recipient.email);
+      }
+    }
+
+    for (final recipient in _ccRecipients) {
+      if (!_isValidEmail(recipient.email)) {
+        invalidEmails.add(recipient.email);
+      }
+    }
+
+    for (final recipient in _bccRecipients) {
+      if (!_isValidEmail(recipient.email)) {
+        invalidEmails.add(recipient.email);
+      }
+    }
+
+    // Si hay emails inválidos, mostrar error consolidado (TODOS JUNTOS)
+    if (invalidEmails.isNotEmpty) {
+      if (!mounted) return;
+      final message = invalidEmails.length == 1
+          ? 'La dirección de correo electrónico ${invalidEmails[0]} no es válida.'
+          : '${invalidEmails.length} correos electrónicos no son válidos.';
+      
+      NotificationService().showError(
+        context: context,
+        title: 'Correo inválido',
+        message: message,
+        duration: 5000,
+      );
+      return;
+    }
+
+    // ============================================
+    // PRIORIDAD 3: Validar ASUNTO
+    // ============================================
+    if (asunto.isEmpty) {
+      if (!mounted) return;
+      NotificationService().showWarning(
+        context: context,
+        title: 'Falta asunto',
+        message: 'Debe completar el asunto del correo.',
+      );
+      return;
+    }
+
+    // ============================================
+    // PRIORIDAD 4: Validar CUERPO/MENSAJE
+    // ============================================
+    if (comentario.isEmpty) {
+      if (!mounted) return;
+      NotificationService().showWarning(
+        context: context,
+        title: 'Falta cuerpo del mensaje',
+        message: 'Debe completar el cuerpo del correo.',
       );
       return;
     }
@@ -196,46 +332,81 @@ class _EmailComposeScreenState extends ConsumerState<EmailComposeScreen> {
     // Construir recipients
     final recipients = _buildRecipients(contact.id);
 
-    // Enviar
-    final success = await ref.read(emailSendProvider.notifier).sendEmail(
-      SendEmailRequest(
-        usuarioResponsableId: user.code,
-        ruc: contact.ruc.trim(),
-        contactoId: contact.id,
-        asunto: asunto,
-        comentario: comentario,
-        userEmail: user.email,
-        emailFrom: user.email,
-        recipients: recipients,
-        files: files,
+    // Mostrar loading dialog
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(
+        child: Card(
+          child: Padding(
+            padding: EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Enviando correo...', style: TextStyle(fontSize: 16)),
+              ],
+            ),
+          ),
+        ),
       ),
     );
 
-    // Mostrar resultado
-    final sendState = ref.read(emailSendProvider);
-    final apiMessage = sendState.message ?? 'No se pudo enviar el correo.';
+    // Obtener el ID de oportunidad si el correo viene desde Oportunidades
+    // Si viene desde Contactos, oportunidadId = '0'
+    String oportunidadId = '0';
+    final savedOpportunityId = await KeyValueStorageServiceImpl().getValue<String>('email_opportunity_id');
+    if (savedOpportunityId != null && savedOpportunityId.isNotEmpty) {
+      oportunidadId = savedOpportunityId;
+      // Limpiar el valor después de usarlo
+      await KeyValueStorageServiceImpl().removeKey('email_opportunity_id');
+    }
+
+    print('[EMAIL] ACTI_ID_OPORTUNIDAD: $oportunidadId');
+
+    // Enviar correo y esperar respuesta del backend
+    bool success = false;
+    String apiMessage = 'No se pudo enviar el correo.';
+    
+    try {
+      success = await ref.read(emailSendProvider.notifier).sendEmail(
+        SendEmailRequest(
+          usuarioResponsableId: user.code,
+          ruc: contact.ruc.trim(),
+          contactoId: contact.id,
+          oportunidadId: oportunidadId,
+          asunto: asunto,
+          comentario: comentario,
+          userEmail: user.email,
+          emailFrom: user.email,
+          recipients: recipients,
+          files: files,
+        ),
+      );
+
+      // Obtener mensaje del backend
+      final sendState = ref.read(emailSendProvider);
+      apiMessage = sendState.message ?? 'No se pudo enviar el correo.';
+    } catch (e) {
+      success = false;
+      apiMessage = 'Error al enviar el correo. Por favor intenta nuevamente.';
+    }
+
+    // Cerrar loading dialog SOLO después de tener la respuesta del backend
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
 
     if (!mounted) return;
     
     // Mostrar notificación con mensaje de éxito o error
     if (success) {
-      // Extraer Activity ID si está disponible
-      String activityInfo = '';
-      if (sendState.data != null && sendState.data is Map) {
-        final dataMap = sendState.data as Map;
-        if (dataMap['Actividad'] != null && dataMap['Actividad'] is Map) {
-          final actividad = dataMap['Actividad'] as Map;
-          final activityId = actividad['ACTI_ID_ACTIVIDAD'];
-          if (activityId != null) {
-            activityInfo = '\nActivity ID: $activityId';
-          }
-        }
-      }
-      
       NotificationService().showSuccess(
         context: context,
         title: 'Correo enviado exitosamente',
-        message: '$apiMessage$activityInfo',
+        message: apiMessage,
         duration: 5000,
       );
     } else {
@@ -297,5 +468,43 @@ class _EmailComposeScreenState extends ConsumerState<EmailComposeScreen> {
     }
     
     return recipients;
+  }
+
+  bool _isValidEmail(String email) {
+    // Regex completo para validar formato de email
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+      caseSensitive: false,
+    );
+    
+    // Verificar formato básico
+    if (!emailRegex.hasMatch(email)) {
+      return false;
+    }
+    
+    // Validaciones adicionales
+    final parts = email.split('@');
+    if (parts.length != 2) return false;
+    
+    final localPart = parts[0];
+    final domainPart = parts[1];
+    
+    // La parte local no puede estar vacía ni empezar/terminar con punto
+    if (localPart.isEmpty || localPart.startsWith('.') || localPart.endsWith('.')) {
+      return false;
+    }
+    
+    // La parte del dominio debe tener al menos un punto
+    if (!domainPart.contains('.')) {
+      return false;
+    }
+    
+    // El dominio no puede empezar o terminar con punto o guión
+    if (domainPart.startsWith('.') || domainPart.endsWith('.') ||
+        domainPart.startsWith('-') || domainPart.endsWith('-')) {
+      return false;
+    }
+    
+    return true;
   }
 }

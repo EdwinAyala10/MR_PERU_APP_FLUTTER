@@ -13,6 +13,9 @@ class EmailComposeFieldsChips extends StatefulWidget {
   final Function(EmailRecipientData) onAddBcc;
   final Function(int) onRemoveBcc;
   final TextEditingController subjectController;
+  final GlobalKey<EmailRecipientsChipsState>? toKey;
+  final GlobalKey<EmailRecipientsChipsState>? ccKey;
+  final GlobalKey<EmailRecipientsChipsState>? bccKey;
 
   const EmailComposeFieldsChips({
     super.key,
@@ -26,6 +29,9 @@ class EmailComposeFieldsChips extends StatefulWidget {
     required this.onAddBcc,
     required this.onRemoveBcc,
     required this.subjectController,
+    this.toKey,
+    this.ccKey,
+    this.bccKey,
   });
 
   @override
@@ -46,6 +52,7 @@ class _EmailComposeFieldsChipsState extends State<EmailComposeFieldsChips> {
         children: [
           // TO (siempre visible)
           EmailRecipientsChips(
+            key: widget.toKey,
             label: 'Para',
             hint: 'Agrega destinatarios principales',
             recipients: widget.toRecipients,
@@ -56,6 +63,7 @@ class _EmailComposeFieldsChipsState extends State<EmailComposeFieldsChips> {
 
           // CC (colapsable)
           EmailRecipientsChips(
+            key: widget.ccKey,
             label: 'CC',
             hint: 'Agrega destinatarios con copia',
             recipients: widget.ccRecipients,
@@ -68,6 +76,7 @@ class _EmailComposeFieldsChipsState extends State<EmailComposeFieldsChips> {
 
           // BCC (colapsable)
           EmailRecipientsChips(
+            key: widget.bccKey,
             label: 'BCC',
             hint: 'Agrega destinatarios con copia oculta',
             recipients: widget.bccRecipients,

@@ -37,12 +37,18 @@ class EmailRecipientsChips extends StatefulWidget {
   });
 
   @override
-  State<EmailRecipientsChips> createState() => _EmailRecipientsChipsState();
+  State<EmailRecipientsChips> createState() => EmailRecipientsChipsState();
 }
 
-class _EmailRecipientsChipsState extends State<EmailRecipientsChips> {
+class EmailRecipientsChipsState extends State<EmailRecipientsChips> {
   final TextEditingController _emailController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+
+  // Método público para verificar si hay texto pendiente sin agregar
+  String? getPendingEmail() {
+    final text = _emailController.text.trim();
+    return text.isEmpty ? null : text;
+  }
 
   @override
   void dispose() {
@@ -56,23 +62,16 @@ class _EmailRecipientsChipsState extends State<EmailRecipientsChips> {
     
     if (email.isEmpty) return;
     
-    // Validación completa de formato de email
-    if (!_isValidEmail(email)) {
-      NotificationService().showError(
-        context: context,
-        title: 'Formato de correo inválido',
-        message: 'Por favor ingresa un correo válido (ejemplo: usuario@dominio.com)',
-      );
-      return;
-    }
-
-    // Agregar destinatario con email como name y address
+    // Verificar si es válido ANTES de agregar
+    final isValid = _isValidEmail(email);
+    
+    // Agregar destinatario (permitir inválidos como Outlook)
     widget.onAdd(EmailRecipientData(
       name: email,
       email: email,
     ));
     
-    // Limpiar el campo
+    // Limpiar el campo inmediatamente
     _emailController.clear();
     _focusNode.requestFocus();
   }
@@ -189,19 +188,46 @@ class _EmailRecipientsChipsState extends State<EmailRecipientsChips> {
   }
 
   Widget _buildRecipientChip(EmailRecipientData recipient, int index) {
+    // Verificar si el email es válido
+    final isValid = _isValidEmail(recipient.email);
+    
+    // Color del chip:
+    // - ROJO si es inválido
+    // - CELESTE (#00A8DD) si es el contacto principal (no removible)
+    // - GRIS/NEGRO para todos los demás
+    final Color chipColor;
+    if (!isValid) {
+      chipColor = Colors.red;
+    } else if (!recipient.isRemovable) {
+      chipColor = const Color(0xFF00A8DD); // Celeste solo para el principal
+    } else {
+      chipColor = Colors.grey.shade700; // Negro/gris para CC/BCC y otros TO
+    }
+    
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: widget.chipColor.withValues(alpha: 0.1),
+        color: chipColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: widget.chipColor.withValues(alpha: 0.3),
-          width: 1,
+          color: chipColor.withValues(alpha: isValid ? 0.3 : 0.5),
+          width: isValid ? 1 : 1.5,
         ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // Icono de advertencia si email inválido
+          if (!isValid)
+            Padding(
+              padding: const EdgeInsets.only(right: 4),
+              child: Icon(
+                Icons.warning_rounded,
+                size: 14,
+                color: Colors.red.shade700,
+              ),
+            ),
+          
           // Icono de lock si no es removible
           if (!recipient.isRemovable)
             Padding(

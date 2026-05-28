@@ -11,7 +11,6 @@ export 'placeholder_section.dart';
 export 'confirm_delete_dialog.dart';
 export 'icons_activity.dart';
 export 'mostrar_modal_mensaje.dart';
-export 'email_sync_dialog.dart';
 export 'email_sync_setup_content.dart';
 export 'email_compose_header.dart';
 export 'email_compose_fields_chips.dart';
