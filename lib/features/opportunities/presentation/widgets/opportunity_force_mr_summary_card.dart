@@ -34,6 +34,13 @@ class OpportunityForceMrSummaryCard extends StatelessWidget {
         children: [
           Row(
             children: [
+              Image.asset(
+                'assets/icon/logomrIA.png',
+                width: 28,
+                height: 28,
+                fit: BoxFit.contain,
+              ),
+              const SizedBox(width: 10),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
@@ -48,23 +55,13 @@ class OpportunityForceMrSummaryCard extends StatelessWidget {
                   ],
                 ),
                 child: const Text(
-                  'FORCE ',
+                  'Force MR',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
-                    letterSpacing: 0.5,
+                    letterSpacing: 0.3,
                   ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              const Text(
-                'MR',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF00607D),
-                  letterSpacing: -0.2,
                 ),
               ),
               const SizedBox(width: 6),
@@ -99,7 +96,12 @@ class OpportunityForceMrSummaryCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              icon: const Icon(Icons.auto_awesome_rounded, size: 20),
+              icon: Image.asset(
+                'assets/icon/logomrIA.png',
+                width: 22,
+                height: 22,
+                fit: BoxFit.contain,
+              ),
               label: const Text(
                 'Generar resumen de la oportunidad',
                 style: TextStyle(

@@ -23,6 +23,13 @@ class ForceMrActivationScreen extends StatelessWidget {
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            Image.asset(
+              'assets/icon/logomrIA.png',
+              width: 26,
+              height: 26,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(width: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
@@ -30,22 +37,13 @@ class ForceMrActivationScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Text(
-                'FORCE ',
+                'Force MR',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
-                  letterSpacing: 0.5,
+                  letterSpacing: 0.3,
                 ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Text(
-              'MR',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF00607D),
               ),
             ),
           ],
@@ -87,10 +85,11 @@ class ForceMrActivationScreen extends StatelessWidget {
                               color: const Color(0xFF00A8DD).withOpacity(0.15),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(
-                              Icons.auto_awesome_rounded,
-                              size: 40,
-                              color: Color(0xFF00A8DD),
+                            child: Image.asset(
+                              'assets/icon/logomrIA.png',
+                              width: 56,
+                              height: 56,
+                              fit: BoxFit.contain,
                             ),
                           ),
                           const SizedBox(height: 16),
@@ -229,7 +228,7 @@ class ForceMrActivationScreen extends StatelessWidget {
                       ),
                       icon: const Icon(Icons.check_circle_rounded, size: 20),
                       label: const Text(
-                        'Aceptar y activar FORCE MR',
+                        'Aceptar y activar Force MR',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,

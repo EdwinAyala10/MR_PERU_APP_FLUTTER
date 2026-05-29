@@ -178,18 +178,28 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
               const SizedBox(
                 height: 4,
               ),
-              if (widget.opportunity.actiComentario != "")
+              if (widget.opportunity.actiIdTipoGestion == '07' || (widget.opportunity.actiComentario ?? '').isNotEmpty)
                 Row(
                   children: [
-                    const Icon(Icons.mode_comment, size: 14),
+                    Icon(
+                      widget.opportunity.actiIdTipoGestion == '07'
+                        ? Icons.subject 
+                        : Icons.mode_comment, 
+                      size: 14
+                    ),
                     const SizedBox(width: 4),
-                    SizedBox(
-                      width: 160,
-                      child: Text(widget.opportunity.actiComentario ?? '',
+                    Expanded(
+                      child: Text(
+                          widget.opportunity.actiIdTipoGestion == '07'
+                              ? ((widget.opportunity.subject?.isNotEmpty == true
+                                  ? widget.opportunity.subject
+                                  : widget.opportunity.emlsAsunto) ?? 'Sin asunto')
+                              : (widget.opportunity.actiComentario ?? ''),
                           style: const TextStyle(
                             fontSize: 12,
                           ),
-                          overflow: TextOverflow.ellipsis),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1),
                     ),
                   ],
                 ),

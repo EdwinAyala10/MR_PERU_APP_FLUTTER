@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:crm_app/config/constants/environment.dart';
 import 'package:crm_app/features/activities/infrastructure/mappers/activitie_create_document_response.dart';
 import 'package:crm_app/features/activities/infrastructure/mappers/activitie_delete_document_mapper.dart';
@@ -16,9 +19,12 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart' hide ImageSource;
 
+import '../../domain/domain.dart';
 import '../providers/providers.dart';
 import '../../../shared/shared.dart';
 import 'package:flutter/material.dart';
@@ -56,7 +62,7 @@ class _ActivityDetailScreenState extends ConsumerState<_ActivityDetailScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
     _tabController.addListener(_handleTabChange);
 
     // WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -76,7 +82,7 @@ class _ActivityDetailScreenState extends ConsumerState<_ActivityDetailScreen>
   Widget build(BuildContext context) {
     final activity = ref.read(selectedAC);
     return DefaultTabController(
-      length: 4, // Ahora tenemos 6 pestañas
+      length: 5,
       child: Scaffold(
         appBar: AppBar(
           toolbarHeight: 100,
@@ -102,31 +108,23 @@ class _ActivityDetailScreenState extends ConsumerState<_ActivityDetailScreen>
             controller: _tabController,
             tabs: const [
               Tab(
-                icon: Icon(
-                  Icons.info,
-                  size: 30,
-                ),
+                icon: Icon(Icons.info, size: 30),
                 text: 'Informacion',
               ),
               Tab(
-                icon: Icon(
-                  Icons.comment_rounded,
-                  size: 30,
-                ),
+                icon: Icon(Icons.email, size: 30),
+                text: 'Info Prueba',
+              ),
+              Tab(
+                icon: Icon(Icons.comment_rounded, size: 30),
                 text: 'Chat',
               ),
               Tab(
-                icon: Icon(
-                  Icons.camera_enhance_sharp,
-                  size: 30,
-                ),
+                icon: Icon(Icons.camera_enhance_sharp, size: 30),
                 text: 'Fotos',
               ),
               Tab(
-                icon: Icon(
-                  Icons.file_copy_sharp,
-                  size: 30,
-                ),
+                icon: Icon(Icons.file_copy_sharp, size: 30),
                 text: 'Archivos',
               ),
             ],
@@ -147,6 +145,7 @@ class _ActivityDetailScreenState extends ConsumerState<_ActivityDetailScreen>
           physics: const NeverScrollableScrollPhysics(), // Desactiva el scroll
           children: [
             buildInformation(),
+            buildEmailDetailView(),
             buildComents(),
             buildPhotos(),
             buildDocuments()
@@ -158,6 +157,12 @@ class _ActivityDetailScreenState extends ConsumerState<_ActivityDetailScreen>
 
   Widget buildInformation() {
     return ActivityDetailView(
+      activityId: widget.activityId,
+    );
+  }
+
+  Widget buildEmailDetailView() {
+    return EmailDetailView(
       activityId: widget.activityId,
     );
   }
@@ -627,6 +632,431 @@ class _DocumentsViewState extends ConsumerState<_DocumentsView> {
               ),
             ),
     );
+  }
+}
+
+// ============================================================
+// HtmlContainerCustom - Renderiza HTML con WebView
+// ============================================================
+// HtmlContainerCustom - misma estructura que ContainerCustom (label + container plomo)
+// pero el contenido se renderiza como HTML usando flutter_widget_from_html_core.
+// ============================================================
+class HtmlContainerCustom extends StatelessWidget {
+  final String label;
+  final String htmlData;
+
+  const HtmlContainerCustom({
+    super.key,
+    required this.label,
+    required this.htmlData,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (htmlData.trim().isEmpty) {
+      return const SizedBox();
+    }
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 12),
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          width: double.infinity,
+          color: const Color.fromARGB(255, 247, 245, 245),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            child: HtmlWidget(
+              htmlData,
+              textStyle: const TextStyle(fontSize: 14, color: Colors.black87),
+              // Permite que el render se ajuste a la altura del contenido
+              renderMode: RenderMode.column,
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+}
+
+// ============================================================
+// EmailDetailView - Detalle de correo con diseño plano (estilo Informacion)
+// ============================================================
+class EmailDetailView extends ConsumerStatefulWidget {
+  final String activityId;
+
+  const EmailDetailView({
+    super.key,
+    required this.activityId,
+  });
+
+  @override
+  ConsumerState<EmailDetailView> createState() => _EmailDetailViewState();
+}
+
+class _EmailDetailViewState extends ConsumerState<EmailDetailView> {
+  @override
+  Widget build(BuildContext context) {
+    final activityState = ref.watch(activityProvider(widget.activityId));
+    final activity = activityState.activity;
+
+    if (activityState.isLoading) {
+      return const Scaffold(body: FullScreenLoader());
+    }
+
+    if (activity == null) {
+      return const Scaffold(
+        body: Center(
+          child: Text('No se encontró información del correo.'),
+        ),
+      );
+    }
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: _buildInformacionTab(activity),
+      ),
+    );
+  }
+
+  Widget _buildInformacionTab(Activity activity) {
+    final asunto = (activity.emlsAsunto?.isNotEmpty == true)
+        ? activity.emlsAsunto!
+        : (activity.subject ?? '');
+    final bodyContent = _cleanHtmlContent(
+      activity.emailHtmlContent ?? '',
+      asunto,
+    );
+    final attachments = activity.attachments ?? [];
+
+    String contactoNombre = '';
+    final lista = activity.actividadesContacto ?? [];
+    if (lista.isNotEmpty) {
+      contactoNombre = lista[0].contactoDesc ?? '';
+    }
+
+    final emailFrom = activity.emlsEmailFrom ?? '';
+    final paraText = _formatRecipients(
+        activity.toRecipients ?? [], activity.emlsEmailTo);
+    final ccText = _formatRecipients(activity.ccRecipients ?? [], null);
+    final bccText = _formatRecipients(activity.bccRecipients ?? [], null);
+
+    final fecha = DateFormat('dd-MM-yyyy').format(activity.actiFechaActividad);
+    final horaCompleta = activity.actiHoraActividad;
+    String horaFormateada = '';
+    try {
+      horaFormateada = DateFormat('hh:mm a').format(
+        DateFormat('HH:mm:ss').parse(
+          horaCompleta.length >= 8 ? horaCompleta.substring(0, 8) : horaCompleta,
+        ),
+      );
+    } catch (_) {
+      horaFormateada = horaCompleta;
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 10),
+
+          // -------- INFORMACIÓN --------
+          const Padding(
+            padding: EdgeInsets.only(left: 10),
+            child: Text(
+              'INFORMACIÓN',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+            ),
+          ),
+          ContainerCustom(label: 'Fecha', text: fecha),
+          ContainerCustom(label: 'Hora', text: horaFormateada),
+
+          // -------- REFERENCIAS --------
+          const Padding(
+            padding: EdgeInsets.only(left: 10),
+            child: Text(
+              'REFERENCIAS',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+            ),
+          ),
+          ContainerCustom(label: 'Empresa', text: activity.actiRazon ?? ''),
+          ContainerCustom(label: 'Contacto', text: contactoNombre),
+          ContainerCustom(
+            label: 'Responsable',
+            text: activity.actiNombreResponsable ?? '',
+          ),
+
+          // -------- DETALLE DEL CORREO --------
+          const Padding(
+            padding: EdgeInsets.only(left: 10),
+            child: Text(
+              'DETALLE DEL CORREO',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+            ),
+          ),
+          ContainerCustom(label: 'De', text: emailFrom),
+          ContainerCustom(label: 'Para', text: paraText),
+          ContainerCustom(label: 'CC', text: ccText),
+          ContainerCustom(label: 'BCC', text: bccText),
+          ContainerCustom(label: 'Asunto', text: asunto),
+
+          // -------- CUERPO DEL CORREO (HTML renderizado) --------
+          HtmlContainerCustom(
+            label: 'Cuerpo del correo',
+            htmlData: bodyContent,
+          ),
+
+          // -------- ADJUNTOS --------
+          if (attachments.isNotEmpty) _buildAttachmentsSection(attachments),
+
+          // -------- METADATOS --------
+          const Padding(
+            padding: EdgeInsets.only(left: 10),
+            child: Text(
+              'METADATOS',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+            ),
+          ),
+          ContainerCustom(label: 'Identificador', text: activity.id),
+          ContainerCustom(
+            label: 'Fecha de creación',
+            text: DateFormat('dd/MM/yyyy HH:mm').format(activity.actiFechaActividad),
+          ),
+          ContainerCustom(
+            label: 'Creado por',
+            text: activity.actiNombreResponsable ?? '',
+          ),
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
+
+  // ---- Adjuntos ----
+  Widget _buildAttachmentsSection(List<EmailAttachment> attachments) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 12),
+          child: Text(
+            'Adjuntos (${attachments.length})',
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          width: double.infinity,
+          color: const Color.fromARGB(255, 247, 245, 245),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: attachments.map((attachment) {
+              return InkWell(
+                onTap: () => _openAttachment(context, attachment),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    children: [
+                      Icon(_iconForAttachment(attachment),
+                          size: 28, color: const Color(0xFF0092c7)),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              attachment.name,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xFF0092c7),
+                                decoration: TextDecoration.underline,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              _formatFileSize(attachment.size),
+                              style: const TextStyle(
+                                  fontSize: 12, color: Colors.black54),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.download_rounded,
+                          size: 22, color: Color(0xFF0092c7)),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+
+  IconData _iconForAttachment(EmailAttachment a) {
+    final t = a.contentType.toLowerCase();
+    final n = a.name.toLowerCase();
+    if (t.contains('pdf') || n.endsWith('.pdf')) return Icons.picture_as_pdf;
+    if (t.contains('image') ||
+        n.endsWith('.png') ||
+        n.endsWith('.jpg') ||
+        n.endsWith('.jpeg') ||
+        n.endsWith('.gif')) return Icons.image;
+    if (t.contains('word') || n.endsWith('.doc') || n.endsWith('.docx')) {
+      return Icons.description;
+    }
+    if (t.contains('excel') ||
+        t.contains('spreadsheet') ||
+        n.endsWith('.xls') ||
+        n.endsWith('.xlsx')) return Icons.table_chart;
+    if (t.contains('zip') || n.endsWith('.zip')) return Icons.folder_zip;
+    if (t.contains('video') || n.endsWith('.mp4')) return Icons.videocam;
+    if (t.contains('audio') || n.endsWith('.mp3') || n.endsWith('.wav')) {
+      return Icons.audiotrack;
+    }
+    return Icons.attach_file;
+  }
+
+  String _formatFileSize(int bytes) {
+    if (bytes <= 0) return '—';
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    return '${(bytes / (1024 * 1024)).toStringAsFixed(2)} MB';
+  }
+
+  Future<void> _openAttachment(
+      BuildContext context, EmailAttachment attachment) async {
+    if (attachment.contentBytes.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('El archivo no tiene contenido')),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(
+        child: Card(
+          child: Padding(
+            padding: EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 12),
+                Text('Abriendo archivo...'),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    try {
+      // Limpiar base64
+      String clean = attachment.contentBytes;
+      if (clean.contains(',')) clean = clean.split(',').last;
+      clean = clean.replaceAll(RegExp(r'\s+'), '');
+
+      // Decodificar
+      final bytes = base64Decode(clean);
+
+      // Detectar extensión real desde bytes
+      final realExt = _detectExtensionFromBytes(bytes);
+      String fileName = attachment.name;
+      if (realExt.isNotEmpty &&
+          !fileName.toLowerCase().endsWith('.$realExt')) {
+        final dot = fileName.lastIndexOf('.');
+        if (dot > 0) fileName = fileName.substring(0, dot);
+        fileName = '$fileName.$realExt';
+      }
+
+      // Guardar y abrir
+      final dir = await getTemporaryDirectory();
+      final filePath = '${dir.path}/$fileName';
+      final file = File(filePath);
+      await file.writeAsBytes(bytes);
+
+      if (context.mounted) Navigator.of(context).pop();
+
+      final result = await OpenFile.open(filePath);
+      if (result.type != ResultType.done && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('No se pudo abrir: ${result.message}')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    }
+  }
+
+  String _detectExtensionFromBytes(List<int> b) {
+    if (b.length < 4) return '';
+    if (b[0] == 0x25 && b[1] == 0x50 && b[2] == 0x44 && b[3] == 0x46) return 'pdf';
+    if (b[0] == 0x89 && b[1] == 0x50 && b[2] == 0x4E && b[3] == 0x47) return 'png';
+    if (b[0] == 0xFF && b[1] == 0xD8 && b[2] == 0xFF) return 'jpg';
+    if (b[0] == 0x47 && b[1] == 0x49 && b[2] == 0x46 && b[3] == 0x38) return 'gif';
+    if (b[0] == 0x50 && b[1] == 0x4B && b[2] == 0x03 && b[3] == 0x04) return 'zip';
+    if (b[0] == 0xD0 && b[1] == 0xCF && b[2] == 0x11 && b[3] == 0xE0) return 'doc';
+    return '';
+  }
+
+  // ---- Helpers ----
+  String _formatRecipients(List<EmailRecipient> rec, String? fallback) {
+    if (rec.isNotEmpty) {
+      final first = rec.first;
+      var text = first.name.isNotEmpty ? first.name : first.address;
+      if (rec.length > 1) text += ' +${rec.length - 1}';
+      return text;
+    } else if (fallback != null && fallback.isNotEmpty) {
+      return fallback;
+    }
+    return '';
+  }
+
+  String _cleanHtmlContent(String html, String asunto) {
+    if (html.isEmpty || asunto.isEmpty) return html;
+    final escaped = RegExp.escape(asunto);
+    final patterns = [
+      RegExp(r'<h[1-6][^>]*>\s*' + escaped + r'\s*</h[1-6]>', caseSensitive: false),
+      RegExp(r'<p[^>]*>\s*' + escaped + r'\s*</p>', caseSensitive: false),
+      RegExp(r'<div[^>]*>\s*' + escaped + r'\s*</div>', caseSensitive: false),
+      RegExp(r'<strong[^>]*>\s*' + escaped + r'\s*</strong>', caseSensitive: false),
+      RegExp(r'<b[^>]*>\s*' + escaped + r'\s*</b>', caseSensitive: false),
+    ];
+    var cleaned = html;
+    for (final p in patterns) {
+      cleaned = cleaned.replaceFirst(p, '');
+    }
+    return cleaned;
   }
 }
 

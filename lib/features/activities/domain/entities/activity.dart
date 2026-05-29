@@ -34,6 +34,20 @@ class Activity {
   String? coordenadaLongitud;
   String? localNombre;
 
+  // Campos de email (correo Microsoft)
+  String? emlsEmailFrom;
+  String? emlsEmailTo;
+  String? emlsAsunto;
+  String? subject;
+  String? bodyPreview;
+  String? emailHtmlContent;
+  bool? isRead;
+  Map<String, dynamic>? emlsJsonEmailMicrosoft;
+  List<EmailRecipient>? toRecipients;
+  List<EmailRecipient>? ccRecipients;
+  List<EmailRecipient>? bccRecipients;
+  List<EmailAttachment>? attachments;
+
   Activity(
       {required this.id,
       required this.actiIdUsuarioResponsable,
@@ -66,6 +80,42 @@ class Activity {
       this.actiNombreResponsable,
       this.coordenadalatitud,
       this.coordenadaLongitud,
-      this.localNombre
+      this.localNombre,
+      this.emlsEmailFrom,
+      this.emlsEmailTo,
+      this.emlsAsunto,
+      this.subject,
+      this.bodyPreview,
+      this.emailHtmlContent,
+      this.isRead,
+      this.emlsJsonEmailMicrosoft,
+      this.toRecipients,
+      this.ccRecipients,
+      this.bccRecipients,
+      this.attachments,
+  });
+}
+
+class EmailRecipient {
+  final String name;
+  final String address;
+
+  const EmailRecipient({
+    required this.name,
+    required this.address,
+  });
+}
+
+class EmailAttachment {
+  final String name;
+  final String contentBytes;
+  final String contentType;
+  final int size;
+
+  const EmailAttachment({
+    required this.name,
+    required this.contentBytes,
+    required this.contentType,
+    required this.size,
   });
 }
