@@ -125,29 +125,40 @@ class ActivityMapper {
         size = (contentBytes.length * 3 / 4).round();
       }
 
-      // Detectar tipo desde magic numbers en base64 si contentType viene vacío
+      // Detectar tipo desde magic numbers en base64 (SIEMPRE, aunque venga contentType)
+      // porque Microsoft a veces envía contentType null
       String detectedType = rawContentType;
       String detectedExtension = '';
-      if (detectedType.isEmpty && contentBytes.isNotEmpty) {
+      
+      if (contentBytes.isNotEmpty) {
         final type = _detectFileTypeFromBase64(contentBytes);
-        detectedType = type.mime;
+        // Si no hay contentType o está vacío, usar el detectado
+        if (detectedType.isEmpty || detectedType == 'null') {
+          detectedType = type.mime;
+        }
         detectedExtension = type.extension;
-      } else if (detectedType.isNotEmpty) {
+      } else if (detectedType.isNotEmpty && detectedType != 'null') {
         detectedExtension = _extensionFromMime(detectedType);
       }
 
+      // Generar nombre del archivo
       String finalName = rawName;
-      if (finalName.isEmpty) {
+      if (finalName.isEmpty || finalName == 'null') {
         finalName = detectedExtension.isNotEmpty
-            ? 'adjunto_${counter}_$detectedExtension'
+            ? 'adjunto_$counter.$detectedExtension'
             : 'adjunto_$counter';
+      } else if (!finalName.contains('.') && detectedExtension.isNotEmpty) {
+        // Si tiene nombre pero no extensión, agregarla
+        finalName = '$finalName.$detectedExtension';
       }
       counter++;
 
       return EmailAttachment(
         name: finalName,
         contentBytes: contentBytes,
-        contentType: detectedType,
+        contentType: detectedType.isEmpty || detectedType == 'null' 
+            ? 'application/octet-stream' 
+            : detectedType,
         size: size,
       );
     }).toList();

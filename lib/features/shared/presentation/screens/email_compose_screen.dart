@@ -31,6 +31,7 @@ class _EmailComposeScreenState extends ConsumerState<EmailComposeScreen> {
   
   final subjectController = TextEditingController();
   String _emailBodyHtml = '';
+  List<PlatformFile> _attachedFiles = [];
   
   bool _contactAdded = false;
 
@@ -99,6 +100,8 @@ class _EmailComposeScreenState extends ConsumerState<EmailComposeScreen> {
           // Header fijo arriba (no hace scroll)
           EmailComposeHeader(
             onLogout: () => Navigator.pop(context),
+            attachedFiles: _attachedFiles,
+            onAddFiles: (files) => setState(() => _attachedFiles = files),
             onSend: (List<PlatformFile> selectedFiles) async {
               await _sendEmail(selectedFiles, authState, contact);
             },
@@ -409,6 +412,9 @@ class _EmailComposeScreenState extends ConsumerState<EmailComposeScreen> {
         message: apiMessage,
         duration: 5000,
       );
+      setState(() {
+        _attachedFiles = [];
+      });
     } else {
       NotificationService().showError(
         context: context,

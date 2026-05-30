@@ -67,7 +67,7 @@ class EmailDatasourceImpl extends EmailDatasource {
       if (response.statusCode == 200 || response.statusCode == 201) {
         return const SendEmailResponse(
           success: true,
-          message: 'Correo enviado correctamente.',
+          message: 'Tu correo electrónico ha sido enviado con éxito.',
         );
       }
 

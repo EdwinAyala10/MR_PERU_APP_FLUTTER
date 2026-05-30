@@ -6,15 +6,21 @@ import 'package:crm_app/features/shared/infrastructure/services/notification_ser
 class EmailComposeHeader extends StatefulWidget {
   final VoidCallback onLogout;
   final Future<void> Function(List<PlatformFile> files) onSend;
-  const EmailComposeHeader({super.key, required this.onLogout, required this.onSend});
+  final List<PlatformFile> attachedFiles;
+  final ValueChanged<List<PlatformFile>> onAddFiles;
+  const EmailComposeHeader({
+    super.key,
+    required this.onLogout,
+    required this.onSend,
+    required this.attachedFiles,
+    required this.onAddFiles,
+  });
 
   @override
   State<EmailComposeHeader> createState() => _EmailComposeHeaderState();
 }
 
 class _EmailComposeHeaderState extends State<EmailComposeHeader> {
-  final List<PlatformFile> _attachedFiles = [];
-
   Future<void> _pickDocument() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -24,25 +30,20 @@ class _EmailComposeHeaderState extends State<EmailComposeHeader> {
 
     if (!mounted || result == null || result.files.isEmpty) return;
 
-    setState(() {
-      _attachedFiles.addAll(result.files.where((f) => f.path != null));
-    });
+    final updatedFiles = [...widget.attachedFiles, ...result.files.where((f) => f.path != null)];
+    widget.onAddFiles(updatedFiles);
     
     if (!mounted) return;
     NotificationService().showInfo(
       context: context,
       title: 'Archivos adjuntados',
-      message: '${_attachedFiles.length} archivo(s) agregado(s) al correo',
+      message: '${updatedFiles.length} archivo(s) agregado(s) al correo',
       duration: 3000,
     );
   }
 
   Future<void> _sendEmail() async {
-    await widget.onSend(List<PlatformFile>.from(_attachedFiles));
-    if (!mounted) return;
-    setState(() {
-      _attachedFiles.clear();
-    });
+    await widget.onSend(List<PlatformFile>.from(widget.attachedFiles));
   }
 
   @override
@@ -119,7 +120,7 @@ class _EmailComposeHeaderState extends State<EmailComposeHeader> {
               ),
             ],
           ),
-          if (_attachedFiles.isNotEmpty)
+          if (widget.attachedFiles.isNotEmpty)
             Container(
               width: double.infinity,
               margin: const EdgeInsets.only(top: 12),
@@ -149,7 +150,7 @@ class _EmailComposeHeaderState extends State<EmailComposeHeader> {
                   const SizedBox(width: 12),
                   Expanded(
                      child: Text(
-                       _attachedFiles.map((f) => f.name).join(', '),
+                       widget.attachedFiles.map((f) => f.name).join(', '),
                        maxLines: 1,
                        overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -161,11 +162,7 @@ class _EmailComposeHeaderState extends State<EmailComposeHeader> {
                     ),
                   ),
                   IconButton(
-                     onPressed: () {
-                       setState(() {
-                         _attachedFiles.clear();
-                       });
-                     },
+                     onPressed: () => widget.onAddFiles([]),
                     icon: Icon(Icons.close_rounded, size: 20, color: Colors.grey.shade600),
                     tooltip: 'Quitar adjunto',
                     padding: EdgeInsets.zero,

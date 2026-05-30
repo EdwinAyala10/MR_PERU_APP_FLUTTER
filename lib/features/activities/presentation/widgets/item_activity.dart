@@ -95,7 +95,7 @@ class ItemActivity extends StatelessWidget {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(activity.actiNombreTipoGestion),
+          if (!isEmailActivity) Text(activity.actiNombreTipoGestion),
           if (isEmailActivity)
             Row(
               children: [

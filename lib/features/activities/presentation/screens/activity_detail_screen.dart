@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
 
 import 'package:crm_app/config/constants/environment.dart';
 import 'package:crm_app/features/activities/infrastructure/mappers/activitie_create_document_response.dart';
@@ -62,7 +63,7 @@ class _ActivityDetailScreenState extends ConsumerState<_ActivityDetailScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     _tabController.addListener(_handleTabChange);
 
     // WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -82,7 +83,7 @@ class _ActivityDetailScreenState extends ConsumerState<_ActivityDetailScreen>
   Widget build(BuildContext context) {
     final activity = ref.read(selectedAC);
     return DefaultTabController(
-      length: 5,
+      length: 4,
       child: Scaffold(
         appBar: AppBar(
           toolbarHeight: 100,
@@ -110,10 +111,6 @@ class _ActivityDetailScreenState extends ConsumerState<_ActivityDetailScreen>
               Tab(
                 icon: Icon(Icons.info, size: 30),
                 text: 'Informacion',
-              ),
-              Tab(
-                icon: Icon(Icons.email, size: 30),
-                text: 'Info Prueba',
               ),
               Tab(
                 icon: Icon(Icons.comment_rounded, size: 30),
@@ -145,7 +142,6 @@ class _ActivityDetailScreenState extends ConsumerState<_ActivityDetailScreen>
           physics: const NeverScrollableScrollPhysics(), // Desactiva el scroll
           children: [
             buildInformation(),
-            buildEmailDetailView(),
             buildComents(),
             buildPhotos(),
             buildDocuments()
@@ -181,7 +177,7 @@ class _ActivityDetailScreenState extends ConsumerState<_ActivityDetailScreen>
   }
 }
 
-class ActivityDetailView extends ConsumerWidget {
+class ActivityDetailView extends ConsumerStatefulWidget {
   final String activityId;
 
   const ActivityDetailView({
@@ -190,8 +186,13 @@ class ActivityDetailView extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final activityState = ref.watch(activityProvider(activityId));
+  ConsumerState<ActivityDetailView> createState() => _ActivityDetailViewState();
+}
+
+class _ActivityDetailViewState extends ConsumerState<ActivityDetailView> {
+  @override
+  Widget build(BuildContext context) {
+    final activityState = ref.watch(activityProvider(widget.activityId));
 
     final activity = activityState.activity;
 
@@ -219,6 +220,12 @@ class ActivityDetailView extends ConsumerWidget {
       );
     }
 
+    // Si es Email (tipo '07'), mostrar el contenido de EmailDetailView
+    if (activity.actiIdTipoGestion == '07') {
+      return _buildEmailContent(activity);
+    }
+
+    // Para WhatsApp, Llamadas y otros tipos, mostrar el contenido normal
     return Scaffold(
       // appBar: AppBar(
       //   title: const Text(
@@ -331,6 +338,472 @@ class ActivityDetailView extends ConsumerWidget {
       ),
     );
   }
+
+  // ============================================================
+  // Contenido de Email - Mostrado cuando actiIdTipoGestion == '07'
+  // ============================================================
+  Widget _buildEmailContent(Activity activity) {
+    final asunto = (activity.emlsAsunto?.isNotEmpty == true)
+        ? activity.emlsAsunto!
+        : (activity.subject ?? '');
+    final bodyContent = _cleanHtmlContent(
+      activity.emailHtmlContent ?? '',
+      asunto,
+    );
+    final attachments = activity.attachments ?? [];
+    
+    print('========== EMAIL CONTENT DEBUG ==========');
+    print('Activity ID: ${activity.id}');
+    print('Attachments count: ${attachments.length}');
+    if (attachments.isNotEmpty) {
+      for (var i = 0; i < attachments.length; i++) {
+        print('Attachment $i:');
+        print('  - name: ${attachments[i].name}');
+        print('  - type: ${attachments[i].contentType}');
+        print('  - size: ${attachments[i].size}');
+        print('  - contentBytes length: ${attachments[i].contentBytes.length}');
+      }
+    }
+    print('=========================================');
+
+    String contactoNombre = '';
+    final lista = activity.actividadesContacto ?? [];
+    if (lista.isNotEmpty) {
+      contactoNombre = lista[0].contactoDesc ?? '';
+    }
+
+    final emailFrom = activity.emlsEmailFrom ?? '';
+    final paraText = _formatRecipients(
+        activity.toRecipients ?? [], activity.emlsEmailTo);
+    final ccText = _formatRecipients(activity.ccRecipients ?? [], null);
+    final bccText = _formatRecipients(activity.bccRecipients ?? [], null);
+
+    final fecha = DateFormat('dd-MM-yyyy').format(activity.actiFechaActividad);
+    final horaCompleta = activity.actiHoraActividad;
+    String horaFormateada = '';
+    try {
+      horaFormateada = DateFormat('hh:mm a').format(
+        DateFormat('HH:mm:ss').parse(
+          horaCompleta.length >= 8 ? horaCompleta.substring(0, 8) : horaCompleta,
+        ),
+      );
+    } catch (_) {
+      horaFormateada = horaCompleta;
+    }
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 10),
+
+              // -------- INFORMACIÓN --------
+              const Padding(
+                padding: EdgeInsets.only(left: 10),
+                child: Text(
+                  'INFORMACIÓN',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                ),
+              ),
+              ContainerCustom(label: 'Fecha', text: fecha),
+              ContainerCustom(label: 'Hora', text: horaFormateada),
+
+              // -------- REFERENCIAS --------
+              const Padding(
+                padding: EdgeInsets.only(left: 10),
+                child: Text(
+                  'REFERENCIAS',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                ),
+              ),
+              ContainerCustom(label: 'Empresa', text: activity.actiRazon ?? ''),
+              ContainerCustom(label: 'Contacto', text: contactoNombre),
+              ContainerCustom(
+                label: 'Responsable',
+                text: activity.actiNombreResponsable ?? '',
+              ),
+
+              // -------- DETALLE DEL CORREO --------
+              const Padding(
+                padding: EdgeInsets.only(left: 10),
+                child: Text(
+                  'DETALLE DEL CORREO',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                ),
+              ),
+              ContainerCustom(label: 'De', text: emailFrom),
+              ContainerCustom(label: 'Para', text: paraText),
+              ContainerCustom(label: 'CC', text: ccText),
+              ContainerCustom(label: 'BCC', text: bccText),
+              ContainerCustom(label: 'Asunto', text: asunto),
+
+              // -------- CUERPO DEL CORREO (HTML renderizado) --------
+              HtmlContainerCustom(
+                label: 'Cuerpo del correo',
+                htmlData: bodyContent,
+              ),
+
+              // -------- ADJUNTOS --------
+              if (attachments.isNotEmpty) _buildAttachmentsSection(attachments),
+
+              // -------- METADATOS --------
+              const Padding(
+                padding: EdgeInsets.only(left: 10),
+                child: Text(
+                  'METADATOS',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                ),
+              ),
+              ContainerCustom(label: 'Identificador', text: activity.id),
+              ContainerCustom(
+                label: 'Fecha de creación',
+                text: DateFormat('dd/MM/yyyy HH:mm').format(activity.actiFechaActividad),
+              ),
+              ContainerCustom(
+                label: 'Creado por',
+                text: activity.actiNombreResponsable ?? '',
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ---- Helpers para Email ----
+  String _formatRecipients(List<EmailRecipient> rec, String? fallback) {
+    if (rec.isNotEmpty) {
+      final first = rec.first;
+      var text = first.name.isNotEmpty ? first.name : first.address;
+      if (rec.length > 1) text += ' +${rec.length - 1}';
+      return text;
+    } else if (fallback != null && fallback.isNotEmpty) {
+      return fallback;
+    }
+    return '';
+  }
+
+  String _cleanHtmlContent(String html, String asunto) {
+    if (html.isEmpty || asunto.isEmpty) return html;
+    final escaped = RegExp.escape(asunto);
+    final patterns = [
+      RegExp(r'<h[1-6][^>]*>\s*' + escaped + r'\s*</h[1-6]>', caseSensitive: false),
+      RegExp(r'<p[^>]*>\s*' + escaped + r'\s*</p>', caseSensitive: false),
+      RegExp(r'<div[^>]*>\s*' + escaped + r'\s*</div>', caseSensitive: false),
+      RegExp(r'<strong[^>]*>\s*' + escaped + r'\s*</strong>', caseSensitive: false),
+      RegExp(r'<b[^>]*>\s*' + escaped + r'\s*</b>', caseSensitive: false),
+    ];
+    var cleaned = html;
+    for (final p in patterns) {
+      cleaned = cleaned.replaceFirst(p, '');
+    }
+    return cleaned;
+  }
+
+  Widget _buildAttachmentsSection(List<EmailAttachment> attachments) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 12),
+          child: Text(
+            'Adjuntos (${attachments.length})',
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          width: double.infinity,
+          color: const Color.fromARGB(255, 247, 245, 245),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: attachments.map((attachment) {
+              return InkWell(
+                onTap: () => _openAttachment(context, attachment),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    children: [
+                      Icon(_iconForAttachment(attachment),
+                          size: 28, color: const Color(0xFF0092c7)),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              attachment.name,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xFF0092c7),
+                                decoration: TextDecoration.underline,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              _formatFileSize(attachment.size),
+                              style: const TextStyle(
+                                  fontSize: 12, color: Colors.black54),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.download_rounded,
+                          size: 22, color: Color(0xFF0092c7)),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+
+  IconData _iconForAttachment(EmailAttachment a) {
+    final t = a.contentType.toLowerCase();
+    final n = a.name.toLowerCase();
+    if (t.contains('pdf') || n.endsWith('.pdf')) return Icons.picture_as_pdf;
+    if (t.contains('image') ||
+        n.endsWith('.png') ||
+        n.endsWith('.jpg') ||
+        n.endsWith('.jpeg') ||
+        n.endsWith('.gif')) return Icons.image;
+    if (t.contains('word') || n.endsWith('.doc') || n.endsWith('.docx')) {
+      return Icons.description;
+    }
+    if (t.contains('excel') ||
+        t.contains('spreadsheet') ||
+        n.endsWith('.xls') ||
+        n.endsWith('.xlsx')) return Icons.table_chart;
+    if (t.contains('zip') || n.endsWith('.zip')) return Icons.folder_zip;
+    if (t.contains('video') || n.endsWith('.mp4')) return Icons.videocam;
+    if (t.contains('audio') || n.endsWith('.mp3') || n.endsWith('.wav')) {
+      return Icons.audiotrack;
+    }
+    return Icons.attach_file;
+  }
+
+  String _formatFileSize(int bytes) {
+    if (bytes <= 0) return '—';
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    return '${(bytes / (1024 * 1024)).toStringAsFixed(2)} MB';
+  }
+
+  Future<void> _openAttachment(
+      BuildContext context, EmailAttachment attachment) async {
+    print('========== TAP ON ATTACHMENT ==========');
+    print('Name: ${attachment.name}');
+    print('ContentBytes length: ${attachment.contentBytes.length}');
+    
+    if (attachment.contentBytes.isEmpty) {
+      print('ERROR: ContentBytes empty!');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('El archivo no tiene contenido')),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(
+        child: Card(
+          child: Padding(
+            padding: EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 12),
+                Text('Abriendo archivo...'),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    try {
+      print('Starting decode process...');
+      // Limpiar base64
+      String clean = attachment.contentBytes;
+      if (clean.contains(',')) clean = clean.split(',').last;
+      clean = clean.replaceAll(RegExp(r'\s+'), '');
+      print('Cleaned base64 length: ${clean.length}');
+
+      // Decodificar
+      print('Decoding base64...');
+      final bytes = base64Decode(clean);
+      print('Decoded ${bytes.length} bytes');
+
+      // Detectar extensión real desde bytes
+      final realExt = _detectExtensionFromBytes(bytes);
+      String fileName = attachment.name;
+      if (realExt.isNotEmpty &&
+          !fileName.toLowerCase().endsWith('.$realExt')) {
+        final dot = fileName.lastIndexOf('.');
+        if (dot > 0) fileName = fileName.substring(0, dot);
+        fileName = '$fileName.$realExt';
+      }
+
+      // Guardar y abrir
+      print('Getting temp directory...');
+      final dir = await getTemporaryDirectory();
+      final filePath = '${dir.path}/$fileName';
+      print('File path: $filePath');
+      
+      final file = File(filePath);
+      print('Writing ${bytes.length} bytes to file...');
+      await file.writeAsBytes(bytes);
+      print('File written successfully');
+
+      if (context.mounted) Navigator.of(context).pop();
+
+      print('Opening file with OpenFile...');
+      final result = await OpenFile.open(filePath);
+      print('OpenFile result: type=${result.type}, message=${result.message}');
+      
+      if (result.type == ResultType.noAppToOpen && context.mounted) {
+        // No hay app para abrir el archivo, mostrar opciones
+        print('No app to open, showing options...');
+        _showFileOptionsDialog(context, filePath, fileName);
+      } else if (result.type != ResultType.done && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('No se pudo abrir: ${result.message}')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    }
+  }
+
+  String _detectExtensionFromBytes(List<int> b) {
+    if (b.length < 4) return '';
+    if (b[0] == 0x25 && b[1] == 0x50 && b[2] == 0x44 && b[3] == 0x46) return 'pdf';
+    if (b[0] == 0x89 && b[1] == 0x50 && b[2] == 0x4E && b[3] == 0x47) return 'png';
+    if (b[0] == 0xFF && b[1] == 0xD8 && b[2] == 0xFF) return 'jpg';
+    if (b[0] == 0x47 && b[1] == 0x49 && b[2] == 0x46 && b[3] == 0x38) return 'gif';
+    if (b[0] == 0x50 && b[1] == 0x4B && b[2] == 0x03 && b[3] == 0x04) return 'zip';
+    if (b[0] == 0xD0 && b[1] == 0xCF && b[2] == 0x11 && b[3] == 0xE0) return 'doc';
+    return '';
+  }
+
+  void _showFileOptionsDialog(BuildContext context, String filePath, String fileName) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('No hay aplicación para abrir el archivo'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('El archivo "$fileName" se guardó correctamente.'),
+            const SizedBox(height: 16),
+            const Text('¿Qué deseas hacer?'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              // Abrir visor interno de PDF
+              _openInternalPdfViewer(context, filePath, fileName);
+            },
+            child: const Text('Ver archivo'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              // Guardar en Descargas
+              await _saveToDownloads(context, filePath, fileName);
+            },
+            child: const Text('Guardar en Descargas'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _openInternalPdfViewer(BuildContext context, String filePath, String fileName) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => _PdfViewerScreen(
+          filePath: filePath,
+          fileName: fileName,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _saveToDownloads(BuildContext context, String sourcePath, String fileName) async {
+    try {
+      // Pedir permisos de almacenamiento
+      final status = await Permission.storage.request();
+      if (!status.isGranted) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Se necesita permiso de almacenamiento')),
+          );
+        }
+        return;
+      }
+
+      // Obtener directorio de descargas
+      final directory = await getExternalStorageDirectory();
+      if (directory == null) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No se pudo acceder al almacenamiento')),
+          );
+        }
+        return;
+      }
+
+      // Copiar archivo a Descargas
+      final downloadsPath = '/storage/emulated/0/Download/$fileName';
+      final sourceFile = File(sourcePath);
+      await sourceFile.copy(downloadsPath);
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Archivo guardado en Descargas: $fileName'),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error saving to downloads: $e');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al guardar: $e')),
+        );
+      }
+    }
+  }
 }
 
 class ContainerCustom extends StatelessWidget {
@@ -383,12 +856,9 @@ class ContainerCustom extends StatelessWidget {
                 Expanded(
                   child: Text(
                     text,
-                    maxLines: 10,
-                    style: const TextStyle(
-                        fontSize: 16, overflow: TextOverflow.ellipsis),
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ),
-                const Expanded(child: SizedBox()),
                 icon2 != null
                     ? IconButton(
                         icon: icon2!,
@@ -679,11 +1149,17 @@ class HtmlContainerCustom extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 6),
-            child: HtmlWidget(
-              htmlData,
-              textStyle: const TextStyle(fontSize: 14, color: Colors.black87),
-              // Permite que el render se ajuste a la altura del contenido
-              renderMode: RenderMode.column,
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: HtmlWidget(
+                htmlData,
+                textStyle: const TextStyle(fontSize: 14, color: Colors.black87),
+                renderMode: RenderMode.column,
+                customStylesBuilder: (element) {
+                  // Forzar alineación a la izquierda para todos los elementos
+                  return {'text-align': 'left'};
+                },
+              ),
             ),
           ),
         ),
@@ -948,7 +1424,12 @@ class _EmailDetailViewState extends ConsumerState<EmailDetailView> {
 
   Future<void> _openAttachment(
       BuildContext context, EmailAttachment attachment) async {
+    print('========== TAP ON ATTACHMENT ==========');
+    print('Name: ${attachment.name}');
+    print('ContentBytes length: ${attachment.contentBytes.length}');
+    
     if (attachment.contentBytes.isEmpty) {
+      print('ERROR: ContentBytes empty!');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('El archivo no tiene contenido')),
       );
@@ -976,13 +1457,17 @@ class _EmailDetailViewState extends ConsumerState<EmailDetailView> {
     );
 
     try {
+      print('Starting decode process...');
       // Limpiar base64
       String clean = attachment.contentBytes;
       if (clean.contains(',')) clean = clean.split(',').last;
       clean = clean.replaceAll(RegExp(r'\s+'), '');
+      print('Cleaned base64 length: ${clean.length}');
 
       // Decodificar
+      print('Decoding base64...');
       final bytes = base64Decode(clean);
+      print('Decoded ${bytes.length} bytes');
 
       // Detectar extensión real desde bytes
       final realExt = _detectExtensionFromBytes(bytes);
@@ -995,15 +1480,27 @@ class _EmailDetailViewState extends ConsumerState<EmailDetailView> {
       }
 
       // Guardar y abrir
+      print('Getting temp directory...');
       final dir = await getTemporaryDirectory();
       final filePath = '${dir.path}/$fileName';
+      print('File path: $filePath');
+      
       final file = File(filePath);
+      print('Writing ${bytes.length} bytes to file...');
       await file.writeAsBytes(bytes);
+      print('File written successfully');
 
       if (context.mounted) Navigator.of(context).pop();
 
+      print('Opening file with OpenFile...');
       final result = await OpenFile.open(filePath);
-      if (result.type != ResultType.done && context.mounted) {
+      print('OpenFile result: type=${result.type}, message=${result.message}');
+      
+      if (result.type == ResultType.noAppToOpen && context.mounted) {
+        // No hay app para abrir el archivo, mostrar opciones
+        print('No app to open, showing options...');
+        _showFileOptionsDialog(context, filePath, fileName);
+      } else if (result.type != ResultType.done && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('No se pudo abrir: ${result.message}')),
         );
@@ -1057,6 +1554,105 @@ class _EmailDetailViewState extends ConsumerState<EmailDetailView> {
       cleaned = cleaned.replaceFirst(p, '');
     }
     return cleaned;
+  }
+
+  void _showFileOptionsDialog(BuildContext context, String filePath, String fileName) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('No hay aplicación para abrir el archivo'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('El archivo "$fileName" se guardó correctamente.'),
+            const SizedBox(height: 16),
+            const Text('¿Qué deseas hacer?'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              // Abrir visor interno de PDF
+              _openInternalPdfViewer(context, filePath, fileName);
+            },
+            child: const Text('Ver archivo'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              // Guardar en Descargas
+              await _saveToDownloads(context, filePath, fileName);
+            },
+            child: const Text('Guardar en Descargas'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _openInternalPdfViewer(BuildContext context, String filePath, String fileName) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => _PdfViewerScreen(
+          filePath: filePath,
+          fileName: fileName,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _saveToDownloads(BuildContext context, String sourcePath, String fileName) async {
+    try {
+      // Pedir permisos de almacenamiento
+      final status = await Permission.storage.request();
+      if (!status.isGranted) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Se necesita permiso de almacenamiento')),
+          );
+        }
+        return;
+      }
+
+      // Obtener directorio de descargas
+      final directory = await getExternalStorageDirectory();
+      if (directory == null) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No se pudo acceder al almacenamiento')),
+          );
+        }
+        return;
+      }
+
+      // Copiar archivo a Descargas
+      final downloadsPath = '/storage/emulated/0/Download/$fileName';
+      final sourceFile = File(sourcePath);
+      await sourceFile.copy(downloadsPath);
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Archivo guardado en Descargas: $fileName'),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error saving to downloads: $e');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al guardar: $e')),
+        );
+      }
+    }
   }
 }
 
@@ -1312,4 +1908,118 @@ Future<dynamic> showModalAdd(
       );
     },
   );
+}
+
+// ============================================================
+// Visor interno de PDF
+// ============================================================
+class _PdfViewerScreen extends StatefulWidget {
+  final String filePath;
+  final String fileName;
+
+  const _PdfViewerScreen({
+    required this.filePath,
+    required this.fileName,
+  });
+
+  @override
+  State<_PdfViewerScreen> createState() => _PdfViewerScreenState();
+}
+
+class _PdfViewerScreenState extends State<_PdfViewerScreen> {
+  int? totalPages;
+  int currentPage = 0;
+  bool isReady = false;
+  String errorMessage = '';
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.fileName),
+        actions: [
+          if (isReady)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: Text(
+                  'Página ${currentPage + 1}/${totalPages ?? 0}',
+                  style: const TextStyle(fontSize: 14),
+                ),
+              ),
+            ),
+        ],
+      ),
+      body: errorMessage.isNotEmpty
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: Colors.red,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Error al cargar PDF',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      errorMessage,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          : Stack(
+              children: [
+                PDFView(
+                  filePath: widget.filePath,
+                  enableSwipe: true,
+                  swipeHorizontal: false,
+                  autoSpacing: true,
+                  pageFling: true,
+                  pageSnap: true,
+                  defaultPage: currentPage,
+                  fitPolicy: FitPolicy.BOTH,
+                  preventLinkNavigation: false,
+                  onRender: (pages) {
+                    setState(() {
+                      totalPages = pages;
+                      isReady = true;
+                    });
+                    print('PDF rendered: $pages pages');
+                  },
+                  onError: (error) {
+                    setState(() {
+                      errorMessage = error.toString();
+                    });
+                    print('PDF error: $error');
+                  },
+                  onPageError: (page, error) {
+                    setState(() {
+                      errorMessage = 'Error en página $page: $error';
+                    });
+                    print('Page $page error: $error');
+                  },
+                  onPageChanged: (int? page, int? total) {
+                    setState(() {
+                      currentPage = page ?? 0;
+                    });
+                  },
+                ),
+                if (!isReady)
+                  const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+              ],
+            ),
+    );
+  }
 }
