@@ -343,11 +343,9 @@ class _ActivityDetailViewState extends ConsumerState<ActivityDetailView> {
   // Contenido de Email - Mostrado cuando actiIdTipoGestion == '07'
   // ============================================================
   Widget _buildEmailContent(Activity activity) {
-    final asunto = (activity.emlsAsunto?.isNotEmpty == true)
-        ? activity.emlsAsunto!
-        : (activity.subject ?? '');
+    final asunto = _resolveAsunto(activity);
     final bodyContent = _cleanHtmlContent(
-      activity.emailHtmlContent ?? '',
+      _resolveBodyContent(activity),
       asunto,
     );
     final attachments = activity.attachments ?? [];
@@ -503,6 +501,22 @@ class _ActivityDetailViewState extends ConsumerState<ActivityDetailView> {
       cleaned = cleaned.replaceFirst(p, '');
     }
     return cleaned;
+  }
+
+  String _resolveAsunto(Activity activity) {
+    final emlsAsunto = (activity.emlsAsunto ?? '').trim();
+    if (emlsAsunto.isNotEmpty) return emlsAsunto;
+    final subject = (activity.subject ?? '').trim();
+    if (subject.isNotEmpty) return subject;
+    return 'Sin asunto';
+  }
+
+  String _resolveBodyContent(Activity activity) {
+    final html = (activity.emailHtmlContent ?? '').trim();
+    if (html.isNotEmpty) return html;
+    final comentario = activity.actiComentario.trim();
+    if (comentario.isNotEmpty) return comentario;
+    return '<p>Sin contenido</p>';
   }
 
   Widget _buildAttachmentsSection(List<EmailAttachment> attachments) {
@@ -1211,11 +1225,9 @@ class _EmailDetailViewState extends ConsumerState<EmailDetailView> {
   }
 
   Widget _buildInformacionTab(Activity activity) {
-    final asunto = (activity.emlsAsunto?.isNotEmpty == true)
-        ? activity.emlsAsunto!
-        : (activity.subject ?? '');
+    final asunto = _resolveAsunto(activity);
     final bodyContent = _cleanHtmlContent(
-      activity.emailHtmlContent ?? '',
+      _resolveBodyContent(activity),
       asunto,
     );
     final attachments = activity.attachments ?? [];
@@ -1554,6 +1566,22 @@ class _EmailDetailViewState extends ConsumerState<EmailDetailView> {
       cleaned = cleaned.replaceFirst(p, '');
     }
     return cleaned;
+  }
+
+  String _resolveAsunto(Activity activity) {
+    final emlsAsunto = (activity.emlsAsunto ?? '').trim();
+    if (emlsAsunto.isNotEmpty) return emlsAsunto;
+    final subject = (activity.subject ?? '').trim();
+    if (subject.isNotEmpty) return subject;
+    return 'Sin asunto';
+  }
+
+  String _resolveBodyContent(Activity activity) {
+    final html = (activity.emailHtmlContent ?? '').trim();
+    if (html.isNotEmpty) return html;
+    final comentario = activity.actiComentario.trim();
+    if (comentario.isNotEmpty) return comentario;
+    return '<p>Sin contenido</p>';
   }
 
   void _showFileOptionsDialog(BuildContext context, String filePath, String fileName) {

@@ -26,10 +26,10 @@ class ActivityMapper {
     final bodyPreviewData = jsonMicrosoft?['bodyPreview'] ?? json['bodyPreview'];
 
     bool? isReadValue;
-    if (json['EMLS_ISREAD'] is bool) {
-      isReadValue = json['EMLS_ISREAD'];
-    } else if (json['EMLS_ISREAD'] != null) {
-      isReadValue = json['EMLS_ISREAD'].toString().toLowerCase() == 'true';
+    if (json['EMLS_ISREAD'] != null) {
+      // "1" = leído, "0" = no leído, null = no enviado
+      final readString = json['EMLS_ISREAD'].toString();
+      isReadValue = readString == '1' || readString.toLowerCase() == 'true';
     } else if (jsonMicrosoft?['isRead'] is bool) {
       isReadValue = jsonMicrosoft!['isRead'];
     }
@@ -75,10 +75,10 @@ class ActivityMapper {
       // Email
       emlsEmailFrom: json['EMLS_EMAIL_FROM'] ?? '',
       emlsEmailTo: json['EMLS_EMAIL_TO'] ?? '',
-      emlsAsunto: json['EMLS_ASUNTO'] ?? '',
-      subject: subjectData?.toString() ?? '',
+      emlsAsunto: (json['EMLS_ASUNTO'] ?? '').toString(),
+      subject: _resolveSubject(subjectData, json['EMLS_ASUNTO']),
       bodyPreview: bodyPreviewData?.toString() ?? '',
-      emailHtmlContent: _extractHtmlContent(bodyData),
+      emailHtmlContent: _resolveEmailBody(bodyData, json['ACTI_COMENTARIO']),
       isRead: isReadValue,
       emlsJsonEmailMicrosoft: jsonMicrosoft,
       toRecipients: _mapToRecipients(jsonMicrosoft?['toRecipients']),
@@ -93,6 +93,22 @@ class ActivityMapper {
       return body['content'].toString();
     }
     if (body is String) return body;
+    return '';
+  }
+
+  static String _resolveSubject(dynamic subject, dynamic emlsAsunto) {
+    final msSubject = (subject ?? '').toString().trim();
+    if (msSubject.isNotEmpty) return msSubject;
+    final legacySubject = (emlsAsunto ?? '').toString().trim();
+    if (legacySubject.isNotEmpty) return legacySubject;
+    return '';
+  }
+
+  static String _resolveEmailBody(dynamic body, dynamic actiComentario) {
+    final fromMicrosoft = _extractHtmlContent(body).trim();
+    if (fromMicrosoft.isNotEmpty) return fromMicrosoft;
+    final fromActivity = (actiComentario ?? '').toString().trim();
+    if (fromActivity.isNotEmpty) return fromActivity;
     return '';
   }
 

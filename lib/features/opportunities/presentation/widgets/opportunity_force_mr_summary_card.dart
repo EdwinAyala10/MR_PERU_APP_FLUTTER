@@ -34,13 +34,6 @@ class OpportunityForceMrSummaryCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Image.asset(
-                'assets/icon/logomrIA.png',
-                width: 28,
-                height: 28,
-                fit: BoxFit.contain,
-              ),
-              const SizedBox(width: 10),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(

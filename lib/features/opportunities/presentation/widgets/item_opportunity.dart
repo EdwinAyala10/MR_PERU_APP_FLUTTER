@@ -35,6 +35,20 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
     });
   }
 
+  String _resolveEmailPreview() {
+    // Prioridad: subject > emlsAsunto > actiComentario
+    final subject = (widget.opportunity.subject ?? '').trim();
+    if (subject.isNotEmpty) return subject;
+    
+    final emlsAsunto = (widget.opportunity.emlsAsunto ?? '').trim();
+    if (emlsAsunto.isNotEmpty) return emlsAsunto;
+    
+    final comentario = (widget.opportunity.actiComentario ?? '').trim();
+    if (comentario.isNotEmpty) return comentario;
+    
+    return 'Sin asunto';
+  }
+
   ({Color? background, Color? border})? _staleColors() {
     final hasActivity = (widget.opportunity.actiIdTipoGestion ?? '').isNotEmpty &&
         (widget.opportunity.actiFechaRegistro ?? '').isNotEmpty;
@@ -191,9 +205,7 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
                     Expanded(
                       child: Text(
                           widget.opportunity.actiIdTipoGestion == '07'
-                              ? ((widget.opportunity.subject?.isNotEmpty == true
-                                  ? widget.opportunity.subject
-                                  : widget.opportunity.emlsAsunto) ?? 'Sin asunto')
+                              ? _resolveEmailPreview()
                               : (widget.opportunity.actiComentario ?? ''),
                           style: const TextStyle(
                             fontSize: 12,

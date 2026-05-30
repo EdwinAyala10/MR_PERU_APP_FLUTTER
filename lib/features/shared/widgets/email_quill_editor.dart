@@ -3,7 +3,6 @@ import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:vsc_quill_delta_to_html/vsc_quill_delta_to_html.dart';
 import 'package:crm_app/features/shared/widgets/professional_color_picker.dart';
 import 'package:crm_app/config/theme/app_theme.dart';
-import 'package:crm_app/features/shared/infrastructure/services/notification_service.dart';
 
 /// Editor profesional de correo electrónico tipo Gmail/Word
 /// Soporta formato por selección de texto
@@ -86,9 +85,6 @@ class _EmailQuillEditorState extends State<EmailQuillEditor> {
         Expanded(
           child: _buildEditor(),
         ),
-        
-        // Botones de acción debajo del editor
-        _buildActionButtons(),
       ],
     );
   }
@@ -623,117 +619,5 @@ class _EmailQuillEditorState extends State<EmailQuillEditor> {
     );
   }
 
-  /// Botones de acción debajo del editor
-  Widget _buildActionButtons() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        border: Border(
-          top: BorderSide(color: Colors.grey.shade300, width: 1),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          // Botón Firma
-          Expanded(
-            child: _buildActionButton(
-              icon: Icons.draw_outlined,
-              label: 'Firma',
-              onPressed: () {
-                // TODO: Implementar funcionalidad de firma
-                NotificationService().showInfo(
-                  context: context,
-                  title: 'Próximamente',
-                  message: 'La funcionalidad de Firma estará disponible pronto',
-                  duration: 3000,
-                );
-              },
-            ),
-          ),
-          
-          const SizedBox(width: 12),
-          
-          // Botón Vista previa
-          Expanded(
-            child: _buildActionButton(
-              icon: Icons.visibility_outlined,
-              label: 'Vista previa',
-              onPressed: () {
-                // TODO: Implementar vista previa
-                NotificationService().showInfo(
-                  context: context,
-                  title: 'Próximamente',
-                  message: 'La funcionalidad de Vista Previa estará disponible pronto',
-                  duration: 3000,
-                );
-              },
-            ),
-          ),
-          
-          const SizedBox(width: 12),
-          
-          // Botón Clic (?)
-          Expanded(
-            child: _buildActionButton(
-              icon: Icons.touch_app_outlined,
-              label: 'Clic',
-              onPressed: () {
-                // TODO: Implementar funcionalidad de clic
-                NotificationService().showInfo(
-                  context: context,
-                  title: 'Próximamente',
-                  message: 'La funcionalidad de Clic estará disponible pronto',
-                  duration: 3000,
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildActionButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onPressed,
-  }) {
-    return InkWell(
-      onTap: onPressed,
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.shade300, width: 1.5),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: 18,
-              color: Colors.grey.shade700,
-            ),
-            const SizedBox(width: 6),
-            Flexible(
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey.shade800,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

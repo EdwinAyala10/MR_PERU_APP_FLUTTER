@@ -14,6 +14,7 @@ import 'package:crm_app/features/opportunities/infrastructure/mappers/op_create_
 import 'package:crm_app/features/opportunities/infrastructure/mappers/op_delete_document_mapper.dart';
 import 'package:crm_app/features/opportunities/presentation/widgets/opportunity_force_mr_summary_card.dart';
 import 'package:crm_app/features/opportunities/presentation/widgets/op_document_card.dart';
+import 'package:crm_app/features/opportunities/presentation/providers/force_mr_preferences_provider.dart';
 import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
 import 'package:crm_app/features/shared/widgets/loading_modal.dart';
@@ -252,8 +253,19 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
   Widget buildInformation() {
     return OpportunityDetailView(
       opportunityId: widget.opportunityId,
-      onGenerateSummary: () {
-        context.push('/force_mr_activation/${widget.opportunityId}');
+      onGenerateSummary: () async {
+        final prefsNotifier = ref.read(forceMrPreferencesProvider.notifier);
+        final hasAccepted = await prefsNotifier.hasAccepted();
+        
+        if (!mounted) return;
+        
+        if (hasAccepted) {
+          // Ya aceptó Force MR, ir directo al resumen
+          context.push('/opportunity_summary/${widget.opportunityId}');
+        } else {
+          // Primera vez, mostrar activación
+          context.push('/force_mr_activation/${widget.opportunityId}');
+        }
       },
     );
   }

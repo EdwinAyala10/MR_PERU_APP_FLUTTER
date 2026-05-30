@@ -81,7 +81,7 @@ class ItemActivity extends StatelessWidget {
             Text(
               isEmailActivity
                   ? (activity.emlsEmailFrom?.isNotEmpty == true
-                      ? 'DE: ${activity.emlsEmailFrom}'
+                      ? 'De: ${activity.contactoDesc ?? ''}'
                       : 'A: ${activity.contactoDesc ?? ''}')
                   : (activity.contactoDesc ?? ''),
               style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
@@ -95,7 +95,9 @@ class ItemActivity extends StatelessWidget {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (!isEmailActivity) Text(activity.actiNombreTipoGestion),
+          // Tipo de actividad (siempre mostrar)
+          Text(activity.actiNombreTipoGestion),
+          
           if (isEmailActivity)
             Row(
               children: [
@@ -167,14 +169,44 @@ class ItemActivity extends StatelessWidget {
           if (isEmailActivity)
             Row(
               children: [
-                Icon(
-                  activity.isRead == true
-                      ? Icons.mark_email_read
-                      : Icons.mark_email_unread,
-                  size: 16,
-                  color: activity.isRead == true
-                      ? Colors.green
-                      : const Color(0xFF00A8DD),
+                SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      const Icon(
+                        Icons.email_outlined,
+                        size: 18,
+                        color: Colors.grey,
+                      ),
+                      Positioned(
+                        right: 0,
+                        bottom: 0,
+                        child: Container(
+                          width: 10,
+                          height: 10,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            activity.isRead == null
+                                ? Icons.close // null = no enviado
+                                : activity.isRead == true
+                                    ? Icons.visibility // "1" = leído
+                                    : Icons.access_time, // "0" = no leído
+                            size: 8,
+                            color: activity.isRead == null
+                                ? Colors.red // null = rojo
+                                : activity.isRead == true
+                                    ? Colors.green // "1" = verde
+                                    : Colors.orange, // "0" = naranja
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

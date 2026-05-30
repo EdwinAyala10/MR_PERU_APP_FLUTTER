@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../providers/force_mr_preferences_provider.dart';
 
-class ForceMrActivationScreen extends StatelessWidget {
+class ForceMrActivationScreen extends ConsumerWidget {
   final String opportunityId;
   
   const ForceMrActivationScreen({
@@ -10,7 +12,7 @@ class ForceMrActivationScreen extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -23,13 +25,6 @@ class ForceMrActivationScreen extends StatelessWidget {
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(
-              'assets/icon/logomrIA.png',
-              width: 26,
-              height: 26,
-              fit: BoxFit.contain,
-            ),
-            const SizedBox(width: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
@@ -214,7 +209,13 @@ class ForceMrActivationScreen extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: () {
+                      onPressed: () async {
+                        // Guardar preferencia de aceptación
+                        await ref.read(forceMrPreferencesProvider.notifier).setAccepted(true);
+                        
+                        if (!context.mounted) return;
+                        
+                        // Navegar al resumen
                         context.push('/opportunity_summary/$opportunityId');
                       },
                       style: ElevatedButton.styleFrom(
