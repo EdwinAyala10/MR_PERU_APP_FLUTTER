@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 
 import 'package:crm_app/config/constants/environment.dart';
@@ -651,16 +652,10 @@ class _ActivityDetailViewState extends ConsumerState<ActivityDetailView> {
     );
 
     try {
-      print('Starting decode process...');
-      // Limpiar base64
-      String clean = attachment.contentBytes;
-      if (clean.contains(',')) clean = clean.split(',').last;
-      clean = clean.replaceAll(RegExp(r'\s+'), '');
-      print('Cleaned base64 length: ${clean.length}');
-
-      // Decodificar
-      print('Decoding base64...');
-      final bytes = base64Decode(clean);
+      print('Starting decode process in Isolate...');
+      
+      // Decodificar base64 en Isolate (NO bloquea UI)
+      final bytes = await compute(_decodeBase64InIsolate, attachment.contentBytes);
       print('Decoded ${bytes.length} bytes');
 
       // Detectar extensión real desde bytes
@@ -724,36 +719,91 @@ class _ActivityDetailViewState extends ConsumerState<ActivityDetailView> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('No hay aplicación para abrir el archivo'),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF00A8DD).withOpacity(0.12),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.picture_as_pdf_rounded,
+                color: Color(0xFF00A8DD),
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text(
+                'Previsualizar archivo',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF00607D),
+                ),
+              ),
+            ),
+          ],
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('El archivo "$fileName" se guardó correctamente.'),
-            const SizedBox(height: 16),
-            const Text('¿Qué deseas hacer?'),
+            Text(
+              fileName,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF374151),
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              '¿Deseas previsualizar este documento?',
+              style: TextStyle(
+                fontSize: 13,
+                color: Color(0xFF6B7280),
+                height: 1.4,
+              ),
+            ),
           ],
         ),
+        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
         actions: [
           TextButton(
+            onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFF6B7280),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            ),
+            child: const Text(
+              'Cancelar',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            ),
+          ),
+          ElevatedButton.icon(
             onPressed: () {
               Navigator.pop(context);
-              // Abrir visor interno de PDF
               _openInternalPdfViewer(context, filePath, fileName);
             },
-            child: const Text('Ver archivo'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              // Guardar en Descargas
-              await _saveToDownloads(context, filePath, fileName);
-            },
-            child: const Text('Guardar en Descargas'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF00A8DD),
+              foregroundColor: Colors.white,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            icon: const Icon(Icons.visibility_rounded, size: 18),
+            label: const Text(
+              'Ver archivo',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            ),
           ),
         ],
       ),
@@ -1469,16 +1519,10 @@ class _EmailDetailViewState extends ConsumerState<EmailDetailView> {
     );
 
     try {
-      print('Starting decode process...');
-      // Limpiar base64
-      String clean = attachment.contentBytes;
-      if (clean.contains(',')) clean = clean.split(',').last;
-      clean = clean.replaceAll(RegExp(r'\s+'), '');
-      print('Cleaned base64 length: ${clean.length}');
-
-      // Decodificar
-      print('Decoding base64...');
-      final bytes = base64Decode(clean);
+      print('Starting decode process in Isolate...');
+      
+      // Decodificar base64 en Isolate (NO bloquea UI)
+      final bytes = await compute(_decodeBase64InIsolate, attachment.contentBytes);
       print('Decoded ${bytes.length} bytes');
 
       // Detectar extensión real desde bytes
@@ -1939,6 +1983,17 @@ Future<dynamic> showModalAdd(
 }
 
 // ============================================================
+// Función top-level para decodificar base64 en Isolate (NO bloquea UI)
+// ============================================================
+Uint8List _decodeBase64InIsolate(String base64String) {
+  // Limpiar el base64
+  String clean = base64String;
+  if (clean.contains(',')) clean = clean.split(',').last;
+  clean = clean.replaceAll(RegExp(r'\s+'), '');
+  return base64Decode(clean);
+}
+
+// ============================================================
 // Visor interno de PDF
 // ============================================================
 class _PdfViewerScreen extends StatefulWidget {
@@ -1959,47 +2014,118 @@ class _PdfViewerScreenState extends State<_PdfViewerScreen> {
   int currentPage = 0;
   bool isReady = false;
   String errorMessage = '';
+  PDFViewController? _pdfController;
+
+  Future<void> _goToPage(int delta) async {
+    if (_pdfController == null || totalPages == null) return;
+    final newPage = (currentPage + delta).clamp(0, totalPages! - 1);
+    await _pdfController!.setPage(newPage);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
-        title: Text(widget.fileName),
+        elevation: 0,
+        backgroundColor: const Color(0xFF00607D),
+        foregroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: Row(
+          children: [
+            const Icon(
+              Icons.picture_as_pdf_rounded,
+              size: 22,
+              color: Colors.white,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                widget.fileName,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
         actions: [
-          if (isReady)
+          if (isReady) ...[
+            // Botón página anterior
+            IconButton(
+              icon: const Icon(Icons.keyboard_arrow_up_rounded),
+              tooltip: 'Página anterior',
+              onPressed: currentPage > 0 ? () => _goToPage(-1) : null,
+            ),
+            // Botón página siguiente
+            IconButton(
+              icon: const Icon(Icons.keyboard_arrow_down_rounded),
+              tooltip: 'Página siguiente',
+              onPressed: (totalPages != null && currentPage < totalPages! - 1)
+                  ? () => _goToPage(1)
+                  : null,
+            ),
             Center(
-              child: Padding(
-                padding: const EdgeInsets.only(right: 16),
+              child: Container(
+                margin: const EdgeInsets.only(right: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF00A8DD),
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: Text(
-                  'Página ${currentPage + 1}/${totalPages ?? 0}',
-                  style: const TextStyle(fontSize: 14),
+                  '${currentPage + 1}/${totalPages ?? 0}',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
+          ],
         ],
       ),
       body: errorMessage.isNotEmpty
           ? Center(
               child: Padding(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(24),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(
-                      Icons.error_outline,
-                      size: 64,
-                      color: Colors.red,
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.error_outline_rounded,
+                        size: 56,
+                        color: Colors.red,
+                      ),
                     ),
-                    const SizedBox(height: 16),
-                    Text(
+                    const SizedBox(height: 20),
+                    const Text(
                       'Error al cargar PDF',
-                      style: Theme.of(context).textTheme.titleLarge,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF00607D),
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       errorMessage,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: Colors.grey),
+                      style: const TextStyle(
+                        color: Color(0xFF6B7280),
+                        fontSize: 14,
+                        height: 1.5,
+                      ),
                     ),
                   ],
                 ),
@@ -2013,10 +2139,15 @@ class _PdfViewerScreenState extends State<_PdfViewerScreen> {
                   swipeHorizontal: false,
                   autoSpacing: true,
                   pageFling: true,
-                  pageSnap: true,
+                  pageSnap: false,
                   defaultPage: currentPage,
-                  fitPolicy: FitPolicy.BOTH,
+                  fitPolicy: FitPolicy.WIDTH,
+                  fitEachPage: true,
                   preventLinkNavigation: false,
+                  nightMode: false,
+                  onViewCreated: (PDFViewController controller) {
+                    _pdfController = controller;
+                  },
                   onRender: (pages) {
                     setState(() {
                       totalPages = pages;
@@ -2043,11 +2174,91 @@ class _PdfViewerScreenState extends State<_PdfViewerScreen> {
                   },
                 ),
                 if (!isReady)
-                  const Center(
-                    child: CircularProgressIndicator(),
+                  Container(
+                    color: const Color(0xFFF5F7FA),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF00A8DD).withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const SizedBox(
+                              width: 32,
+                              height: 32,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 3,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Color(0xFF00A8DD),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          const Text(
+                            'Cargando documento...',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF00607D),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          const Text(
+                            'Esto puede tomar unos segundos',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFF6B7280),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
               ],
             ),
+      // Botones flotantes con colores corporativos
+      floatingActionButton: isReady
+          ? Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Botón ir al inicio
+                FloatingActionButton.small(
+                  heroTag: 'pdf_top',
+                  backgroundColor: const Color(0xFF00A8DD),
+                  elevation: 4,
+                  onPressed: () async {
+                    if (_pdfController != null) {
+                      await _pdfController!.setPage(0);
+                    }
+                  },
+                  child: const Icon(
+                    Icons.vertical_align_top_rounded,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                // Botón ir al final
+                FloatingActionButton.small(
+                  heroTag: 'pdf_bottom',
+                  backgroundColor: const Color(0xFF00607D),
+                  elevation: 4,
+                  onPressed: () async {
+                    if (_pdfController != null && totalPages != null) {
+                      await _pdfController!.setPage(totalPages! - 1);
+                    }
+                  },
+                  child: const Icon(
+                    Icons.vertical_align_bottom_rounded,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            )
+          : null,
     );
   }
 }
