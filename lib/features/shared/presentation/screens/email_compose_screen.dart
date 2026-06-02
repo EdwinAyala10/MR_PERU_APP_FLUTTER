@@ -155,41 +155,7 @@ class _EmailComposeScreenState extends ConsumerState<EmailComposeScreen> {
     final asunto = subjectController.text.trim();
     final comentario = _emailBodyHtml.trim();
 
-    // Mostrar loading inicial mientras se valida
-    if (!mounted) return;
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => const Center(
-        child: Card(
-          child: Padding(
-            padding: EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  width: 32,
-                  height: 32,
-                  child: CircularProgressIndicator(strokeWidth: 3),
-                ),
-                SizedBox(height: 12),
-                Text('Validando...', style: TextStyle(fontSize: 14)),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-
-    // Pequeño delay para que el loading sea visible
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    // Cerrar loading antes de validar
-    if (mounted) {
-      Navigator.of(context).pop();
-    }
-
-    // VALIDACIONES EN ORDEN: CORREOS (todos juntos) → ASUNTO → CUERPO
+    // VALIDACIONES EN ORDEN (SIN MOSTRAR LOADING AÚN): CORREOS → ASUNTO → CUERPO
     
     // ============================================
     // PRIORIDAD 1: Datos básicos del sistema
@@ -325,12 +291,28 @@ class _EmailComposeScreenState extends ConsumerState<EmailComposeScreen> {
     }
 
     // Preparar archivos adjuntos
+    print('========== ARCHIVOS ADJUNTOS DEBUG ==========');
+    print('selectedFiles recibidos: ${selectedFiles.length}');
+    for (var i = 0; i < selectedFiles.length; i++) {
+      print('File $i: ${selectedFiles[i].name} (${selectedFiles[i].size} bytes)');
+    }
+    
     final List<MultipartFile> files = [];
     for (final file in selectedFiles) {
       final path = file.path;
-      if (path == null) continue;
+      if (path == null) {
+        print('WARNING: File ${file.name} has null path, skipping');
+        continue;
+      }
+      print('Adding to MultipartFile: ${file.name} from path: $path');
       files.add(await MultipartFile.fromFile(path, filename: file.name));
     }
+    
+    print('Total MultipartFiles preparados: ${files.length}');
+    for (var i = 0; i < files.length; i++) {
+      print('MultipartFile $i: ${files[i].filename}');
+    }
+    print('============================================');
 
     // Construir recipients
     final recipients = _buildRecipients(contact.id);

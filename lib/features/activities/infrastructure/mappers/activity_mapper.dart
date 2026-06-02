@@ -75,6 +75,7 @@ class ActivityMapper {
       // Email
       emlsEmailFrom: json['EMLS_EMAIL_FROM'] ?? '',
       emlsEmailTo: json['EMLS_EMAIL_TO'] ?? '',
+      emlsIdTipoMailfolders: json['EMLS_ID_TIPO_MAILFOLDERS'] ?? '',
       emlsAsunto: (json['EMLS_ASUNTO'] ?? '').toString(),
       subject: _resolveSubject(subjectData, json['EMLS_ASUNTO']),
       bodyPreview: bodyPreviewData?.toString() ?? '',
@@ -127,6 +128,15 @@ class ActivityMapper {
   }
 
   static List<EmailAttachment> _mapAttachments(dynamic attachments) {
+    print('========== _mapAttachments DEBUG ==========');
+    print('attachments type: ${attachments.runtimeType}');
+    print('attachments is List: ${attachments is List}');
+    if (attachments is List) {
+      print('attachments length: ${attachments.length}');
+      print('attachments raw: $attachments');
+    }
+    print('===========================================');
+    
     if (attachments is! List) return const [];
 
     int counter = 1;
@@ -169,6 +179,8 @@ class ActivityMapper {
       }
       counter++;
 
+      print('Mapped attachment ${counter - 1}: $finalName (${detectedType}, ${size} bytes)');
+      
       return EmailAttachment(
         name: finalName,
         contentBytes: contentBytes,
@@ -177,7 +189,9 @@ class ActivityMapper {
             : detectedType,
         size: size,
       );
-    }).toList();
+    }).toList()..forEach((att) {
+      print('Final attachment in list: ${att.name}');
+    });
   }
 
   /// Detecta tipo de archivo desde los magic numbers en base64

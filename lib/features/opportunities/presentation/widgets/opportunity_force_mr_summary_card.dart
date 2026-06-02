@@ -34,6 +34,13 @@ class OpportunityForceMrSummaryCard extends StatelessWidget {
         children: [
           Row(
             children: [
+              Image.asset(
+                'assets/icon/logomrIA.png',
+                width: 40,
+                height: 40,
+                fit: BoxFit.contain,
+              ),
+              const SizedBox(width: 1),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
@@ -78,7 +85,7 @@ class OpportunityForceMrSummaryCard extends StatelessWidget {
           const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton.icon(
+            child: ElevatedButton(
               onPressed: onGenerateSummary ?? () {},
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF00A8DD),
@@ -89,14 +96,11 @@ class OpportunityForceMrSummaryCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              icon: Image.asset(
-                'assets/icon/logomrIA.png',
-                width: 22,
-                height: 22,
-                fit: BoxFit.contain,
-              ),
-              label: const Text(
+              child: const Text(
                 'Generar resumen de la oportunidad',
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,

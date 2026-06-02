@@ -460,7 +460,7 @@ class _ActivityDetailViewState extends ConsumerState<ActivityDetailView> {
               ContainerCustom(label: 'Identificador', text: activity.id),
               ContainerCustom(
                 label: 'Fecha de creación',
-                text: DateFormat('dd/MM/yyyy HH:mm').format(activity.actiFechaActividad),
+                text: '${DateFormat('dd/MM/yyyy').format(activity.actiFechaActividad)} ${_formatHoraHelper(activity.actiHoraActividad)}',
               ),
               ContainerCustom(
                 label: 'Creado por',
@@ -1374,7 +1374,7 @@ class _EmailDetailViewState extends ConsumerState<EmailDetailView> {
           ContainerCustom(label: 'Identificador', text: activity.id),
           ContainerCustom(
             label: 'Fecha de creación',
-            text: DateFormat('dd/MM/yyyy HH:mm').format(activity.actiFechaActividad),
+            text: '${DateFormat('dd/MM/yyyy').format(activity.actiFechaActividad)} ${_formatHoraHelper(activity.actiHoraActividad)}',
           ),
           ContainerCustom(
             label: 'Creado por',
@@ -1406,46 +1406,74 @@ class _EmailDetailViewState extends ConsumerState<EmailDetailView> {
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: attachments.map((attachment) {
-              return InkWell(
-                onTap: () => _openAttachment(context, attachment),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Row(
-                    children: [
-                      Icon(_iconForAttachment(attachment),
-                          size: 28, color: const Color(0xFF0092c7)),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              attachment.name,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFF0092c7),
-                                decoration: TextDecoration.underline,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              _formatFileSize(attachment.size),
-                              style: const TextStyle(
-                                  fontSize: 12, color: Colors.black54),
-                            ),
-                          ],
-                        ),
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (var i = 0; i < attachments.length; i++)
+                Padding(
+                  padding: EdgeInsets.only(
+                    bottom: i < attachments.length - 1 ? 12 : 0,
+                  ),
+                  child: InkWell(
+                    onTap: () => _openAttachment(context, attachments[i]),
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey.shade300),
                       ),
-                      const Icon(Icons.download_rounded,
-                          size: 22, color: Color(0xFF0092c7)),
-                    ],
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF00A8DD).withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Icon(
+                              _iconForAttachment(attachments[i]),
+                              size: 24,
+                              color: const Color(0xFF0092c7),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  attachments[i].name,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Color(0xFF0092c7),
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  _formatFileSize(attachments[i].size),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          const Icon(
+                            Icons.download_rounded,
+                            size: 22,
+                            color: Color(0xFF0092c7),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-              );
-            }).toList(),
+            ],
           ),
         ),
         const SizedBox(height: 16),
@@ -2260,5 +2288,20 @@ class _PdfViewerScreenState extends State<_PdfViewerScreen> {
             )
           : null,
     );
+  }
+}
+
+// ============================================================
+// Top-level helper function para formatear hora
+// ============================================================
+String _formatHoraHelper(String horaCompleta) {
+  try {
+    return DateFormat('hh:mm a').format(
+      DateFormat('HH:mm:ss').parse(
+        horaCompleta.length >= 8 ? horaCompleta.substring(0, 8) : horaCompleta,
+      ),
+    );
+  } catch (_) {
+    return horaCompleta;
   }
 }

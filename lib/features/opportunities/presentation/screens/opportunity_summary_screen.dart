@@ -45,6 +45,13 @@ class _OpportunitySummaryScreenState extends ConsumerState<OpportunitySummaryScr
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            Image.asset(
+              'assets/icon/logomrIA.png',
+              width: 40,
+              height: 40,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(width: 1),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
@@ -52,22 +59,13 @@ class _OpportunitySummaryScreenState extends ConsumerState<OpportunitySummaryScr
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Text(
-                'FORCE ',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                  letterSpacing: 0.5,
+                'Force MR',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    letterSpacing: 0.3,
                 ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Text(
-              'MR',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF00607D),
               ),
             ),
           ],
@@ -276,78 +274,26 @@ class _OpportunitySummaryScreenState extends ConsumerState<OpportunitySummaryScr
   Widget _buildSummary(summary) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  const Color(0xFF00A8DD).withOpacity(0.1),
-                  const Color(0xFF00607D).withOpacity(0.05),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: const Color(0xFF00A8DD).withOpacity(0.3),
-                width: 1.5,
-              ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF00A8DD).withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(
-                    Icons.auto_awesome_rounded,
-                    color: Color(0xFF00A8DD),
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                const Expanded(
-                  child: Text(
-                    'Resumen generado con IA',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF00607D),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF9FAFB),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: const Color(0xFFE5E7EB),
           ),
-          const SizedBox(height: 24),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF9FAFB),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: const Color(0xFFE5E7EB),
-              ),
-            ),
-            child: TypewriterText(
-              text: summary.data,
-              speed: const Duration(milliseconds: 22),
-              charactersPerTick: 5,
-              style: const TextStyle(
-                fontSize: 15,
-                color: Color(0xFF374151),
-                height: 1.7,
-              ),
-            ),
+        ),
+        child: TypewriterText(
+          text: summary.data,
+          speed: const Duration(milliseconds: 22),
+          charactersPerTick: 5,
+          style: const TextStyle(
+            fontSize: 15,
+            color: Color(0xFF374151),
+            height: 1.7,
           ),
-        ],
+        ),
       ),
     );
   }

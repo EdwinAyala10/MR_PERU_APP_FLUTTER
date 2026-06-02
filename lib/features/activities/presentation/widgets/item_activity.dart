@@ -80,9 +80,9 @@ class ItemActivity extends StatelessWidget {
           if (activity.contactoDesc != "") 
             Text(
               isEmailActivity
-                  ? (activity.emlsEmailFrom?.isNotEmpty == true
-                      ? 'De: ${activity.contactoDesc ?? ''}'
-                      : 'A: ${activity.contactoDesc ?? ''}')
+                  ? (activity.emlsIdTipoMailfolders == '02'
+                      ? 'A: ${activity.contactoDesc ?? ''}'
+                      : 'De: ${activity.contactoDesc ?? ''}')
                   : (activity.contactoDesc ?? ''),
               style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
             ),
@@ -271,9 +271,9 @@ class ItemActivity extends StatelessWidget {
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
-                              activity.emlsEmailFrom?.isNotEmpty == true
-                                  ? Icons.south_west
-                                  : Icons.north_east,
+                              activity.emlsIdTipoMailfolders == '02'
+                                  ? Icons.north_east
+                                  : Icons.south_west,
                               size: 10,
                               color: const Color(0xFF00A8DD),
                             ),

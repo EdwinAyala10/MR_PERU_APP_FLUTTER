@@ -37,6 +37,7 @@ class Activity {
   // Campos de email (correo Microsoft)
   String? emlsEmailFrom;
   String? emlsEmailTo;
+  String? emlsIdTipoMailfolders;
   String? emlsAsunto;
   String? subject;
   String? bodyPreview;
@@ -83,6 +84,7 @@ class Activity {
       this.localNombre,
       this.emlsEmailFrom,
       this.emlsEmailTo,
+      this.emlsIdTipoMailfolders,
       this.emlsAsunto,
       this.subject,
       this.bodyPreview,

@@ -25,6 +25,22 @@ class EmailDatasourceImpl extends EmailDatasource {
   Future<SendEmailResponse> sendEmail(SendEmailRequest request) async {
     final payloadMap = request.toFormData();
 
+    print('========== EMAIL DATASOURCE DEBUG ==========');
+    print('Request files count: ${request.files.length}');
+    for (var i = 0; i < request.files.length; i++) {
+      print('Request file $i: ${request.files[i].filename}');
+    }
+    print('FormData keys: ${payloadMap.keys.toList()}');
+    if (payloadMap.containsKey('files[]')) {
+      final filesInPayload = payloadMap['files[]'];
+      if (filesInPayload is List) {
+        print('files[] in FormData is List with ${filesInPayload.length} items');
+      } else {
+        print('files[] in FormData type: ${filesInPayload.runtimeType}');
+      }
+    }
+    print('===========================================');
+
     try {
       final Response response = await dio.post(
         '/email/enviar-email-microsoft-graph',
