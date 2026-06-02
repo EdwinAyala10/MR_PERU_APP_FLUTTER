@@ -43,20 +43,8 @@ class SendEmailRequest {
       formData.addAll(recipients[i].toFormData(i));
     }
 
-    print('========== toFormData() DEBUG ==========');
-    print('Files to add to FormData: ${files.length}');
-    for (var i = 0; i < files.length; i++) {
-      print('File $i: ${files[i].filename} (${files[i].length} bytes)');
-    }
-    
-    if (files.isNotEmpty) {
-      formData['files'] = files;
-      print('Added ${files.length} files to formData["files"]');
-    } else {
-      print('No files to add (files.isEmpty)');
-    }
-    print('========================================');
-
+    // NOTA: Los archivos NO se agregan aquí - se agregan manualmente
+    // en el datasource para manejar correctamente el array files[]
     return formData;
   }
 }

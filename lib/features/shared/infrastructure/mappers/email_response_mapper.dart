@@ -8,25 +8,24 @@ class EmailResponseMapper {
     
     bool isSuccess = false;
     String message = 'Sin mensaje';
-    dynamic data;
     
     // Verificar estructura completa del backend
     if (json.containsKey('status')) {
       isSuccess = json['status'] == true;
       message = json['message']?.toString() ?? 'Sin mensaje';
-      data = json['data'];
     } 
     // Estructura alternativa simple
     else if (json.containsKey('success')) {
       isSuccess = json['success'] == true;
       message = json['message']?.toString() ?? 'Sin mensaje';
-      data = json['data'];
     }
     
+    // OPTIMIZACIÓN: NO guardamos el data completo (incluye archivos base64 enormes)
+    // Solo necesitamos saber si fue exitoso y el mensaje
     return SendEmailResponse(
       success: isSuccess,
       message: message,
-      data: data,
+      data: null, // Descartado intencionalmente para mejorar performance
     );
   }
 }

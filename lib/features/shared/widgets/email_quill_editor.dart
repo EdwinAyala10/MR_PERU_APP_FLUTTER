@@ -92,6 +92,7 @@ class _EmailQuillEditorState extends State<EmailQuillEditor> {
   /// Header de la sección
   Widget _buildSectionHeader() {
     return Container(
+      margin: const EdgeInsets.only(top: 12),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.grey.shade50,

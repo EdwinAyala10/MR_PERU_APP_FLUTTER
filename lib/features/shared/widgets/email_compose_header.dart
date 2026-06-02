@@ -4,6 +4,173 @@ import 'package:crm_app/config/theme/app_theme.dart';
 import 'package:crm_app/features/shared/infrastructure/services/notification_service.dart';
 import 'package:image_picker/image_picker.dart';
 
+// Widget separado para mostrar archivos adjuntos en el área scrollable
+class EmailAttachedFilesList extends StatelessWidget {
+  final List<PlatformFile> attachedFiles;
+  final ValueChanged<List<PlatformFile>> onRemoveFile;
+
+  const EmailAttachedFilesList({
+    super.key,
+    required this.attachedFiles,
+    required this.onRemoveFile,
+  });
+
+  Color _getFileColor(String extension) {
+    switch (extension.toLowerCase()) {
+      case 'pdf':
+        return Colors.red.shade600;
+      case 'doc':
+      case 'docx':
+        return Colors.blue.shade600;
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+        return Colors.green.shade600;
+      default:
+        return Colors.grey.shade600;
+    }
+  }
+
+  IconData _getFileIcon(String extension) {
+    switch (extension.toLowerCase()) {
+      case 'pdf':
+        return Icons.picture_as_pdf_rounded;
+      case 'doc':
+      case 'docx':
+        return Icons.description_rounded;
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+        return Icons.image_rounded;
+      default:
+        return Icons.insert_drive_file_rounded;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (attachedFiles.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(top: 12, left: 16, right: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: Colors.grey.shade300,
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 2, bottom: 8),
+            child: Row(
+              children: [
+                Icon(Icons.attach_file_rounded, size: 14, color: Colors.grey.shade600),
+                const SizedBox(width: 4),
+                Text(
+                  '${attachedFiles.length} archivo${attachedFiles.length > 1 ? 's' : ''} adjunto${attachedFiles.length > 1 ? 's' : ''}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ...attachedFiles.asMap().entries.map((entry) {
+            final index = entry.key;
+            final file = entry.value;
+            final extension = file.name.split('.').last.toUpperCase();
+            final sizeKB = (file.size != null && file.size! > 0) 
+                ? (file.size! / 1024).toStringAsFixed(1) 
+                : '?';
+            
+            return Padding(
+              padding: EdgeInsets.only(bottom: index < attachedFiles.length - 1 ? 8 : 0),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: _getFileColor(extension),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Icon(
+                        _getFileIcon(extension),
+                        size: 16,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            file.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey.shade800,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '$extension • $sizeKB KB',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    InkWell(
+                      onTap: () {
+                        final updatedFiles = List<PlatformFile>.from(attachedFiles);
+                        updatedFiles.removeAt(index);
+                        onRemoveFile(updatedFiles);
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        child: Icon(
+                          Icons.close_rounded,
+                          size: 18,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+        ],
+      ),
+    );
+  }
+}
+
 class EmailComposeHeader extends StatefulWidget {
   final VoidCallback onLogout;
   final Future<void> Function(List<PlatformFile> files) onSend;
@@ -167,30 +334,38 @@ class _EmailComposeHeaderState extends State<EmailComposeHeader> {
 
     if (!mounted || result == null || result.files.isEmpty) return;
 
-    final updatedFiles = [...widget.attachedFiles, ...result.files.where((f) => f.path != null)];
+    final validFiles = result.files.where((f) => f.path != null).toList();
+    final updatedFiles = [...widget.attachedFiles, ...validFiles];
     widget.onAddFiles(updatedFiles);
     
     if (!mounted) return;
     NotificationService().showInfo(
       context: context,
       title: 'Archivos adjuntados',
-      message: '${result.files.length} archivo(s) agregado(s)',
+      message: '${validFiles.length} archivo(s) agregado(s)',
       duration: 3000,
     );
   }
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
-    final List<XFile> images = await picker.pickMultiImage();
+    // OPTIMIZACIÓN: Comprimir imágenes al seleccionarlas para reducir tiempo de subida
+    // maxWidth: 1920 (Full HD) - suficiente para correo
+    // imageQuality: 85 - buena calidad pero archivos ~70% más pequeños
+    final List<XFile> images = await picker.pickMultiImage(
+      maxWidth: 1920,
+      maxHeight: 1920,
+      imageQuality: 85,
+    );
 
     if (!mounted || images.isEmpty) return;
 
-    // Convertir XFile a PlatformFile
+    // Convertir XFile a PlatformFile (el tamaño se obtendrá después si es necesario)
     final List<PlatformFile> imagePlatformFiles = images
         .map((image) => PlatformFile(
               path: image.path,
               name: image.name,
-              size: 0, // Se calculará después si es necesario
+              size: 0, // FilePicker lo calculará automáticamente al enviar
             ))
         .toList();
 
@@ -344,120 +519,6 @@ class _EmailComposeHeaderState extends State<EmailComposeHeader> {
               ),
             ],
           ),
-          if (widget.attachedFiles.isNotEmpty)
-            Container(
-              width: double.infinity,
-              margin: const EdgeInsets.only(top: 12),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade50,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: Colors.grey.shade300,
-                  width: 1,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 2, bottom: 8),
-                    child: Row(
-                      children: [
-                        Icon(Icons.attach_file_rounded, size: 14, color: Colors.grey.shade600),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${widget.attachedFiles.length} archivo${widget.attachedFiles.length > 1 ? 's' : ''} adjunto${widget.attachedFiles.length > 1 ? 's' : ''}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey.shade700,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  ...widget.attachedFiles.asMap().entries.map((entry) {
-                    final index = entry.key;
-                    final file = entry.value;
-                    final extension = file.name.split('.').last.toUpperCase();
-                    final sizeKB = file.size != null ? (file.size! / 1024).toStringAsFixed(1) : '?';
-                    
-                    return Padding(
-                      padding: EdgeInsets.only(bottom: index < widget.attachedFiles.length - 1 ? 8 : 0),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.grey.shade300),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: _getFileColor(extension),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Icon(
-                                _getFileIcon(extension),
-                                size: 16,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    file.name,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.grey.shade800,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    '$extension • $sizeKB KB',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.grey.shade600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            InkWell(
-                              onTap: () {
-                                final updatedFiles = List<PlatformFile>.from(widget.attachedFiles);
-                                updatedFiles.removeAt(index);
-                                widget.onAddFiles(updatedFiles);
-                              },
-                              borderRadius: BorderRadius.circular(12),
-                              child: Container(
-                                padding: const EdgeInsets.all(4),
-                                child: Icon(
-                                  Icons.close_rounded,
-                                  size: 18,
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ],
-              ),
-            ),
         ],
       ),
     );

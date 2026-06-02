@@ -112,6 +112,12 @@ class _EmailComposeScreenState extends ConsumerState<EmailComposeScreen> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
+                  // Lista de archivos adjuntos (arriba de PARA)
+                  EmailAttachedFilesList(
+                    attachedFiles: _attachedFiles,
+                    onRemoveFile: (files) => setState(() => _attachedFiles = files),
+                  ),
+                  
                   EmailComposeFieldsChips(
                     toRecipients: _toRecipients,
                     ccRecipients: _ccRecipients,
@@ -290,34 +296,7 @@ class _EmailComposeScreenState extends ConsumerState<EmailComposeScreen> {
       return;
     }
 
-    // Preparar archivos adjuntos
-    print('========== ARCHIVOS ADJUNTOS DEBUG ==========');
-    print('selectedFiles recibidos: ${selectedFiles.length}');
-    for (var i = 0; i < selectedFiles.length; i++) {
-      print('File $i: ${selectedFiles[i].name} (${selectedFiles[i].size} bytes)');
-    }
-    
-    final List<MultipartFile> files = [];
-    for (final file in selectedFiles) {
-      final path = file.path;
-      if (path == null) {
-        print('WARNING: File ${file.name} has null path, skipping');
-        continue;
-      }
-      print('Adding to MultipartFile: ${file.name} from path: $path');
-      files.add(await MultipartFile.fromFile(path, filename: file.name));
-    }
-    
-    print('Total MultipartFiles preparados: ${files.length}');
-    for (var i = 0; i < files.length; i++) {
-      print('MultipartFile $i: ${files[i].filename}');
-    }
-    print('============================================');
-
-    // Construir recipients
-    final recipients = _buildRecipients(contact.id);
-
-    // Mostrar loading dialog
+    // Mostrar loading dialog INMEDIATAMENTE (antes de preparar archivos)
     if (!mounted) return;
     showDialog(
       context: context,
@@ -339,19 +318,38 @@ class _EmailComposeScreenState extends ConsumerState<EmailComposeScreen> {
       ),
     );
 
-    // Obtener el ID de oportunidad si el correo viene desde Oportunidades
-    // Si viene desde Contactos, oportunidadId = '0'
+    // OPTIMIZACIÓN: Ejecutar TODAS las operaciones pre-envío EN PARALELO
+    // En lugar de: archivos -> recipients -> oportunidadId (secuencial)
+    // Ahora: archivos + oportunidadId + returnRoute al mismo tiempo
+    final storage = KeyValueStorageServiceImpl();
+    final results = await Future.wait([
+      // 1. Preparar archivos en paralelo
+      Future.wait(
+        selectedFiles
+            .where((f) => f.path != null)
+            .map((file) => MultipartFile.fromFile(file.path!, filename: file.name)),
+      ),
+      // 2. Obtener oportunidadId
+      storage.getValue<String>('email_opportunity_id'),
+      // 3. Obtener returnRoute (necesario después)
+      storage.getValue<String>('email_return_route'),
+    ]);
+
+    final List<MultipartFile> files = results[0] as List<MultipartFile>;
+    final String? savedOpportunityId = results[1] as String?;
+    final String? returnRoute = results[2] as String?;
+    
+    // Recipients (instantáneo, no requiere await)
+    final recipients = _buildRecipients(contact.id);
+    
     String oportunidadId = '0';
-    final savedOpportunityId = await KeyValueStorageServiceImpl().getValue<String>('email_opportunity_id');
     if (savedOpportunityId != null && savedOpportunityId.isNotEmpty) {
       oportunidadId = savedOpportunityId;
-      // Limpiar el valor después de usarlo
-      await KeyValueStorageServiceImpl().removeKey('email_opportunity_id');
+      // Eliminar en background sin esperar
+      storage.removeKey('email_opportunity_id');
     }
 
-    print('[EMAIL] ACTI_ID_OPORTUNIDAD: $oportunidadId');
-
-    // Enviar correo y esperar respuesta del backend
+    // Enviar correo y esperar respuesta del backend (este es el único await crítico)
     bool success = false;
     String apiMessage = 'No se pudo enviar el correo.';
     
@@ -379,14 +377,14 @@ class _EmailComposeScreenState extends ConsumerState<EmailComposeScreen> {
       apiMessage = 'Error al enviar el correo. Por favor intenta nuevamente.';
     }
 
-    // Cerrar loading dialog SOLO después de tener la respuesta del backend
+    // Cerrar loading dialog
     if (mounted) {
       Navigator.of(context).pop();
     }
 
     if (!mounted) return;
     
-    // Mostrar notificación con mensaje de éxito o error
+    // Mostrar notificación
     if (success) {
       NotificationService().showSuccess(
         context: context,
@@ -408,14 +406,12 @@ class _EmailComposeScreenState extends ConsumerState<EmailComposeScreen> {
 
     if (!success) return;
 
-    // Navegar de vuelta
-    final tick = DateTime.now().millisecondsSinceEpoch;
-    await KeyValueStorageServiceImpl().setKeyValue<int>('email_sent_tick', tick);
-    final returnRoute = await KeyValueStorageServiceImpl().getValue<String>('email_return_route');
+    // OPTIMIZACIÓN: Operaciones post-envío en background (no bloquean navegación)
+    storage.setKeyValue<int>('email_sent_tick', DateTime.now().millisecondsSinceEpoch);
+    
     if (!mounted) return;
     if (returnRoute != null && returnRoute.isNotEmpty) {
-      await KeyValueStorageServiceImpl().removeKey('email_return_route');
-      if (!mounted) return;
+      storage.removeKey('email_return_route'); // background
       context.go(returnRoute);
     } else {
       context.go('/contact_detail/${widget.contactId}');

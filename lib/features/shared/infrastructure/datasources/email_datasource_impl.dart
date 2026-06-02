@@ -4,6 +4,7 @@ import 'package:crm_app/features/shared/domain/entities/send_email_response.dart
 import 'package:crm_app/features/shared/infrastructure/mappers/email_response_mapper.dart';
 import 'package:crm_app/config/constants/environment.dart';
 import 'package:dio/dio.dart';
+import 'dart:async';
 import 'dart:convert';
 
 class EmailDatasourceImpl extends EmailDatasource {
@@ -17,7 +18,14 @@ class EmailDatasourceImpl extends EmailDatasource {
             Dio(
               BaseOptions(
                 baseUrl: Environment.apiUrl,
-                headers: {'Authorization': 'Bearer $accessToken'},
+                // OPTIMIZACIÓN: Conexiones persistentes y compresión gzip
+                connectTimeout: const Duration(seconds: 15),
+                followRedirects: false,
+                headers: {
+                  'Authorization': 'Bearer $accessToken',
+                  'Accept-Encoding': 'gzip, deflate',
+                  'Connection': 'keep-alive',
+                },
               ),
             );
 
@@ -25,28 +33,37 @@ class EmailDatasourceImpl extends EmailDatasource {
   Future<SendEmailResponse> sendEmail(SendEmailRequest request) async {
     final payloadMap = request.toFormData();
 
-    print('========== EMAIL DATASOURCE DEBUG ==========');
-    print('Request files count: ${request.files.length}');
-    for (var i = 0; i < request.files.length; i++) {
-      print('Request file $i: ${request.files[i].filename}');
-    }
-    print('FormData keys: ${payloadMap.keys.toList()}');
-    if (payloadMap.containsKey('files[]')) {
-      final filesInPayload = payloadMap['files[]'];
-      if (filesInPayload is List) {
-        print('files[] in FormData is List with ${filesInPayload.length} items');
-      } else {
-        print('files[] in FormData type: ${filesInPayload.runtimeType}');
-      }
-    }
-    print('===========================================');
-
     try {
+      // Construir FormData manualmente para manejar correctamente los archivos
+      final formData = FormData();
+      
+      // Agregar todos los campos que no sean archivos
+      payloadMap.forEach((key, value) {
+        if (key != 'files[]' && key != 'files') {
+          formData.fields.add(MapEntry(key, value.toString()));
+        }
+      });
+      
+      // Agregar archivos uno por uno con la clave 'files[]'
+      for (final file in request.files) {
+        formData.files.add(MapEntry('files[]', file));
+      }
+
       final Response response = await dio.post(
         '/email/enviar-email-microsoft-graph',
-        data: FormData.fromMap(payloadMap),
+        data: formData,
         options: Options(
           validateStatus: (status) => status != null && status < 500,
+          // OPTIMIZACIÓN: Timeouts ajustados
+          sendTimeout: const Duration(seconds: 45),
+          receiveTimeout: const Duration(seconds: 30),
+          // OPTIMIZACIÓN: Pedir respuesta comprimida y simple
+          headers: {
+            'Accept': 'application/json',
+            'Accept-Encoding': 'gzip, deflate',
+            'Connection': 'keep-alive',
+          },
+          responseType: ResponseType.json,
         ),
       );
 

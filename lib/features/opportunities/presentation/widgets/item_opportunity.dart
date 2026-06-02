@@ -202,16 +202,19 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
                       size: 14
                     ),
                     const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                          widget.opportunity.actiIdTipoGestion == '07'
-                              ? _resolveEmailPreview()
-                              : (widget.opportunity.actiComentario ?? ''),
-                          style: const TextStyle(
-                            fontSize: 12,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1),
+                    Flexible(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 180),
+                        child: Text(
+                            widget.opportunity.actiIdTipoGestion == '07'
+                                ? _resolveEmailPreview()
+                                : (widget.opportunity.actiComentario ?? ''),
+                            style: const TextStyle(
+                              fontSize: 12,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1),
+                      ),
                     ),
                   ],
                 ),
