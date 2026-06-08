@@ -1246,7 +1246,7 @@ class _ListActivitiesState extends ConsumerState<_ListActivities> {
                   return ItemActivity(
                       activity: activity,
                       callbackOnTap: () {
-                        // context.push('/activity_detail/${activity.id}');
+                        context.push('/activity_detail/${activity.id}');
                       });
                 },
               ),

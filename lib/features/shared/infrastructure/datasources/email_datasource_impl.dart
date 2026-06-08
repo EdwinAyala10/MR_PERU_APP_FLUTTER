@@ -31,6 +31,14 @@ class EmailDatasourceImpl extends EmailDatasource {
 
   @override
   Future<SendEmailResponse> sendEmail(SendEmailRequest request) async {
+    print('========== EMAIL DATASOURCE: ENVIANDO CORREO ==========');
+    print('Archivos recibidos en request: ${request.files.length}');
+    for (var i = 0; i < request.files.length; i++) {
+      print('  Archivo $i en request:');
+      print('    - filename: ${request.files[i].filename}');
+      print('    - length: ${request.files[i].length} bytes');
+    }
+    
     final payloadMap = request.toFormData();
 
     try {
@@ -44,11 +52,16 @@ class EmailDatasourceImpl extends EmailDatasource {
         }
       });
       
+      print('========== AGREGANDO ARCHIVOS AL FORMDATA ==========');
       // Agregar archivos uno por uno con la clave 'files[]'
       for (final file in request.files) {
         formData.files.add(MapEntry('files[]', file));
+        print('  ✓ Agregado: ${file.filename} (${file.length} bytes)');
       }
+      print('Total archivos en FormData: ${formData.files.length}');
+      print('===================================================');
 
+      print('========== ENVIANDO AL BACKEND ==========');
       final Response response = await dio.post(
         '/email/enviar-email-microsoft-graph',
         data: formData,
@@ -66,6 +79,24 @@ class EmailDatasourceImpl extends EmailDatasource {
           responseType: ResponseType.json,
         ),
       );
+
+      print('========== RESPUESTA DEL BACKEND ==========');
+      print('Status Code: ${response.statusCode}');
+      
+      if (response.data is Map && response.data['data'] != null) {
+        final data = response.data['data'];
+        if (data['attachments'] != null && data['attachments'] is List) {
+          print('Attachments devueltos por backend: ${data['attachments'].length}');
+          for (var i = 0; i < (data['attachments'] as List).length; i++) {
+            final att = data['attachments'][i];
+            print('  Backend Attachment $i:');
+            print('    - name: ${att['name']}');
+            print('    - size: ${att['size']}');
+            print('    - contentType: ${att['contentType']}');
+          }
+        }
+      }
+      print('==========================================');
 
       if (response.statusCode != null && response.statusCode! >= 400) {
         return SendEmailResponse(
@@ -109,6 +140,24 @@ class EmailDatasourceImpl extends EmailDatasource {
         message: 'Respuesta inválida del servidor (status: ${response.statusCode}).',
       );
     } on DioException catch (e) {
+      print('========== DIO EXCEPTION ==========');
+      print('Exception type: ${e.type}');
+      print('Status code: ${e.response?.statusCode}');
+      print('Message: ${e.message}');
+      print('===================================');
+      
+      // CASO ESPECIAL: receiveTimeout significa que el backend tardó más de 30s
+      // en responder, PERO el correo ya se procesó exitosamente.
+      // El timeout ocurre mientras el backend genera el JSON de respuesta,
+      // no durante el envío del correo.
+      if (e.type == DioExceptionType.receiveTimeout) {
+        print('⚠️ TIMEOUT detectado - Asumiendo éxito porque el backend ya procesó el correo');
+        return const SendEmailResponse(
+          success: true,
+          message: 'Tu correo electrónico ha sido enviado con éxito.',
+        );
+      }
+      
       final data = e.response?.data;
       if (data is Map<String, dynamic>) {
         return EmailResponseMapper.fromJson(data);

@@ -22,6 +22,12 @@ class EmailAttachedFilesList extends StatelessWidget {
       case 'doc':
       case 'docx':
         return Colors.blue.shade600;
+      case 'xls':
+      case 'xlsx':
+        return Colors.green.shade700;
+      case 'zip':
+      case 'rar':
+        return Colors.orange.shade600;
       case 'jpg':
       case 'jpeg':
       case 'png':
@@ -39,6 +45,12 @@ class EmailAttachedFilesList extends StatelessWidget {
       case 'doc':
       case 'docx':
         return Icons.description_rounded;
+      case 'xls':
+      case 'xlsx':
+        return Icons.table_chart_rounded;
+      case 'zip':
+      case 'rar':
+        return Icons.folder_zip_rounded;
       case 'jpg':
       case 'jpeg':
       case 'png':
@@ -249,7 +261,7 @@ class _EmailComposeHeaderState extends State<EmailComposeHeader> {
                         ),
                         SizedBox(height: 2),
                         Text(
-                          'PDF, DOC, DOCX',
+                          'PDF, DOC, EXCEL, ZIP',
                           style: TextStyle(
                             fontSize: 11,
                             color: Colors.black54,
@@ -328,11 +340,22 @@ class _EmailComposeHeaderState extends State<EmailComposeHeader> {
   Future<void> _pickDocument() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['pdf', 'doc', 'docx'],
+      allowedExtensions: ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'zip', 'rar'],
       allowMultiple: true,
     );
 
     if (!mounted || result == null || result.files.isEmpty) return;
+
+    print('========== ARCHIVOS SELECCIONADOS (DOCUMENTOS) ==========');
+    print('Total archivos seleccionados: ${result.files.length}');
+    for (var i = 0; i < result.files.length; i++) {
+      print('  Archivo $i:');
+      print('    - name: ${result.files[i].name}');
+      print('    - path: ${result.files[i].path}');
+      print('    - size: ${result.files[i].size}');
+      print('    - extension: ${result.files[i].extension}');
+    }
+    print('=========================================================');
 
     final validFiles = result.files.where((f) => f.path != null).toList();
     final updatedFiles = [...widget.attachedFiles, ...validFiles];
@@ -359,6 +382,15 @@ class _EmailComposeHeaderState extends State<EmailComposeHeader> {
     );
 
     if (!mounted || images.isEmpty) return;
+
+    print('========== IMÁGENES SELECCIONADAS ==========');
+    print('Total imágenes seleccionadas: ${images.length}');
+    for (var i = 0; i < images.length; i++) {
+      print('  Imagen $i:');
+      print('    - name: ${images[i].name}');
+      print('    - path: ${images[i].path}');
+    }
+    print('============================================');
 
     // Convertir XFile a PlatformFile (el tamaño se obtendrá después si es necesario)
     final List<PlatformFile> imagePlatformFiles = images
@@ -392,6 +424,12 @@ class _EmailComposeHeaderState extends State<EmailComposeHeader> {
       case 'doc':
       case 'docx':
         return Colors.blue.shade600;
+      case 'xls':
+      case 'xlsx':
+        return Colors.green.shade700;
+      case 'zip':
+      case 'rar':
+        return Colors.orange.shade600;
       case 'jpg':
       case 'jpeg':
       case 'png':
@@ -409,6 +447,12 @@ class _EmailComposeHeaderState extends State<EmailComposeHeader> {
       case 'doc':
       case 'docx':
         return Icons.description_rounded;
+      case 'xls':
+      case 'xlsx':
+        return Icons.table_chart_rounded;
+      case 'zip':
+      case 'rar':
+        return Icons.folder_zip_rounded;
       case 'jpg':
       case 'jpeg':
       case 'png':

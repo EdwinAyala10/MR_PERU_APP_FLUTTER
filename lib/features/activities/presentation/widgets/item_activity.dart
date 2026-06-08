@@ -85,10 +85,14 @@ class ItemActivity extends StatelessWidget {
                       : 'De: ${activity.contactoDesc ?? ''}')
                   : (activity.contactoDesc ?? ''),
               style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           Text(
              activity.actiIdTipoGestion == '04' ? '${activity.actiRazon} - ${activity.localNombre}' : '${activity.actiRazon}' ,
-            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12, overflow: TextOverflow.ellipsis),
+            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),

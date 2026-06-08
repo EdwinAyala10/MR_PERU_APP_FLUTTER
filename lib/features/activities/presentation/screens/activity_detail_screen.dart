@@ -82,7 +82,9 @@ class _ActivityDetailScreenState extends ConsumerState<_ActivityDetailScreen>
 
   @override
   Widget build(BuildContext context) {
-    final activity = ref.read(selectedAC);
+    final activityState = ref.watch(activityProvider(widget.activityId));
+    final activity = activityState.activity;
+    
     return DefaultTabController(
       length: 4,
       child: Scaffold(
@@ -658,15 +660,8 @@ class _ActivityDetailViewState extends ConsumerState<ActivityDetailView> {
       final bytes = await compute(_decodeBase64InIsolate, attachment.contentBytes);
       print('Decoded ${bytes.length} bytes');
 
-      // Detectar extensión real desde bytes
-      final realExt = _detectExtensionFromBytes(bytes);
+      // Usar el nombre del archivo que viene del backend (ya incluye extensión correcta)
       String fileName = attachment.name;
-      if (realExt.isNotEmpty &&
-          !fileName.toLowerCase().endsWith('.$realExt')) {
-        final dot = fileName.lastIndexOf('.');
-        if (dot > 0) fileName = fileName.substring(0, dot);
-        fileName = '$fileName.$realExt';
-      }
 
       // Guardar y abrir
       print('Getting temp directory...');
@@ -1553,15 +1548,8 @@ class _EmailDetailViewState extends ConsumerState<EmailDetailView> {
       final bytes = await compute(_decodeBase64InIsolate, attachment.contentBytes);
       print('Decoded ${bytes.length} bytes');
 
-      // Detectar extensión real desde bytes
-      final realExt = _detectExtensionFromBytes(bytes);
+      // Usar el nombre del archivo que viene del backend (ya incluye extensión correcta)
       String fileName = attachment.name;
-      if (realExt.isNotEmpty &&
-          !fileName.toLowerCase().endsWith('.$realExt')) {
-        final dot = fileName.lastIndexOf('.');
-        if (dot > 0) fileName = fileName.substring(0, dot);
-        fileName = '$fileName.$realExt';
-      }
 
       // Guardar y abrir
       print('Getting temp directory...');

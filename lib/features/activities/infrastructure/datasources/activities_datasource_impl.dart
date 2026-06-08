@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../mappers/activity_response_mapper.dart';
 import 'package:dio/dio.dart';
 import '../../../../config/config.dart';
@@ -52,6 +54,29 @@ class ActivitiesDatasourceImpl extends ActivitiesDatasource {
   Future<Activity> getActivityById(String id) async {
     try {
       final response = await dio.get('/actividad/listar-actividad-by-id/$id');
+      
+      // DEBUG: Verificar qué actividad devuelve el backend
+      print('========== BACKEND RESPONSE DEBUG ==========');
+      print('Requested Activity ID: $id');
+      print('Returned Activity ID: ${response.data['data']['ACTI_ID_ACTIVIDAD']}');
+      
+      final emlsJson = response.data['data']['EMLS_JSON_EMAIL_MICROSOFT'];
+      if (emlsJson != null) {
+        print('Has EMLS_JSON_EMAIL_MICROSOFT: YES');
+        final attachments = emlsJson is String 
+            ? jsonDecode(emlsJson)['attachments']
+            : emlsJson['attachments'];
+        if (attachments is List) {
+          print('Attachments count: ${attachments.length}');
+          for (var i = 0; i < attachments.length; i++) {
+            print('  Attachment $i: ${attachments[i]['name']}');
+          }
+        }
+      } else {
+        print('Has EMLS_JSON_EMAIL_MICROSOFT: NO');
+      }
+      print('============================================');
+      
       final Activity activity =
           ActivityMapper.jsonToEntity(response.data['data']);
 

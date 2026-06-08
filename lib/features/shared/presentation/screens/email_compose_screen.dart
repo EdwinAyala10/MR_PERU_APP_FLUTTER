@@ -322,6 +322,17 @@ class _EmailComposeScreenState extends ConsumerState<EmailComposeScreen> {
     // En lugar de: archivos -> recipients -> oportunidadId (secuencial)
     // Ahora: archivos + oportunidadId + returnRoute al mismo tiempo
     final storage = KeyValueStorageServiceImpl();
+    
+    print('========== PREPARANDO ENVÍO DE CORREO ==========');
+    print('Archivos seleccionados: ${selectedFiles.length}');
+    for (var i = 0; i < selectedFiles.length; i++) {
+      print('  Archivo $i:');
+      print('    - Nombre: ${selectedFiles[i].name}');
+      print('    - Path: ${selectedFiles[i].path}');
+      print('    - Size: ${selectedFiles[i].size} bytes');
+      print('    - Extension: ${selectedFiles[i].extension}');
+    }
+    
     final results = await Future.wait([
       // 1. Preparar archivos en paralelo
       Future.wait(
@@ -338,6 +349,15 @@ class _EmailComposeScreenState extends ConsumerState<EmailComposeScreen> {
     final List<MultipartFile> files = results[0] as List<MultipartFile>;
     final String? savedOpportunityId = results[1] as String?;
     final String? returnRoute = results[2] as String?;
+    
+    print('========== ARCHIVOS CONVERTIDOS A MULTIPART ==========');
+    print('MultipartFiles creados: ${files.length}');
+    for (var i = 0; i < files.length; i++) {
+      print('  MultipartFile $i:');
+      print('    - Filename: ${files[i].filename}');
+      print('    - Length: ${files[i].length} bytes');
+    }
+    print('==================================================');
     
     // Recipients (instantáneo, no requiere await)
     final recipients = _buildRecipients(contact.id);
