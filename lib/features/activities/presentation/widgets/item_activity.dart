@@ -79,11 +79,7 @@ class ItemActivity extends StatelessWidget {
         children: [
           if (activity.contactoDesc != "") 
             Text(
-              isEmailActivity
-                  ? (activity.emlsIdTipoMailfolders == '02'
-                      ? 'A: ${activity.contactoDesc ?? ''}'
-                      : 'De: ${activity.contactoDesc ?? ''}')
-                  : (activity.contactoDesc ?? ''),
+              _getContactPrefix(activity),
               style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -292,5 +288,26 @@ class ItemActivity extends StatelessWidget {
       ),
       onTap: callbackOnTap,
     );
+  }
+
+  /// Obtiene el prefijo del contacto según el tipo de actividad y dirección
+  String _getContactPrefix(Activity activity) {
+    final contacto = activity.contactoDesc ?? '';
+    if (contacto.isEmpty) return '';
+
+    // Para emails, usar emlsIdTipoMailfolders
+    if (activity.actiIdTipoGestion == '07') {
+      return activity.emlsIdTipoMailfolders == '02'
+          ? 'A: $contacto'
+          : 'De: $contacto';
+    }
+
+    // Para otros tipos de actividades, usar actiIdTipoRegistro
+    // '01' = Manual/Saliente, '02' = Entrante/Recibido
+    if (activity.actiIdTipoRegistro == '02') {
+      return 'De: $contacto';
+    } else {
+      return 'A: $contacto';
+    }
   }
 }

@@ -144,6 +144,15 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
               Text(widget.opportunity.oprtNobbreEstadoOportunidad ?? ''),
               if (widget.opportunity.localDistrito != '')
                 Text(widget.opportunity.localDistrito ?? ''),
+              if ((widget.opportunity.oprtComentario ?? '').isNotEmpty)
+                Text(
+                  widget.opportunity.oprtComentario ?? '',
+                  style: const TextStyle(
+                    fontSize: 12,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
               const SizedBox(height: 4),
               if (widget.opportunity.actiIdTipoGestion != null)
                 Container(

@@ -479,10 +479,11 @@ class _ActivityDetailViewState extends ConsumerState<ActivityDetailView> {
   // ---- Helpers para Email ----
   String _formatRecipients(List<EmailRecipient> rec, String? fallback) {
     if (rec.isNotEmpty) {
-      final first = rec.first;
-      var text = first.name.isNotEmpty ? first.name : first.address;
-      if (rec.length > 1) text += ' +${rec.length - 1}';
-      return text;
+      // Mostrar todos los destinatarios en líneas separadas
+      final recipients = rec.map((r) {
+        return r.name.isNotEmpty ? r.name : r.address;
+      }).join('\n');
+      return recipients;
     } else if (fallback != null && fallback.isNotEmpty) {
       return fallback;
     }
@@ -1601,10 +1602,11 @@ class _EmailDetailViewState extends ConsumerState<EmailDetailView> {
   // ---- Helpers ----
   String _formatRecipients(List<EmailRecipient> rec, String? fallback) {
     if (rec.isNotEmpty) {
-      final first = rec.first;
-      var text = first.name.isNotEmpty ? first.name : first.address;
-      if (rec.length > 1) text += ' +${rec.length - 1}';
-      return text;
+      // Mostrar todos los destinatarios en líneas separadas
+      final recipients = rec.map((r) {
+        return r.name.isNotEmpty ? r.name : r.address;
+      }).join('\n');
+      return recipients;
     } else if (fallback != null && fallback.isNotEmpty) {
       return fallback;
     }
