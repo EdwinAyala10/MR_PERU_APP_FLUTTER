@@ -37,8 +37,6 @@ class _OpportunitySummaryScreenState extends ConsumerState<OpportunitySummaryScr
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF00607D)),
           onPressed: () {
-            // Pop dos veces: primero cierra summary, luego activation, quedando en detail
-            context.pop();
             context.pop();
           },
         ),
