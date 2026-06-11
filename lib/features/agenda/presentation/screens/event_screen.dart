@@ -968,7 +968,9 @@ class __EventInformationState extends ConsumerState<_EventInformation> {
 
     //if (picked != null && picked != selectedDate) {
     if (picked != null) {
-      String formattedTime = '${picked.toString().substring(10, 15)}:00';
+      final hour = picked.hour.toString().padLeft(2, '0');
+      final minute = picked.minute.toString().padLeft(2, '0');
+      final formattedTime = '$hour:$minute:00';
 
       if (type == 'inicio') {
         ref

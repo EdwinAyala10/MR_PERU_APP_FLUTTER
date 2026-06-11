@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:crm_app/config/config.dart';
 import '../../domain/domain.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:intl/intl.dart';
 
 typedef SearchOpportunitiesCallback = Future<List<Opportunity>> Function(String ruc, String query);
 typedef ResetSearchQueryCallback = void Function();
@@ -204,38 +206,114 @@ class _OpportunityItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textStyles = Theme.of(context).textTheme;
-    final size = MediaQuery.of(context).size;
+    final createdAt = opportunity.oprtFechaRegistro != null
+        ? DateFormat('dd/MM/yyyy').format(opportunity.oprtFechaRegistro!)
+        : '';
+    final quoteAmount = [opportunity.oprtNombreValor, opportunity.oprtValor]
+        .where((value) => (value ?? '').isNotEmpty)
+        .join(' ');
+    final local = [opportunity.oprtLocalNombre, opportunity.localDistrito]
+        .where((value) => (value ?? '').isNotEmpty)
+        .join(' - ');
+    final probability = (opportunity.oprtProbabilidad ?? '').isNotEmpty
+        ? '${opportunity.oprtProbabilidad}%'
+        : '';
+    final responsible = (opportunity.nombreUsuarioResponsable ?? '').trim();
 
     return GestureDetector(
       onTap: () {
         onOpportunitySelected(context, opportunity);
       },
       child: FadeIn(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-          child: Row(
+        child: ListTile(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4),
+          ),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          leading: const Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Image
-              SizedBox(
-                width: size.width * 0.12,
-                child: const Icon(Icons.adf_scanner_rounded),
+              Icon(
+                Icons.work_rounded,
+                color: secondaryColor,
+                size: 30,
               ),
-              const SizedBox(width: 10),
-              // Description
-              SizedBox(
-                width: size.width * 0.3,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            ],
+          ),
+          title: Text(
+            local.isNotEmpty
+                ? '${opportunity.razon ?? ''} - $local'
+                : (opportunity.razon ?? ''),
+            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if ((opportunity.oprtNombreContacto ?? '').isNotEmpty)
+                Text(
+                  opportunity.oprtNombreContacto ?? '',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style:
+                      const TextStyle(fontWeight: FontWeight.w400, fontSize: 12),
+                ),
+              Text(
+                opportunity.oprtNombre,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                    fontWeight: FontWeight.w500, color: Colors.black87),
+              ),
+              if (createdAt.isNotEmpty)
+                Row(
                   children: [
-                    Text(
-                      opportunity.oprtNombre,
-                      style: textStyles.titleMedium,
+                    const Icon(Icons.calendar_month, size: 14),
+                    const SizedBox(width: 5),
+                    Expanded(
+                      child: Text(
+                        createdAt,
+                        overflow: TextOverflow.ellipsis,
+                        style: textStyles.bodySmall,
+                      ),
                     ),
-                    Text(opportunity.razon ?? '')
-                    //Text(opportunity.oprtRuc ?? ''),
                   ],
                 ),
-              ),
+            ],
+          ),
+          trailing: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              if (probability.isNotEmpty)
+                Text(
+                  probability,
+                  textAlign: TextAlign.right,
+                  style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.blue,
+                      fontWeight: FontWeight.w600),
+                ),
+              if (quoteAmount.isNotEmpty)
+                Text(
+                  quoteAmount,
+                  textAlign: TextAlign.right,
+                  style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.green,
+                      fontWeight: FontWeight.w600),
+                ),
+              if (responsible.isNotEmpty)
+                Text(
+                  responsible,
+                  style: const TextStyle(
+                      color: Colors.blue,
+                      overflow: TextOverflow.ellipsis,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 11),
+                ),
             ],
           ),
         ),

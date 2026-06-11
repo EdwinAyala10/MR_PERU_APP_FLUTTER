@@ -64,6 +64,9 @@ class OpportunityMapper {
     actiComentario: json['ACTI_COMENTARIO'] ?? '',
     emlsAsunto: json['EMLS_ASUNTO'] ?? '',
     subject: subjectData?.toString() ?? '',
+    oprtFechaRegistro: json['OPRT_FECHA_REGISTRO'] != null
+        ? DateTime.tryParse(json['OPRT_FECHA_REGISTRO'].toString())
+        : null,
     );
   }
 

@@ -209,6 +209,17 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
 
   Widget _itFloatingButton(int currentIndex) {
     switch (currentIndex) {
+      case 1:
+        return FloatingActionButtonCustom(
+          iconData: Icons.add,
+          callOnPressed: () {
+            final opportunity = ref.watch(selectedOp);
+            ref
+                .read(uiProvider.notifier)
+                .onCompanyActivity(opportunity?.oprtRuc ?? '', opportunity?.razon ?? '');
+            context.push('/event/new');
+          },
+        );
       case 2:
         return FloatingActionButtonCustom(
           callOnPressed: () {

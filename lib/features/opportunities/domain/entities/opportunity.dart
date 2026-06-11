@@ -37,6 +37,7 @@ class Opportunity {
   String? actiComentario;
   String? emlsAsunto;
   String? subject;
+  DateTime? oprtFechaRegistro;
 
   Opportunity({
     required this.id,
@@ -75,5 +76,6 @@ class Opportunity {
     this.actiComentario,
     this.emlsAsunto,
     this.subject,
+    this.oprtFechaRegistro,
   });
 }
