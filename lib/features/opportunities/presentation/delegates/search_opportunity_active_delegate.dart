@@ -207,7 +207,9 @@ class _OpportunityItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final textStyles = Theme.of(context).textTheme;
     final createdAt = opportunity.oprtFechaRegistro != null
-        ? DateFormat('dd/MM/yyyy').format(opportunity.oprtFechaRegistro!)
+        ? DateFormat('dd/MM/yyyy hh:mm a')
+            .format(opportunity.oprtFechaRegistro!)
+            .toLowerCase()
         : '';
     final quoteAmount = [opportunity.oprtNombreValor, opportunity.oprtValor]
         .where((value) => (value ?? '').isNotEmpty)
