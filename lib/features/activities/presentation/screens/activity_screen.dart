@@ -99,24 +99,34 @@ class ActivityScreen extends ConsumerWidget {
                           if (value.message != '') {
                             showSnackbar(context, value.message);
 
-                            if (value.response && !ref.read(fromOpportunity)) {
-                              ref
-                                  .read(activitiesProvider.notifier)
-                                  .loadNextPage(isRefresh: true);
-                              ref
-                                  .read(activityProvider(activityId).notifier)
-                                  .loadActivity();
-                              ref
-                                  .read(companyProvider(value.id!).notifier)
-                                  .loadSecundaryActivities();
+                            if (value.response) {
+                              if (ref.read(fromOpportunity)) {
+                                ref
+                                    .read(activitiesProvider.notifier)
+                                    .loadNextPageActivitiesByOpportunities(
+                                      isRefresh: true,
+                                      opportunityId: ref
+                                              .read(selectedOp.notifier)
+                                              .state
+                                              ?.id ??
+                                          '',
+                                    );
+                                ref.read(fromOpportunity.notifier).state = false;
+                                context.pop();
+                              } else {
+                                ref
+                                    .read(activitiesProvider.notifier)
+                                    .loadNextPage(isRefresh: true);
+                                ref
+                                    .read(activityProvider(activityId).notifier)
+                                    .loadActivity();
+                                ref
+                                    .read(companyProvider(value.id!).notifier)
+                                    .loadSecundaryActivities();
 
-                              //Timer(const Duration(seconds: 3), () {
-                              //context.replace('/activities');
-                              context.pop();
-                              //});
-                              //return;
+                                context.pop();
+                              }
                             }
-                            //context.pop();
                           }
 
                           Navigator.pop(context);
