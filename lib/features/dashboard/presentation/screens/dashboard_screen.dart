@@ -474,17 +474,18 @@ class _ContainerDashboardKpis extends ConsumerWidget {
                         alignment: semanalKpis.length == 1
                             ? Alignment.centerLeft
                             : Alignment.center,
-                        child: progressKpi(
-                            percentage:
-                                (semanalKpis[i].porcentaje ?? 0).toDouble(),
-                            title: semanalKpis[i].objrNombre ?? '',
-                            category: semanalKpis[i].objrNombreCategoria ?? '',
-                            subTitle:
-                                semanalKpis[i].objrNombrePeriodicidad ?? '',
-                            subSubTitle:
-                                semanalKpis[i].objrNombreAsignacion ?? '',
-                            advance: semanalKpis[i].totalRegistro.toString(),
-                            total: convertTypeCategory(semanalKpis[i]) ?? '0'),
+                         child: progressKpi(
+                             percentage:
+                                 (semanalKpis[i].porcentaje ?? 0).toDouble(),
+                             categoryId: semanalKpis[i].objrIdCategoria,
+                             title: semanalKpis[i].objrNombre ?? '',
+                             category: semanalKpis[i].objrNombreCategoria ?? '',
+                             subTitle:
+                                 semanalKpis[i].objrNombrePeriodicidad ?? '',
+                             subSubTitle:
+                                 semanalKpis[i].objrNombreAsignacion ?? '',
+                             advance: semanalKpis[i].totalRegistro.toString(),
+                             total: convertTypeCategory(semanalKpis[i]) ?? '0'),
                       ),
                     ),
                 ],
@@ -517,14 +518,15 @@ class _ContainerDashboardKpis extends ConsumerWidget {
                         alignment: mensualKpis.length == 1
                             ? Alignment.centerLeft
                             : Alignment.center,
-                        child: progressKpi(
-                            percentage:
-                                (mensualKpis[i].porcentaje ?? 0).toDouble(),
-                            title: mensualKpis[i].objrNombre ?? '',
-                            category: mensualKpis[i].objrNombreCategoria ?? '',
-                            subTitle:
-                                mensualKpis[i].objrNombrePeriodicidad ?? '',
-                            subSubTitle:
+                         child: progressKpi(
+                             percentage:
+                                 (mensualKpis[i].porcentaje ?? 0).toDouble(),
+                             categoryId: mensualKpis[i].objrIdCategoria,
+                             title: mensualKpis[i].objrNombre ?? '',
+                             category: mensualKpis[i].objrNombreCategoria ?? '',
+                             subTitle:
+                                 mensualKpis[i].objrNombrePeriodicidad ?? '',
+                             subSubTitle:
                                 mensualKpis[i].objrNombreAsignacion ?? '',
                             advance: mensualKpis[i].totalRegistro.toString(),
                             total: convertTypeCategory(mensualKpis[i]) ?? '0'),
@@ -997,6 +999,7 @@ class _ItemOpportunity extends StatelessWidget {
 
 class progressKpi extends StatelessWidget {
   double percentage;
+  String categoryId;
   String title;
   String category;
   String subTitle;
@@ -1007,6 +1010,7 @@ class progressKpi extends StatelessWidget {
   progressKpi({
     super.key,
     required this.percentage,
+    required this.categoryId,
     required this.title,
     required this.category,
     required this.subTitle,
@@ -1033,6 +1037,28 @@ class progressKpi extends StatelessWidget {
     print('PORCENTAJE: $porc');
     return returnColors;
   }
+
+  Color get indicatorColor {
+    if (categoryId == '08') {
+      final totalRegistro = int.tryParse(advance) ?? 0;
+
+      if (totalRegistro == 0) return Colors.grey;
+      if (totalRegistro <= 2) return Colors.amber;
+      return Colors.red;
+    }
+
+    return isColorIndicator(percentage);
+  }
+
+  double get indicatorValue {
+    if (categoryId == '08') return 1.0;
+
+    return (percentage / 100).clamp(0.0, 1.0);
+  }
+
+  bool get _showGoalTotal => categoryId != '08';
+
+  String get displayValue => advance;
 
   @override
   Widget build(BuildContext context) {
@@ -1073,36 +1099,38 @@ class progressKpi extends StatelessWidget {
               height: 86,
               child: CircularProgressIndicator(
                 strokeWidth: 7,
-                value: ((percentage) / 100).toDouble(),
+                value: indicatorValue,
                 valueColor: AlwaysStoppedAnimation<Color>(
-                    isColorIndicator(percentage)), // Color cuando está marcado
-                backgroundColor: Colors.grey,
+                    indicatorColor), // Color cuando está marcado
+                backgroundColor: Colors.grey.shade300,
               ),
             ),
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  advance,
+                  displayValue,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 1),
-                Container(
-                  width: 40,
-                  height: 1,
-                  color: Colors.black38,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  total,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
+                if (_showGoalTotal) ...[
+                  const SizedBox(height: 1),
+                  Container(
+                    width: 40,
+                    height: 1,
+                    color: Colors.black38,
                   ),
-                ),
+                  const SizedBox(height: 2),
+                  Text(
+                    total,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ],
             ),
           ],

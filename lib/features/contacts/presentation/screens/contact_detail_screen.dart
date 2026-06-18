@@ -149,6 +149,11 @@ class _ViewContactDetailScreenState extends ConsumerState<_ViewContactDetailScre
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+              return;
+            }
+
             context.go('/contacts');
           },
         ),

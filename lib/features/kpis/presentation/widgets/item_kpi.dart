@@ -21,6 +21,43 @@ class ItemKpi extends ConsumerWidget {
   final int index;
   final Function() onTap;
 
+  bool get _isCategoryWithoutPercentage => data.objrIdCategoria == '08';
+
+  double get _indicatorValue {
+    if (_isCategoryWithoutPercentage) return 1;
+
+    final percentage = (data.porcentaje ?? 0) / 100;
+    return percentage.clamp(0.0, 1.0);
+  }
+
+  String get _indicatorLabel {
+    if (_isCategoryWithoutPercentage) {
+      return '${data.totalRegistro ?? 0}';
+    }
+
+    return '${(data.porcentaje ?? 0).round()}%';
+  }
+
+  Color get _indicatorColor {
+    if (_isCategoryWithoutPercentage) {
+      final total = data.totalRegistro ?? 0;
+
+      if (total == 0) return Colors.grey;
+      if (total <= 2) return Colors.amber;
+      return Colors.red;
+    }
+
+    return isColorIndicator(data.porcentaje ?? 0);
+  }
+
+  String get _progressText {
+    if (_isCategoryWithoutPercentage) {
+      return '${data.totalRegistro ?? 0}';
+    }
+
+    return '${data.totalRegistro}/${convertTypeCategory(data)}';
+  }
+
   Widget _buildChild(BuildContext context, ReorderableItemState state, WidgetRef ref) {
     BoxDecoration decoration;
 
@@ -72,15 +109,15 @@ class ItemKpi extends ConsumerWidget {
                                     height: 46,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 5,
-                                      value: ((data.porcentaje ?? 0) / 100).toDouble(),
+                                      value: _indicatorValue,
                                       valueColor: AlwaysStoppedAnimation<Color>(
-                                        isColorIndicator(data.porcentaje ?? 0),
+                                        _indicatorColor,
                                       ), // Color cuando está marcado
-                                      backgroundColor: Colors.grey,
+                                      backgroundColor: Colors.grey.shade300,
                                     ),
                                   ),
                                   Text(
-                                    "${data.porcentaje!.round()}%", // El porcentaje se multiplica por 100 para mostrarlo correctamente
+                                    _indicatorLabel,
                                     style: const TextStyle(
                                       fontSize: 13, // Tamaño del texto
                                       color: Colors.black, // Color del texto
@@ -128,7 +165,7 @@ class ItemKpi extends ConsumerWidget {
                                   ),
                                   SizedBox(
                                     width: 300,
-                                    child: Text('${data.totalRegistro}/${convertTypeCategory(data)}',
+                                    child: Text(_progressText,
                                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                                           color: Colors.black54,
                                           fontSize: 13

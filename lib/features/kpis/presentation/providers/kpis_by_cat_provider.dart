@@ -18,6 +18,7 @@ abstract class TypeCategory {
   static String nuevaOportunidad = '04';
   static String oportunidadesGanadas = '05';
   static String nuevaEmpresa = '03';
+  static String oportunidadSinSeguimiento = '08';
 }
 
 final selectKpiProvider = StateProvider<Kpi?>((ref) => null);
@@ -116,6 +117,23 @@ class KpisByCategoryNotifier extends StateNotifier<KpisByCategoryState> {
       }
       if (kpiProviders?.objrIdCategoria == TypeCategory.oportunidadesGanadas) {
         formData['OBJR_ID_CATEGORIA'] = TypeCategory.oportunidadesGanadas;
+        log(formData.toString());
+        final response = await kpisRepository.listObjetiveByCategory(formData);
+        var listModels = <Opportunity>[];
+        if (response.status) {
+          final list = response.items;
+          for (var item in list) {
+            final model = OpportunityMapper.jsonToEntity(item) as Opportunity;
+            listModels.add(model);
+          }
+        }
+        state = state.copyWith(items: listModels, isLoading: false);
+        return;
+      }
+      if (kpiProviders?.objrIdCategoria ==
+          TypeCategory.oportunidadSinSeguimiento) {
+        formData['OBJR_ID_CATEGORIA'] =
+            TypeCategory.oportunidadSinSeguimiento;
         log(formData.toString());
         final response = await kpisRepository.listObjetiveByCategory(formData);
         var listModels = <Opportunity>[];

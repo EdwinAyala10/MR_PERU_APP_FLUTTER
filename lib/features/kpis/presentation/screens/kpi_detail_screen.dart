@@ -127,6 +127,21 @@ class KpiDetailScreen extends ConsumerWidget {
     if (kpi == null) {
       return Container();
     }
+
+    final isCategoryWithoutPercentage = kpi.objrIdCategoria == '08';
+    final indicatorValue = isCategoryWithoutPercentage
+        ? 1.0
+        : ((kpi.porcentaje ?? 0) / 100).clamp(0.0, 1.0);
+    final indicatorLabel = isCategoryWithoutPercentage
+        ? '${kpi.totalRegistro ?? 0}'
+        : '${(kpi.porcentaje ?? 0).round()}%';
+    final indicatorColor = isCategoryWithoutPercentage
+        ? _getCategory08IndicatorColor(kpi.totalRegistro ?? 0)
+        : _getPercentageIndicatorColor(kpi.porcentaje ?? 0);
+    final progressText = isCategoryWithoutPercentage
+        ? '${kpi.totalRegistro ?? 0}'
+        : '${kpi.totalRegistro}/${convertTypeCategory(kpi)}';
+
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 28),
       title: Text(
@@ -137,7 +152,7 @@ class KpiDetailScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '${kpi.totalRegistro}/${convertTypeCategory(kpi)}',
+            progressText,
             style: const TextStyle(
                 fontWeight: FontWeight.w400, color: Colors.black45),
           )
@@ -151,15 +166,15 @@ class KpiDetailScreen extends ConsumerWidget {
             height: 46,
             child: CircularProgressIndicator(
               strokeWidth: 5,
-              value: ((kpi.porcentaje ?? 0) / 100).toDouble(),
-              valueColor: const AlwaysStoppedAnimation<Color>(
-                Colors.blue,
+              value: indicatorValue,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                indicatorColor,
               ), // Color cuando está marcado
-              backgroundColor: Colors.grey,
+              backgroundColor: Colors.grey.shade300,
             ),
           ),
           Text(
-            "${kpi.porcentaje!.round()}%", // El porcentaje se multiplica por 100 para mostrarlo correctamente
+            indicatorLabel,
             style: const TextStyle(
               fontSize: 13, // Tamaño del texto
               color: Colors.black, // Color del texto
@@ -206,33 +221,64 @@ class KpiDetailScreen extends ConsumerWidget {
             final type =
                 ref.read(kpisByCatNotifierProvider.notifier).kpiProviders;
             if (type?.objrIdCategoria == TypeCategory.chekIns) {
+              final activity = response.items[index];
+
               return ItemActivity(
-                activity: response.items[index],
-                callbackOnTap: () {},
+                activity: activity,
+                callbackOnTap: () {
+                  context.push('/activity_detail/${activity.id}');
+                },
               );
             }
             if (type?.objrIdCategoria == TypeCategory.nuevaEmpresa) {
+              final company = response.items[index];
+
               return ItemCompany(
-                company: response.items[index],
-                callbackOnTap: () {},
+                company: company,
+                callbackOnTap: () {
+                  context.push('/company_detail/${company.ruc}');
+                },
               );
             }
             if (type?.objrIdCategoria == TypeCategory.nuevoContacto) {
+              final contact = response.items[index];
+
               return ItemContact(
-                contact: response.items[index],
-                callbackOnTap: () {},
+                contact: contact,
+                callbackOnTap: () {
+                  context.push('/contact_detail/${contact.id}');
+                },
               );
             }
             if (type?.objrIdCategoria == TypeCategory.nuevaOportunidad) {
+              final opportunity = response.items[index];
+
               return ItemOpportunity(
-                opportunity: response.items[index],
-                callbackOnTap: () {},
+                opportunity: opportunity,
+                callbackOnTap: () {
+                  context.push('/opportunity_detail/${opportunity.id}');
+                },
               );
             }
             if (type?.objrIdCategoria == TypeCategory.oportunidadesGanadas) {
+              final opportunity = response.items[index];
+
               return ItemOpportunity(
-                opportunity: response.items[index],
-                callbackOnTap: () {},
+                opportunity: opportunity,
+                callbackOnTap: () {
+                  context.push('/opportunity_detail/${opportunity.id}');
+                },
+              );
+            }
+            if (type?.objrIdCategoria ==
+                TypeCategory.oportunidadSinSeguimiento) {
+              final opportunity = response.items[index];
+
+              return ItemOpportunity(
+                opportunity: opportunity,
+                callbackOnTap: () {
+                  context.push('/opportunity_detail/${opportunity.id}');
+                },
               );
             }
             return Container();
@@ -402,6 +448,20 @@ class KpiDetailScreen extends ConsumerWidget {
       ),
     );
   }
+}
+
+Color _getCategory08IndicatorColor(int totalRegistro) {
+  if (totalRegistro == 0) return Colors.grey;
+  if (totalRegistro <= 2) return Colors.amber;
+  return Colors.red;
+}
+
+Color _getPercentageIndicatorColor(double porcentaje) {
+  if (porcentaje >= 0 && porcentaje <= 33) return Colors.red;
+  if (porcentaje >= 34 && porcentaje <= 66) return Colors.yellow;
+  if (porcentaje >= 67 && porcentaje <= 100) return Colors.green;
+
+  return Colors.blue;
 }
 
 class ContainerCustom extends StatelessWidget {
