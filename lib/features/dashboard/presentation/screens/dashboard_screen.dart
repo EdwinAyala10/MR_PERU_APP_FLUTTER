@@ -2,6 +2,7 @@
 
 import 'package:crm_app/config/config.dart';
 import 'package:crm_app/features/activities/presentation/widgets/item_activity.dart';
+import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crm_app/features/dashboard/presentation/providers/home_notificaciones_provider.dart';
 import 'package:crm_app/features/dashboard/presentation/screens/notification_screen.dart';
 import 'package:crm_app/features/dashboard/presentation/widgets/widgets.dart';
@@ -387,6 +388,7 @@ class _ContainerDashboardKpis extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(authProvider).user;
     final kpisWithData = kpis
         .where((kpi) =>
             kpi.asesorCodigo.trim().isNotEmpty ||
@@ -399,7 +401,11 @@ class _ContainerDashboardKpis extends ConsumerWidget {
       return _emptyObjectivesMessage();
     }
 
-    final asesor = kpisWithData.first;
+    final currentUserCode = user?.code.trim() ?? '';
+    final asesor = kpisWithData.firstWhere(
+      (kpi) => kpi.asesorCodigo.trim() == currentUserCode,
+      orElse: () => kpisWithData.first,
+    );
     final List<Kpi> semanalKpis = asesor.semanal.toList();
     final List<Kpi> mensualKpis = asesor.mensual.toList();
 
