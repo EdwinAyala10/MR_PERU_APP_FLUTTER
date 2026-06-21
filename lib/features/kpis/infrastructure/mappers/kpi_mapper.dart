@@ -22,7 +22,7 @@ class KpiMapper {
     objrNombrePeriodicidad: json['OBJR_NOMBRE_PERIODICIDAD'] ?? '',
     totalRegistro: json['TOTAL_REGISTRO'] ?? 0,
     porcentaje: (json['PORCENTAJE']?? 0.00).toDouble() ,
-    objrCantidad: json['OBJR_CANTIDAD'] ?? '0',
+    objrCantidad: json['OBJR_CANTIDAD_K']?.toString() ?? '0',
     objrValorDifMes: json['OBJR_VALOR_DIFERENTE'] ?? '0',
     userreportNameResponsable: json['USERREPORT_NAME_RESPONSABLE'] ?? '',
     usuariosAsignados: json["USUARIOS_ASIGNADOS"] != null ? List<UsuarioAsignado>.from(json["USUARIOS_ASIGNADOS"].map((x) => UsuarioAsignado.fromJson(x))) : [],

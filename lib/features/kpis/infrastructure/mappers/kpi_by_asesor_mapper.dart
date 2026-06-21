@@ -9,6 +9,7 @@ class KpiByAsesorMapper {
       for (var userReport in json['data']) {
         List<Kpi> semanal = [];
         List<Kpi> mensual = [];
+        List<Kpi> anual = [];
 
         if (userReport['PERIODICIDAD'] != null) {
           for (var periodicity in userReport['PERIODICIDAD']) {
@@ -23,10 +24,13 @@ class KpiByAsesorMapper {
               }
             }
 
-            if (periodicity['OBJR_ID_PERIODICIDAD'] == '01') {
+            final periodicidadId = periodicity['OBJR_ID_PERIODICIDAD'];
+            if (periodicidadId == '01') {
               semanal = objectives;
-            } else if (periodicity['OBJR_ID_PERIODICIDAD'] == '02') {
+            } else if (periodicidadId == '02') {
               mensual = objectives;
+            } else if (periodicidadId == '04') {
+              anual = objectives;
             }
           }
         }
@@ -39,6 +43,7 @@ class KpiByAsesorMapper {
           porcentaje: (userReport['PORCENTAJE'] ?? 0).toDouble(),
           semanal: semanal,
           mensual: mensual,
+          anual: anual,
         ));
       }
     }

@@ -381,19 +381,28 @@ class _ContainerDashboardOpportunitiesStatus extends StatelessWidget {
 }
 */
 
-class _ContainerDashboardKpis extends ConsumerWidget {
+class _ContainerDashboardKpis extends ConsumerStatefulWidget {
   List<KpisByAsesor> kpis;
 
   _ContainerDashboardKpis({required this.kpis});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_ContainerDashboardKpis> createState() => _ContainerDashboardKpisState();
+}
+
+class _ContainerDashboardKpisState extends ConsumerState<_ContainerDashboardKpis> {
+  bool _showAllObjectives = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final kpis = widget.kpis;
     final user = ref.watch(authProvider).user;
     final kpisWithData = kpis
         .where((kpi) =>
             kpi.asesorCodigo.trim().isNotEmpty ||
             kpi.semanal.isNotEmpty ||
-            kpi.mensual.isNotEmpty)
+            kpi.mensual.isNotEmpty ||
+            kpi.anual.isNotEmpty)
         .toList();
 
     // Si el servicio no retorna datos para el usuario, mostrar mensaje.
@@ -402,12 +411,20 @@ class _ContainerDashboardKpis extends ConsumerWidget {
     }
 
     final currentUserCode = user?.code.trim() ?? '';
-    final asesor = kpisWithData.firstWhere(
-      (kpi) => kpi.asesorCodigo.trim() == currentUserCode,
-      orElse: () => kpisWithData.first,
-    );
+    
+    // Buscar el asesor del usuario actual
+    // Si el backend retorna solo un usuario, usar ese
+    // Si retorna múltiples (Admin), buscar el del usuario logueado
+    final asesor = kpisWithData.length == 1
+        ? kpisWithData.first
+        : kpisWithData.firstWhere(
+            (kpi) => kpi.asesorCodigo.trim() == currentUserCode,
+            orElse: () => kpisWithData.first,
+          );
+    
     final List<Kpi> semanalKpis = asesor.semanal.toList();
     final List<Kpi> mensualKpis = asesor.mensual.toList();
+    final List<Kpi> anualKpis = asesor.anual.toList();
 
     TextStyle periodicidadTitleTextStyle = const TextStyle(
       fontWeight: FontWeight.w700,
@@ -468,34 +485,97 @@ class _ContainerDashboardKpis extends ConsumerWidget {
               const SizedBox(
                 height: 10,
               ),
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: semanalKpis.length == 1
-                    ? MainAxisAlignment.start
-                    : MainAxisAlignment.spaceBetween,
-                children: [
-                  for (var i = 0; i < 3 && i < semanalKpis.length; i++)
-                    Expanded(
-                      child: Align(
-                        alignment: semanalKpis.length == 1
-                            ? Alignment.centerLeft
-                            : Alignment.center,
-                         child: progressKpi(
-                             percentage:
-                                 (semanalKpis[i].porcentaje ?? 0).toDouble(),
-                             categoryId: semanalKpis[i].objrIdCategoria,
-                             title: semanalKpis[i].objrNombre ?? '',
-                             category: semanalKpis[i].objrNombreCategoria ?? '',
-                             subTitle:
-                                 semanalKpis[i].objrNombrePeriodicidad ?? '',
-                             subSubTitle:
-                                 semanalKpis[i].objrNombreAsignacion ?? '',
-                             advance: semanalKpis[i].totalRegistro.toString(),
-                             total: convertTypeCategory(semanalKpis[i]) ?? '0'),
+              if (!_showAllObjectives)
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: semanalKpis.length == 1
+                      ? MainAxisAlignment.start
+                      : MainAxisAlignment.spaceBetween,
+                  children: [
+                    for (var i = 0; i < 3 && i < semanalKpis.length; i++)
+                      Expanded(
+                        child: Align(
+                          alignment: semanalKpis.length == 1
+                              ? Alignment.centerLeft
+                              : Alignment.center,
+                           child: progressKpi(
+                               percentage:
+                                   (semanalKpis[i].porcentaje ?? 0).toDouble(),
+                               categoryId: semanalKpis[i].objrIdCategoria,
+                               title: semanalKpis[i].objrNombre ?? '',
+                               category: semanalKpis[i].objrNombreCategoria ?? '',
+                               subTitle:
+                                   semanalKpis[i].objrNombrePeriodicidad ?? '',
+                               subSubTitle:
+                                   semanalKpis[i].objrNombreAsignacion ?? '',
+                                 advance: semanalKpis[i].totalRegistro.toString(),
+                                 total: convertTypeCategory(semanalKpis[i])),
+                        ),
                       ),
-                    ),
-                ],
-              ),
+                  ],
+                )
+              else
+                Column(
+                  children: [
+                    // Si hay 1 o 2 objetivos, usar Row de 2 columnas
+                    if (semanalKpis.length <= 2)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 15),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            for (var i = 0; i < 2; i++)
+                              Expanded(
+                                child: i < semanalKpis.length
+                                    ? Center(
+                                        child: progressKpi(
+                                          percentage: (semanalKpis[i].porcentaje ?? 0).toDouble(),
+                                          categoryId: semanalKpis[i].objrIdCategoria,
+                                          title: semanalKpis[i].objrNombre ?? '',
+                                          category: semanalKpis[i].objrNombreCategoria ?? '',
+                                          subTitle: semanalKpis[i].objrNombrePeriodicidad ?? '',
+                                          subSubTitle: semanalKpis[i].objrNombreAsignacion ?? '',
+                                          advance: semanalKpis[i].totalRegistro.toString(),
+                                          total: convertTypeCategory(semanalKpis[i]),
+                                        ),
+                                      )
+                                    : const SizedBox(), // Espacio vacío si solo hay 1
+                              ),
+                          ],
+                        ),
+                      )
+                    // Si hay 3 o más, usar Rows de 3 columnas
+                    else
+                      for (var rowIndex = 0; rowIndex < (semanalKpis.length / 3).ceil(); rowIndex++)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 15),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              for (var i = rowIndex * 3; i < (rowIndex + 1) * 3 && i < semanalKpis.length; i++)
+                                Expanded(
+                                  child: Center(
+                                    child: progressKpi(
+                                      percentage: (semanalKpis[i].porcentaje ?? 0).toDouble(),
+                                      categoryId: semanalKpis[i].objrIdCategoria,
+                                      title: semanalKpis[i].objrNombre ?? '',
+                                      category: semanalKpis[i].objrNombreCategoria ?? '',
+                                      subTitle: semanalKpis[i].objrNombrePeriodicidad ?? '',
+                                      subSubTitle: semanalKpis[i].objrNombreAsignacion ?? '',
+                                      advance: semanalKpis[i].totalRegistro.toString(),
+                                      total: convertTypeCategory(semanalKpis[i]),
+                                    ),
+                                  ),
+                                ),
+                              for (var i = 0; i < (3 - ((rowIndex + 1) * 3 > semanalKpis.length ? semanalKpis.length % 3 == 0 ? 3 : semanalKpis.length % 3 : 3)); i++)
+                                const Expanded(child: SizedBox()),
+                            ],
+                          ),
+                        ),
+                  ],
+                ),
               const SizedBox(
                 height: 16,
               ),
@@ -512,36 +592,208 @@ class _ContainerDashboardKpis extends ConsumerWidget {
               const SizedBox(
                 height: 10,
               ),
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: mensualKpis.length == 1
-                    ? MainAxisAlignment.start
-                    : MainAxisAlignment.spaceBetween,
-                children: [
-                  for (var i = 0; i < 3 && i < mensualKpis.length; i++)
-                    Expanded(
-                      child: Align(
-                        alignment: mensualKpis.length == 1
-                            ? Alignment.centerLeft
-                            : Alignment.center,
-                         child: progressKpi(
-                             percentage:
-                                 (mensualKpis[i].porcentaje ?? 0).toDouble(),
-                             categoryId: mensualKpis[i].objrIdCategoria,
-                             title: mensualKpis[i].objrNombre ?? '',
-                             category: mensualKpis[i].objrNombreCategoria ?? '',
-                             subTitle:
-                                 mensualKpis[i].objrNombrePeriodicidad ?? '',
-                             subSubTitle:
-                                mensualKpis[i].objrNombreAsignacion ?? '',
-                            advance: mensualKpis[i].totalRegistro.toString(),
-                            total: convertTypeCategory(mensualKpis[i]) ?? '0'),
+              if (!_showAllObjectives)
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: mensualKpis.length == 1
+                      ? MainAxisAlignment.start
+                      : MainAxisAlignment.spaceBetween,
+                  children: [
+                    for (var i = 0; i < 3 && i < mensualKpis.length; i++)
+                      Expanded(
+                        child: Align(
+                          alignment: mensualKpis.length == 1
+                              ? Alignment.centerLeft
+                              : Alignment.center,
+                           child: progressKpi(
+                               percentage:
+                                   (mensualKpis[i].porcentaje ?? 0).toDouble(),
+                               categoryId: mensualKpis[i].objrIdCategoria,
+                               title: mensualKpis[i].objrNombre ?? '',
+                               category: mensualKpis[i].objrNombreCategoria ?? '',
+                               subTitle:
+                                   mensualKpis[i].objrNombrePeriodicidad ?? '',
+                               subSubTitle:
+                               mensualKpis[i].objrNombreAsignacion ?? '',
+                                advance: mensualKpis[i].totalRegistro.toString(),
+                                total: convertTypeCategory(mensualKpis[i])),
+                        ),
                       ),
-                    ),
-                ],
-              ),
+                  ],
+                )
+              else
+                Column(
+                  children: [
+                    // Si hay 1 o 2 objetivos, usar Row de 2 columnas
+                    if (mensualKpis.length <= 2)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 15),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            for (var i = 0; i < 2; i++)
+                              Expanded(
+                                child: i < mensualKpis.length
+                                    ? Center(
+                                        child: progressKpi(
+                                          percentage: (mensualKpis[i].porcentaje ?? 0).toDouble(),
+                                          categoryId: mensualKpis[i].objrIdCategoria,
+                                          title: mensualKpis[i].objrNombre ?? '',
+                                          category: mensualKpis[i].objrNombreCategoria ?? '',
+                                          subTitle: mensualKpis[i].objrNombrePeriodicidad ?? '',
+                                          subSubTitle: mensualKpis[i].objrNombreAsignacion ?? '',
+                                          advance: mensualKpis[i].totalRegistro.toString(),
+                                          total: convertTypeCategory(mensualKpis[i]),
+                                        ),
+                                      )
+                                    : const SizedBox(), // Espacio vacío si solo hay 1
+                              ),
+                          ],
+                        ),
+                      )
+                    // Si hay 3 o más, usar Rows de 3 columnas
+                    else
+                      for (var rowIndex = 0; rowIndex < (mensualKpis.length / 3).ceil(); rowIndex++)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 15),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              for (var i = rowIndex * 3; i < (rowIndex + 1) * 3 && i < mensualKpis.length; i++)
+                                Expanded(
+                                  child: Center(
+                                    child: progressKpi(
+                                      percentage: (mensualKpis[i].porcentaje ?? 0).toDouble(),
+                                      categoryId: mensualKpis[i].objrIdCategoria,
+                                      title: mensualKpis[i].objrNombre ?? '',
+                                      category: mensualKpis[i].objrNombreCategoria ?? '',
+                                      subTitle: mensualKpis[i].objrNombrePeriodicidad ?? '',
+                                      subSubTitle: mensualKpis[i].objrNombreAsignacion ?? '',
+                                      advance: mensualKpis[i].totalRegistro.toString(),
+                                      total: convertTypeCategory(mensualKpis[i]),
+                                    ),
+                                  ),
+                                ),
+                              for (var i = 0; i < (3 - ((rowIndex + 1) * 3 > mensualKpis.length ? mensualKpis.length % 3 == 0 ? 3 : mensualKpis.length % 3 : 3)); i++)
+                                const Expanded(child: SizedBox()),
+                            ],
+                          ),
+                        ),
+                  ],
+                ),
+              if (_showAllObjectives && anualKpis.isNotEmpty) ...[
+                const SizedBox(
+                  height: 16,
+                ),
+                Center(
+                  child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: primaryColor, width: 2),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                      child: Text("Anual", style: periodicidadTitleTextStyle)),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Column(
+                  children: [
+                    // Si hay 1 o 2 objetivos, usar Row de 2 columnas
+                    if (anualKpis.length <= 2)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 15),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            for (var i = 0; i < 2; i++)
+                              Expanded(
+                                child: i < anualKpis.length
+                                    ? Center(
+                                        child: progressKpi(
+                                          percentage: (anualKpis[i].porcentaje ?? 0).toDouble(),
+                                          categoryId: anualKpis[i].objrIdCategoria,
+                                          title: anualKpis[i].objrNombre ?? '',
+                                          category: anualKpis[i].objrNombreCategoria ?? '',
+                                          subTitle: anualKpis[i].objrNombrePeriodicidad ?? '',
+                                          subSubTitle: anualKpis[i].objrNombreAsignacion ?? '',
+                                          advance: anualKpis[i].totalRegistro.toString(),
+                                          total: convertTypeCategory(anualKpis[i]),
+                                        ),
+                                      )
+                                    : const SizedBox(), // Espacio vacío si solo hay 1
+                              ),
+                          ],
+                        ),
+                      )
+                    // Si hay 3 o más, usar Rows de 3 columnas
+                    else
+                      for (var rowIndex = 0; rowIndex < (anualKpis.length / 3).ceil(); rowIndex++)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 15),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              for (var i = rowIndex * 3; i < (rowIndex + 1) * 3 && i < anualKpis.length; i++)
+                                Expanded(
+                                  child: Center(
+                                    child: progressKpi(
+                                      percentage: (anualKpis[i].porcentaje ?? 0).toDouble(),
+                                      categoryId: anualKpis[i].objrIdCategoria,
+                                      title: anualKpis[i].objrNombre ?? '',
+                                      category: anualKpis[i].objrNombreCategoria ?? '',
+                                      subTitle: anualKpis[i].objrNombrePeriodicidad ?? '',
+                                      subSubTitle: anualKpis[i].objrNombreAsignacion ?? '',
+                                      advance: anualKpis[i].totalRegistro.toString(),
+                                      total: convertTypeCategory(anualKpis[i]),
+                                    ),
+                                  ),
+                                ),
+                              for (var i = 0; i < (3 - ((rowIndex + 1) * 3 > anualKpis.length ? anualKpis.length % 3 == 0 ? 3 : anualKpis.length % 3 : 3)); i++)
+                                const Expanded(child: SizedBox()),
+                            ],
+                          ),
+                        ),
+                  ],
+                ),
+              ],
               const SizedBox(
                 height: 10,
+              ),
+              Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                decoration: BoxDecoration(
+                  color: Colors.black12,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _showAllObjectives = !_showAllObjectives;
+                    });
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        _showAllObjectives ? 'Ocultar objetivos' : 'Mostrar lista de objetivos',
+                        style: const TextStyle(
+                          color: Colors.blue,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Icon(
+                        _showAllObjectives ? Icons.expand_less : Icons.expand_more,
+                        color: Colors.blue,
+                      ),
+                    ],
+                  ),
+                ),
               ),
               Container(
                 decoration: BoxDecoration(
@@ -617,13 +869,30 @@ class _ContainerDashboardKpis extends ConsumerWidget {
     );
   }
 
-  convertTypeCategory(Kpi kpi) {
+  String convertTypeCategory(Kpi kpi) {
     String res = kpi.objrCantidad ?? '';
+    
+    // Solo agregar "K" si es categoría '05' (Oportunidades Ganadas)
     if (kpi.objrIdCategoria == '05') {
-      res = ' ${res}K';
+      try {
+        final double value = double.parse(res);
+        if (value % 1 == 0) {
+          res = '${value.toInt()}K';
+        } else {
+          res = '${value.toStringAsFixed(1)}K';
+        }
+      } catch (e) {
+        res = '0K';
+      }
     } else {
-      res = (double.parse(res).toInt()).toString();
+      // Para otras categorías, solo mostrar el número sin "K"
+      try {
+        res = (double.parse(res).toInt()).toString();
+      } catch (e) {
+        res = '0';
+      }
     }
+    
     return res;
   }
 }
@@ -1040,14 +1309,14 @@ class progressKpi extends StatelessWidget {
       returnColors = Colors.green;
     }
 
-    print('PORCENTAJE: $porc');
     return returnColors;
   }
 
   Color get indicatorColor {
     if (categoryId == '08') {
+      // Para oportunidad sin seguimiento, el color depende del TOTAL_REGISTRO
       final totalRegistro = int.tryParse(advance) ?? 0;
-
+      
       if (totalRegistro == 0) return Colors.grey;
       if (totalRegistro <= 2) return Colors.amber;
       return Colors.red;
@@ -1059,12 +1328,33 @@ class progressKpi extends StatelessWidget {
   double get indicatorValue {
     if (categoryId == '08') return 1.0;
 
-    return (percentage / 100).clamp(0.0, 1.0);
+    // Normalizar porcentaje si viene en formato incorrecto
+    final normalizedPercentage = percentage > 1000 
+        ? (percentage / 10000) 
+        : (percentage / 100);
+    
+    return normalizedPercentage.clamp(0.0, 1.0);
   }
 
   bool get _showGoalTotal => categoryId != '08';
 
-  String get displayValue => advance;
+  String get displayValue {
+    // Formatear TOTAL_REGISTRO a formato K si es >= 1000
+    try {
+      final int totalRegistro = int.parse(advance);
+      if (totalRegistro >= 1000) {
+        final double thousands = totalRegistro / 1000;
+        if (thousands % 1 == 0) {
+          return '${thousands.toInt()}K';
+        } else {
+          return '${thousands.toStringAsFixed(1)}K';
+        }
+      }
+      return advance;
+    } catch (e) {
+      return advance;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -129,18 +129,55 @@ class KpiDetailScreen extends ConsumerWidget {
     }
 
     final isCategoryWithoutPercentage = kpi.objrIdCategoria == '08';
+    
+    // Normalizar porcentaje si viene en formato incorrecto
+    final porcentaje = kpi.porcentaje ?? 0;
+    final normalizedPercentage = porcentaje > 1000 
+        ? (porcentaje / 10000) 
+        : (porcentaje / 100);
+    
     final indicatorValue = isCategoryWithoutPercentage
         ? 1.0
-        : ((kpi.porcentaje ?? 0) / 100).clamp(0.0, 1.0);
-    final indicatorLabel = isCategoryWithoutPercentage
-        ? '${kpi.totalRegistro ?? 0}'
-        : '${(kpi.porcentaje ?? 0).round()}%';
+        : normalizedPercentage.clamp(0.0, 1.0);
+    
+    // Formatear indicatorLabel
+    String indicatorLabel;
+    if (isCategoryWithoutPercentage) {
+      indicatorLabel = '${kpi.totalRegistro ?? 0}';
+    } else {
+      final percentageValue = (normalizedPercentage * 100).round();
+      if (percentageValue >= 1000) {
+        final double thousands = percentageValue / 1000;
+        if (thousands % 1 == 0) {
+          indicatorLabel = '${thousands.toInt()}K%';
+        } else {
+          indicatorLabel = '${thousands.toStringAsFixed(1)}K%';
+        }
+      } else {
+        indicatorLabel = '$percentageValue%';
+      }
+    }
     final indicatorColor = isCategoryWithoutPercentage
         ? _getCategory08IndicatorColor(kpi.totalRegistro ?? 0)
         : _getPercentageIndicatorColor(kpi.porcentaje ?? 0);
+    // Formatear totalRegistro a K si es >= 1000
+    final totalRegistro = kpi.totalRegistro ?? 0;
+    String formattedTotal;
+    
+    if (totalRegistro >= 1000) {
+      final double thousands = totalRegistro / 1000;
+      if (thousands % 1 == 0) {
+        formattedTotal = '${thousands.toInt()}K';
+      } else {
+        formattedTotal = '${thousands.toStringAsFixed(1)}K';
+      }
+    } else {
+      formattedTotal = '$totalRegistro';
+    }
+    
     final progressText = isCategoryWithoutPercentage
-        ? '${kpi.totalRegistro ?? 0}'
-        : '${kpi.totalRegistro}/${convertTypeCategory(kpi)}';
+        ? '$totalRegistro'
+        : '$formattedTotal/${convertTypeCategory(kpi)}';
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 28),
@@ -554,12 +591,29 @@ String agregarPrefijoPeru(String numero) {
   return numero;
 }
 
-convertTypeCategory(Kpi kpi) {
-  String res = kpi.objrCantidad ?? '';
-  if (kpi.objrIdCategoria == '05') {
-    res = ' ${res}K';
-  } else {
-    res = (double.parse(res).toInt()).toString();
+  String convertTypeCategory(Kpi kpi) {
+    String res = kpi.objrCantidad ?? '';
+    
+    // Solo agregar "K" si es categoría '05' (Oportunidades Ganadas)
+    if (kpi.objrIdCategoria == '05') {
+      try {
+        final double value = double.parse(res);
+        if (value % 1 == 0) {
+          res = '${value.toInt()}K';
+        } else {
+          res = '${value.toStringAsFixed(1)}K';
+        }
+      } catch (e) {
+        res = '0K';
+      }
+    } else {
+      // Para otras categorías, solo mostrar el número sin "K"
+      try {
+        res = (double.parse(res).toInt()).toString();
+      } catch (e) {
+        res = '0';
+      }
+    }
+    
+    return res;
   }
-  return res;
-}

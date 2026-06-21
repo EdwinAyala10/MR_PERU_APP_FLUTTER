@@ -232,10 +232,29 @@ class _ListKpis extends ConsumerWidget {
                               fontWeight: FontWeight.w500, fontSize: 16)),
                       Text(kpi.objrNombreAsignacion ?? '',
                           style: const TextStyle(fontWeight: FontWeight.w600)),
-                      Text(
-                        '${kpi.totalRegistro}/${convertTypeCategory(kpi)}',
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w400, color: Colors.black45),
+                      Builder(
+                        builder: (context) {
+                          // Formatear totalRegistro a K si es >= 1000
+                          final totalRegistro = kpi.totalRegistro ?? 0;
+                          String formattedTotal;
+                          
+                          if (totalRegistro >= 1000) {
+                            final double thousands = totalRegistro / 1000;
+                            if (thousands % 1 == 0) {
+                              formattedTotal = '${thousands.toInt()}K';
+                            } else {
+                              formattedTotal = '${thousands.toStringAsFixed(1)}K';
+                            }
+                          } else {
+                            formattedTotal = '$totalRegistro';
+                          }
+                          
+                          return Text(
+                            '$formattedTotal/${convertTypeCategory(kpi)}',
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w400, color: Colors.black45),
+                          );
+                        },
                       )
                     ],
                   ),
@@ -296,13 +315,30 @@ class _ListKpis extends ConsumerWidget {
           );*/
   }
 
-  convertTypeCategory(Kpi kpi) {
+  String convertTypeCategory(Kpi kpi) {
     String res = kpi.objrCantidad ?? '';
+    
+    // Solo agregar "K" si es categoría '05' (Oportunidades Ganadas)
     if (kpi.objrIdCategoria == '05') {
-      res = ' ${res}K';
+      try {
+        final double value = double.parse(res);
+        if (value % 1 == 0) {
+          res = '${value.toInt()}K';
+        } else {
+          res = '${value.toStringAsFixed(1)}K';
+        }
+      } catch (e) {
+        res = '0K';
+      }
     } else {
-      res = (double.parse(res).toInt()).toString();
+      // Para otras categorías, solo mostrar el número sin "K"
+      try {
+        res = (double.parse(res).toInt()).toString();
+      } catch (e) {
+        res = '0';
+      }
     }
+    
     return res;
   }
 }

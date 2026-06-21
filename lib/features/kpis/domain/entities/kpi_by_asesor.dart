@@ -8,6 +8,7 @@ class KpisByAsesor {
   final double porcentaje;
   final List<Kpi> semanal;
   final List<Kpi> mensual;
+  final List<Kpi> anual;
 
   KpisByAsesor({
     required this.asesorNombre,
@@ -17,5 +18,6 @@ class KpisByAsesor {
     this.porcentaje = 0,
     this.semanal = const [],
     this.mensual = const [],
+    this.anual = const [],
   });
 }
