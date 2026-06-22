@@ -414,21 +414,19 @@ class _ContainerDashboardKpisState extends ConsumerState<_ContainerDashboardKpis
       return _emptyObjectivesMessage();
     }
 
-    final currentUserCode = user?.code.trim() ?? '';
+    // Si no se muestra todos los objetivos, solo mostrar el primero
+    // Si se muestra todos, mostrar todos los asesores
+    final asesor = kpisWithData.first;
     
-    // Buscar el asesor del usuario actual
-    // Si el backend retorna solo un usuario, usar ese
-    // Si retorna múltiples (Admin), buscar el del usuario logueado
-    final asesor = kpisWithData.length == 1
-        ? kpisWithData.first
-        : kpisWithData.firstWhere(
-            (kpi) => kpi.asesorCodigo.trim() == currentUserCode,
-            orElse: () => kpisWithData.first,
-          );
-    
-    final List<Kpi> semanalKpis = asesor.semanal.toList();
-    final List<Kpi> mensualKpis = asesor.mensual.toList();
-    final List<Kpi> anualKpis = asesor.anual.toList();
+    final List<Kpi> semanalKpis = _showAllObjectives
+        ? kpisWithData.expand((asesor) => asesor.semanal).toList()
+        : asesor.semanal.toList();
+    final List<Kpi> mensualKpis = _showAllObjectives
+        ? kpisWithData.expand((asesor) => asesor.mensual).toList()
+        : asesor.mensual.toList();
+    final List<Kpi> anualKpis = _showAllObjectives
+        ? kpisWithData.expand((asesor) => asesor.anual).toList()
+        : asesor.anual.toList();
 
     TextStyle periodicidadTitleTextStyle = const TextStyle(
       fontWeight: FontWeight.w700,
