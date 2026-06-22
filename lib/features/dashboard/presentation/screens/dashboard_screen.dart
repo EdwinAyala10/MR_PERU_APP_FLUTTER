@@ -395,8 +395,6 @@ class _ContainerDashboardKpis extends ConsumerStatefulWidget {
 }
 
 class _ContainerDashboardKpisState extends ConsumerState<_ContainerDashboardKpis> {
-  bool _showAllObjectives = false;
-
   @override
   Widget build(BuildContext context) {
     final kpis = widget.kpis;
@@ -414,19 +412,12 @@ class _ContainerDashboardKpisState extends ConsumerState<_ContainerDashboardKpis
       return _emptyObjectivesMessage();
     }
 
-    // Si no se muestra todos los objetivos, solo mostrar el primero
-    // Si se muestra todos, mostrar todos los asesores
+    // El backend ya filtra según el usuario (admin o vendedor)
     final asesor = kpisWithData.first;
     
-    final List<Kpi> semanalKpis = _showAllObjectives
-        ? kpisWithData.expand((asesor) => asesor.semanal).toList()
-        : asesor.semanal.toList();
-    final List<Kpi> mensualKpis = _showAllObjectives
-        ? kpisWithData.expand((asesor) => asesor.mensual).toList()
-        : asesor.mensual.toList();
-    final List<Kpi> anualKpis = _showAllObjectives
-        ? kpisWithData.expand((asesor) => asesor.anual).toList()
-        : asesor.anual.toList();
+    final List<Kpi> semanalKpis = asesor.semanal.toList();
+    final List<Kpi> mensualKpis = asesor.mensual.toList();
+    final List<Kpi> anualKpis = asesor.anual.toList();
 
     TextStyle periodicidadTitleTextStyle = const TextStyle(
       fontWeight: FontWeight.w700,
@@ -487,97 +478,34 @@ class _ContainerDashboardKpisState extends ConsumerState<_ContainerDashboardKpis
               const SizedBox(
                 height: 10,
               ),
-              if (!_showAllObjectives)
-                Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: semanalKpis.length == 1
-                      ? MainAxisAlignment.start
-                      : MainAxisAlignment.spaceBetween,
-                  children: [
-                    for (var i = 0; i < 3 && i < semanalKpis.length; i++)
-                      Expanded(
-                        child: Align(
-                          alignment: semanalKpis.length == 1
-                              ? Alignment.centerLeft
-                              : Alignment.center,
-                           child: progressKpi(
-                               percentage:
-                                   (semanalKpis[i].porcentaje ?? 0).toDouble(),
-                               categoryId: semanalKpis[i].objrIdCategoria,
-                               title: semanalKpis[i].objrNombre ?? '',
-                               category: semanalKpis[i].objrNombreCategoria ?? '',
-                               subTitle:
-                                   semanalKpis[i].objrNombrePeriodicidad ?? '',
-                               subSubTitle:
-                                   semanalKpis[i].objrNombreAsignacion ?? '',
-                                 advance: semanalKpis[i].totalRegistro.toString(),
-                                 total: convertTypeCategory(semanalKpis[i])),
-                        ),
+              Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: semanalKpis.length == 1
+                    ? MainAxisAlignment.start
+                    : MainAxisAlignment.spaceBetween,
+                children: [
+                  for (var i = 0; i < 3 && i < semanalKpis.length; i++)
+                    Expanded(
+                      child: Align(
+                        alignment: semanalKpis.length == 1
+                            ? Alignment.centerLeft
+                            : Alignment.center,
+                         child: progressKpi(
+                             percentage:
+                                 (semanalKpis[i].porcentaje ?? 0).toDouble(),
+                             categoryId: semanalKpis[i].objrIdCategoria,
+                             title: semanalKpis[i].objrNombre ?? '',
+                             category: semanalKpis[i].objrNombreCategoria ?? '',
+                             subTitle:
+                                 semanalKpis[i].objrNombrePeriodicidad ?? '',
+                             subSubTitle:
+                                 semanalKpis[i].objrNombreAsignacion ?? '',
+                               advance: semanalKpis[i].totalRegistro.toString(),
+                               total: convertTypeCategory(semanalKpis[i])),
                       ),
-                  ],
-                )
-              else
-                Column(
-                  children: [
-                    // Si hay 1 o 2 objetivos, usar Row de 2 columnas
-                    if (semanalKpis.length <= 2)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 15),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            for (var i = 0; i < 2; i++)
-                              Expanded(
-                                child: i < semanalKpis.length
-                                    ? Center(
-                                        child: progressKpi(
-                                          percentage: (semanalKpis[i].porcentaje ?? 0).toDouble(),
-                                          categoryId: semanalKpis[i].objrIdCategoria,
-                                          title: semanalKpis[i].objrNombre ?? '',
-                                          category: semanalKpis[i].objrNombreCategoria ?? '',
-                                          subTitle: semanalKpis[i].objrNombrePeriodicidad ?? '',
-                                          subSubTitle: semanalKpis[i].objrNombreAsignacion ?? '',
-                                          advance: semanalKpis[i].totalRegistro.toString(),
-                                          total: convertTypeCategory(semanalKpis[i]),
-                                        ),
-                                      )
-                                    : const SizedBox(), // Espacio vacío si solo hay 1
-                              ),
-                          ],
-                        ),
-                      )
-                    // Si hay 3 o más, usar Rows de 3 columnas
-                    else
-                      for (var rowIndex = 0; rowIndex < (semanalKpis.length / 3).ceil(); rowIndex++)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 15),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              for (var i = rowIndex * 3; i < (rowIndex + 1) * 3 && i < semanalKpis.length; i++)
-                                Expanded(
-                                  child: Center(
-                                    child: progressKpi(
-                                      percentage: (semanalKpis[i].porcentaje ?? 0).toDouble(),
-                                      categoryId: semanalKpis[i].objrIdCategoria,
-                                      title: semanalKpis[i].objrNombre ?? '',
-                                      category: semanalKpis[i].objrNombreCategoria ?? '',
-                                      subTitle: semanalKpis[i].objrNombrePeriodicidad ?? '',
-                                      subSubTitle: semanalKpis[i].objrNombreAsignacion ?? '',
-                                      advance: semanalKpis[i].totalRegistro.toString(),
-                                      total: convertTypeCategory(semanalKpis[i]),
-                                    ),
-                                  ),
-                                ),
-                              for (var i = 0; i < (3 - ((rowIndex + 1) * 3 > semanalKpis.length ? semanalKpis.length % 3 == 0 ? 3 : semanalKpis.length % 3 : 3)); i++)
-                                const Expanded(child: SizedBox()),
-                            ],
-                          ),
-                        ),
-                  ],
-                ),
+                    ),
+                ],
+              ),
               const SizedBox(
                 height: 16,
               ),
@@ -594,176 +522,34 @@ class _ContainerDashboardKpisState extends ConsumerState<_ContainerDashboardKpis
               const SizedBox(
                 height: 10,
               ),
-              if (!_showAllObjectives)
-                Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: mensualKpis.length == 1
-                      ? MainAxisAlignment.start
-                      : MainAxisAlignment.spaceBetween,
-                  children: [
-                    for (var i = 0; i < 3 && i < mensualKpis.length; i++)
-                      Expanded(
-                        child: Align(
-                          alignment: mensualKpis.length == 1
-                              ? Alignment.centerLeft
-                              : Alignment.center,
-                           child: progressKpi(
-                               percentage:
-                                   (mensualKpis[i].porcentaje ?? 0).toDouble(),
-                               categoryId: mensualKpis[i].objrIdCategoria,
-                               title: mensualKpis[i].objrNombre ?? '',
-                               category: mensualKpis[i].objrNombreCategoria ?? '',
-                               subTitle:
-                                   mensualKpis[i].objrNombrePeriodicidad ?? '',
-                               subSubTitle:
-                               mensualKpis[i].objrNombreAsignacion ?? '',
-                                advance: mensualKpis[i].totalRegistro.toString(),
-                                total: convertTypeCategory(mensualKpis[i])),
-                        ),
+              Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: mensualKpis.length == 1
+                    ? MainAxisAlignment.start
+                    : MainAxisAlignment.spaceBetween,
+                children: [
+                  for (var i = 0; i < 3 && i < mensualKpis.length; i++)
+                    Expanded(
+                      child: Align(
+                        alignment: mensualKpis.length == 1
+                            ? Alignment.centerLeft
+                            : Alignment.center,
+                         child: progressKpi(
+                             percentage:
+                                 (mensualKpis[i].porcentaje ?? 0).toDouble(),
+                             categoryId: mensualKpis[i].objrIdCategoria,
+                             title: mensualKpis[i].objrNombre ?? '',
+                             category: mensualKpis[i].objrNombreCategoria ?? '',
+                             subTitle:
+                                 mensualKpis[i].objrNombrePeriodicidad ?? '',
+                             subSubTitle:
+                             mensualKpis[i].objrNombreAsignacion ?? '',
+                              advance: mensualKpis[i].totalRegistro.toString(),
+                              total: convertTypeCategory(mensualKpis[i])),
                       ),
-                  ],
-                )
-              else
-                Column(
-                  children: [
-                    // Si hay 1 o 2 objetivos, usar Row de 2 columnas
-                    if (mensualKpis.length <= 2)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 15),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            for (var i = 0; i < 2; i++)
-                              Expanded(
-                                child: i < mensualKpis.length
-                                    ? Center(
-                                        child: progressKpi(
-                                          percentage: (mensualKpis[i].porcentaje ?? 0).toDouble(),
-                                          categoryId: mensualKpis[i].objrIdCategoria,
-                                          title: mensualKpis[i].objrNombre ?? '',
-                                          category: mensualKpis[i].objrNombreCategoria ?? '',
-                                          subTitle: mensualKpis[i].objrNombrePeriodicidad ?? '',
-                                          subSubTitle: mensualKpis[i].objrNombreAsignacion ?? '',
-                                          advance: mensualKpis[i].totalRegistro.toString(),
-                                          total: convertTypeCategory(mensualKpis[i]),
-                                        ),
-                                      )
-                                    : const SizedBox(), // Espacio vacío si solo hay 1
-                              ),
-                          ],
-                        ),
-                      )
-                    // Si hay 3 o más, usar Rows de 3 columnas
-                    else
-                      for (var rowIndex = 0; rowIndex < (mensualKpis.length / 3).ceil(); rowIndex++)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 15),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              for (var i = rowIndex * 3; i < (rowIndex + 1) * 3 && i < mensualKpis.length; i++)
-                                Expanded(
-                                  child: Center(
-                                    child: progressKpi(
-                                      percentage: (mensualKpis[i].porcentaje ?? 0).toDouble(),
-                                      categoryId: mensualKpis[i].objrIdCategoria,
-                                      title: mensualKpis[i].objrNombre ?? '',
-                                      category: mensualKpis[i].objrNombreCategoria ?? '',
-                                      subTitle: mensualKpis[i].objrNombrePeriodicidad ?? '',
-                                      subSubTitle: mensualKpis[i].objrNombreAsignacion ?? '',
-                                      advance: mensualKpis[i].totalRegistro.toString(),
-                                      total: convertTypeCategory(mensualKpis[i]),
-                                    ),
-                                  ),
-                                ),
-                              for (var i = 0; i < (3 - ((rowIndex + 1) * 3 > mensualKpis.length ? mensualKpis.length % 3 == 0 ? 3 : mensualKpis.length % 3 : 3)); i++)
-                                const Expanded(child: SizedBox()),
-                            ],
-                          ),
-                        ),
-                  ],
-                ),
-              if (_showAllObjectives && anualKpis.isNotEmpty) ...[
-                const SizedBox(
-                  height: 16,
-                ),
-                Center(
-                  child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: primaryColor, width: 2),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                      child: Text("Anual", style: periodicidadTitleTextStyle)),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Column(
-                  children: [
-                    // Si hay 1 o 2 objetivos, usar Row de 2 columnas
-                    if (anualKpis.length <= 2)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 15),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            for (var i = 0; i < 2; i++)
-                              Expanded(
-                                child: i < anualKpis.length
-                                    ? Center(
-                                        child: progressKpi(
-                                          percentage: (anualKpis[i].porcentaje ?? 0).toDouble(),
-                                          categoryId: anualKpis[i].objrIdCategoria,
-                                          title: anualKpis[i].objrNombre ?? '',
-                                          category: anualKpis[i].objrNombreCategoria ?? '',
-                                          subTitle: anualKpis[i].objrNombrePeriodicidad ?? '',
-                                          subSubTitle: anualKpis[i].objrNombreAsignacion ?? '',
-                                          advance: anualKpis[i].totalRegistro.toString(),
-                                          total: convertTypeCategory(anualKpis[i]),
-                                        ),
-                                      )
-                                    : const SizedBox(), // Espacio vacío si solo hay 1
-                              ),
-                          ],
-                        ),
-                      )
-                    // Si hay 3 o más, usar Rows de 3 columnas
-                    else
-                      for (var rowIndex = 0; rowIndex < (anualKpis.length / 3).ceil(); rowIndex++)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 15),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              for (var i = rowIndex * 3; i < (rowIndex + 1) * 3 && i < anualKpis.length; i++)
-                                Expanded(
-                                  child: Center(
-                                    child: progressKpi(
-                                      percentage: (anualKpis[i].porcentaje ?? 0).toDouble(),
-                                      categoryId: anualKpis[i].objrIdCategoria,
-                                      title: anualKpis[i].objrNombre ?? '',
-                                      category: anualKpis[i].objrNombreCategoria ?? '',
-                                      subTitle: anualKpis[i].objrNombrePeriodicidad ?? '',
-                                      subSubTitle: anualKpis[i].objrNombreAsignacion ?? '',
-                                      advance: anualKpis[i].totalRegistro.toString(),
-                                      total: convertTypeCategory(anualKpis[i]),
-                                    ),
-                                  ),
-                                ),
-                              for (var i = 0; i < (3 - ((rowIndex + 1) * 3 > anualKpis.length ? anualKpis.length % 3 == 0 ? 3 : anualKpis.length % 3 : 3)); i++)
-                                const Expanded(child: SizedBox()),
-                            ],
-                          ),
-                        ),
-                  ],
-                ),
-              ],
+                    ),
+                ],
+              ),
               const SizedBox(
                 height: 10,
               ),
@@ -775,22 +561,20 @@ class _ContainerDashboardKpisState extends ConsumerState<_ContainerDashboardKpis
                 ),
                 child: TextButton(
                   onPressed: () {
-                    setState(() {
-                      _showAllObjectives = !_showAllObjectives;
-                    });
+                    context.push('/kpis-list');
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        _showAllObjectives ? 'Ocultar objetivos' : 'Mostrar lista de objetivos',
-                        style: const TextStyle(
+                      const Text(
+                        'Mostrar lista de objetivos',
+                        style: TextStyle(
                           color: Colors.blue,
                         ),
                       ),
                       const SizedBox(width: 8),
                       Icon(
-                        _showAllObjectives ? Icons.expand_less : Icons.expand_more,
+                        Icons.list,
                         color: Colors.blue,
                       ),
                     ],

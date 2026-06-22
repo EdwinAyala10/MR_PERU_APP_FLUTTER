@@ -5,6 +5,7 @@ import 'package:crm_app/features/dashboard/presentation/screens/notification_scr
 import 'package:crm_app/features/documents/presentation/screens/enlace_screen.dart';
 import 'package:crm_app/features/kpis/presentation/screens/kpi_detail_screen.dart';
 import 'package:crm_app/features/kpis/presentation/screens/kpi_reorder_by_user.dart';
+import 'package:crm_app/features/kpis/presentation/screens/kpis_list_screen.dart';
 import 'package:crm_app/features/opportunities/presentation/screens/opportunity_detail_screen.dart';
 import 'package:crm_app/features/opportunities/presentation/screens/force_mr_activation_screen.dart';
 import 'package:crm_app/features/opportunities/presentation/screens/opportunity_summary_screen.dart';
@@ -154,6 +155,11 @@ final goRouterProvider = Provider((ref) {
       GoRoute(
         path: '/kpis',
         builder: (context, state) => const KpisScreen(),
+      ),
+
+      GoRoute(
+        path: '/kpis-list',
+        builder: (context, state) => const KpisListScreen(),
       ),
 
       GoRoute(
