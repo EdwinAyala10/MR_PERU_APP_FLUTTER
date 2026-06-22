@@ -50,7 +50,7 @@ class KpisRepositoryImpl extends KpisRepository {
   }
 
   @override
-  Future<List<KpisByAsesor>> getKpisByAsesor(String idUsuarioAsignacion) {
+  Future<Map<String, dynamic>> getKpisByAsesor(String idUsuarioAsignacion) {
     return datasource.getKpisByAsesor(idUsuarioAsignacion);
   }
 

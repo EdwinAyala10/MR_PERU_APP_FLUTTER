@@ -33,10 +33,11 @@ class KpisByAsesorNotifier extends StateNotifier<KpisByAsesorState> {
     state = state.copyWith(isLoading: true);
 
     try {
-      final kpis = await kpisRepository.getKpisByAsesor(user.code.trim());
+      final response = await kpisRepository.getKpisByAsesor(user.code.trim());
       state = state.copyWith(
         isLoading: false,
-        kpis: kpis,
+        kpis: response['kpis'],
+        totalObjetivos: response['totalObjetivos'] ?? 0,
       );
     } catch (e) {
       state = state.copyWith(isLoading: false);
@@ -47,19 +48,23 @@ class KpisByAsesorNotifier extends StateNotifier<KpisByAsesorState> {
 class KpisByAsesorState {
   final bool isLoading;
   final List<KpisByAsesor> kpis;
+  final int totalObjetivos;
 
   KpisByAsesorState({
     this.isLoading = false,
     this.kpis = const [],
+    this.totalObjetivos = 0,
   });
 
   KpisByAsesorState copyWith({
     bool? isLoading,
     List<KpisByAsesor>? kpis,
+    int? totalObjetivos,
   }) {
     return KpisByAsesorState(
       isLoading: isLoading ?? this.isLoading,
       kpis: kpis ?? this.kpis,
+      totalObjetivos: totalObjetivos ?? this.totalObjetivos,
     );
   }
 }

@@ -268,7 +268,10 @@ class _DashboardViewState extends ConsumerState {
             ),
             kpisState.isLoading
                 ? const PlaceholderSection()
-                : _ContainerDashboardKpis(kpis: kpisState.kpis),
+                : _ContainerDashboardKpis(
+                    kpis: kpisState.kpis,
+                    totalObjetivos: kpisState.totalObjetivos,
+                  ),
             opportunitiesState.isLoading
                 ? const PlaceholderSection()
                 : _ContainerDashboardOpportunities(
@@ -383,8 +386,9 @@ class _ContainerDashboardOpportunitiesStatus extends StatelessWidget {
 
 class _ContainerDashboardKpis extends ConsumerStatefulWidget {
   List<KpisByAsesor> kpis;
+  int totalObjetivos;
 
-  _ContainerDashboardKpis({required this.kpis});
+  _ContainerDashboardKpis({required this.kpis, required this.totalObjetivos});
 
   @override
   ConsumerState<_ContainerDashboardKpis> createState() => _ContainerDashboardKpisState();
@@ -803,7 +807,7 @@ class _ContainerDashboardKpisState extends ConsumerState<_ContainerDashboardKpis
                 ),
                 child: TextButton(
                   onPressed: () {
-                    context.go('/kpis');
+                    context.push('/kpis');
                     // Aquí puedes implementar la lógica para "Mostrar Todo"
                   },
                   child: Row(
@@ -824,7 +828,7 @@ class _ContainerDashboardKpisState extends ConsumerState<_ContainerDashboardKpis
                         padding: const EdgeInsets.all(
                             8), // Espacio interior alrededor del número
                         child: Text(
-                          (kpisWithData.length).toString(),
+                          widget.totalObjetivos.toString(),
                           style: const TextStyle(
                             color: Colors.white, // Color del número
                             fontWeight: FontWeight.bold,

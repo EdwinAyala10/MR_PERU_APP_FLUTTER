@@ -2,7 +2,7 @@ import 'package:crm_app/features/kpis/domain/domain.dart';
 import 'package:crm_app/features/kpis/infrastructure/mappers/kpi_mapper.dart';
 
 class KpiByAsesorMapper {
-  static List<KpisByAsesor> jsonToListEntity(Map<String, dynamic> json) {
+  static Map<String, dynamic> jsonToListEntity(Map<String, dynamic> json) {
     final List<KpisByAsesor> list = [];
 
     if (json['data'] != null) {
@@ -48,6 +48,9 @@ class KpiByAsesorMapper {
       }
     }
 
-    return list;
+    return {
+      'kpis': list,
+      'totalObjetivos': json['total_objetivos'] ?? 0,
+    };
   }
 }

@@ -87,7 +87,7 @@ class KpisDatasourceImpl extends KpisDatasource {
   }
 
   @override
-  Future<List<KpisByAsesor>> getKpisByAsesor(String idUsuarioAsignacion) async {
+  Future<Map<String, dynamic>> getKpisByAsesor(String idUsuarioAsignacion) async {
     final response = await dio.get(
       '/objetivo/listar-objetivo-dashboard-by-asesor',
       queryParameters: {
