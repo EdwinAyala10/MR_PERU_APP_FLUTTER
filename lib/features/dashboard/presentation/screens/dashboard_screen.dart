@@ -573,8 +573,8 @@ class _ContainerDashboardKpisState extends ConsumerState<_ContainerDashboardKpis
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Icon(
-                        Icons.list,
+                      const Icon(
+                        Icons.donut_large,
                         color: Colors.blue,
                       ),
                     ],
@@ -600,6 +600,11 @@ class _ContainerDashboardKpisState extends ConsumerState<_ContainerDashboardKpis
                         style: TextStyle(
                           color: Colors.blue, // Color del texto del botón
                         ),
+                      ),
+                      const SizedBox(width: 8),
+                      const Icon(
+                        Icons.list,
+                        color: Colors.blue,
                       ),
                       const SizedBox(width: 8),
                       Container(
