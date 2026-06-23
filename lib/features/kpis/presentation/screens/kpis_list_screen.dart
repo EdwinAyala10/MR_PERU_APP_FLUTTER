@@ -90,6 +90,11 @@ class _AsesorObjectivesContainer extends StatelessWidget {
       color: Colors.black,
     );
 
+    // Determinar cuál es la primera periodicidad con datos para mostrar el código del asesor
+    final bool showCodeInSemanal = semanalKpis.isNotEmpty;
+    final bool showCodeInMensual = !showCodeInSemanal && mensualKpis.isNotEmpty;
+    final bool showCodeInAnual = !showCodeInSemanal && !showCodeInMensual && anualKpis.isNotEmpty;
+
     return Container(
       margin: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 8),
       padding: const EdgeInsets.all(14),
@@ -124,19 +129,20 @@ class _AsesorObjectivesContainer extends StatelessWidget {
                       child: const Text("Semanal"),
                     ),
                   ),
-                  Row(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: primaryColor, width: 2),
-                          borderRadius: BorderRadius.circular(10),
+                  if (showCodeInSemanal)
+                    Row(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: primaryColor, width: 2),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 3),
+                          child: Text(asesor.asesorAbbrt),
                         ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 3),
-                        child: Text(asesor.asesorAbbrt),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
                 ],
               ),
             ),
@@ -147,14 +153,36 @@ class _AsesorObjectivesContainer extends StatelessWidget {
 
           // Objetivos Mensuales
           if (mensualKpis.isNotEmpty) ...[
-            Center(
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: primaryColor, width: 2),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                child: Text("Mensual", style: periodicidadTitleTextStyle),
+            DefaultTextStyle(
+              style: periodicidadTitleTextStyle,
+              child: Stack(
+                children: [
+                  Center(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: primaryColor, width: 2),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 3),
+                      child: const Text("Mensual"),
+                    ),
+                  ),
+                  if (showCodeInMensual)
+                    Row(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: primaryColor, width: 2),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 3),
+                          child: Text(asesor.asesorAbbrt),
+                        ),
+                      ],
+                    ),
+                ],
               ),
             ),
             const SizedBox(height: 10),
@@ -164,14 +192,36 @@ class _AsesorObjectivesContainer extends StatelessWidget {
 
           // Objetivos Anuales
           if (anualKpis.isNotEmpty) ...[
-            Center(
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: primaryColor, width: 2),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                child: Text("Anual", style: periodicidadTitleTextStyle),
+            DefaultTextStyle(
+              style: periodicidadTitleTextStyle,
+              child: Stack(
+                children: [
+                  Center(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: primaryColor, width: 2),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 3),
+                      child: const Text("Anual"),
+                    ),
+                  ),
+                  if (showCodeInAnual)
+                    Row(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: primaryColor, width: 2),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 3),
+                          child: Text(asesor.asesorAbbrt),
+                        ),
+                      ],
+                    ),
+                ],
               ),
             ),
             const SizedBox(height: 10),
