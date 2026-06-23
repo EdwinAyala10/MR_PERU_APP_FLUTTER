@@ -19,7 +19,7 @@ class KpisScreen extends StatelessWidget {
       //drawer: SideMenu(scaffoldKey: scaffoldKey),
       appBar: AppBar(
         title: const Text(
-          'Objetivos',
+          'Lista de Objetivos',
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
         leading: IconButton(

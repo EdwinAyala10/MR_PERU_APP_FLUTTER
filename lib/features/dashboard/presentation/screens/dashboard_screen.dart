@@ -567,7 +567,7 @@ class _ContainerDashboardKpisState extends ConsumerState<_ContainerDashboardKpis
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text(
-                        'Mostrar lista de objetivos',
+                        'Mostrar Todo',
                         style: TextStyle(
                           color: Colors.blue,
                         ),
@@ -596,7 +596,7 @@ class _ContainerDashboardKpisState extends ConsumerState<_ContainerDashboardKpis
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text(
-                        'Mostrar Todo',
+                        'Mostrar lista de objetivos',
                         style: TextStyle(
                           color: Colors.blue, // Color del texto del botón
                         ),

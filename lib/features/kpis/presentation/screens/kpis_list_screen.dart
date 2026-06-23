@@ -17,7 +17,7 @@ class KpisListScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Lista de Objetivos',
+          'Objetivos',
           style: TextStyle(fontWeight: FontWeight.w500),
         ),
         leading: IconButton(
