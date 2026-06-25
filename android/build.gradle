@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.8.0' 
+    ext.kotlin_version = '2.1.0' 
     repositories {
         google()
         mavenCentral()
@@ -9,7 +9,7 @@ buildscript {
         // START: FlutterFire Configuration
         classpath 'com.google.gms:google-services:4.3.15'
         // END: FlutterFire Configuration
-        classpath "com.android.tools.build:gradle:7.0.2"
+        classpath "com.android.tools.build:gradle:8.6.0"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -24,6 +24,21 @@ allprojects {
 rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
+    
+    // Fix for plugins that don't have namespace defined (required for AGP 8.x)
+    project.pluginManager.withPlugin('com.android.library') {
+        project.android {
+            if (namespace == null) {
+                def manifest = project.file("src/main/AndroidManifest.xml")
+                if (manifest.exists()) {
+                    def packageName = new XmlParser().parse(manifest).@package
+                    if (packageName) {
+                        namespace = packageName
+                    }
+                }
+            }
+        }
+    }
 }
 subprojects {
     project.evaluationDependsOn(':app')

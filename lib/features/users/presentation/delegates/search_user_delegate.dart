@@ -15,7 +15,7 @@ class SearchUserDelegate extends SearchDelegate<UserMaster?> {
   final String? idItemDelete;
   final ResetSearchQueryCallback resetSearchQuery;
   List<UserMaster> initialUsers;
-  
+
   late StreamController<List<UserMaster>> debouncedUsers;
   late StreamController<bool> isLoadingStream;
 
@@ -29,7 +29,8 @@ class SearchUserDelegate extends SearchDelegate<UserMaster?> {
     required this.initialUsers,
   }) : super(
           searchFieldLabel: 'Buscar personas',
-          searchFieldStyle: const TextStyle(color: Colors.black45, fontSize: 16),
+          searchFieldStyle:
+              const TextStyle(color: Colors.black45, fontSize: 16),
         ) {
     _initializeStreams();
   }
@@ -115,12 +116,13 @@ class SearchUserDelegate extends SearchDelegate<UserMaster?> {
 
           // Eliminar usuario con el código especificado
           //users.removeWhere((usuario) => usuario.code == userCurrent.code);
-          if (idItemDelete != "") { 
+          if (idItemDelete != "") {
             users.removeWhere((usuario) => usuario.code == idItemDelete);
           }
 
           return ListView.separated(
-            separatorBuilder: (BuildContext context, int index) => const Divider(),
+            separatorBuilder: (BuildContext context, int index) =>
+                const Divider(),
             itemCount: users.length,
             itemBuilder: (context, index) => _UserItem(
               user: users[index],

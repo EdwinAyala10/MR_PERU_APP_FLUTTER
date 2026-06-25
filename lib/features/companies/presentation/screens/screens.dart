@@ -4,3 +4,4 @@ export 'company_check_in_screen.dart';
 export 'company_detail_screen.dart';
 export 'company_map_screen.dart';
 export 'company_local_screen.dart';
+export 'rubro_screen.dart';

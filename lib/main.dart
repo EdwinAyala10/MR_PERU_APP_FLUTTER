@@ -15,6 +15,7 @@ void main() async {
   await LocalNotifications.initializeLocalNotifications();
 
   await Environment.initEnvironment();
+
   initializeDateFormatting('es_ES', null).then(
     (_) => {
       runApp(
@@ -34,7 +35,7 @@ class MainApp extends ConsumerWidget {
     return MaterialApp.router(
       theme: AppTheme().getTheme(),
       routerConfig: appRouter,
-      debugShowCheckedModeBanner: false,
+      //debugShowCheckedModeBanner: false,
     );
   }
 }

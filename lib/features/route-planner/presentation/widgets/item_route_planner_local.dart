@@ -68,14 +68,71 @@ class ItemRoutePlannerLocal extends ConsumerWidget {
                       : local.localDireccion) ??
                   '',
               style: const TextStyle(color: Colors.black45)),
-          Visibility(
-            visible: local.cchkFechaRegistroCheckIn != null &&
-                local.cchkFechaRegistroCheckIn != '',
-            child: Text(
-              "ULt. visita: ${local.cchkFechaRegistroCheckIn ?? ''}",
-              style: const TextStyle(color: Colors.green),
-            ),
-          )
+          // Última visita
+
+          // Última visita
+          if (local.cchkUltimaVisita != null &&
+              local.cchkUltimaVisita!.isNotEmpty)
+            ...local.cchkUltimaVisita!.map((cchk) => Column(
+                  children: [
+                    Visibility(
+                      visible: cchk.cchkFechaRegistroCheckIn != null &&
+                          cchk.cchkFechaRegistroCheckIn != '',
+                      child: Text(
+                        'Últ. visita: ${cchk.cchkFechaRegistroCheckIn}',
+                        style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.green,
+                            fontWeight: FontWeight.w700,
+                            overflow: TextOverflow.ellipsis),
+                      ),
+                    ),
+                    // Último check-in
+                    Visibility(
+                      visible: cchk.cchkComentarioCheckIn != null &&
+                          cchk.cchkComentarioCheckIn != '',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.mode_comment, size: 14),
+                          const Icon(Icons.keyboard_arrow_right_rounded,
+                              size: 14),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              'Últ. check-in: ${cchk.cchkComentarioCheckIn}',
+                              style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  overflow: TextOverflow.ellipsis),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Último check-out
+                    Visibility(
+                      visible: cchk.cchkComentarioCheckOut != null &&
+                          cchk.cchkComentarioCheckOut != '',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.mode_comment, size: 14),
+                          const Icon(Icons.keyboard_arrow_left_rounded,
+                              size: 14),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              'Últ. check-out: ${cchk.cchkComentarioCheckOut}',
+                              style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  overflow: TextOverflow.ellipsis),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                )),
         ],
       ),
       leading:

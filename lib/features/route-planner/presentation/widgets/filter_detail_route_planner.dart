@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:crm_app/config/config.dart';
-import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
+import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crm_app/features/route-planner/domain/domain.dart';
+import 'package:crm_app/features/route-planner/domain/entities/distance_filter.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
 import 'package:crm_app/features/shared/domain/entities/dropdown_option.dart';
 import 'package:crm_app/features/shared/widgets/find_filter_option_by_type.dart';
@@ -42,7 +43,7 @@ class _FilterDetailRoutePlannerState
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       loadingData();
     });
   }
@@ -54,103 +55,45 @@ class _FilterDetailRoutePlannerState
 
     final List<FilterOption> listFilters =
         ref.watch(routePlannerProvider).filters;
+    final user = ref.watch(authProvider).user;
+    final isAdmin = user?.isAdmin ?? false;
+
+    // Si es filtro de responsable y NO es admin, mostrar solo su usuario
+    if (widget.type == 'ID_USUARIO_RESPONSABLE' && !isAdmin && user != null) {
+      setState(() {
+        optionsMaster = [
+          FilterOptionContainer(
+            id: user.code,
+            title: widget.title,
+            name: user.name,
+            onSelect: (_, __, ___, ____, _____) {
+              // No hacer nada, está bloqueado para vendedores
+            },
+            isSelected: true,
+            type: widget.type,
+            isMulti: false,
+          )
+        ];
+        isLoading = false;
+      });
+      return;
+    }
 
     switch (widget.type) {
       case 'HRTR_ID_HORARIO_TRABAJO':
-        await ref
-            .read(routePlannerProvider.notifier)
-            .loadFilterHorarioTrabajo()
-            .then((value) => {
-                  setState(() {
-                    optionsMaster =
-                        getOptionProcess(value, listFilters, widget.isMulti);
-                    isLoading = false;
-                  })
-                });
-        break;
-
       case 'ESTADO':
-        await ref
-            .read(resourceDetailsProvider.notifier)
-            .loadCatalogById(groupId: '18')
-            .then((value) => {
-                  setState(() {
-                    optionsMaster =
-                        getOptionProcess(value, listFilters, widget.isMulti);
-                    isLoading = false;
-                  })
-                });
-        break;
-
       case 'ULTIMAS_VISITAS':
-        await ref
-            .read(routePlannerProvider.notifier)
-            .loadFilterActivity()
-            .then((value) => {
-                  setState(() {
-                    optionsMaster =
-                        getOptionProcess(value, listFilters, widget.isMulti);
-                    isLoading = false;
-                  })
-                });
-        break;
-
       case 'TIPOCLIENTE':
-        await ref
-            .read(resourceDetailsProvider.notifier)
-            .loadCatalogById(groupId: '02')
-            .then((value) => {
-                  setState(() {
-                    optionsMaster =
-                        getOptionProcess(value, listFilters, widget.isMulti);
-                    isLoading = false;
-                  })
-                });
-        break;
-
       case 'ESTADO_CRM':
-        await ref
-            .read(resourceDetailsProvider.notifier)
-            .loadCatalogById(groupId: '03')
-            .then((value) => {
-                  setState(() {
-                    optionsMaster =
-                        getOptionProcess(value, listFilters, widget.isMulti);
-                    isLoading = false;
-                  })
-                });
-        break;
-
       case 'CALIFICACION':
-        await ref
-            .read(resourceDetailsProvider.notifier)
-            .loadCatalogById(groupId: '04')
-            .then((value) => {
-                  setState(() {
-                    optionsMaster =
-                        getOptionProcess(value, listFilters, widget.isMulti);
-                    isLoading = false;
-                  })
-                });
-        break;
-
       case 'ID_USUARIO_RESPONSABLE':
-        await ref
-            .read(routePlannerProvider.notifier)
-            .loadFilterResponsable()
-            .then((value) => {
-                  setState(() {
-                    optionsMaster =
-                        getOptionProcess(value, listFilters, widget.isMulti);
-                    isLoading = false;
-                  })
-                });
-        break;
-
       case 'ID_TIPO_OPORTUNIDAD':
+      case 'ID_RUBRO':
+      case 'DISTANCIA':
+        // Filtros estáticos que usan cache
         await ref
             .read(routePlannerProvider.notifier)
-            .loadFilterTypeOpportunity()
+            .getFilterOptions(widget.type, search: textSearch)
             .then((value) => {
                   setState(() {
                     optionsMaster =
@@ -161,61 +104,13 @@ class _FilterDetailRoutePlannerState
         break;
 
       case 'CODIGO_POSTAL':
-        await ref
-            .read(routePlannerProvider.notifier)
-            .loadFilterCodigoPostal(textSearch)
-            .then((value) => {
-                  setState(() {
-                    optionsMaster =
-                        getOptionProcess(value, listFilters, widget.isMulti);
-                    isLoading = false;
-                  })
-                });
-        break;
-
       case 'DISTRITO':
-        await ref
-            .read(routePlannerProvider.notifier)
-            .loadFilterDistrito(textSearch)
-            .then((value) => {
-                  setState(() {
-                    optionsMaster =
-                        getOptionProcess(value, listFilters, widget.isMulti);
-                    isLoading = false;
-                  })
-                });
-        break;
-
       case 'RUC':
-        await ref
-            .read(routePlannerProvider.notifier)
-            .loadFilterRuc(textSearch)
-            .then((value) => {
-                  setState(() {
-                    optionsMaster =
-                        getOptionProcess(value, listFilters, widget.isMulti);
-                    isLoading = false;
-                  })
-                });
-        break;
-
-      case 'ID_RUBRO':
-        await ref
-            .read(resourceDetailsProvider.notifier)
-            .loadCatalogById(groupId: '16')
-            .then((value) => {
-                  setState(() {
-                    optionsMaster =
-                        getOptionProcess(value, listFilters, widget.isMulti);
-                    isLoading = false;
-                  })
-                });
-        break;
-
       case 'RAZON_COMERCIAL':
+        // Filtros dinámicos con búsqueda que no usan cache
         await ref
             .read(routePlannerProvider.notifier)
-            .loadFiltecRazonComercial(textSearch)
+            .getFilterOptions(widget.type, search: textSearch)
             .then((value) => {
                   setState(() {
                     optionsMaster =
@@ -250,10 +145,17 @@ class _FilterDetailRoutePlannerState
     List<DropdownOption> optionsList = value;
     List<FilterOptionContainer> optionsM = [];
 
-    final String? idFilter =
-        findFilterOptionByType(listFilters, widget.type, 'id', '');
+    String? idFilter;
 
-    print('aqui esta: ${idFilter}');
+    if (widget.type == 'DISTANCIA') {
+      final selectedDist =
+          ref.read(routePlannerProvider).selectedDistanceFilter;
+      idFilter = selectedDist?.valor;
+    } else {
+      idFilter = findFilterOptionByType(listFilters, widget.type, 'id', '');
+    }
+
+    print('aqui esta: $idFilter');
 
     optionsM = optionsList.asMap().entries.map((entry) {
       DropdownOption option = entry.value;
@@ -290,6 +192,18 @@ class _FilterDetailRoutePlannerState
 
   void handleSelect(
       String id, String name, String type, String title, bool isMulti) {
+    if (type == 'DISTANCIA') {
+      ref
+          .read(routePlannerProvider.notifier)
+          .onChangeDistanceFilter(DistanceFilter(valor: id, descripcion: name));
+    }
+
+    // Si se selecciona "Selecciona", eliminar el filtro de ese tipo
+    if (name.contains('Selecciona')) {
+      ref.read(routePlannerProvider.notifier).onDeleteFilterByType(type);
+      return;
+    }
+
     FilterOption anotherNewFilter =
         FilterOption(id: id, type: type, name: name, title: title);
 
@@ -439,7 +353,7 @@ class FilterOptionContainer extends StatelessWidget {
   final String? secundary;
   final bool? isMulti;
 
-  FilterOptionContainer(
+  const FilterOptionContainer(
       {super.key,
       required this.id,
       required this.name,
@@ -471,41 +385,47 @@ class FilterOptionContainer extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      if (isMulti == true && id != "")
-                        Icon(
-                            isSelected
-                                ? Icons.check_box
-                                : Icons.check_box_outline_blank_outlined,
-                            size: 26,
-                            color: primaryColor),
-                      if (isMulti == true && id != "")
-                        const SizedBox(
-                          width: 10,
-                        ),
-                      Column(
-                        children: [
-                          Text(name,
-                              style: const TextStyle(
-                                  fontSize: 17.0, fontWeight: FontWeight.w500)),
-                          if (subTitle != null)
-                            Text(subTitle ?? '',
-                                style: const TextStyle(
-                                    fontSize: 15.0,
-                                    fontWeight: FontWeight.w400)),
-                          if (secundary != null)
-                            Text(secundary ?? '',
-                                style: const TextStyle(fontSize: 15.0)),
-                        ],
-                      )
-                    ],
-                  ),
-                ],
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        if (isMulti == true && id != "")
+                          Icon(
+                              isSelected
+                                  ? Icons.check_box
+                                  : Icons.check_box_outline_blank_outlined,
+                              size: 26,
+                              color: primaryColor),
+                        if (isMulti == true && id != "")
+                          const SizedBox(
+                            width: 10,
+                          ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(name,
+                                  style: const TextStyle(
+                                      fontSize: 17.0,
+                                      fontWeight: FontWeight.w500)),
+                              if (subTitle != null)
+                                Text(subTitle ?? '',
+                                    style: const TextStyle(
+                                        fontSize: 15.0,
+                                        fontWeight: FontWeight.w400)),
+                              if (secundary != null)
+                                Text(secundary ?? '',
+                                    style: const TextStyle(fontSize: 15.0)),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ],
+                ),
               )
             ],
           ),

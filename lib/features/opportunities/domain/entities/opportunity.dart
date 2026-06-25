@@ -35,6 +35,9 @@ class Opportunity {
   String? actiFechaRegistro;
   String? nombreUsuarioResponsable;
   String? actiComentario;
+  String? emlsAsunto;
+  String? subject;
+  DateTime? oprtFechaRegistro;
 
   Opportunity({
     required this.id,
@@ -71,5 +74,8 @@ class Opportunity {
     this.actiFechaRegistro,
     this.nombreUsuarioResponsable,
     this.actiComentario,
+    this.emlsAsunto,
+    this.subject,
+    this.oprtFechaRegistro,
   });
 }

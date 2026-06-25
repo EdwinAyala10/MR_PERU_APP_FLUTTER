@@ -4,7 +4,9 @@ import '../../features/auth/presentation/providers/auth_provider.dart';
 
 
 final goRouterNotifierProvider = Provider((ref) {
-  final authNotifier = ref.read( authProvider.notifier);
+  final authNotifier = ref.read(authProvider.notifier);
+  // Escuchar cambios en el estado de autenticación
+  ref.watch(authProvider);
   return GoRouterNotifier(authNotifier);
 });
 

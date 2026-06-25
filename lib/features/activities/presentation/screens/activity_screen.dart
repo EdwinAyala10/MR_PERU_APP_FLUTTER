@@ -24,6 +24,7 @@ import '../../../companies/presentation/delegates/search_company_active_delegate
 
 import '../../../opportunities/presentation/search/search_opportunities_active_provider.dart';
 import '../../../opportunities/presentation/delegates/search_opportunity_active_delegate.dart';
+import '../../../opportunities/presentation/providers/opportunities_repository_provider.dart';
 import '../../../shared/widgets/floating_action_button_custom.dart';
 import '../../../shared/widgets/select_custom_form.dart';
 
@@ -47,7 +48,7 @@ class ActivityScreen extends ConsumerWidget {
         appBar: AppBar(
           title: Text(
             '${activityId == 'new' ? 'Crear' : 'Editar'} Actividad',
-            style: TextStyle(fontWeight: FontWeight.w700),
+            style: const TextStyle(fontWeight: FontWeight.w700),
           ),
           /*leading: IconButton(
             icon: const Icon(Icons.close),
@@ -61,60 +62,78 @@ class ActivityScreen extends ConsumerWidget {
             : _ActivityView(activity: activityState.activity!),
         floatingActionButton: FloatingActionButtonCustom(
             iconData: Icons.save,
-            callOnPressed:
-            ref.watch(activityFormProvider(activityState.activity!)).actiComentario == '' ? () {
-             //showSnackbar(context, 'El comentario es requerido');
-              mostrarModalMensaje(context, 'AVISO',
-                  'El comentario es requerido',
-                  () {
-                Navigator.of(context).pop();
-              });
-            } :  (  ref.watch(activityFormProvider(activityState.activity!)).actividadesContacto!.length == 0 ? () {
-              //showSnackbar(context, 'Debes seleccionar un contacto como minimo');
-              mostrarModalMensaje(context, 'AVISO',
-                  'Debes seleccionar un contacto como minimo',
-                  () {
-                Navigator.of(context).pop();
-              });
-            } : () {
-              log(activityState.activity.toString());
-              if (activityState.activity == null) return;
-
-              showLoadingMessage(context);
-
-              ref
-                  .read(activityFormProvider(activityState.activity!).notifier)
-                  .onFormSubmit()
-                  .then((CreateUpdateActivityResponse value) {
-                //if ( !value.response ) return;
-                if (value.message != '') {
-                  showSnackbar(context, value.message);
-
-                  if (value.response && !ref.read(fromOpportunity)) {
-                    ref
-                        .read(activitiesProvider.notifier)
-                        .loadNextPage(isRefresh: true);
-                    ref
-                        .read(activityProvider(activityId).notifier)
-                        .loadActivity();
-                    ref
-                        .read(companyProvider(value.id!).notifier)
-                        .loadSecundaryActivities();
-
-                    //Timer(const Duration(seconds: 3), () {
-                    //context.replace('/activities');
-                    context.pop();
-                    //});
-                    //return;
+            callOnPressed: ref
+                        .watch(activityFormProvider(activityState.activity!))
+                        .actiComentario ==
+                    ''
+                ? () {
+                    //showSnackbar(context, 'El comentario es requerido');
+                    mostrarModalMensaje(
+                        context, 'AVISO', 'El comentario es requerido', () {
+                      Navigator.of(context).pop();
+                    });
                   }
-                  //context.pop();
-                }
-                
-                Navigator.pop(context);
+                : (ref
+                        .watch(activityFormProvider(activityState.activity!))
+                        .actividadesContacto!
+                        .isEmpty
+                    ? () {
+                        //showSnackbar(context, 'Debes seleccionar un contacto como minimo');
+                        mostrarModalMensaje(context, 'AVISO',
+                            'Debes seleccionar un contacto como minimo', () {
+                          Navigator.of(context).pop();
+                        });
+                      }
+                    : () {
+                        log(activityState.activity.toString());
+                        if (activityState.activity == null) return;
 
-                //context.pop();
-              });
-            })),
+                        showLoadingMessage(context);
+
+                        ref
+                            .read(activityFormProvider(activityState.activity!)
+                                .notifier)
+                            .onFormSubmit()
+                            .then((CreateUpdateActivityResponse value) {
+                          //if ( !value.response ) return;
+                          if (value.message != '') {
+                            showSnackbar(context, value.message);
+
+                            if (value.response) {
+                              if (ref.read(fromOpportunity)) {
+                                ref
+                                    .read(activitiesProvider.notifier)
+                                    .loadNextPageActivitiesByOpportunities(
+                                      isRefresh: true,
+                                      opportunityId: ref
+                                              .read(selectedOp.notifier)
+                                              .state
+                                              ?.id ??
+                                          '',
+                                    );
+                                ref.read(fromOpportunity.notifier).state = false;
+                                context.pop();
+                              } else {
+                                ref
+                                    .read(activitiesProvider.notifier)
+                                    .loadNextPage(isRefresh: true);
+                                ref
+                                    .read(activityProvider(activityId).notifier)
+                                    .loadActivity();
+                                ref
+                                    .read(companyProvider(value.id!).notifier)
+                                    .loadSecundaryActivities();
+
+                                context.pop();
+                              }
+                            }
+                          }
+
+                          Navigator.pop(context);
+
+                          //context.pop();
+                        });
+                      })),
       ),
     );
   }
@@ -151,6 +170,10 @@ class _ActivityInformationv2State
     DropdownOption(id: '', name: 'Cargando...'),
   ];
 
+  bool _isLoadingOpportunities = false;
+  bool _hasOpportunities = false;
+  bool _isEmpresaNotSelected = true;
+
   @override
   void initState() {
     super.initState();
@@ -164,21 +187,28 @@ class _ActivityInformationv2State
                   optionsTipoGestion = value;
                 })
               });
-    
+
       String? idEmpresa = ref.read(uiProvider).idCompanyAct;
       String? nameEmpresa = ref.read(uiProvider).nameCompanyAct;
-      
-      if (widget.activity.id == "new" && idEmpresa != "") { 
+
+      if (widget.activity.id == "new" && idEmpresa != "") {
         ref
-          .read(
-            activityFormProvider(widget.activity).notifier,
-          )
-          .onRucChanged(
-            idEmpresa ?? '',
-            nameEmpresa ?? '',
-          );
+            .read(
+              activityFormProvider(widget.activity).notifier,
+            )
+            .onRucChanged(
+              idEmpresa ?? '',
+              nameEmpresa ?? '',
+            );
+        // Verificar oportunidades si hay empresa inicial
+        _checkOpportunities(idEmpresa ?? '');
       }
-      
+
+      if (idEmpresa != "") {
+        setState(() {
+          _isEmpresaNotSelected = false;
+        });
+      }
     });
     final op = ref.read(selectedOp);
     ref
@@ -199,8 +229,48 @@ class _ActivityInformationv2State
         ref
             .read(activityFormProvider(widget.activity).notifier)
             .onOportunidadChanged(op?.id ?? '', op?.oprtNombre ?? '');
+        // Verificar oportunidades cuando se carga desde selectedOp
+        _checkOpportunities(company[0].ruc);
       },
     );
+  }
+
+  Future<void> _checkOpportunities(String ruc) async {
+    if (ruc.isEmpty) {
+      setState(() {
+        _hasOpportunities = false;
+        _isLoadingOpportunities = false;
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoadingOpportunities = true;
+    });
+
+    try {
+      final opportunitiesRepository = ref.read(opportunitiesRepositoryProvider);
+      final opportunities =
+          await opportunitiesRepository.searchOpportunities(ruc, '');
+
+      _hasOpportunities = opportunities.isNotEmpty;
+
+      if (!_hasOpportunities) {
+        ref
+            .read(activityFormProvider(widget.activity).notifier)
+            .onOportunidadChanged('0', 'Oportunidad no definida');
+      }
+
+      setState(() {
+        _hasOpportunities = _hasOpportunities;
+        _isLoadingOpportunities = false;
+      });
+    } catch (e) {
+      setState(() {
+        _hasOpportunities = false;
+        _isLoadingOpportunities = false;
+      });
+    }
   }
 
   @override
@@ -357,75 +427,86 @@ class _ActivityInformationv2State
                 )
               : const SizedBox(),
           const SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Oportunidad',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                GestureDetector(
-                  onTap: () {
-                    if (activityForm.actiRuc.value == '') {
-                      showSnackbar(context, 'Seleccione una oportunidad');
-                      return;
-                    }
-                    _openSearchOportunities(
-                        context, ref, activityForm.actiRuc.value);
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.grey,
-                      ),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            activityForm.actiIdOportunidad.value == ''
-                                ? 'Seleccione Oportunidad'
-                                : activityForm.actiNombreOportunidad,
-                            style: const TextStyle(
-                              fontSize: 16,
+          _isLoadingOpportunities
+              ? PlaceholderInput(text: 'Cargando Oportunidades...')
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Oportunidad',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.search),
-                          onPressed: () {
-                            if (activityForm.actiRuc.value == '') {
-                              showSnackbar(context, 'Seleccione una empresa');
-                              return;
-                            }
-                            _openSearchOportunities(
-                                context, ref, activityForm.actiRuc.value);
-                          },
-                        ),
-                      ],
+                          const SizedBox(height: 6),
+                          GestureDetector(
+                            onTap: () {
+                              if (activityForm.actiRuc.value == '') {
+                                showSnackbar(
+                                    context, 'Seleccione una oportunidad');
+                                return;
+                              }
+                              _openSearchOportunities(
+                                  context, ref, activityForm.actiRuc.value);
+                            },
+                            child: Container(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Colors.grey,
+                                ),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      activityForm.actiIdOportunidad.value == ''
+                                          ? 'Seleccione Oportunidad'
+                                          : activityForm.actiNombreOportunidad,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.search),
+                                    onPressed: () {
+                                      if (activityForm.actiRuc.value == '') {
+                                        showSnackbar(
+                                            context, 'Seleccione una empresa');
+                                        return;
+                                      }
+                                      _openSearchOportunities(context, ref,
+                                          activityForm.actiRuc.value);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                    (_hasOpportunities || _isEmpresaNotSelected) &&
+                            activityForm.actiIdOportunidad.errorMessage != null
+                        ? Padding(
+                            padding: const EdgeInsets.only(left: 4),
+                            child: Text(
+                              activityForm.actiIdOportunidad.errorMessage ?? '',
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                          )
+                        : const SizedBox(),
+                  ],
                 ),
-              ],
-            ),
-          ),
-          activityForm.actiIdOportunidad.errorMessage != null
-              ? Padding(
-                  padding: const EdgeInsets.only(left: 4),
-                  child: Text(
-                    activityForm.actiIdOportunidad.errorMessage ?? '',
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                )
-              : const SizedBox(),
           const SizedBox(height: 15),
           const Text(
             'Contactos',
@@ -461,7 +542,7 @@ class _ActivityInformationv2State
                 ],
               )),
               ElevatedButton(
-                onPressed: activityForm.actividadesContacto!.length > 0
+                onPressed: activityForm.actividadesContacto!.isNotEmpty
                     ? null
                     : () {
                         if (activityForm.actiRuc.value == "") {
@@ -581,7 +662,7 @@ class _ActivityInformationv2State
                 .read(activityFormProvider(widget.activity).notifier)
                 .onComentarioChanged,
           ),
-          activityForm.actiComentario.length == 0
+          activityForm.actiComentario.isEmpty
               ? const Padding(
                   padding: EdgeInsets.only(left: 4),
                   child: Text(
@@ -669,6 +750,12 @@ class _ActivityInformationv2State
         ref
             .read(activityFormProvider(widget.activity).notifier)
             .onRucChanged(company.ruc, company.razon);
+
+        setState(() {
+          _isEmpresaNotSelected = false;
+        });
+
+        _checkOpportunities(company.ruc);
       },
     );
   }

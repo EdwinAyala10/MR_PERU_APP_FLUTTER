@@ -1,9 +1,14 @@
 import 'package:crm_app/features/agenda/presentation/screens/event_detail_screen.dart';
 import 'package:crm_app/features/companies/presentation/screens/company_route_planner.dart';
+import 'package:crm_app/features/companies/presentation/screens/rubro_screen.dart';
 import 'package:crm_app/features/dashboard/presentation/screens/notification_screen.dart';
 import 'package:crm_app/features/documents/presentation/screens/enlace_screen.dart';
 import 'package:crm_app/features/kpis/presentation/screens/kpi_detail_screen.dart';
+import 'package:crm_app/features/kpis/presentation/screens/kpi_reorder_by_user.dart';
+import 'package:crm_app/features/kpis/presentation/screens/kpis_list_screen.dart';
 import 'package:crm_app/features/opportunities/presentation/screens/opportunity_detail_screen.dart';
+import 'package:crm_app/features/opportunities/presentation/screens/force_mr_activation_screen.dart';
+import 'package:crm_app/features/opportunities/presentation/screens/opportunity_summary_screen.dart';
 import 'package:crm_app/features/route-planner/presentation/screens/register_route_planner_screen.dart';
 import 'package:crm_app/features/route-planner/presentation/screens/route_day_screen.dart';
 import 'package:crm_app/features/route-planner/presentation/screens/route_planner_screen.dart';
@@ -16,6 +21,10 @@ import '../../features/indicators/indicators.dart';
 import '../../features/location/presentation/screens/map_screen.dart';
 import '../../features/location/presentation/screens/view_map_screen.dart';
 import '../../features/shared/presentation/screens/send_whatsapp_screen.dart';
+import '../../features/shared/presentation/screens/email_sync_setup_screen.dart';
+import '../../features/shared/presentation/screens/email_compose_screen.dart';
+import '../../features/shared/presentation/screens/microsoft_sync_welcome_screen.dart';
+import '../../features/shared/presentation/screens/microsoft_login_screen.dart';
 import '../../features/shared/presentation/screens/text_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -102,6 +111,29 @@ final goRouterProvider = Provider((ref) {
       ),
 
       GoRoute(
+        path: '/email_sync_setup',
+        builder: (context, GoRouterState state) => const EmailSyncSetupScreen(),
+      ),
+      GoRoute(
+        path: '/email_compose/:id',
+        builder: (context, GoRouterState state) => EmailComposeScreen(
+          contactId: state.pathParameters['id'] ?? 'no-id',
+        ),
+      ),
+
+      GoRoute(
+        path: '/microsoft_sync_welcome',
+        builder: (context, GoRouterState state) => const MicrosoftSyncWelcomeScreen(),
+      ),
+
+      GoRoute(
+        path: '/microsoft_login',
+        builder: (context, GoRouterState state) => MicrosoftLoginScreen(
+          email: state.extra is String ? state.extra as String : '',
+        ),
+      ),
+
+      GoRoute(
         path: '/text_enlace', // /activity/new
         builder: (context, GoRouterState state) => const EnlaceScreen(),
       ),
@@ -126,6 +158,11 @@ final goRouterProvider = Provider((ref) {
       ),
 
       GoRoute(
+        path: '/kpis-list',
+        builder: (context, state) => const KpisListScreen(),
+      ),
+
+      GoRoute(
         path: '/kpi/:id', // /event/new
         builder: (context, state) => KpiScreen(
           kpiId: state.pathParameters['id'] ?? 'no-id',
@@ -137,6 +174,15 @@ final goRouterProvider = Provider((ref) {
         builder: (context, state) => KpiDetailScreen(
           kpiId: state.pathParameters['id'] ?? 'no-id',
         ),
+      ),
+
+      GoRoute(
+        path: '/users_reorder',
+        builder: (context, state) => const KpiReorderByUserScreen(),
+      ),
+      GoRoute(
+        path: '/kpis/stats',
+        builder: (context, state) => const KpiStatsScreen(),
       ),
 
       GoRoute(
@@ -187,6 +233,10 @@ final goRouterProvider = Provider((ref) {
         ),
       ),
       GoRoute(
+        path: '/rubro',
+        builder: (context, state) => const RubroScreen(),
+      ),
+      GoRoute(
         path: '/company_map/:rucId/:identificator', // /company/new
         builder: (context, state) => CompanyMapScreen(
           rucId: state.pathParameters['rucId'] ?? 'no-id',
@@ -211,7 +261,13 @@ final goRouterProvider = Provider((ref) {
       ),
 
       GoRoute(
-        path: '/company_check_in/:id', // /company/new
+        path: '/company_check_in', // /company/new
+        builder: (context, state) => CompanyCheckInScreen(
+          id: state.extra is String ? state.extra as String : 'no-id',
+        ),
+      ),
+      GoRoute(
+        path: '/company_check_in/:id', // backward compatibility
         builder: (context, state) => CompanyCheckInScreen(
           id: state.pathParameters['id'] ?? 'no-id',
         ),
@@ -264,6 +320,20 @@ final goRouterProvider = Provider((ref) {
         builder: (context, state) => OpportunityDetailScreen(
           opportunityId: state.pathParameters['id'] ?? 'no-id',
         ),
+      ),
+      GoRoute(
+        path: '/force_mr_activation/:opportunityId',
+        builder: (context, state) {
+          final opportunityId = state.pathParameters['opportunityId']!;
+          return ForceMrActivationScreen(opportunityId: opportunityId);
+        },
+      ),
+      GoRoute(
+        path: '/opportunity_summary/:opportunityId',
+        builder: (context, state) {
+          final opportunityId = state.pathParameters['opportunityId']!;
+          return OpportunitySummaryScreen(opportunityId: opportunityId);
+        },
       ),
 
       GoRoute(

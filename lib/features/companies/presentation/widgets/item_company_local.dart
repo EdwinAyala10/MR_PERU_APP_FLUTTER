@@ -24,103 +24,129 @@ class ItemCompanyLocal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return Column(
       children: [
-        ListTile(
-          //onTap: editCallOnTap,
-          title: Text(
-              companyLocal.localNombre == ""
-                  ? "LOCAL SIN NOMBRE"
-                  : companyLocal.localNombre,
-              style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  color: companyLocal.localNombre == ""
-                      ? Colors.black45
-                      : Colors.black)),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        Padding(
+          padding: const EdgeInsets.only(top: 10),
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
             children: [
-              if (companyLocal.coordenadasLatitud == "")
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.redAccent.withOpacity(0.1),
-                    border: Border.all(color: Colors.redAccent),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Text(
-                    'Sin coordenadas',
-                    style: TextStyle(
-                      color: Colors.redAccent,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
+              // leading (Icono)
+              SizedBox(
+                width: screenWidth * 0.14 < 34
+                    ? 34
+                    : (screenWidth * 0.14 > 60 ? 60 : screenWidth * 0.14),
+                child: const Icon(
+                  Icons.home_work_outlined,
+                  size: 34,
+                ),
+              ),
+              const SizedBox(width: 5),
+
+              // title y subtitle
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                        companyLocal.localNombre == ""
+                            ? "LOCAL SIN NOMBRE"
+                            : companyLocal.localNombre,
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: companyLocal.localNombre == ""
+                                ? Colors.black45
+                                : Colors.black)),
+                    if (companyLocal.coordenadasLatitud == "")
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.redAccent.withOpacity(0.1),
+                          border: Border.all(color: Colors.redAccent),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Text(
+                          'Sin coordenadas',
+                          style: TextStyle(
+                            color: Colors.redAccent,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    Text(companyLocal.localTipoDescripcion ?? '',
+                        style: const TextStyle(color: Colors.black45)),
+                    Text(companyLocal.localDireccion == ""
+                        ? "SIN DIRECCION"
+                        : companyLocal.localDireccion ?? ''),
+                    Text(
+                        '${companyLocal.departamento} - ${companyLocal.provincia} - ${companyLocal.distrito}'),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 5),
+
+              // trailing (Iconos y boton)
+              LayoutBuilder(builder: (context, constraints) {
+                return Column(
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: isAdmin ? editCallOnTap : null,
+                      child: Icon(
+                        Icons.edit,
+                        size: 24,
+                        color: isAdmin
+                            ? const Color.fromARGB(255, 45, 45, 45)
+                            : const Color.fromARGB(255, 211, 203, 203),
+                      ),
                     ),
-                  ),
-                ),
-              Text(companyLocal.localTipoDescripcion ?? '',
-                  style: const TextStyle(color: Colors.black45)),
-              Text(companyLocal.localDireccion == ""
-                  ? "SIN DIRECCION"
-                  : companyLocal.localDireccion ?? ''),
-              Text(
-                  '${companyLocal.departamento} - ${companyLocal.provincia} - ${companyLocal.distrito}'),
+                    const SizedBox(
+                      height: 12,
+                    ),
+
+                    // Icono de ubicacion
+                    GestureDetector(
+                      onTap: companyLocal.coordenadasLatitud == ""
+                          ? null
+                          : callbackOnTap,
+                      child: Icon(
+                        Icons.place,
+                        size: 24,
+                        color: companyLocal.coordenadasLatitud == ""
+                            ? const Color.fromARGB(255, 239, 210, 200)
+                            : Colors.deepOrangeAccent,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    MaterialButton(
+                      color: primaryColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Text(
+                        'Programar',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onPressed: () {
+                        if (programCallOnTap != null) {
+                          programCallOnTap!();
+                        }
+                      },
+                    ),
+                  ],
+                );
+              }),
             ],
           ),
-          leading: const Icon(
-            Icons.home_work_outlined,
-            size: 34,
-          ),
-          trailing: Column(
-            children: [
-              GestureDetector(
-                onTap: isAdmin ? editCallOnTap : null,
-                child: Icon(
-                  Icons.edit,
-                  size: 24,
-                  color: isAdmin
-                      ? const Color.fromARGB(255, 45, 45, 45)
-                      : const Color.fromARGB(255, 211, 203, 203),
-                ),
-              ),
-              const SizedBox(
-                height: 5,
-              ),
-              GestureDetector(
-                onTap: companyLocal.coordenadasLatitud == ""
-                    ? null
-                    : callbackOnTap,
-                child: Icon(
-                  Icons.place,
-                  size: 24,
-                  color: companyLocal.coordenadasLatitud == ""
-                      ? const Color.fromARGB(255, 239, 210, 200)
-                      : Colors.deepOrangeAccent,
-                ),
-              ),
-            ],
-          ),
-          //onTap: ,
         ),
-        Positioned(
-          bottom: 10,
-          right: 10,
-          child: MaterialButton(
-            color: primaryColor,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Text(
-              'Programar',
-              style: TextStyle(color: Colors.white),
-            ),
-            onPressed: () {
-              if (programCallOnTap != null) {
-                programCallOnTap!();
-              }
-            },
-          ),
-        )
       ],
     );
   }

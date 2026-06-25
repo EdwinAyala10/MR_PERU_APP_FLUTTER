@@ -83,6 +83,14 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
     //}
   }
 
+  List<Activity> _deduplicateActivities(List<Activity> activities) {
+    final uniqueById = <String, Activity>{};
+    for (final activity in activities) {
+      uniqueById[activity.id] = activity;
+    }
+    return uniqueById.values.toList();
+  }
+
   Future loadNextPage({bool isRefresh = false}) async {
     final search = state.textSearch;
 
@@ -125,10 +133,11 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
 
       if (isRefresh) {
         newOffset = 0;
-        newActivities = activities;
+        newActivities = _deduplicateActivities(activities);
       } else {
         newOffset = sOffset;
-        newActivities = [...state.activities, ...activities];
+        newActivities =
+            _deduplicateActivities([...state.activities, ...activities]);
       }
 
       if (isRefresh) {
@@ -201,10 +210,11 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
 
     if (isRefresh) {
       newOffset = 0;
-      newActivities = activities;
+      newActivities = _deduplicateActivities(activities);
     } else {
       newOffset = state.offset + 10;
-      newActivities = [...state.activities, ...activities];
+      newActivities =
+          _deduplicateActivities([...state.activities, ...activities]);
     }
 
     state = state.copyWith(

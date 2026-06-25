@@ -148,13 +148,14 @@ class _ActivitiesViewState extends ConsumerState {
     super.initState();
 
     scrollController.addListener(() {
-      if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 200) {
+      if (scrollController.position.pixels >=
+          scrollController.position.maxScrollExtent - 200) {
         print('CARGANDO MAS');
         ref.read(activitiesProvider.notifier).loadNextPage(isRefresh: false);
       }
     });
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(activitiesProvider.notifier).loadNextPage(isRefresh: true);
       ref.read(activitiesProvider.notifier).onChangeNotIsActiveSearch();
     });
@@ -202,16 +203,18 @@ class _SearchComponent extends ConsumerStatefulWidget {
 }
 
 class __SearchComponentState extends ConsumerState<_SearchComponent> {
-  TextEditingController searchController = TextEditingController(
-      //text: ref.read(routePlannerProvider).textSearch
-      );
+  TextEditingController searchController = TextEditingController();
+  Timer? _debounce;
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    Timer? debounce;
-    //TextEditingController searchController =
-    //    TextEditingController(text: ref.read(companiesProvider).textSearch);
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
       width: double.infinity,
@@ -222,14 +225,14 @@ class __SearchComponentState extends ConsumerState<_SearchComponent> {
             style: const TextStyle(fontSize: 14.0),
             controller: searchController,
             onChanged: (String value) {
-              if (debounce?.isActive ?? false) debounce?.cancel();
-              debounce = Timer(const Duration(seconds: 1), () {
-                //ref.read(companiesProvider.notifier).loadNextPage(value);
+              if (_debounce?.isActive ?? false) _debounce?.cancel();
+              _debounce = Timer(const Duration(milliseconds: 500), () {
                 ref.read(activitiesProvider.notifier).onChangeTextSearch(value);
               });
             },
             onFieldSubmitted: (value) {
-                ref.read(activitiesProvider.notifier).onChangeTextSearch(value);
+              _debounce?.cancel();
+              ref.read(activitiesProvider.notifier).onChangeTextSearch(value);
             },
             decoration: InputDecoration(
               hintText: 'Buscar actividad...',
@@ -255,6 +258,7 @@ class __SearchComponentState extends ConsumerState<_SearchComponent> {
           if (ref.watch(activitiesProvider).textSearch != "")
             IconButton(
               onPressed: () {
+                _debounce?.cancel();
                 ref
                     .read(activitiesProvider.notifier)
                     .onChangeNotIsActiveSearch();

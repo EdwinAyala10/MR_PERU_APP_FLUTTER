@@ -21,6 +21,79 @@ class ItemKpi extends ConsumerWidget {
   final int index;
   final Function() onTap;
 
+  bool get _isCategoryWithoutPercentage => data.objrIdCategoria == '08';
+
+  double get _indicatorValue {
+    if (_isCategoryWithoutPercentage) return 1;
+
+    // Normalizar porcentaje si viene en formato incorrecto
+    final porcentaje = data.porcentaje ?? 0;
+    final percentage = porcentaje > 1000 
+        ? (porcentaje / 10000) 
+        : (porcentaje / 100);
+    
+    return percentage.clamp(0.0, 1.0);
+  }
+
+  String get _indicatorLabel {
+    if (_isCategoryWithoutPercentage) {
+      return '${data.totalRegistro ?? 0}';
+    }
+
+    // Normalizar porcentaje si viene en formato incorrecto
+    final porcentaje = data.porcentaje ?? 0;
+    final normalizedPercentage = porcentaje > 1000 
+        ? (porcentaje / 10000 * 100).round() 
+        : porcentaje.round();
+    
+    // Si el porcentaje es >= 1000, mostrarlo en formato K
+    if (normalizedPercentage >= 1000) {
+      final double thousands = normalizedPercentage / 1000;
+      if (thousands % 1 == 0) {
+        return '${thousands.toInt()}K%';
+      } else {
+        return '${thousands.toStringAsFixed(1)}K%';
+      }
+    }
+    
+    return '$normalizedPercentage%';
+  }
+
+  Color get _indicatorColor {
+    if (_isCategoryWithoutPercentage) {
+      final total = data.totalRegistro ?? 0;
+
+      if (total == 0) return Colors.grey;
+      if (total <= 2) return Colors.amber;
+      return Colors.red;
+    }
+
+    return isColorIndicator(data.porcentaje ?? 0);
+  }
+
+  String get _progressText {
+    if (_isCategoryWithoutPercentage) {
+      return '${data.totalRegistro ?? 0}';
+    }
+
+    // Formatear totalRegistro a K si es >= 1000
+    final totalRegistro = data.totalRegistro ?? 0;
+    String formattedTotal;
+    
+    if (totalRegistro >= 1000) {
+      final double thousands = totalRegistro / 1000;
+      if (thousands % 1 == 0) {
+        formattedTotal = '${thousands.toInt()}K';
+      } else {
+        formattedTotal = '${thousands.toStringAsFixed(1)}K';
+      }
+    } else {
+      formattedTotal = '$totalRegistro';
+    }
+
+    return '$formattedTotal/${convertTypeCategory(data)}';
+  }
+
   Widget _buildChild(BuildContext context, ReorderableItemState state, WidgetRef ref) {
     BoxDecoration decoration;
 
@@ -72,15 +145,15 @@ class ItemKpi extends ConsumerWidget {
                                     height: 46,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 5,
-                                      value: ((data.porcentaje ?? 0) / 100).toDouble(),
+                                      value: _indicatorValue,
                                       valueColor: AlwaysStoppedAnimation<Color>(
-                                        isColorIndicator(data.porcentaje ?? 0),
+                                        _indicatorColor,
                                       ), // Color cuando está marcado
-                                      backgroundColor: Colors.grey,
+                                      backgroundColor: Colors.grey.shade300,
                                     ),
                                   ),
                                   Text(
-                                    "${data.porcentaje!.round()}%", // El porcentaje se multiplica por 100 para mostrarlo correctamente
+                                    _indicatorLabel,
                                     style: const TextStyle(
                                       fontSize: 13, // Tamaño del texto
                                       color: Colors.black, // Color del texto
@@ -128,7 +201,7 @@ class ItemKpi extends ConsumerWidget {
                                   ),
                                   SizedBox(
                                     width: 300,
-                                    child: Text('${data.totalRegistro}/${convertTypeCategory(data)}',
+                                    child: Text(_progressText,
                                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                                           color: Colors.black54,
                                           fontSize: 13
@@ -211,4 +284,31 @@ class ItemKpi extends ConsumerWidget {
     print('PORCENTAJE: ${porc}');
     return returnColors; 
   }
+}
+
+String convertTypeCategory(Kpi kpi) {
+  String res = kpi.objrCantidad ?? '';
+  
+  // Solo agregar "K" si es categoría '05' (Oportunidades Ganadas)
+  if (kpi.objrIdCategoria == '05') {
+    try {
+      final double value = double.parse(res);
+      if (value % 1 == 0) {
+        res = '${value.toInt()}K';
+      } else {
+        res = '${value.toStringAsFixed(1)}K';
+      }
+    } catch (e) {
+      res = '0K';
+    }
+  } else {
+    // Para otras categorías, solo mostrar el número sin "K"
+    try {
+      res = (double.parse(res).toInt()).toString();
+    } catch (e) {
+      res = '0';
+    }
+  }
+  
+  return res;
 }

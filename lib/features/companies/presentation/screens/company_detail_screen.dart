@@ -113,7 +113,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
     _tabController = TabController(length: 6, vsync: this);
     _tabController.addListener(_handleTabChange);
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
           .watch(companyProvider(widget.company.ruc).notifier)
           .loadSecundaryDetails();
@@ -627,7 +627,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
                 );
             context.pop();
             if (ref.watch(companiesProvider).isValidateCheckIn) {
-              context.push('/company_check_in/$ids');
+              context.push('/company_check_in', extra: ids);
               return;
             } else {
               log(ref.read(companiesProvider).validationCheckinMessage);
@@ -642,7 +642,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
                 ),
               );
             }
-            // context.push('/company_check_in/$ids');
+            // context.push('/company_check_in', extra: ids);
           },
           iconData: Icons.check_circle_outline_outlined,
         );
@@ -963,6 +963,7 @@ class _ListEvents extends StatelessWidget {
           itemBuilder: (context, index) {
             final event = events[index];
             return ItemEvent(
+                isMainScreen: false,
                 event: event,
                 callbackOnTap: () {
                   context.push('/event_detail/${event.id}');

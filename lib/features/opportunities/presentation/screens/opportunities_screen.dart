@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:crm_app/config/theme/app_theme.dart';
 import 'package:crm_app/features/activities/presentation/providers/providers.dart';
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crm_app/features/opportunities/presentation/providers/filter_active_opportunity_provider.dart';
 import 'package:crm_app/features/opportunities/presentation/widgets/custom_acctive_opportunity.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
+import 'package:crm_app/features/shared/infrastructure/services/key_value_storage_service_impl.dart';
 import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
+import 'package:crm_app/features/shared/infrastructure/services/notification_service.dart';
 import 'package:crm_app/features/shared/widgets/no_exist_listview.dart';
 
 import '../../domain/domain.dart';
@@ -35,6 +38,7 @@ class _OpportunitiesScreenState extends ConsumerState<OpportunitiesScreen>
 
   @override
   void initState() {
+    _showPendingEmailFeedback();
     _tabController = TabController(length: 4, vsync: this);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
@@ -61,6 +65,31 @@ class _OpportunitiesScreenState extends ConsumerState<OpportunitiesScreen>
       ref.read(searchControllerProvider).text = '';
     });
     super.initState();
+  }
+
+  Future<void> _showPendingEmailFeedback() async {
+    final showSyncMessage = await KeyValueStorageServiceImpl().getValue<bool>('show_sync_message');
+    final emailSentTick = await KeyValueStorageServiceImpl().getValue<int>('email_sent_tick');
+    final lastShownTick = await KeyValueStorageServiceImpl().getValue<int>('email_sent_tick_shown') ?? 0;
+
+    if (!mounted) return;
+
+    if (showSyncMessage == true) {
+      await KeyValueStorageServiceImpl().setKeyValue<bool>('show_sync_message', false);
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (!mounted) return;
+        NotificationService().showSuccess(
+          context: context,
+          title: 'Sincronización exitosa',
+          message: 'Tu cuenta de correo ha sido sincronizada correctamente',
+          duration: 4000,
+        );
+      });
+    }
+
+    if (emailSentTick != null && emailSentTick > lastShownTick) {
+      await KeyValueStorageServiceImpl().setKeyValue<int>('email_sent_tick_shown', emailSentTick);
+    }
   }
 
   @override
@@ -228,7 +257,7 @@ class _OpportunitiesViewState extends ConsumerState<_OpportunitiesView> {
       }
     });
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(opportunitiesProvider.notifier).clearOpList();
 
       ref
@@ -289,12 +318,16 @@ class _SearchComponent extends ConsumerStatefulWidget {
 }
 
 class __SearchComponentState extends ConsumerState<_SearchComponent> {
+  Timer? _debounce;
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    Timer? debounce;
-    //TextEditingController searchController =
-    //    TextEditingController(text: ref.read(companiesProvider).textSearch);
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
       width: double.infinity,
@@ -305,9 +338,8 @@ class __SearchComponentState extends ConsumerState<_SearchComponent> {
             style: const TextStyle(fontSize: 14.0),
             controller: ref.read(searchControllerProvider),
             onChanged: (String value) {
-              if (debounce?.isActive ?? false) debounce?.cancel();
-              debounce = Timer(const Duration(seconds: 1), () {
-                //ref.read(companiesProvider.notifier).loadNextPage(value);
+              if (_debounce?.isActive ?? false) _debounce?.cancel();
+              _debounce = Timer(const Duration(milliseconds: 500), () {
                 ref
                     .read(opportunitiesProvider.notifier)
                     .onChangeTextSearch(value, () {
@@ -350,6 +382,7 @@ class __SearchComponentState extends ConsumerState<_SearchComponent> {
               });
             },
             onFieldSubmitted: (value) {
+              _debounce?.cancel();
               ref.read(opportunitiesProvider.notifier).clearOpList();
 
               ref.read(opportunitiesProvider.notifier).onChangeTextSearch(value,
@@ -408,6 +441,7 @@ class __SearchComponentState extends ConsumerState<_SearchComponent> {
           if (ref.watch(opportunitiesProvider).textSearch != "")
             IconButton(
               onPressed: () {
+                _debounce?.cancel();
                 ref.read(opportunitiesProvider.notifier).clearOpList();
 
                 ref
@@ -503,7 +537,7 @@ class _OpportunitiesViewCustomState
       }
     });
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(opportunitiesProvider.notifier).clearOpList();
       ref
           .read(opportunitiesProvider.notifier)
@@ -721,7 +755,7 @@ class _ListOpportunitiesState extends ConsumerState<_ListOpportunities> {
                 itemCount: widget.opportunities.length,
                 controller: widget.scrollController,
                 separatorBuilder: (BuildContext context, int index) =>
-                    const Divider(),
+                    const Divider(height: 4, thickness: 0.5),
                 itemBuilder: (context, index) {
                   final opportunity = widget.opportunities[index];
 

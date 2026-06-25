@@ -1,4 +1,5 @@
 import 'package:crm_app/config/config.dart';
+import 'package:crm_app/features/shared/widgets/capitalize.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -11,15 +12,20 @@ class ItemEvent extends StatelessWidget {
   final Event event;
   final Function()? callbackOnTap;
   final Function()? callbackChekIn;
+  final bool isMainScreen;
 
   const ItemEvent(
       {super.key,
       required this.event,
       this.callbackOnTap,
-      this.callbackChekIn});
+      this.callbackChekIn,
+      this.isMainScreen = true});
 
   @override
   Widget build(BuildContext context) {
+    String evntFechaInicioEventoFormatted = DateFormat.yMMMMEEEEd('es')
+        .format(event.evntFechaInicioEvento ?? DateTime.now());
+
     return Column(
       children: [
         Stack(
@@ -51,6 +57,14 @@ class ItemEvent extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Text(
+                    capitalize(evntFechaInicioEventoFormatted),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
+                  const SizedBox(
+                    height: 2,
+                  ),
                   Text(
                     '${event.evntRazon}',
                     style: const TextStyle(
@@ -112,8 +126,52 @@ class ItemEvent extends StatelessWidget {
                     visible: event.cchkFechaRegistroCheckIn != null &&
                         event.cchkFechaRegistroCheckIn != '',
                     child: Text(
-                      'ULt. visita: ${event.cchkFechaRegistroCheckIn}',
-                      style: const TextStyle(fontSize: 13, color: Colors.green),
+                      'Últ. visita: ${event.cchkFechaRegistroCheckIn}',
+                      style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.green,
+                          fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                  Visibility(
+                    visible: event.cchkComentarioCheckIn != null &&
+                        event.cchkComentarioCheckIn != '',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.mode_comment, size: 14),
+                        const Icon(Icons.keyboard_arrow_right_rounded,
+                            size: 14),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            'Últ. check-in: ${event.cchkComentarioCheckIn}',
+                            style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                overflow: TextOverflow.ellipsis),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Visibility(
+                    visible: event.cchkComentarioCheckOut != null &&
+                        event.cchkComentarioCheckOut != '',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.mode_comment, size: 14),
+                        const Icon(Icons.keyboard_arrow_left_rounded, size: 14),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            'Últ. check-out: ${event.cchkComentarioCheckOut}',
+                            style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                overflow: TextOverflow.ellipsis),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],

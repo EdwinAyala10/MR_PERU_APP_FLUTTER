@@ -1,10 +1,13 @@
 import 'package:crm_app/config/config.dart';
+import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crm_app/features/route-planner/domain/domain.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class TagRowRoutePlanner extends ConsumerStatefulWidget {
+  const TagRowRoutePlanner({super.key});
+
   @override
   _TagRowState createState() => _TagRowState();
 }
@@ -14,8 +17,10 @@ class _TagRowState extends ConsumerState<TagRowRoutePlanner> {
 
   @override
   Widget build(BuildContext context) {
-
-    final List<FilterOption> listFiltersSuccess = ref.watch(routePlannerProvider).filtersSuccess;
+    final List<FilterOption> listFiltersSuccess =
+        ref.watch(routePlannerProvider).filtersSuccess;
+    final user = ref.watch(authProvider).user;
+    final isAdmin = user?.isAdmin ?? false;
 
     return Container(
       padding: const EdgeInsets.all(16.0),
@@ -30,18 +35,26 @@ class _TagRowState extends ConsumerState<TagRowRoutePlanner> {
                     scrollDirection: Axis.horizontal,
                     itemCount: listFiltersSuccess.length,
                     itemBuilder: (context, index) {
-                      
                       var filter = listFiltersSuccess[index];
 
                       var label = '${filter.title} : ${filter.name}';
 
+                      // Determinar si se puede eliminar este tag
+                      bool canDelete = true;
+                      if (!isAdmin && filter.type == 'ID_USUARIO_RESPONSABLE') {
+                        canDelete = false;
+                      }
+
                       return TagItem(
                         label: label,
+                        canDelete: canDelete,
                         onDelete: () {
                           /*setState(() {
                             tags.removeAt(index);
                           });*/
-                          ref.read(routePlannerProvider.notifier).onDeleteFilter(index);
+                          ref
+                              .read(routePlannerProvider.notifier)
+                              .onDeleteFilter(index);
                         },
                       );
                     },
@@ -62,7 +75,7 @@ class _TagRowState extends ConsumerState<TagRowRoutePlanner> {
                             Colors.white.withOpacity(0.0),
                             Colors.white,
                           ],
-                          stops: [0.0, 1.0],
+                          stops: const [0.0, 1.0],
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
                         ),
@@ -76,8 +89,9 @@ class _TagRowState extends ConsumerState<TagRowRoutePlanner> {
           const SizedBox(width: 10),
           const Text(
             'Tot. Filtros: ',
-            style: TextStyle(color: Color.fromARGB(255, 62, 62, 62),
-            fontWeight: FontWeight.w600),
+            style: TextStyle(
+                color: Color.fromARGB(255, 62, 62, 62),
+                fontWeight: FontWeight.w600),
           ),
           Text(
             '${listFiltersSuccess.length}',
@@ -116,8 +130,13 @@ class _TagRowState extends ConsumerState<TagRowRoutePlanner> {
 class TagItem extends StatelessWidget {
   final String label;
   final VoidCallback onDelete;
+  final bool canDelete;
 
-  TagItem({required this.label, required this.onDelete});
+  const TagItem(
+      {super.key,
+      required this.label,
+      required this.onDelete,
+      this.canDelete = true});
 
   @override
   Widget build(BuildContext context) {
@@ -134,25 +153,26 @@ class TagItem extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-           GestureDetector(
-            onTap: onDelete,
-            child: Container(
-              width: 18.0,
-              height: 18.0,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: primaryColor,
-              ),
-              child: const Icon(
-                Icons.close,
-                color: Colors.white,
-                size: 13.0,
-              ),
-            )
-          ),
-          const SizedBox(
-            width: 6,
-          ),
+          if (canDelete)
+            GestureDetector(
+                onTap: onDelete,
+                child: Container(
+                  width: 18.0,
+                  height: 18.0,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: primaryColor,
+                  ),
+                  child: const Icon(
+                    Icons.close,
+                    color: Colors.white,
+                    size: 13.0,
+                  ),
+                )),
+          if (canDelete)
+            const SizedBox(
+              width: 6,
+            ),
           Text(
             label,
             style: const TextStyle(color: primaryColor),

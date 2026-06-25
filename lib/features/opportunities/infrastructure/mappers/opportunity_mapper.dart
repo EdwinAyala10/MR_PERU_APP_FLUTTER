@@ -1,10 +1,33 @@
+import 'dart:convert';
 import '../../../kpis/domain/entities/array_user.dart';
 import '../../domain/domain.dart';
 
 
 class OpportunityMapper {
 
-  static jsonToEntity( Map<dynamic, dynamic> json ) => Opportunity(
+  static jsonToEntity( Map<dynamic, dynamic> json ) {
+    // Extraer JSON de Microsoft para emails (similar a ActivityMapper)
+    Map<String, dynamic>? jsonMicrosoft;
+    if (json['EMLS_JSON_EMAIL_MICROSOFT'] is Map) {
+      jsonMicrosoft = Map<String, dynamic>.from(json['EMLS_JSON_EMAIL_MICROSOFT']);
+    } else if (json['EMLS_JSON_EMAIL_MICROSOFT'] is String) {
+      final rawJsonMicrosoft = json['EMLS_JSON_EMAIL_MICROSOFT'].toString();
+      if (rawJsonMicrosoft.isNotEmpty) {
+        try {
+          final decoded = jsonDecode(rawJsonMicrosoft);
+          if (decoded is Map<String, dynamic>) {
+            jsonMicrosoft = decoded;
+          } else if (decoded is Map) {
+            jsonMicrosoft = Map<String, dynamic>.from(decoded);
+          }
+        } catch (_) {}
+      }
+    }
+    
+    // Obtener subject del JSON de Microsoft si existe
+    final subjectData = jsonMicrosoft?['subject'] ?? json['subject'];
+    
+    return Opportunity(
     id: json['OPRT_ID_OPORTUNIDAD'] ?? '',
     oprtEntorno: json['OPRT_ENTORNO'] ?? '',
     oprtIdEstadoOportunidad: json['OPRT_ID_ESTADO_OPORTUNIDAD'] ?? '',
@@ -39,7 +62,12 @@ class OpportunityMapper {
     actiFechaRegistro: json["ACTI_FECHA_REGISTRO"],
     nombreUsuarioResponsable: json['NOMBRE_USUARIO_RESPONSABLE'] ?? '',
     actiComentario: json['ACTI_COMENTARIO'] ?? '',
-    
-  );
+    emlsAsunto: json['EMLS_ASUNTO'] ?? '',
+    subject: subjectData?.toString() ?? '',
+    oprtFechaRegistro: json['OPRT_FECHA_REGISTRO'] != null
+        ? DateTime.tryParse(json['OPRT_FECHA_REGISTRO'].toString())
+        : null,
+    );
+  }
 
 }

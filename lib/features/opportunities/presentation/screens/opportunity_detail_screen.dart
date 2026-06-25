@@ -12,7 +12,9 @@ import 'package:crm_app/features/companies/presentation/widgets/show_loading_mes
 import 'package:crm_app/features/documents/presentation/screens/documents_screen.dart';
 import 'package:crm_app/features/opportunities/infrastructure/mappers/op_create_document_response.dart';
 import 'package:crm_app/features/opportunities/infrastructure/mappers/op_delete_document_mapper.dart';
+import 'package:crm_app/features/opportunities/presentation/widgets/opportunity_force_mr_summary_card.dart';
 import 'package:crm_app/features/opportunities/presentation/widgets/op_document_card.dart';
+import 'package:crm_app/features/opportunities/presentation/providers/force_mr_preferences_provider.dart';
 import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
 import 'package:crm_app/features/shared/widgets/floating_action_button_custom.dart';
 import 'package:crm_app/features/shared/widgets/loading_modal.dart';
@@ -183,15 +185,21 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
             ),
           ],
         ),
-        body: TabBarView(
-          controller: _tabController,
-          physics: const NeverScrollableScrollPhysics(), // Desactiva el scroll
+        body: Column(
           children: [
-            buildInformation(),
-            buildEventsOportunity(),
-            buildActivity(),
-            buildPhotos(),
-            buildDocuments()
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                physics: const NeverScrollableScrollPhysics(), // Desactiva el scroll
+                children: [
+                  buildInformation(),
+                  buildEventsOportunity(),
+                  buildActivity(),
+                  buildPhotos(),
+                  buildDocuments()
+                ],
+              ),
+            ),
           ],
         ),
         floatingActionButton: _itFloatingButton(currentIndex),
@@ -201,6 +209,17 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
 
   Widget _itFloatingButton(int currentIndex) {
     switch (currentIndex) {
+      case 1:
+        return FloatingActionButtonCustom(
+          iconData: Icons.add,
+          callOnPressed: () {
+            final opportunity = ref.watch(selectedOp);
+            ref
+                .read(uiProvider.notifier)
+                .onCompanyActivity(opportunity?.oprtRuc ?? '', opportunity?.razon ?? '');
+            context.push('/event/new');
+          },
+        );
       case 2:
         return FloatingActionButtonCustom(
           callOnPressed: () {
@@ -245,6 +264,20 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
   Widget buildInformation() {
     return OpportunityDetailView(
       opportunityId: widget.opportunityId,
+      onGenerateSummary: () async {
+        final prefsNotifier = ref.read(forceMrPreferencesProvider.notifier);
+        final hasAccepted = await prefsNotifier.hasAccepted();
+        
+        if (!mounted) return;
+        
+        if (hasAccepted) {
+          // Ya aceptó Force MR, ir directo al resumen
+          context.push('/opportunity_summary/${widget.opportunityId}');
+        } else {
+          // Primera vez, mostrar activación
+          context.push('/force_mr_activation/${widget.opportunityId}');
+        }
+      },
     );
   }
 
@@ -259,10 +292,12 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
 
 class OpportunityDetailView extends ConsumerWidget {
   final String opportunityId;
+  final VoidCallback? onGenerateSummary;
 
   const OpportunityDetailView({
     super.key,
     required this.opportunityId,
+    this.onGenerateSummary,
   });
 
   @override
@@ -325,6 +360,9 @@ class OpportunityDetailView extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              OpportunityForceMrSummaryCard(
+                onGenerateSummary: onGenerateSummary,
+              ),
               const SizedBox(
                 height: 10,
               ),
@@ -1219,7 +1257,7 @@ class _ListActivitiesState extends ConsumerState<_ListActivities> {
                   return ItemActivity(
                       activity: activity,
                       callbackOnTap: () {
-                        // context.push('/activity_detail/${activity.id}');
+                        context.push('/activity_detail/${activity.id}');
                       });
                 },
               ),

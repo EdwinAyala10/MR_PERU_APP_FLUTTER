@@ -3,6 +3,7 @@ import '../../../activities/presentation/providers/providers.dart';
 import '../../../auth/domain/domain.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../contacts/domain/domain.dart';
+import '../../../opportunities/domain/domain.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -28,9 +29,16 @@ class SendWhatsappNotifier extends StateNotifier<SendWhatsappState> {
     required this.user,
   }) : super(SendWhatsappState());
 
-  void initialSend(Contact contact, String phone) {
-    state = state.copyWith(
-        contact: contact, isSend: false, isViewText: true, phone: phone, message: '');
+  void initialSend(Contact contact, String phone, {Opportunity? opportunity}) {
+    state = SendWhatsappState(
+      contact: contact,
+      opportunity: opportunity,
+      isSend: false,
+      isViewText: true,
+      phone: phone,
+      message: '',
+      prefijo: state.prefijo,
+    );
   }
 
   Future<bool> sendActivityMessage() async {
@@ -39,6 +47,8 @@ class SendWhatsappNotifier extends StateNotifier<SendWhatsappState> {
 
       DateTime dateCurrent = DateTime.now();
       String hourCurrent = DateFormat('HH:mm:ss').format(dateCurrent);
+      final opportunityId = state.opportunity?.id ?? '';
+      final opportunityName = state.opportunity?.oprtNombre ?? '';
 
       List<ContactArray> actividadesContacto = [];
       final contactArray = ContactArray(
@@ -56,22 +66,26 @@ class SendWhatsappNotifier extends StateNotifier<SendWhatsappState> {
         'ACTI_HORA_ACTIVIDAD': hourCurrent,
         'ACTI_RUC': state.contact?.ruc,
         'ACTI_RAZON': state.contact?.razon,
-        //'ACTI_ID_OPORTUNIDAD': activityCall.actiIdOportunidad,
+        'ACTI_ID_OPORTUNIDAD': opportunityId.isEmpty ? '0' : opportunityId,
+        'ACTI_NOMBRE_OPORTUNIDAD': opportunityName,
         'ACTI_ID_CONTACTO': contact?.id,
         'ACTI_COMENTARIO': state.message,
         'ACTI_TIEMPO_GESTION': '',
         'ACTI_ID_USUARIO_REGISTRO': user.code,
         'ACTI_NOMBRE_TIPO_GESTION': 'Whatsapp',
-        'ACTIVIDADES_CONTACTO': actividadesContacto != null
-            ? List<dynamic>.from(actividadesContacto.map((x) => x.toJson()))
-            : [],
+        'ACTIVIDADES_CONTACTO':
+            List<dynamic>.from(actividadesContacto.map((x) => x.toJson())),
       };
 
       final activityResponse =
           await activitiesRepository.createUpdateActivity(activityLike);
 
       if (activityResponse.status) {
-        state = state.copyWith(isSend: true, isViewText: false, message: '', contact: null);
+        state = SendWhatsappState(
+          isSend: true,
+          isViewText: false,
+          prefijo: state.prefijo,
+        );
         return true;
       }
     } catch (e) {
@@ -113,6 +127,7 @@ class SendWhatsappState {
   final String? phone;
   final String? message;
   final Contact? contact;
+  final Opportunity? opportunity;
 
   SendWhatsappState(
       {this.isSend = false,
@@ -120,7 +135,8 @@ class SendWhatsappState {
       this.prefijo = '+51',
       this.phone,
       this.message = '',
-      this.contact});
+      this.contact,
+      this.opportunity});
 
   SendWhatsappState copyWith({
     bool? isSend,
@@ -129,6 +145,7 @@ class SendWhatsappState {
     String? phone,
     String? message,
     Contact? contact,
+    Opportunity? opportunity,
   }) =>
       SendWhatsappState(
         isSend: isSend ?? this.isSend,
@@ -137,5 +154,6 @@ class SendWhatsappState {
         phone: phone ?? this.phone,
         message: message ?? this.message,
         contact: contact ?? this.contact,
+        opportunity: opportunity ?? this.opportunity,
       );
 }

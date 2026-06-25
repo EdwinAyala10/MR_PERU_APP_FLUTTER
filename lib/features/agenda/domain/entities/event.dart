@@ -34,6 +34,8 @@ class Event {
   String? evntIdTipoRegistro;
   String? cckkIdEstadoCheck;
   String? cchkFechaRegistroCheckIn;
+  String? cchkComentarioCheckIn;
+  String? cchkComentarioCheckOut;
   String? localDirection;
   List<ContactArray>? arraycontacto;
   List<ContactArray>? arraycontactoElimimar;
@@ -77,6 +79,8 @@ class Event {
     this.arrayresponsable,
     this.arrayresponsableElimimar,
     this.cchkFechaRegistroCheckIn,
+    this.cchkComentarioCheckIn,
+    this.cchkComentarioCheckOut,
     this.cckkIdEstadoCheck,
     this.localDirection,
   });

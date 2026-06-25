@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import '../../../../config/config.dart';
 
 import '../mappers/resource_detail_mapper.dart';
+import '../mappers/rubro_response_mapper.dart';
 
 class ResourceDetailsDatasourceImpl extends ResourceDetailsDatasource {
   late final Dio dio;
@@ -14,19 +15,20 @@ class ResourceDetailsDatasourceImpl extends ResourceDetailsDatasource {
             headers: {'Authorization': 'Bearer $accessToken'}));
 
   @override
-  Future<List<ResourceDetail>> getResourceDetailsByGroup({ String idGroup = '', String idCodigo = '' }) async {
-    
+  Future<List<ResourceDetail>> getResourceDetailsByGroup(
+      {String idGroup = '', String idCodigo = '', String search = ''}) async {
     Object dataArr = {
       'RECD_GRUPO': idGroup,
     };
 
-    if (idCodigo!="") {
-      dataArr = {
-        'RECD_GRUPO': idGroup,
-        'RECD_CODIGO': idCodigo
-      };
+    if (idCodigo != "") {
+      dataArr = {'RECD_GRUPO': idGroup, 'RECD_CODIGO': idCodigo};
     }
-    
+
+    if (search.isNotEmpty) {
+      dataArr = {'RECD_GRUPO': idGroup, 'SEARCH': search};
+    }
+
     final response = await dio.post(
         '/recurso-detalle/listar-recursos-detalle-by-grupo',
         data: dataArr);
@@ -41,19 +43,16 @@ class ResourceDetailsDatasourceImpl extends ResourceDetailsDatasource {
   }
 
   @override
-  Future<List<ResourceDetail>> getResourceDetailsVisibleByGroup({ String idGroup = '', String idCodigo = '' }) async {
-    
+  Future<List<ResourceDetail>> getResourceDetailsVisibleByGroup(
+      {String idGroup = '', String idCodigo = ''}) async {
     Object dataArr = {
       'RECD_GRUPO': idGroup,
     };
 
-    if (idCodigo!="") {
-      dataArr = {
-        'RECD_GRUPO': idGroup,
-        'RECD_CODIGO': idCodigo
-      };
+    if (idCodigo != "") {
+      dataArr = {'RECD_GRUPO': idGroup, 'RECD_CODIGO': idCodigo};
     }
-    
+
     final response = await dio.post(
         '/recurso-detalle/listar-recursos-detalle-visible-by-grupo',
         data: dataArr);
@@ -65,5 +64,42 @@ class ResourceDetailsDatasourceImpl extends ResourceDetailsDatasource {
     }
 
     return resourceDetails;
+  }
+
+  @override
+  Future<RubroResponse> createRubro(String nombre) async {
+    try {
+      final formData = FormData.fromMap({
+        'RECD_NOMBRE': nombre,
+      });
+
+      final response = await dio.post(
+        '/recurso-detalle/crear-rubro',
+        data: formData,
+      );
+
+      return RubroResponseMapper.jsonToEntity(response.data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<RubroResponse> editRubro(String nombre, String idRecursos) async {
+    try {
+      final formData = FormData.fromMap({
+        'RECD_NOMBRE': nombre,
+        'RECD_ID_RECURSOS': idRecursos,
+      });
+
+      final response = await dio.post(
+        '/recurso-detalle/editar-rubro',
+        data: formData,
+      );
+
+      return RubroResponseMapper.jsonToEntity(response.data);
+    } catch (e) {
+      rethrow;
+    }
   }
 }

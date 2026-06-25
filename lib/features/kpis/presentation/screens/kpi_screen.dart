@@ -1,4 +1,3 @@
-
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
@@ -32,15 +31,11 @@ class KpiScreen extends ConsumerWidget {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title:  
-            Text('${kpiId == 'new' ? 'Crear' : 'Editar'} objetivo', style: const TextStyle(
-              fontWeight: FontWeight.w700
-            )),
+          title: Text('${kpiId == 'new' ? 'Crear' : 'Editar'} objetivo',
+              style: const TextStyle(fontWeight: FontWeight.w700)),
           leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
-
-
               if (kpiId == 'new') {
                 context.replace('/dashboard');
               } else {
@@ -48,6 +43,17 @@ class KpiScreen extends ConsumerWidget {
               }
             },
           ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.swap_vert_outlined),
+              onPressed: () {
+                context.push('/users_reorder');
+              },
+            ),
+            const SizedBox(
+              width: 5,
+            )
+          ],
         ),
         body: kpiState.isLoading
             ? const FullScreenLoader()
@@ -67,24 +73,23 @@ class KpiScreen extends ConsumerWidget {
                   showSnackbar(context, value.message);
 
                   if (value.response) {
-                    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+                    WidgetsBinding.instance.addPostFrameCallback((_) async {
                       await ref.watch(kpisProvider.notifier).loadNextPage();
                     });
-                    
+
                     ref.watch(kpiProvider(kpiId).notifier).loadKpi();
 
                     //Timer(const Duration(seconds: 3), () {
-                      if (kpiId == 'new') {
-                        context.replace('/dashboard');
-                      } else {
-                        context.pop();
-                      }
+                    if (kpiId == 'new') {
+                      context.replace('/dashboard');
+                    } else {
+                      context.pop();
+                    }
                     //});
                   }
                 }
 
                 Navigator.pop(context);
-
               });
             }),
       ),
@@ -113,11 +118,12 @@ class _KpiInformationConsumer extends ConsumerStatefulWidget {
   const _KpiInformationConsumer({super.key, required this.kpi});
 
   @override
-  ConsumerState<_KpiInformationConsumer> createState() => __KpiInformationConsumerState();
+  ConsumerState<_KpiInformationConsumer> createState() =>
+      __KpiInformationConsumerState();
 }
 
-class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsumer> {
-
+class __KpiInformationConsumerState
+    extends ConsumerState<_KpiInformationConsumer> {
   List<DropdownOption> optionsAsignacion = [
     DropdownOption(id: '', name: 'Cargando...'),
     /*DropdownOption(id: '01', name: 'INDIVIDUAL'),
@@ -146,41 +152,52 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
     //DropdownOption(id: '01', name: 'VISITA'),
     DropdownOption(id: '', name: 'Cargando...'),
   ];
-  
+
   @override
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      await ref.read(resourceDetailsProvider.notifier).loadCatalogById(groupId: '12').then((value) => {
-        setState(() {
-          optionsCategoria = value;
-        })
-      });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await ref
+          .read(resourceDetailsProvider.notifier)
+          .loadCatalogById(groupId: '12')
+          .then((value) => {
+                setState(() {
+                  optionsCategoria = value;
+                })
+              });
 
-      await ref.read(resourceDetailsProvider.notifier).loadCatalogById(groupId: '11').then((value) => {
-        setState(() {
-          optionsAsignacion = value;
-        })
-      });
+      await ref
+          .read(resourceDetailsProvider.notifier)
+          .loadCatalogById(groupId: '11')
+          .then((value) => {
+                setState(() {
+                  optionsAsignacion = value;
+                })
+              });
 
-      await ref.read(resourceDetailsProvider.notifier).loadCatalogById(groupId: '13').then((value) => {
-        setState(() {
-          optionsPeriodicidad = value;
-        })
-      });
+      await ref
+          .read(resourceDetailsProvider.notifier)
+          .loadCatalogById(groupId: '13')
+          .then((value) => {
+                setState(() {
+                  optionsPeriodicidad = value;
+                })
+              });
 
-      await ref.read(resourceDetailsProvider.notifier).loadCatalogById(groupId: '14').then((value) => {
-        setState(() {
-          optionsTipo = value;
-        })
-      });
+      await ref
+          .read(resourceDetailsProvider.notifier)
+          .loadCatalogById(groupId: '14')
+          .then((value) => {
+                setState(() {
+                  optionsTipo = value;
+                })
+              });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    
     final kpiForm = ref.watch(kpiFormProvider(widget.kpi));
 
     final isReadOnly = kpiForm.id == 'new' ? false : true;
@@ -208,27 +225,31 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
           const SizedBox(
             height: 16,
           ),
+          optionsAsignacion.length > 1
+              ? SelectCustomForm(
+                  label: 'Asignación',
+                  value: kpiForm.objrIdAsignacion.value,
+                  callbackChange: isReadOnly
+                      ? null
+                      : (String? newValue) {
+                          DropdownOption searchDropdown = optionsAsignacion
+                              .where((option) => option.id == newValue!)
+                              .first;
 
-          optionsAsignacion.length > 1 ? SelectCustomForm(
-            label: 'Asignación',
-            value: kpiForm.objrIdAsignacion.value,
-            callbackChange: isReadOnly ? null : (String? newValue) {
-               DropdownOption searchDropdown = optionsAsignacion
-                  .where((option) => option.id == newValue!)
-                  .first;
-
-              ref
-                  .read(kpiFormProvider(widget.kpi).notifier)
-                  .onAsignacionChanged(newValue!, searchDropdown.name);
-                  
-            },
-            items: optionsAsignacion,
-            errorMessage: kpiForm.objrIdAsignacion.errorMessage,
-          ): PlaceholderInput(text: 'Cargando...'),
-
+                          ref
+                              .read(kpiFormProvider(widget.kpi).notifier)
+                              .onAsignacionChanged(
+                                  newValue!, searchDropdown.name);
+                        },
+                  items: optionsAsignacion,
+                  errorMessage: kpiForm.objrIdAsignacion.errorMessage,
+                )
+              : PlaceholderInput(text: 'Cargando...'),
           const SizedBox(height: 10),
-          
-          const Text('Seleccione Usuario(s):', style: TextStyle(fontWeight: FontWeight.w600),),
+          const Text(
+            'Seleccione Usuario(s):',
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
           const SizedBox(height: 10),
           Row(
             children: [
@@ -245,14 +266,17 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
                                             style: const TextStyle(
                                                 fontSize:
                                                     12)), // Aquí deberías colocar el texto que deseas mostrar en el chip para cada elemento de la lista
-                                        onDeleted: isReadOnly ? null : () {
-                                          ref
-                                              .read(
-                                                  kpiFormProvider(widget.kpi).notifier)
-                                              .onDeleteUserChanged(item);
+                                        onDeleted: isReadOnly
+                                            ? null
+                                            : () {
+                                                ref
+                                                    .read(kpiFormProvider(
+                                                            widget.kpi)
+                                                        .notifier)
+                                                    .onDeleteUserChanged(item);
 
-                                          // Aquí puedes manejar la eliminación del chip si es necesario
-                                        },
+                                                // Aquí puedes manejar la eliminación del chip si es necesario
+                                              },
                                       )))
                               : [],
                         )
@@ -286,70 +310,77 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
             style: TextStyle(fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 10),
+          optionsCategoria.length > 1
+              ? SelectCustomForm(
+                  label: 'Categoria',
+                  value: kpiForm.objrIdCategoria.value,
+                  callbackChange: isReadOnly
+                      ? null
+                      : (String? newValue) {
+                          DropdownOption searchDropdown = optionsCategoria
+                              .where((option) => option.id == newValue!)
+                              .first;
 
-          optionsCategoria.length > 1 ? SelectCustomForm(
-            label: 'Categoria',
-            value: kpiForm.objrIdCategoria.value,
-            callbackChange: isReadOnly ? null : (String? newValue) {
-               DropdownOption searchDropdown = optionsCategoria
-                  .where((option) => option.id == newValue!)
-                  .first;
+                          ref
+                              .read(kpiFormProvider(widget.kpi).notifier)
+                              .onCategoriaChanged(
+                                  newValue!, searchDropdown.name);
+                        },
+                  items: optionsCategoria,
+                  errorMessage: kpiForm.objrIdCategoria.errorMessage,
+                )
+              : PlaceholderInput(text: 'Cargando...'),
+          optionsTipo.length > 1
+              ? kpiForm.objrIdCategoria.value == '01'
+                  ? SelectCustomForm(
+                      label: 'Tipo',
+                      value: kpiForm.objrIdTipo,
+                      callbackChange: isReadOnly
+                          ? null
+                          : (String? newValue) {
+                              DropdownOption searchDropdown = optionsTipo
+                                  .where((option) => option.id == newValue!)
+                                  .first;
 
-              ref
-                  .read(kpiFormProvider(widget.kpi).notifier)
-                  .onCategoriaChanged(newValue!, searchDropdown.name);
-                  
-            },
-            items: optionsCategoria,
-            errorMessage: kpiForm.objrIdCategoria.errorMessage,
-          ): PlaceholderInput(text: 'Cargando...'),
-
-          
-          optionsTipo.length > 1 ? 
-            kpiForm.objrIdCategoria.value == '01' ? SelectCustomForm(
-              label: 'Tipo',
-              value: kpiForm.objrIdTipo,
-              callbackChange: isReadOnly ? null : (String? newValue) {
-                DropdownOption searchDropdown = optionsTipo
-                    .where((option) => option.id == newValue!)
-                    .first;
-
-                ref
-                    .read(kpiFormProvider(widget.kpi).notifier)
-                    .onTipoChanged(newValue!, searchDropdown.name);
-                    
-              },
-              items: optionsTipo,
-              //errorMessage: kpiForm.objrIdTipo.errorMessage,
-            ) : Container()
-            : PlaceholderInput(text: 'Cargando...'),
-
+                              ref
+                                  .read(kpiFormProvider(widget.kpi).notifier)
+                                  .onTipoChanged(
+                                      newValue!, searchDropdown.name);
+                            },
+                      items: optionsTipo,
+                      //errorMessage: kpiForm.objrIdTipo.errorMessage,
+                    )
+                  : Container()
+              : PlaceholderInput(text: 'Cargando...'),
           const SizedBox(height: 20),
           CustomCompanyField(
             label: 'Nombre de objetivo *',
             initialValue: kpiForm.objrNombre.value,
-            onChanged: ref.read(kpiFormProvider(widget.kpi).notifier).onNombreChanged,
+            onChanged:
+                ref.read(kpiFormProvider(widget.kpi).notifier).onNombreChanged,
             errorMessage: kpiForm.objrNombre.errorMessage,
           ),
           const SizedBox(height: 10),
+          optionsPeriodicidad.length > 1
+              ? SelectCustomForm(
+                  label: 'Periodicidad',
+                  value: kpiForm.objrIdPeriodicidad,
+                  callbackChange: isReadOnly
+                      ? null
+                      : (String? newValue) {
+                          DropdownOption searchDropdown = optionsPeriodicidad
+                              .where((option) => option.id == newValue!)
+                              .first;
 
-          optionsPeriodicidad.length > 1 ? SelectCustomForm(
-            label: 'Periodicidad',
-            value: kpiForm.objrIdPeriodicidad,
-            callbackChange: isReadOnly ? null : (String? newValue) {
-               DropdownOption searchDropdown = optionsPeriodicidad
-                  .where((option) => option.id == newValue!)
-                  .first;
-
-              ref
-                  .read(kpiFormProvider(widget.kpi).notifier)
-                  .onPeriodicidadChanged(newValue!, searchDropdown.name);
-                  
-            },
-            items: optionsPeriodicidad,
-            //errorMessage: kpiForm.objrIdPeriodicidad.errorMessage,
-          ): PlaceholderInput(text: 'Cargando...'),
-
+                          ref
+                              .read(kpiFormProvider(widget.kpi).notifier)
+                              .onPeriodicidadChanged(
+                                  newValue!, searchDropdown.name);
+                        },
+                  items: optionsPeriodicidad,
+                  //errorMessage: kpiForm.objrIdPeriodicidad.errorMessage,
+                )
+              : PlaceholderInput(text: 'Cargando...'),
           const SizedBox(
             height: 20,
           ),
@@ -378,8 +409,9 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
                   initialValue: kpiForm.objrCantidad,
                   enabled: kpiForm.objrValorDifMes == '0' ? true : false,
                   keyboardType: TextInputType.number,
-                  onChanged:
-                      ref.read(kpiFormProvider(widget.kpi).notifier).onCantidadChanged,
+                  onChanged: ref
+                      .read(kpiFormProvider(widget.kpi).notifier)
+                      .onCantidadChanged,
                 ),
                 const SizedBox(
                   height: 10,
@@ -392,7 +424,8 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
                           const Text('Valor diferente cada mes',
                               style: TextStyle(fontWeight: FontWeight.w500)),
                           Switch(
-                            value: kpiForm.objrValorDifMes == '0' ? false : true,
+                            value:
+                                kpiForm.objrValorDifMes == '0' ? false : true,
                             //value: kpiForm.id == 'new' ? kpiForm.objrValorDifMes : true,
                             onChanged: (bool bol) {
                               ref
@@ -411,7 +444,8 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
                 if (kpiForm.objrIdPeriodicidad == '02' &&
                     kpiForm.objrValorDifMes == '1')
                   for (var periodicidad in kpiForm.peobIdPeriodicidad ?? [])
-                    ItemMes(periodicidad: periodicidad, ref: ref, kpi: widget.kpi),
+                    ItemMes(
+                        periodicidad: periodicidad, ref: ref, kpi: widget.kpi),
               ],
             ),
           ),
@@ -422,14 +456,15 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
             readOnly: isReadOnly,
             initialValue: kpiForm.objrObservaciones ?? '',
             onChanged: kpiForm.id == "new"
-                ? ref.read(kpiFormProvider(widget.kpi).notifier).onObservacionesChanged
+                ? ref
+                    .read(kpiFormProvider(widget.kpi).notifier)
+                    .onObservacionesChanged
                 : null,
           ),
           const SizedBox(height: 80),
         ],
       ),
     );
-
   }
 
   void _openSearchUsers(BuildContext context, WidgetRef ref) async {
@@ -438,28 +473,24 @@ class __KpiInformationConsumerState extends ConsumerState<_KpiInformationConsume
     final user = ref.watch(authProvider).user;
 
     showSearch<UserMaster?>(
-            query: searchQuery,
-            context: context,
-            delegate: SearchUserDelegate(
-                //userCurrent: user!,
-                //idItemDelete: user!.code,
-                initialUsers: searchedUsers,
-                searchUsers: ref
-                    .read(searchedUsersProvider.notifier)
-                    .searchUsersByQuery,
-                resetSearchQuery: () {
-                  ref.read(searchQueryUsersProvider.notifier).update((state) => '');
-                },
-            ))
-        .then((user) {
+        query: searchQuery,
+        context: context,
+        delegate: SearchUserDelegate(
+          //userCurrent: user!,
+          //idItemDelete: user!.code,
+          initialUsers: searchedUsers,
+          searchUsers:
+              ref.read(searchedUsersProvider.notifier).searchUsersByQuery,
+          resetSearchQuery: () {
+            ref.read(searchQueryUsersProvider.notifier).update((state) => '');
+          },
+        )).then((user) {
       if (user == null) return;
 
       ref.read(kpiFormProvider(widget.kpi).notifier).onUsuarioChanged(user);
     });
   }
 }
-
-
 
 class ItemMes extends StatelessWidget {
   WidgetRef ref;

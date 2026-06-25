@@ -1,4 +1,5 @@
 import 'package:crm_app/features/companies/domain/entities/company_local.dart';
+import 'package:crm_app/features/companies/domain/entities/company_check_in_ultima_visita.dart';
 import 'package:flutter/material.dart';
 
 class CompanyLocalRoutePlanner {
@@ -31,6 +32,7 @@ class CompanyLocalRoutePlanner {
   String? localUbigeoCodigo;
   String? localCodigoPostal;
   String? cchkFechaRegistroCheckIn;
+  List<CompanyCheckInUltimaVisita>? cchkUltimaVisita;
   Key? key;
 
   CompanyLocalRoutePlanner(
@@ -63,6 +65,7 @@ class CompanyLocalRoutePlanner {
       this.localUbigeoCodigo,
       this.localCodigoPostal,
       this.cchkFechaRegistroCheckIn,
+      this.cchkUltimaVisita,
       this.key});
 
   factory CompanyLocalRoutePlanner.fromJson(Map<String, dynamic> json) =>
@@ -74,6 +77,7 @@ class CompanyLocalRoutePlanner {
         localCoordenadasGeo: '',
         localCoordenadasLongitud: '',
         localCoordenadasLatitud: '',
+        cchkUltimaVisita: null,
       );
 
   Map<String, dynamic> toJson() => {
@@ -115,6 +119,7 @@ class CompanyLocalRoutePlanner {
         userreportName1: null,
         userreportName: null,
         localCantidad: null,
+        cchkUltimaVisita: null,
         key: null,
       );
     }).toList();

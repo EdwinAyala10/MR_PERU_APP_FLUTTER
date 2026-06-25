@@ -38,6 +38,10 @@ class IconsActivity extends StatelessWidget {
         icono = Icons.phone_forwarded;
         color = Colors.orangeAccent;
         break;
+      case '07':
+        icono = Icons.email;
+        color = Colors.blueAccent;
+        break;
       default:
         icono = Icons.view_kanban_outlined;
         color = Colors.black;

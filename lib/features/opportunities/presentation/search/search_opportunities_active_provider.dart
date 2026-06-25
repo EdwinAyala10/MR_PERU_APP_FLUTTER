@@ -32,10 +32,13 @@ class SearchedOpportunitiesNotifier extends StateNotifier<List<Opportunity>> {
   Future<List<Opportunity>> searchOpportunitiesByQuery(String ruc, String query ) async{
     
     final List<Opportunity> opportunities = await searchOpportunities(ruc, query);
+    final uniqueOpportunities = <String, Opportunity>{
+      for (final opportunity in opportunities) opportunity.id: opportunity,
+    }.values.toList();
     ref.read(searchQueryOpportunitiesProvider.notifier).update((state) => query);
 
-    state = opportunities;
-    return opportunities;
+    state = uniqueOpportunities;
+    return uniqueOpportunities;
   }
 
 }
