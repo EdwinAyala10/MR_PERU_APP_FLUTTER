@@ -40,20 +40,29 @@ class KpiDetailScreen extends ConsumerWidget {
     if (kpi == null) {
       return Scaffold(
         appBar: AppBar(),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: double.infinity, // Ocupa todo el ancho disponible
-              alignment: Alignment.center,
-              child: const Text(
-                'No se encontro información de objetivo.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.graphic_eq,
+                size: 100,
+                color: Colors.grey,
               ),
-            )
-          ],
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.grey.withOpacity(0.1),
+                ),
+                child: const Text(
+                  'No no hay objetivo.',
+                  style: TextStyle(fontSize: 20, color: Colors.grey),
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }

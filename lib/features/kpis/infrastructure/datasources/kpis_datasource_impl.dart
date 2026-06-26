@@ -79,11 +79,15 @@ class KpisDatasourceImpl extends KpisDatasource {
     try {
       final response = await dio.get('/objetivo/listar-objetivo-by-id/$id');
 
+      if (response.data['status'] != true || response.data['data'] is! Map) {
+        throw KpiNotFound();
+      }
+
       final Kpi kpi = KpiMapper.jsonToEntity(response.data['data']);
 
       return kpi;
     } on DioException catch (e) {
-      if (e.response!.statusCode == 404) throw KpiNotFound();
+      if (e.response?.statusCode == 404) throw KpiNotFound();
       throw Exception();
     } catch (e) {
       throw Exception();

@@ -64,8 +64,7 @@ class KpiNotifier extends StateNotifier<KpiState> {
 
       state = state.copyWith(isLoading: false, kpi: kpi);
     } catch (e) {
-      // 404 product not found
-      print(e);
+      state = state.copyWith(isLoading: false, kpi: null);
     }
   }
 }
