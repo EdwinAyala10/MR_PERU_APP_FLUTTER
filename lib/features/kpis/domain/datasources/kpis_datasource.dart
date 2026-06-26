@@ -10,6 +10,8 @@ abstract class KpisDatasource {
 
   Future<KpiResponse> createUpdateKpi(Map<dynamic, dynamic> kpiLike);
 
+  Future<KpiResponse> deleteKpi(String id);
+
   Future<List<Periodicidad>> getPeriodicidades();
 
   Future<ObjetiveByCategoryResponse> listObjetiveByCategory(

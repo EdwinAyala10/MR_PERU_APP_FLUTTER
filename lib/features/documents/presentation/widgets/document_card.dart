@@ -70,18 +70,24 @@ class DocumentCard extends ConsumerWidget {
           ),
           IconButton(
             // Nuevo IconButton para eliminar
-            onPressed: () {
+            onPressed: () async {
               // Lógica para eliminar el documento
-              showDialog(
+              final shouldDelete = await showDialog<bool>(
                 context: context,
                 builder: (BuildContext context) {
                   return ConfirmDeleteDialog(
+                    title:
+                        'Eliminar ${document.adjtIdTipoRegistro == '01' ? 'documento' : 'enlace'}',
                     message:
                         "¿Estás seguro de que quieres eliminar este ${document.adjtIdTipoRegistro == '01' ? 'documento' : 'enlace'}?",
-                    onConfirm: callback,
+                    confirmLabel: 'Eliminar',
                   );
                 },
               );
+
+              if (shouldDelete == true) {
+                callback();
+              }
             },
             icon:
                 const Icon(Icons.delete), // Puedes cambiar el icono a tu gusto

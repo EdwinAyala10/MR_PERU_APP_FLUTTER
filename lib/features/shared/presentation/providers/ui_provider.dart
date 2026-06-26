@@ -34,23 +34,50 @@ class UiNotifier extends StateNotifier<UiState> {
     );
   }
 
+  void setDashboardSuccessMessage({
+    required String title,
+    required String message,
+  }) {
+    state = state.copyWith(
+      dashboardSuccessTitle: title,
+      dashboardSuccessMessage: message,
+    );
+  }
+
+  void clearDashboardSuccessMessage() {
+    state = state.copyWith(
+      dashboardSuccessTitle: '',
+      dashboardSuccessMessage: '',
+    );
+  }
+
 }
 
 class UiState {
   final String? idCompanyAct;
   final String? nameCompanyAct;
+  final String? dashboardSuccessTitle;
+  final String? dashboardSuccessMessage;
 
   UiState({
     this.idCompanyAct = '',
     this.nameCompanyAct = '',
+    this.dashboardSuccessTitle = '',
+    this.dashboardSuccessMessage = '',
   });
 
   UiState copyWith({
     String? idCompanyAct,
     String? nameCompanyAct,
+    String? dashboardSuccessTitle,
+    String? dashboardSuccessMessage,
   }) =>
       UiState(
         idCompanyAct: idCompanyAct ?? this.idCompanyAct,
         nameCompanyAct: nameCompanyAct ?? this.nameCompanyAct,
+        dashboardSuccessTitle:
+            dashboardSuccessTitle ?? this.dashboardSuccessTitle,
+        dashboardSuccessMessage:
+            dashboardSuccessMessage ?? this.dashboardSuccessMessage,
       );
 }

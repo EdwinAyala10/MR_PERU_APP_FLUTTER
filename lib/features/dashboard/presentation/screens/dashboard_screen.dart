@@ -8,6 +8,7 @@ import 'package:crm_app/features/dashboard/presentation/screens/notification_scr
 import 'package:crm_app/features/dashboard/presentation/widgets/widgets.dart';
 import 'package:crm_app/features/location/presentation/providers/gps_provider.dart';
 import 'package:crm_app/features/opportunities/presentation/widgets/item_opportunity.dart';
+import 'package:crm_app/features/shared/infrastructure/services/notification_service.dart';
 import 'package:crm_app/features/shared/presentation/providers/notifications_provider.dart';
 import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
 import 'package:flutter_app_badge/flutter_app_badge.dart';
@@ -61,7 +62,24 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
 
   @override
   Widget build(BuildContext context) {
+    final uiState = ref.watch(uiProvider);
     final scaffoldKey = GlobalKey<ScaffoldState>();
+
+    final dashboardSuccessTitle = uiState.dashboardSuccessTitle ?? '';
+    final dashboardSuccessMessage = uiState.dashboardSuccessMessage ?? '';
+    if (dashboardSuccessTitle.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+
+        NotificationService().showSuccess(
+          context: context,
+          title: dashboardSuccessTitle,
+          message: dashboardSuccessMessage,
+        );
+        ref.read(uiProvider.notifier).clearDashboardSuccessMessage();
+      });
+    }
+
     return Scaffold(
       drawer: SideMenu(scaffoldKey: scaffoldKey),
       appBar: AppBar(

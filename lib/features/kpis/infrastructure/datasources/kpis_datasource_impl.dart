@@ -58,6 +58,23 @@ class KpisDatasourceImpl extends KpisDatasource {
   }
 
   @override
+  Future<KpiResponse> deleteKpi(String id) async {
+    try {
+      final response = await dio.post(
+        '/objetivo/eliminar',
+        data: {'OBJR_ID_OBJETIVO': id},
+      );
+
+      return KpiResponseMapper.jsonToEntity(response.data);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) throw KpiNotFound();
+      throw Exception();
+    } catch (e) {
+      throw Exception();
+    }
+  }
+
+  @override
   Future<Kpi> getKpiById(String id) async {
     try {
       final response = await dio.get('/objetivo/listar-objetivo-by-id/$id');

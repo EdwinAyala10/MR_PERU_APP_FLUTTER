@@ -1,10 +1,16 @@
 import 'package:crm_app/features/activities/presentation/widgets/item_activity.dart';
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crm_app/features/companies/presentation/widgets/item_company.dart';
+import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/contacts/presentation/widgets/item_contact.dart';
 import 'package:crm_app/features/kpis/presentation/providers/kpis_by_cat_provider.dart';
+import 'package:crm_app/features/kpis/presentation/providers/kpis_by_asesor_provider.dart';
+import 'package:crm_app/features/kpis/presentation/providers/kpis_repository_provider.dart';
 import 'package:crm_app/features/kpis/presentation/widgets/custom_switch.dart';
 import 'package:crm_app/features/opportunities/presentation/widgets/item_opportunity.dart';
+import 'package:crm_app/features/shared/infrastructure/services/notification_service.dart';
+import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
+import 'package:crm_app/features/shared/widgets/confirm_delete_dialog.dart';
 
 import '../providers/providers.dart';
 import '../../../shared/shared.dart';
@@ -60,11 +66,21 @@ class KpiDetailScreen extends ConsumerWidget {
         ),
         actions: [
           if (isAdmin)
-            IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () {
-                context.push('/kpi/${kpi.id}');
-              },
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  onPressed: () => _confirmDelete(context, ref, kpi),
+                  icon: const Icon(Icons.delete_outline),
+                  color: Colors.red.shade700,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.edit),
+                  onPressed: () {
+                    context.push('/kpi/${kpi.id}');
+                  },
+                ),
+              ],
             ),
         ],
       ),
@@ -120,6 +136,70 @@ class KpiDetailScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _confirmDelete(
+    BuildContext context,
+    WidgetRef ref,
+    Kpi kpi,
+  ) async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return const ConfirmDeleteDialog(
+          title: 'Eliminar objetivo',
+          message: '¿Desea eliminar este objetivo?',
+          confirmLabel: 'Sí',
+        );
+      },
+    );
+
+    if (shouldDelete != true) return;
+
+    final repository = ref.read(kpisRepositoryProvider);
+    showLoadingMessage(context);
+
+    try {
+      final response = await repository.deleteKpi(kpi.id);
+
+      if (!context.mounted) return;
+
+      Navigator.of(context, rootNavigator: true).pop();
+
+      if (!response.status) {
+        NotificationService().showError(
+          context: context,
+          title: 'No se pudo eliminar',
+          message: response.message,
+        );
+        return;
+      }
+
+      ref.read(goalsModelProvider.notifier).state = null;
+      ref.read(selectKpiProvider.notifier).state = null;
+      ref.read(uiProvider.notifier).setDashboardSuccessMessage(
+            title: 'Objetivo eliminado',
+            message: response.message,
+          );
+
+      if (!context.mounted) return;
+      context.go('/dashboard');
+
+      Future.microtask(() {
+        ref.read(kpisProvider.notifier).loadNextPage();
+        ref.read(kpisByAsesorProvider.notifier).loadKpis();
+      });
+    } catch (_) {
+      if (!context.mounted) return;
+
+      Navigator.of(context, rootNavigator: true).pop();
+
+      NotificationService().showError(
+        context: context,
+        title: 'No se pudo eliminar',
+        message: 'Error, revisar con su administrador.',
+      );
+    }
   }
 
   Widget resumedHeadData(BuildContext context, WidgetRef ref) {

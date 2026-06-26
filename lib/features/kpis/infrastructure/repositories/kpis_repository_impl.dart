@@ -15,6 +15,11 @@ class KpisRepositoryImpl extends KpisRepository {
   }
 
   @override
+  Future<KpiResponse> deleteKpi(String id) {
+    return datasource.deleteKpi(id);
+  }
+
+  @override
   Future<Kpi> getKpiById(String id) {
     return datasource.getKpiById(id);
   }
