@@ -47,7 +47,12 @@ class SendWhatsappNotifier extends StateNotifier<SendWhatsappState> {
 
       DateTime dateCurrent = DateTime.now();
       String hourCurrent = DateFormat('HH:mm:ss').format(dateCurrent);
-      final opportunityId = state.opportunity?.id ?? '';
+      // Si la oportunidad viene de un card agrupado por empresa, se envían
+      // todos los ids de esa empresa (OPRT_ID_OPORTUNIDAD_IN); si no, el id
+      // único de la oportunidad.
+      final oportunidadIdsIn = (state.opportunity?.oprtIdOportunidadIn ?? '').trim();
+      final opportunityId =
+          oportunidadIdsIn.isNotEmpty ? oportunidadIdsIn : (state.opportunity?.id ?? '');
       final opportunityName = state.opportunity?.oprtNombre ?? '';
 
       List<ContactArray> actividadesContacto = [];

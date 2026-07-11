@@ -737,45 +737,33 @@ class _ListOpportunitiesState extends ConsumerState<_ListOpportunities> {
                   ),
                 )),
           )
-        : NotificationListener(
-            onNotification: (ScrollNotification scrollInfo) {
-              if (scrollInfo.metrics.pixels + 400 ==
-                  scrollInfo.metrics.maxScrollExtent) {
-                ref
-                    .read(opportunitiesProvider.notifier)
-                    .loadNextPage(isRefresh: false);
-              }
-              return false;
-            },
-            child: RefreshIndicator(
-              notificationPredicate: defaultScrollNotificationPredicate,
-              onRefresh: widget.onRefreshCallback,
-              //key: refreshIndicatorKey,
-              child: ListView.separated(
-                itemCount: widget.opportunities.length,
-                controller: widget.scrollController,
-                separatorBuilder: (BuildContext context, int index) =>
-                    const Divider(height: 4, thickness: 0.5),
-                itemBuilder: (context, index) {
-                  final opportunity = widget.opportunities[index];
+        : RefreshIndicator(
+            notificationPredicate: defaultScrollNotificationPredicate,
+            onRefresh: widget.onRefreshCallback,
+            child: ListView.separated(
+              itemCount: widget.opportunities.length,
+              controller: widget.scrollController,
+              separatorBuilder: (BuildContext context, int index) =>
+                  const Divider(height: 4, thickness: 0.5),
+              itemBuilder: (context, index) {
+                final opportunity = widget.opportunities[index];
 
-                  if (index + 1 == widget.opportunities.length) {
-                    if (widget.isReload) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
+                if (index + 1 == widget.opportunities.length) {
+                  if (widget.isReload) {
+                    return const Center(child: CircularProgressIndicator());
                   }
+                }
 
-                  return ItemOpportunity(
-                    opportunity: opportunity,
-                    callbackOnTap: () {
-                      ref.read(selectedOp.notifier).state = opportunity;
-                      ref.read(selectOpportunity.notifier).state = opportunity;
-                      context.push('/opportunity_detail/${opportunity.id}');
-                      log("Estoy entrandoo aqui");
-                    },
-                  );
-                },
-              ),
+                return ItemOpportunity(
+                  opportunity: opportunity,
+                  callbackOnTap: () {
+                    ref.read(selectedOp.notifier).state = opportunity;
+                    ref.read(selectOpportunity.notifier).state = opportunity;
+                    context.push('/opportunity_detail/${opportunity.id}');
+                    log("Estoy entrandoo aqui");
+                  },
+                );
+              },
             ),
           );
   }

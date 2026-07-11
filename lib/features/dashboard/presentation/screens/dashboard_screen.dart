@@ -846,19 +846,24 @@ class _ContainerDashboardOpportunities extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               height: h2,
-              child: ListView.separated(
-                  separatorBuilder: (BuildContext context, int index) =>
-                      const Divider(height: 2),
-                  itemCount:
-                      opportunities.length > 5 ? 5 : opportunities.length,
-                  itemBuilder: (context, index) {
-                    final opportunity = opportunities[index];
+              child: Builder(builder: (context) {
+                // Se agrupa por empresa para que ItemOpportunity reciba la
+                // misma estructura agrupada y no divida una empresa en varios
+                // cards.
+                final groups = Opportunity.agruparPorEmpresa(opportunities);
+                return ListView.separated(
+                    separatorBuilder: (BuildContext context, int index) =>
+                        const Divider(height: 2),
+                    itemCount: groups.length > 5 ? 5 : groups.length,
+                    itemBuilder: (context, index) {
+                      final group = groups[index];
 
-                    return ItemOpportunity(
-                      opportunity: opportunity,
-                      callbackOnTap: () {},
-                    );
-                  }),
+                      return ItemOpportunity(
+                        opportunity: group,
+                        callbackOnTap: () {},
+                      );
+                    });
+              }),
             )
           ],
         ),

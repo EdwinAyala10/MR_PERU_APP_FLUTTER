@@ -7,6 +7,7 @@ import 'package:crm_app/features/kpis/presentation/providers/kpis_by_cat_provide
 import 'package:crm_app/features/kpis/presentation/providers/kpis_by_asesor_provider.dart';
 import 'package:crm_app/features/kpis/presentation/providers/kpis_repository_provider.dart';
 import 'package:crm_app/features/kpis/presentation/widgets/custom_switch.dart';
+import 'package:crm_app/features/opportunities/domain/domain.dart';
 import 'package:crm_app/features/opportunities/presentation/widgets/item_opportunity.dart';
 import 'package:crm_app/features/shared/infrastructure/services/notification_service.dart';
 import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
@@ -324,6 +325,44 @@ class KpiDetailScreen extends ConsumerWidget {
         child: Text('No se encontraron registros'),
       );
     }
+
+    final categoria =
+        ref.read(kpisByCatNotifierProvider.notifier).kpiProviders?.objrIdCategoria;
+    final esCategoriaOportunidad = categoria == TypeCategory.nuevaOportunidad ||
+        categoria == TypeCategory.oportunidadesGanadas ||
+        categoria == TypeCategory.oportunidadSinSeguimiento;
+
+    // Las oportunidades se pintan con el mismo ItemOpportunity agrupado por
+    // empresa que el resto de la app (nueva estructura), no una por una.
+    if (esCategoriaOportunidad) {
+      final groups =
+          Opportunity.agruparPorEmpresa(response.items.cast<Opportunity>());
+      return RefreshIndicator(
+        onRefresh: () async {
+          ref.read(kpisByCatNotifierProvider.notifier).listKpiByCategory();
+        },
+        child: Container(
+          width: double.infinity,
+          color: Colors.transparent,
+          child: ListView.separated(
+            itemCount: groups.length,
+            padding: EdgeInsets.zero,
+            physics: const AlwaysScrollableScrollPhysics(),
+            separatorBuilder: (context, index) => const Divider(),
+            itemBuilder: (context, index) {
+              final group = groups[index];
+              return ItemOpportunity(
+                opportunity: group,
+                callbackOnTap: () {
+                  context.push('/opportunity_detail/${group.id}');
+                },
+              );
+            },
+          ),
+        ),
+      );
+    }
+
     return RefreshIndicator(
       // notificationPredicate: defaultScrollNotificationPredicate,
       onRefresh: () async {
@@ -373,37 +412,6 @@ class KpiDetailScreen extends ConsumerWidget {
                 contact: contact,
                 callbackOnTap: () {
                   context.push('/contact_detail/${contact.id}');
-                },
-              );
-            }
-            if (type?.objrIdCategoria == TypeCategory.nuevaOportunidad) {
-              final opportunity = response.items[index];
-
-              return ItemOpportunity(
-                opportunity: opportunity,
-                callbackOnTap: () {
-                  context.push('/opportunity_detail/${opportunity.id}');
-                },
-              );
-            }
-            if (type?.objrIdCategoria == TypeCategory.oportunidadesGanadas) {
-              final opportunity = response.items[index];
-
-              return ItemOpportunity(
-                opportunity: opportunity,
-                callbackOnTap: () {
-                  context.push('/opportunity_detail/${opportunity.id}');
-                },
-              );
-            }
-            if (type?.objrIdCategoria ==
-                TypeCategory.oportunidadSinSeguimiento) {
-              final opportunity = response.items[index];
-
-              return ItemOpportunity(
-                opportunity: opportunity,
-                callbackOnTap: () {
-                  context.push('/opportunity_detail/${opportunity.id}');
                 },
               );
             }

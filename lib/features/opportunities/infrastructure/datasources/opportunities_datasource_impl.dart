@@ -130,13 +130,39 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
 
     };
     log("THIS$data");
-    final response =
-        await dio.post('/oportunidad/listar-oportunidades', data: data);
+    
+    final response = await dio.post(
+      '/oportunidad/listar-oportunidades-agrupado-empresa',
+      data: data,
+    );
 
     final List<Opportunity> opportunities = [];
-    for (final opportunity in response.data['data'] ?? []) {
-      opportunities.add(OpportunityMapper.jsonToEntity(opportunity));
+
+    for (final group in response.data['data'] ?? []) {
+      final List<dynamic> oportunidadesEnGrupo = group['OPORTUNIDAD'] ?? [];
+
+      if (oportunidadesEnGrupo.isEmpty) continue;
+
+      final List<Opportunity> todasLasOportunidades = [];
+      for (final opportunityJson in oportunidadesEnGrupo) {
+        todasLasOportunidades.add(
+          OpportunityMapper.jsonToEntity(opportunityJson),
+        );
+      }
+
+      final primeraOportunidad = todasLasOportunidades[0];
+      primeraOportunidad.isFirstInGroup = true;
+      primeraOportunidad.oprtPrimeraFechaRegistro =
+          group['OPRT_PRIMERA_FECHA_REGISTRO'];
+      primeraOportunidad.nombrePrimeroUsuarioResponsable =
+          group['NOMBRE_PRIMERO_USUARIO_RESPONSABLE'];
+      primeraOportunidad.totalOportunidadesEnGrupo =
+          oportunidadesEnGrupo.length;
+      primeraOportunidad.oportunidadesDelGrupo = todasLasOportunidades;
+
+      opportunities.add(primeraOportunidad);
     }
+
     return opportunities;
   }
 

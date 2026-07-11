@@ -891,20 +891,24 @@ class _ListOpportunities extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Todas las oportunidades pertenecen a la misma empresa: se agrupan para
+    // que ItemOpportunity reciba la estructura agrupada y no divida la empresa
+    // en varios cards.
+    final groups = Opportunity.agruparPorEmpresa(opportunities);
     return RefreshIndicator(
       onRefresh: onRefreshCallback,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: ListView.separated(
-          itemCount: opportunities.length,
+          itemCount: groups.length,
           separatorBuilder: (BuildContext context, int index) =>
               const Divider(),
           itemBuilder: (context, index) {
-            final opportunity = opportunities[index];
+            final group = groups[index];
             return ItemOpportunity(
-                opportunity: opportunity,
+                opportunity: group,
                 callbackOnTap: () {
-                  context.push('/opportunity_detail/${opportunity.id}');
+                  context.push('/opportunity_detail/${group.id}');
                 });
           },
         ),

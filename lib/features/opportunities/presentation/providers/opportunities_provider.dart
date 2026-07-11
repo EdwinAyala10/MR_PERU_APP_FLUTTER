@@ -294,6 +294,8 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
     } else {
       sOffset = state.offset + 10;
     }
+    
+    // Ahora usa el nuevo endpoint agrupado internamente
     final opportunities = await opportunitiesRepository.getListOpportunities(
         ruc: '',
         endPercent: endPercents ?? '',
@@ -310,9 +312,6 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
         estadoOP: estadoOP);
 
     if (opportunities.isEmpty) {
-      //state = state.copyWith(isLoading: false, isLastPage: true);
-      //state = state.copyWith(isLoading: false);
-
       if (isRefresh) {
         state = state.copyWith(isLoading: false, isLastPage: true);
       } else {
@@ -337,14 +336,12 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
             isLastPage: false,
             isLoading: false,
             offset: newOffset,
-            //opportunities: [...state.opportunities, ...opportunities]);
             opportunities: newOpportunities);
       } else {
         state = state.copyWith(
             isLastPage: false,
             isReload: false,
             offset: newOffset,
-            //opportunities: [...state.opportunities, ...opportunities]);
             opportunities: newOpportunities);
       }
     }

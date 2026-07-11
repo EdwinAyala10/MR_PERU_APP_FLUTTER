@@ -174,11 +174,18 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final selected = ref.read(selectOpportunity);
+      // Si la oportunidad viene de un card agrupado por empresa, se envían
+      // todos los ids de esa empresa (OPRT_ID_OPORTUNIDAD_IN); si no, el id
+      // único de la oportunidad.
+      final selectedIdsIn = (selected?.oprtIdOportunidadIn ?? '').trim();
+      final selectedOpportunityId =
+          selectedIdsIn.isNotEmpty ? selectedIdsIn : (selected?.id ?? '');
       ref
           .read(activityFormProvider(widget.activity).notifier)
           .onOportunidadChanged(
-            ref.read(selectOpportunity)?.id ?? '',
-            ref.read(selectOpportunity)?.oprtNombre ?? '',
+            selectedOpportunityId,
+            selected?.oprtNombre ?? '',
           );
       await ref
           .read(resourceDetailsProvider.notifier)
