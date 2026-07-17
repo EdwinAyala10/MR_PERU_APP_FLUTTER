@@ -116,6 +116,9 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
           .watch(companyProvider(widget.company.ruc).notifier)
+          .loadCompany();
+      ref
+          .watch(companyProvider(widget.company.ruc).notifier)
           .loadSecundaryDetails();
     });
   }
@@ -317,12 +320,24 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
     );
   }
 
+  Future<void> _refreshCompany() async {
+    await ref
+        .watch(companyProvider(widget.company.ruc).notifier)
+        .loadCompany();
+    await ref
+        .watch(companyProvider(widget.company.ruc).notifier)
+        .loadSecundaryDetails();
+  }
+
   Widget _buildInformationTab(TextStyle styleTitle, TextStyle styleLabel,
       TextStyle styleContent, SizedBox spacingHeight) {
-    return SingleChildScrollView(
-      child: Container(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
+    return RefreshIndicator(
+      onRefresh: _refreshCompany,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Container(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('GENERAL', style: styleTitle),
@@ -409,6 +424,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
           ],
         ),
       ),
+    ),
     );
   }
 

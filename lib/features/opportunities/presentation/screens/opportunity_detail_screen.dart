@@ -205,10 +205,85 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
           actions: [
             IconButton(
               icon: const Icon(Icons.edit),
-              onPressed: () {
-                context.push(
-                  '/opportunity/${widget.opportunityId}',
+              onPressed: () async {
+                final options = ref.read(currentOpportunityGroupProvider);
+                if (options.isEmpty) {
+                  // Si no hay opciones, editar directamente la oportunidad actual
+                  context.push('/opportunity/${widget.opportunityId}');
+                  return;
+                }
+                
+                // SIEMPRE mostrar el modal para seleccionar qué oportunidad editar
+                Opportunity selected = ref.read(selectedOp) ?? options.first;
+                
+                final selectedOpportunity = await showDialog<Opportunity>(
+                  context: context,
+                  barrierColor: Colors.black.withOpacity(0.5),
+                  builder: (dialogContext) {
+                    return StatefulBuilder(
+                      builder: (dialogContext, setStateDialog) {
+                        return AlertDialog(
+                          backgroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          title: const Text(
+                            'Seleccione oportunidad',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          content: DropdownButton<Opportunity>(
+                            isExpanded: true,
+                            value: selected,
+                            items: options
+                                .map(
+                                  (opportunity) => DropdownMenuItem<Opportunity>(
+                                    value: opportunity,
+                                    child: Text(
+                                      'Equipo(s): ${opportunity.oprtNombre}',
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (value) {
+                              if (value == null) return;
+                              setStateDialog(() => selected = value);
+                            },
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(dialogContext).pop(),
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.grey.shade700,
+                              ),
+                              child: const Text('Cancelar'),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(dialogContext).pop(selected);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF2196F3),
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                              child: const Text('Continuar'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
                 );
+                
+                if (selectedOpportunity != null) {
+                  context.push('/opportunity/${selectedOpportunity.id}');
+                }
               },
             ),
           ],
@@ -1292,11 +1367,22 @@ Future<Opportunity?> resolveTargetOpportunity(
 
   return showDialog<Opportunity>(
     context: context,
+    barrierColor: Colors.black.withOpacity(0.5),
     builder: (dialogContext) {
       return StatefulBuilder(
         builder: (dialogContext, setStateDialog) {
           return AlertDialog(
-            title: const Text('Seleccione oportunidad'),
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            title: const Text(
+              'Seleccione oportunidad',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
             content: DropdownButton<Opportunity>(
               isExpanded: true,
               value: selected,
@@ -1319,10 +1405,23 @@ Future<Opportunity?> resolveTargetOpportunity(
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(dialogContext).pop(),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.grey.shade700,
+                ),
                 child: const Text('Cancelar'),
               ),
-              OutlinedButton(
-                onPressed: () => Navigator.of(dialogContext).pop(selected),
+              ElevatedButton(
+                onPressed: () {
+                  ref.read(selectedOp.notifier).state = selected;
+                  Navigator.of(dialogContext).pop(selected);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2196F3),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
                 child: const Text('Continuar'),
               ),
             ],
