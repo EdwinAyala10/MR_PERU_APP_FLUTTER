@@ -54,6 +54,14 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
           actividadesContacto: activity.actividadesContacto ?? [],
           actividadesContactoEliminar:
               activity.actividadesContactoEliminar ?? [],
+          actiOportunidadIds: (activity.actiIdOportunidad).isNotEmpty
+              ? [activity.actiIdOportunidad]
+              : const [],
+          actiOportunidadNombres:
+              (activity.actiIdOportunidad).isNotEmpty &&
+                      (activity.actiNombreOportunidad).isNotEmpty
+                  ? {activity.actiIdOportunidad: activity.actiNombreOportunidad}
+                  : const {},
         ));
 
   Future<CreateUpdateActivityResponse> onFormSubmit() async {
@@ -67,6 +75,7 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
       return CreateUpdateActivityResponse(response: false, message: '');
     }
 
+    final baseComment = state.actiComentario.trim();
     final activityLike = {
       'ACTI_ID_ACTIVIDAD': (state.id == 'new') ? null : state.id,
       'ACTI_NOMBRE_RESPONSABLE': state.actiNombreResponsable,
@@ -84,6 +93,25 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
       'ACTI_ID_OPORTUNIDAD': state.actiIdOportunidad.value.isEmpty
           ? '0'
           : state.actiIdOportunidad.value,
+      'ACTI_OPORTUNIDAD': state.actiOportunidadIds.isNotEmpty
+          ? state.actiOportunidadIds.map((id) {
+              final opportunityName =
+                  state.actiOportunidadNombres[id]?.trim() ?? '';
+              final opportunityComment = [baseComment, opportunityName]
+                  .where((part) => part.isNotEmpty)
+                  .join(' ');
+
+              return {
+                "ACTI_ID_OPORTUNIDAD": int.tryParse(id) ?? id,
+                "ACTI_COMENTARIO": opportunityComment,
+              };
+            }).toList()
+          : [
+              {
+                "ACTI_ID_OPORTUNIDAD": 0,
+                "ACTI_COMENTARIO": state.actiComentario
+              }
+            ],
       //'ACTI_ID_CONTACTO': state.actiIdContacto.value,
       'ACTI_ID_CONTACTO': state.actividadesContacto?[0].acntIdContacto ?? '',
       'ACTI_COMENTARIO': state.actiComentario,
@@ -102,6 +130,9 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
               state.actividadesContactoEliminar!.map((x) => x.toJson()))
           : [],
     };
+
+    print('========== ACTIVIDAD REQUEST ==========');
+    print('ACTI_OPORTUNIDAD: ${activityLike['ACTI_OPORTUNIDAD']}');
 
     try {
       return await onSubmitCallback!(activityLike);
@@ -126,6 +157,8 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
         actiRuc: StateCompany.dirty(value),
         actiRazon: name,
         actiIdOportunidad: const Oportunidad.dirty(''),
+        actiOportunidadIds: const [],
+        actiOportunidadNombres: const {},
         actividadesContacto: [],
         isFormValid: Formz.validate([
           StateCompany.dirty(value),
@@ -167,9 +200,18 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
   }
 
   void onOportunidadChanged(String id, String nombre) {
+    final ids = List<String>.from(state.actiOportunidadIds);
+    if (id.isNotEmpty && !ids.contains(id)) {
+      ids.add(id);
+    }
     state = state.copyWith(
         actiIdOportunidad: Oportunidad.dirty(id),
         actiNombreOportunidad: nombre,
+        actiOportunidadIds: ids,
+        actiOportunidadNombres: {
+          ...state.actiOportunidadNombres,
+          if (id.isNotEmpty) id: nombre,
+        },
         isFormValid: Formz.validate([
           StateCompany.dirty(state.actiRuc.value),
           TipoGestion.dirty(state.actiIdTipoGestion.value),
@@ -177,6 +219,41 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
           //Oportunidad.dirty(id)
           //Contacto.dirty(state.actiIdContacto.value)
         ]));
+  }
+
+  /// Marca/desmarca una oportunidad (equipo) del checkbox múltiple. La
+  /// "primaria" (ACTI_ID_OPORTUNIDAD) es la primera seleccionada; si se
+  /// desmarca la que estaba de primaria, se reasigna a la siguiente
+  /// seleccionada (o se limpia si no queda ninguna).
+  void onOportunidadesSelected(
+    List<Opportunity> selected,
+    List<Opportunity> options,
+  ) {
+    final ids = selected.map((opportunity) => opportunity.id).toList();
+    final names = <String, String>{
+      for (final opportunity in selected) opportunity.id: opportunity.oprtNombre,
+    };
+
+    String primaryId = state.actiIdOportunidad.value;
+    String primaryNombre = state.actiNombreOportunidad;
+
+    if (ids.isNotEmpty) {
+      if (!ids.contains(primaryId)) {
+        primaryId = ids.first;
+      }
+      final match = options.where((o) => o.id == primaryId);
+      primaryNombre = match.isNotEmpty ? match.first.oprtNombre : '';
+    } else {
+      primaryId = '';
+      primaryNombre = '';
+    }
+
+    state = state.copyWith(
+      actiOportunidadIds: ids,
+      actiOportunidadNombres: names,
+      actiIdOportunidad: Oportunidad.dirty(primaryId),
+      actiNombreOportunidad: primaryNombre,
+    );
   }
 
   void onComentarioChanged(String comentario) {
@@ -273,6 +350,8 @@ class ActivityFormState {
   final List<ContactArray>? actividadesContacto;
   final List<ContactArray>? actividadesContactoEliminar;
   final String? actiIdTipoRegistro;
+  final List<String> actiOportunidadIds;
+  final Map<String, String> actiOportunidadNombres;
 
   ActivityFormState(
       {this.isFormValid = false,
@@ -297,9 +376,11 @@ class ActivityFormState {
       this.actiNombreResponsable = '',
       this.actiRuc = const StateCompany.dirty(''),
       this.actiRazon = '',
-      this.contactoDesc = '',
-      this.actividadesContactoEliminar,
-      this.opt = ''});
+       this.contactoDesc = '',
+       this.actividadesContactoEliminar,
+       this.actiOportunidadIds = const [],
+       this.actiOportunidadNombres = const {},
+       this.opt = ''});
 
   ActivityFormState copyWith(
           {bool? isFormValid,
@@ -323,11 +404,13 @@ class ActivityFormState {
           String? actiIdUsuarioActualizacion,
           String? opt,
           String? contactoDesc,
-          String? actiNombreResponsable,
-          String? actiIdActividadIn,
-          List<ContactArray>? actividadesContacto,
-          List<ContactArray>? actividadesContactoEliminar}) =>
-      ActivityFormState(
+           String? actiNombreResponsable,
+           String? actiIdActividadIn,
+           List<ContactArray>? actividadesContacto,
+           List<ContactArray>? actividadesContactoEliminar,
+           List<String>? actiOportunidadIds,
+           Map<String, String>? actiOportunidadNombres}) =>
+       ActivityFormState(
         isFormValid: isFormValid ?? this.isFormValid,
         id: id ?? this.id,
         actiIdTipoRegistro: actiIdTipoRegistro ?? this.actiIdTipoRegistro,
@@ -359,6 +442,9 @@ class ActivityFormState {
         contactoDesc: contactoDesc ?? this.contactoDesc,
         actiNombreResponsable:
             actiNombreResponsable ?? this.actiNombreResponsable,
+        actiOportunidadIds: actiOportunidadIds ?? this.actiOportunidadIds,
+        actiOportunidadNombres:
+            actiOportunidadNombres ?? this.actiOportunidadNombres,
         opt: opt ?? this.opt,
       );
 }

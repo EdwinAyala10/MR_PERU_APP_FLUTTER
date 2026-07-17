@@ -31,12 +31,14 @@ class ActivitiesRepositoryImpl extends ActivitiesRepository {
   @override
   Future<List<Activity>> getActivitiesByOpportunitie({
     String opportunityId = '',
+    String ruc = '',
     String search = '',
     int limit = 10,
     int offset = 0,
   }) {
     return datasource.getActivitiesByOpportunitie(
       opportunityId: opportunityId,
+      ruc: ruc,
       search: search,
       limit: limit,
       offset: offset,

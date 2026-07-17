@@ -137,9 +137,9 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
 
     if (isRefresh) {
       sLimit = 10;
-      sOffset = 0;
+      sOffset = 1;
     } else {
-      sOffset = state.offset + 10;
+      sOffset = state.offset + 1;
     }
 
     final opportunities = await opportunitiesRepository.getOpportunities(
@@ -166,7 +166,7 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
       List<Opportunity> newOpportunities;
 
       if (isRefresh) {
-        newOffset = 0;
+        newOffset = 1;
         newOpportunities = opportunities;
       } else {
         newOffset = sOffset;
@@ -210,9 +210,9 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
 
     if (isRefresh) {
       sLimit = 10;
-      sOffset = 0;
+      sOffset = 1;
     } else {
-      sOffset = state.offset + 10;
+      sOffset = state.offset + 1;
     }
 
     final opportunities = await opportunitiesRepository.getListOpportunities(
@@ -240,7 +240,7 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
       List<Opportunity> newOpportunities;
 
       if (isRefresh) {
-        newOffset = 0;
+        newOffset = 1;
         newOpportunities = opportunities;
       } else {
         newOffset = sOffset;
@@ -290,9 +290,9 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
 
     if (isRefresh) {
       sLimit = 10;
-      sOffset = 0;
+      sOffset = 1;
     } else {
-      sOffset = state.offset + 10;
+      sOffset = state.offset + 1;
     }
     
     // Ahora usa el nuevo endpoint agrupado internamente
@@ -324,7 +324,7 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
       List<Opportunity> newOpportunities;
 
       if (isRefresh) {
-        newOffset = 0;
+        newOffset = 1;
         newOpportunities = opportunities;
       } else {
         newOffset = sOffset;

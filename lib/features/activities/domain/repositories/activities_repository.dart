@@ -10,6 +10,7 @@ abstract class ActivitiesRepository {
 
   Future<List<Activity>> getActivitiesByOpportunitie({
     String opportunityId,
+    String ruc,
     String search,
     int limit = 10,
     int offset = 0,

@@ -226,9 +226,26 @@ class _ActivityInformationv2State
               company[0].ruc,
               company[0].razon,
             );
-        ref
-            .read(activityFormProvider(widget.activity).notifier)
-            .onOportunidadChanged(op?.id ?? '', op?.oprtNombre ?? '');
+        if (op != null) {
+          ref
+              .read(activityFormProvider(widget.activity).notifier)
+              .onOportunidadChanged(op.id, op.oprtNombre);
+
+          if ((op.contactId ?? '').isNotEmpty) {
+            ref.read(activityFormProvider(widget.activity).notifier).onContactoChanged(
+                  Contact(
+                    id: op.contactId!,
+                    ruc: op.oprtRuc ?? '',
+                    razon: op.razon,
+                    contactoTitulo: '',
+                    contactoDesc: op.oprtNombreContacto ?? '',
+                    contactoCargo: '',
+                    contactoTelefonoc: op.contacTelefono ?? '',
+                    contactoEmail: '',
+                  ),
+                );
+          }
+        }
         // Verificar oportunidades cuando se carga desde selectedOp
         _checkOpportunities(company[0].ruc);
       },
@@ -273,9 +290,117 @@ class _ActivityInformationv2State
     }
   }
 
+  String _selectedOpportunitySummary(
+    ActivityFormState activityForm,
+    List<Opportunity> options,
+  ) {
+    final selected = options
+        .where((opportunity) =>
+            activityForm.actiOportunidadIds.contains(opportunity.id))
+        .map((opportunity) => opportunity.oprtNombre)
+        .toList();
+
+    if (selected.isEmpty) return 'Seleccione oportunidad(es)';
+    return selected.join(', ');
+  }
+
+  Future<void> _openOpportunitySelector(
+    BuildContext context,
+    ActivityFormState activityForm,
+    List<Opportunity> options,
+  ) async {
+    final tempSelectedIds = activityForm.actiOportunidadIds.toSet();
+
+    final selected = await showModalBottomSheet<List<String>>(
+      context: context,
+      isScrollControlled: true,
+      builder: (modalContext) {
+        return StatefulBuilder(
+          builder: (modalContext, setStateModal) {
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Seleccione oportunidad(es)',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 12),
+                    Flexible(
+                      child: ListView(
+                        shrinkWrap: true,
+                        children: options.map((opportunity) {
+                          final checked = tempSelectedIds.contains(opportunity.id);
+                          return CheckboxListTile(
+                            value: checked,
+                            controlAffinity: ListTileControlAffinity.leading,
+                            contentPadding: EdgeInsets.zero,
+                            dense: true,
+                            title: Text('Equipo(s): ${opportunity.oprtNombre}'),
+                            onChanged: (value) {
+                              setStateModal(() {
+                                if (value ?? false) {
+                                  tempSelectedIds.add(opportunity.id);
+                                } else {
+                                  tempSelectedIds.remove(opportunity.id);
+                                }
+                              });
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                            onPressed: () => Navigator.pop(modalContext),
+                            child: const Text('Cancelar'),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () => Navigator.pop(
+                              modalContext,
+                              tempSelectedIds.toList(),
+                            ),
+                            child: const Text('Aceptar'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    if (selected == null) return;
+
+    final selectedOpportunities = options
+        .where((opportunity) => selected.contains(opportunity.id))
+        .toList();
+
+    ref
+        .read(activityFormProvider(widget.activity).notifier)
+        .onOportunidadesSelected(selectedOpportunities, options);
+  }
+
   @override
   Widget build(BuildContext context) {
     final activityForm = ref.watch(activityFormProvider(widget.activity));
+    final opportunityGroup = ref.watch(currentOpportunityGroupProvider);
+    final showOportunidadCheckboxes = opportunityGroup.length > 1 &&
+        opportunityGroup.every((o) => o.oprtRuc == activityForm.actiRuc.value);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -429,10 +554,8 @@ class _ActivityInformationv2State
           const SizedBox(height: 10),
           _isLoadingOpportunities
               ? PlaceholderInput(text: 'Cargando Oportunidades...')
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
+              : (showOportunidadCheckboxes
+                  ? Padding(
                       padding: const EdgeInsets.all(4.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -445,68 +568,134 @@ class _ActivityInformationv2State
                             ),
                           ),
                           const SizedBox(height: 6),
-                          GestureDetector(
-                            onTap: () {
-                              if (activityForm.actiRuc.value == '') {
-                                showSnackbar(
-                                    context, 'Seleccione una oportunidad');
-                                return;
-                              }
-                              _openSearchOportunities(
-                                  context, ref, activityForm.actiRuc.value);
-                            },
+                          InkWell(
+                            borderRadius: BorderRadius.circular(24),
+                            onTap: () => _openOpportunitySelector(
+                              context,
+                              activityForm,
+                              opportunityGroup,
+                            ),
                             child: Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10),
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
                               decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Colors.grey,
-                                ),
-                                borderRadius: BorderRadius.circular(5),
+                                color: const Color(0xFFF1F1F1),
+                                borderRadius: BorderRadius.circular(24),
                               ),
                               child: Row(
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      activityForm.actiIdOportunidad.value == ''
-                                          ? 'Seleccione Oportunidad'
-                                          : activityForm.actiNombreOportunidad,
+                                      _selectedOpportunitySummary(
+                                        activityForm,
+                                        opportunityGroup,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                       style: const TextStyle(
-                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 15,
+                                        color: Colors.black87,
                                       ),
                                     ),
                                   ),
-                                  IconButton(
-                                    icon: const Icon(Icons.search),
-                                    onPressed: () {
-                                      if (activityForm.actiRuc.value == '') {
-                                        showSnackbar(
-                                            context, 'Seleccione una empresa');
-                                        return;
-                                      }
-                                      _openSearchOportunities(context, ref,
-                                          activityForm.actiRuc.value);
-                                    },
-                                  ),
+                                  const Icon(Icons.keyboard_arrow_down),
                                 ],
                               ),
                             ),
                           ),
                         ],
                       ),
-                    ),
-                    (_hasOpportunities || _isEmpresaNotSelected) &&
-                            activityForm.actiIdOportunidad.errorMessage != null
-                        ? Padding(
-                            padding: const EdgeInsets.only(left: 4),
-                            child: Text(
-                              activityForm.actiIdOportunidad.errorMessage ?? '',
-                              style: const TextStyle(color: Colors.red),
-                            ),
-                          )
-                        : const SizedBox(),
-                  ],
-                ),
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Oportunidad',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              GestureDetector(
+                                onTap: () {
+                                  if (activityForm.actiRuc.value == '') {
+                                    showSnackbar(
+                                        context, 'Seleccione una oportunidad');
+                                    return;
+                                  }
+                                  _openSearchOportunities(
+                                      context, ref, activityForm.actiRuc.value);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Colors.grey,
+                                    ),
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          activityForm.actiIdOportunidad
+                                                      .value ==
+                                                  ''
+                                              ? 'Seleccione Oportunidad'
+                                              : activityForm
+                                                  .actiNombreOportunidad,
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.search),
+                                        onPressed: () {
+                                          if (activityForm.actiRuc.value ==
+                                              '') {
+                                            showSnackbar(context,
+                                                'Seleccione una empresa');
+                                            return;
+                                          }
+                                          _openSearchOportunities(context, ref,
+                                              activityForm.actiRuc.value);
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        (_hasOpportunities || _isEmpresaNotSelected) &&
+                                activityForm
+                                        .actiIdOportunidad.errorMessage !=
+                                    null
+                            ? Padding(
+                                padding: const EdgeInsets.only(left: 4),
+                                child: Text(
+                                  activityForm
+                                          .actiIdOportunidad.errorMessage ??
+                                      '',
+                                  style: const TextStyle(color: Colors.red),
+                                ),
+                              )
+                            : const SizedBox(),
+                      ],
+                    )),
           const SizedBox(height: 15),
           const Text(
             'Contactos',
@@ -542,16 +731,14 @@ class _ActivityInformationv2State
                 ],
               )),
               ElevatedButton(
-                onPressed: activityForm.actividadesContacto!.isNotEmpty
-                    ? null
-                    : () {
-                        if (activityForm.actiRuc.value == "") {
-                          showSnackbar(context, 'Debe seleccionar una empresa');
-                          return;
-                        }
-                        _openSearchContacts(
-                            context, ref, activityForm.actiRuc.value);
-                      },
+                onPressed: () {
+                  if (activityForm.actiRuc.value == "") {
+                    showSnackbar(context, 'Debe seleccionar una empresa');
+                    return;
+                  }
+                  _openSearchContacts(
+                      context, ref, activityForm.actiRuc.value);
+                },
                 child: const Row(
                   children: [
                     Icon(Icons.add),

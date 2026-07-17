@@ -5,6 +5,7 @@ abstract class DocOpportunitieRepository {
   Future<List<OpDocument>> getDocuments({
     required String idOportunidad,
     required String idTypeAdjunto,
+    String ruc = '',
   });
 
   Future<OpDocument> getDocumentById(

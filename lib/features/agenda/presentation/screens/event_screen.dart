@@ -6,6 +6,7 @@ import 'package:crm_app/features/companies/presentation/delegates/search_company
 import 'package:crm_app/features/companies/presentation/providers/company_provider.dart';
 import 'package:crm_app/features/companies/presentation/search/search_company_locales_active_provider.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
+import 'package:crm_app/features/opportunities/presentation/providers/docs_opportunitie_provider.dart';
 import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
 
@@ -144,8 +145,8 @@ class __EventInformationState extends ConsumerState<_EventInformation> {
     
       String? idEmpresa = ref.read(uiProvider).idCompanyAct;
       String? nameEmpresa = ref.read(uiProvider).nameCompanyAct;
-      
-      if (widget.event.id == "new" && idEmpresa != "") { 
+
+      if (widget.event.id == "new" && idEmpresa != "") {
         ref
           .read(
             eventFormProvider(widget.event).notifier,
@@ -154,8 +155,36 @@ class __EventInformationState extends ConsumerState<_EventInformation> {
             idEmpresa ?? '',
             nameEmpresa ?? '',
           );
+
+        // Si el evento se crea desde el detalle de una oportunidad, esta
+        // ya viene premarcada (onEmpresaChanged la resetea, por eso se
+        // vuelve a asignar después).
+        final opportunity = ref.read(selectedOp);
+        if (opportunity != null && opportunity.oprtRuc == idEmpresa) {
+          ref
+              .read(eventFormProvider(widget.event).notifier)
+              .onOportunidadChanged(
+                opportunity.id,
+                opportunity.oprtNombre,
+              );
+
+          if ((opportunity.contactId ?? '').isNotEmpty) {
+            ref.read(eventFormProvider(widget.event).notifier).onContactoChanged(
+                  Contact(
+                    id: opportunity.contactId!,
+                    ruc: opportunity.oprtRuc ?? '',
+                    razon: opportunity.razon,
+                    contactoTitulo: '',
+                    contactoDesc: opportunity.oprtNombreContacto ?? '',
+                    contactoCargo: '',
+                    contactoTelefonoc: opportunity.contacTelefono ?? '',
+                    contactoEmail: '',
+                  ),
+                );
+          }
+        }
       }
-      
+
     });
     
   }

@@ -129,8 +129,6 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
       "FECHAPREVISTADEVENTA_HASTA": endDate ?? ''
 
     };
-    log("THIS$data");
-    
     final response = await dio.post(
       '/oportunidad/listar-oportunidades-agrupado-empresa',
       data: data,

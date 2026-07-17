@@ -224,6 +224,7 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
         //activities: [...state.activities, ...activities]
         activities: newActivities);
   }
+
 }
 
 class ActivitiesState {

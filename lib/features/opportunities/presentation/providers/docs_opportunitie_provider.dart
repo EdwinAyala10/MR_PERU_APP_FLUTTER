@@ -13,6 +13,17 @@ enum TypeFileOp { photo, archive }
 
 final selectedOp = StateProvider<Opportunity?>((ref) => null);
 
+/// Oportunidades hermanas (mismo grupo/empresa) de la oportunidad
+/// actualmente abierta en el detalle. Se setea al entrar desde [ItemOpportunity]
+/// para poder pintar el selector "cambiar de oportunidad" en la parte
+/// superior de la pantalla de detalle.
+final currentOpportunityGroupProvider =
+    StateProvider<List<Opportunity>>((ref) => []);
+
+final currentOpportunityDetailTabProvider = StateProvider<int>((ref) => 0);
+
+final currentOpportunityShowAllProvider = StateProvider<bool>((ref) => false);
+
 final docOpportunitieProvider =
     StateNotifierProvider<DocumentsNotifier, DocumentsState>(
   (ref) {
@@ -40,7 +51,9 @@ class DocumentsNotifier extends StateNotifier<DocumentsState> {
     // loadNextPage();
   }
 
-  Future loadNextPage({required TypeFileOp type}) async {
+  Future loadNextPage({
+    required TypeFileOp type,
+  }) async {
     print('Se esta ejecutando');
     if (state.isLoading || state.isLastPage) return;
     state = state.copyWith(isLoading: true);
@@ -74,13 +87,16 @@ class DocumentsNotifier extends StateNotifier<DocumentsState> {
   }
 
   Future<OPCreateDocumentResponse> createDocument(
-      String path, String filename, TypeFileOp typeFileOp) async {
+      String path, String filename, TypeFileOp typeFileOp,
+      {String? opportunityIdOverride}) async {
     try {
+      final targetOpportunityId =
+          opportunityIdOverride ?? (opportunity?.id) ?? '';
       Map<String, dynamic> documentLike = {
         'path': path,
         'filename': filename,
         'ID_USUARIO_REGISTRO': user.code,
-        'OADJ_ID_OPORTUNIDAD': (opportunity?.id) ?? '',
+        'OADJ_ID_OPORTUNIDAD': targetOpportunityId,
         'OADJ_ID_TIPO_ADJUNTO': typeFileOp == TypeFileOp.photo ? '03' : '01',
       };
 
@@ -90,18 +106,23 @@ class DocumentsNotifier extends StateNotifier<DocumentsState> {
       final message = documentResponse.message;
       if (documentResponse.status) {
         final document = documentResponse.document as OpDocument;
-        state = state.copyWith(
-          documents: [
-            document,
-            ...state.documents,
-          ],
-          // listDocuments: document.oadjIdTipoAdjunto == '03'
-          //     ? [document, ...state.listDocuments]
-          //     : state.listDocuments,
-          // listLinks: document.oadjIdTipoAdjunto == '01'
-          //     ? [document, ...state.listLinks]
-          //     : state.listLinks,
-        );
+        // Solo se refleja en la lista visible de esta pestaña si el adjunto
+        // quedó asociado a la oportunidad que se está mostrando; si se
+        // eligió otro equipo del grupo, no debe aparecer aquí.
+        if (targetOpportunityId == ((opportunity?.id) ?? '')) {
+          state = state.copyWith(
+            documents: [
+              document,
+              ...state.documents,
+            ],
+            // listDocuments: document.oadjIdTipoAdjunto == '03'
+            //     ? [document, ...state.listDocuments]
+            //     : state.listDocuments,
+            // listLinks: document.oadjIdTipoAdjunto == '01'
+            //     ? [document, ...state.listLinks]
+            //     : state.listLinks,
+          );
+        }
         return OPCreateDocumentResponse(response: true, message: message);
       }
 

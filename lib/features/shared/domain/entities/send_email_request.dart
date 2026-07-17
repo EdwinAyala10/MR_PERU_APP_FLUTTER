@@ -12,6 +12,7 @@ class SendEmailRequest {
   final String oportunidadId;
   final List<EmailRecipient> recipients;
   final List<MultipartFile> files;
+  final List<Map<String, dynamic>> oportunidadEntries;
 
   const SendEmailRequest({
     required this.usuarioResponsableId,
@@ -24,6 +25,7 @@ class SendEmailRequest {
     this.oportunidadId = '0',
     this.recipients = const [],
     this.files = const [],
+    this.oportunidadEntries = const [],
   });
 
   Map<String, dynamic> toFormData() {
@@ -35,7 +37,6 @@ class SendEmailRequest {
       'ACTI_COMENTARIO': comentario,
       'EMLS_ASUNTO': asunto,
       'EMLS_EMAIL_FROM': emailFrom,
-      // Backend espera ACNT_ID_CONTACTO (no ACTI_ID_CONTACTO)
       'ACTIVIDADES_CONTACTO[0][ACNT_ID_CONTACTO]': contactoId,
     };
 
@@ -43,8 +44,19 @@ class SendEmailRequest {
       formData.addAll(recipients[i].toFormData(i));
     }
 
-    // NOTA: Los archivos NO se agregan aquí - se agregan manualmente
-    // en el datasource para manejar correctamente el array files[]
+    for (int i = 0; i < oportunidadEntries.length; i++) {
+      final entry = oportunidadEntries[i];
+      formData['ACTI_OPORTUNIDAD[$i][ACTI_ID_OPORTUNIDAD]'] =
+          entry['ACTI_ID_OPORTUNIDAD'];
+      formData['ACTI_OPORTUNIDAD[$i][ACTI_COMENTARIO]'] =
+          entry['ACTI_COMENTARIO'];
+    }
+
+    print('========== EMAIL REQUEST ==========');
+    formData.forEach((key, value) {
+      print('  $key = $value');
+    });
+
     return formData;
   }
 }

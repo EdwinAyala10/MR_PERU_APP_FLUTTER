@@ -759,6 +759,8 @@ class _ListOpportunitiesState extends ConsumerState<_ListOpportunities> {
                   callbackOnTap: () {
                     ref.read(selectedOp.notifier).state = opportunity;
                     ref.read(selectOpportunity.notifier).state = opportunity;
+                    ref.read(currentOpportunityShowAllProvider.notifier).state = false;
+                    ref.read(currentOpportunityDetailTabProvider.notifier).state = 0;
                     context.push('/opportunity_detail/${opportunity.id}');
                     log("Estoy entrandoo aqui");
                   },

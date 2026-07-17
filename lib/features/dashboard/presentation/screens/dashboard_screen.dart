@@ -7,6 +7,7 @@ import 'package:crm_app/features/dashboard/presentation/providers/home_notificac
 import 'package:crm_app/features/dashboard/presentation/screens/notification_screen.dart';
 import 'package:crm_app/features/dashboard/presentation/widgets/widgets.dart';
 import 'package:crm_app/features/location/presentation/providers/gps_provider.dart';
+import 'package:crm_app/features/opportunities/presentation/providers/filter_active_opportunity_provider.dart';
 import 'package:crm_app/features/opportunities/presentation/widgets/item_opportunity.dart';
 import 'package:crm_app/features/shared/infrastructure/services/notification_service.dart';
 import 'package:crm_app/features/shared/presentation/providers/notifications_provider.dart';
@@ -214,12 +215,22 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   }
 
   Future<void> _refreshData() async {
+    final user = ref.read(authProvider).user;
+    ref
+        .read(opportunitiesProvider.notifier)
+        .updateTypeOpportunity('01,02,03,04');
+
     // Put here the operations you want to execute when refreshing
     await Future.wait([
       ref.read(kpisByAsesorProvider.notifier).loadKpis(),
       ref.read(eventsProvider.notifier).loadNextPage(),
       ref.read(activitiesProvider.notifier).loadNextPage(isRefresh: true),
-      ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: true),
+      ref.read(opportunitiesProvider.notifier).loadFiltersOpportunity(
+            isRefresh: true,
+            startPercent: '0',
+            endPercents: '100',
+            userResponsable: (user?.isAdmin ?? false) ? '' : (user?.code ?? ''),
+          ),
       ref.read(opportunitiesProvider.notifier).loadStatusOpportunity(),
     ]);
   }
@@ -237,10 +248,19 @@ class _DashboardViewState extends ConsumerState {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = ref.read(authProvider).user;
       ref.read(kpisByAsesorProvider.notifier).loadKpis();
       ref.read(eventsProvider.notifier).loadNextPage();
       ref.read(activitiesProvider.notifier).loadNextPage(isRefresh: true);
-      ref.read(opportunitiesProvider.notifier).loadNextPage(isRefresh: true);
+      ref
+          .read(opportunitiesProvider.notifier)
+          .updateTypeOpportunity('01,02,03,04');
+      ref.read(opportunitiesProvider.notifier).loadFiltersOpportunity(
+            isRefresh: true,
+            startPercent: '0',
+            endPercents: '100',
+            userResponsable: (user?.isAdmin ?? false) ? '' : (user?.code ?? ''),
+          );
       ref.read(opportunitiesProvider.notifier).loadStatusOpportunity();
       ref.read(notificationsProvider.notifier).requestPermission();
     });
@@ -787,13 +807,13 @@ class _ContainerDashboardActivities extends StatelessWidget {
   }
 }
 
-class _ContainerDashboardOpportunities extends StatelessWidget {
+class _ContainerDashboardOpportunities extends ConsumerWidget {
   List<Opportunity> opportunities;
 
   _ContainerDashboardOpportunities({required this.opportunities});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     double h1 = opportunities.length >= 2 ? 270 : 160;
     double h2 = opportunities.length >= 2 ? 200 : 80;
 
@@ -833,13 +853,22 @@ class _ContainerDashboardOpportunities extends StatelessWidget {
                 Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      context.push('/opportunities');
-                      // Acción cuando se presiona el botón
-                    },
-                    child: const Text('Ver más'),
-                  ),
+                   child: ElevatedButton(
+                     onPressed: () {
+                       resetAllProvidersFilterOP(ref);
+                       ref.read(searchControllerProvider).text = '';
+                       ref.read(opportunitiesProvider.notifier).clearOpList();
+                       ref
+                           .read(opportunitiesProvider.notifier)
+                           .updateTypeOpportunity('01,02,03,04');
+                       ref
+                           .read(opportunitiesProvider.notifier)
+                           .onChangeNotIsActiveSearchSinRefresh();
+                       context.push('/opportunities');
+                       // Acción cuando se presiona el botón
+                     },
+                     child: const Text('Ver más'),
+                   ),
                 ),
               ],
             ),
@@ -847,19 +876,16 @@ class _ContainerDashboardOpportunities extends StatelessWidget {
               width: double.infinity,
               height: h2,
               child: Builder(builder: (context) {
-                // Se agrupa por empresa para que ItemOpportunity reciba la
-                // misma estructura agrupada y no divida una empresa en varios
-                // cards.
-                final groups = Opportunity.agruparPorEmpresa(opportunities);
                 return ListView.separated(
                     separatorBuilder: (BuildContext context, int index) =>
                         const Divider(height: 2),
-                    itemCount: groups.length > 5 ? 5 : groups.length,
+                    itemCount:
+                        opportunities.length > 5 ? 5 : opportunities.length,
                     itemBuilder: (context, index) {
-                      final group = groups[index];
+                      final opportunity = opportunities[index];
 
                       return ItemOpportunity(
-                        opportunity: group,
+                        opportunity: opportunity,
                         callbackOnTap: () {},
                       );
                     });

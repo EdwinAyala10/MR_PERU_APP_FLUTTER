@@ -133,6 +133,7 @@ class ActivitiesDatasourceImpl extends ActivitiesDatasource {
   @override
   Future<List<Activity>> getActivitiesByOpportunitie({
     String opportunityId = '',
+    String ruc = '',
     String search = '',
     int limit = 10,
     int offset = 0,
@@ -143,7 +144,8 @@ class ActivitiesDatasourceImpl extends ActivitiesDatasource {
         'SEARCH': '',
         'OFFSET': offset,
         'TOP': limit,
-        'ACTI_ID_OPORTUNIDAD': opportunityId
+        'ACTI_ID_OPORTUNIDAD': opportunityId,
+        'RUC': ruc,
       });
       final List<Activity> activities = [];
       for (final activity in response.data['data'] ?? []) {

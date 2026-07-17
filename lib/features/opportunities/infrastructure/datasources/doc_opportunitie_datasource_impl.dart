@@ -142,10 +142,12 @@ class DocOpportunitieDatasourceImpl extends DocOpportunitiesDatasource {
   Future<List<OpDocument>> getDocuments({
     required String idOportunidad,
     required String idTypeAdjunto,
+    String ruc = '',
   }) async {
     final data = {
       "OADJ_ID_OPORTUNIDAD": idOportunidad,
-      "OADJ_ID_TIPO_ADJUNTO": idTypeAdjunto
+      "OADJ_ID_TIPO_ADJUNTO": idTypeAdjunto,
+      "RUC": ruc,
     };
     try {
       final response =

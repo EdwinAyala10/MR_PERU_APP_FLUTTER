@@ -198,6 +198,7 @@ class EventsNotifier extends StateNotifier<EventsState> {
       //   ..addAll(linkedEvents),
     );
   }
+
 }
 
 class EventsState {

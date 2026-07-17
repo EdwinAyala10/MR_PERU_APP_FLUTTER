@@ -133,11 +133,21 @@ class EventsDatasourceImpl extends EventsDatasource {
   }
 
   @override
-  Future<List<Event>> getEventsListByObjetive(String id) async {
+  Future<List<Event>> getEventsListByObjetive(
+    String id, {
+    String ruc = '',
+    int offset = 0,
+    int top = 100,
+  }) async {
     try {
       final response = await dio.post(
         '/evento/listar-evento-by-oportunidad',
-        data: {'ID_OPORTUNIDAD': id},
+        data: {
+          'ID_OPORTUNIDAD': id,
+          'RUC': ruc,
+          'OFFSET': offset,
+          'TOP': top,
+        },
       );
       final List<Event> events = [];
       for (final event in response.data['data'] ?? []) {

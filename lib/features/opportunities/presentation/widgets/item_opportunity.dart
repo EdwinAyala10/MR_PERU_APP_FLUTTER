@@ -2,6 +2,7 @@ import 'package:crm_app/config/config.dart';
 import 'package:crm_app/features/activities/presentation/providers/providers.dart';
 import 'package:crm_app/features/contacts/domain/domain.dart';
 import 'package:crm_app/features/contacts/presentation/providers/providers.dart';
+import 'package:crm_app/features/opportunities/presentation/providers/providers.dart';
 import 'package:crm_app/features/opportunities/presentation/screens/opportunity_detail_screen.dart';
 import 'package:crm_app/features/shared/infrastructure/services/key_value_storage_service_impl.dart';
 import 'package:crm_app/features/shared/presentation/providers/send_whatsapp_provider.dart';
@@ -71,6 +72,7 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
     final opportunities = (grupo != null && grupo.isNotEmpty)
         ? grupo
         : [widget.opportunity];
+    print('ITEM_OPPORTUNITY: ${widget.opportunity.razon} -> ${opportunities.length} oportunidades: ${opportunities.map((o) => o.id).join(",")}');
     return _buildGroupCard(opportunities);
   }
 
@@ -179,8 +181,17 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
         ),
         child: InkWell(
           onTap: () {
-            ref.read(selectOpportunity.notifier).state = opportunity;
-            context.push('/opportunity_detail/${opportunity.id}');
+            // Sin importar qué equipo se toque dentro del card de la
+            // empresa, el detalle siempre abre en el primero del grupo; el
+            // selector de arriba permite saltar a los demás equipos.
+            final target = opportunities.first;
+            ref.read(selectOpportunity.notifier).state = target;
+            ref.read(selectedOp.notifier).state = target;
+            ref.read(currentOpportunityShowAllProvider.notifier).state = false;
+            ref.read(currentOpportunityDetailTabProvider.notifier).state = 0;
+            ref.read(currentOpportunityGroupProvider.notifier).state =
+                opportunities;
+            context.push('/opportunity_detail/${target.id}');
           },
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,

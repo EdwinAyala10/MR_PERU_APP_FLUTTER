@@ -1,16 +1,24 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:crm_app/config/constants/environment.dart';
 import 'package:crm_app/features/activities/domain/domain.dart';
+import 'package:crm_app/features/activities/domain/repositories/activities_repository.dart';
 import 'package:crm_app/features/activities/presentation/providers/activities_provider.dart';
+import 'package:crm_app/features/activities/presentation/providers/activities_repository_provider.dart';
 import 'package:crm_app/features/activities/presentation/providers/activity_provider.dart';
+import 'package:crm_app/features/activities/presentation/providers/forms/activity_form_provider.dart';
 import 'package:crm_app/features/activities/presentation/widgets/item_activity.dart';
 import 'package:crm_app/features/agenda/domain/entities/event.dart';
+import 'package:crm_app/features/agenda/domain/repositories/events_repository.dart';
 import 'package:crm_app/features/agenda/presentation/providers/events_provider.dart';
+import 'package:crm_app/features/agenda/presentation/providers/events_repository_provider.dart';
 import 'package:crm_app/features/agenda/presentation/widgets/item_event.dart';
+import 'package:crm_app/features/opportunities/domain/entities/op_document.dart';
+import 'package:crm_app/features/opportunities/domain/repositories/doc_opportunitie_repository.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
 import 'package:crm_app/features/documents/presentation/screens/documents_screen.dart';
-import 'package:crm_app/features/opportunities/infrastructure/mappers/op_create_document_response.dart';
+import 'package:crm_app/features/opportunities/domain/entities/opportunity.dart';
 import 'package:crm_app/features/opportunities/infrastructure/mappers/op_delete_document_mapper.dart';
 import 'package:crm_app/features/opportunities/presentation/widgets/opportunity_force_mr_summary_card.dart';
 import 'package:crm_app/features/opportunities/presentation/widgets/op_document_card.dart';
@@ -30,6 +38,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:crm_app/features/opportunities/presentation/providers/doc_opportunitie_repository_provider.dart';
 import '../providers/providers.dart';
 import '../../../shared/shared.dart';
 import 'package:intl/intl.dart';
@@ -93,10 +102,19 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
   late TabController _tabController;
   int currentIndex = 0;
 
+  final LayerLink _opportunitySwitcherLink = LayerLink();
+  final GlobalKey _opportunitySwitcherKey = GlobalKey();
+  OverlayEntry? _opportunitySwitcherOverlay;
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
+    _tabController = TabController(
+      length: 5,
+      vsync: this,
+      initialIndex: ref.read(currentOpportunityDetailTabProvider),
+    );
+    currentIndex = _tabController.index;
     _tabController.addListener(_handleTabChange);
 
     // WidgetsBinding.instance?.addPostFrameCallback((_) {
@@ -109,6 +127,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
   @override
   void dispose() {
     _tabController.dispose();
+    _closeOpportunitySwitcher();
     super.dispose();
   }
 
@@ -116,10 +135,19 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
     setState(() {
       currentIndex = _tabController.index;
     });
+    ref.read(currentOpportunityDetailTabProvider.notifier).state =
+        _tabController.index;
   }
 
   @override
   Widget build(BuildContext context) {
+    final opportunityGroup = ref.watch(currentOpportunityGroupProvider);
+    final showAll = ref.watch(currentOpportunityShowAllProvider);
+    final siblings = opportunityGroup.length > 1 &&
+            opportunityGroup.any((o) => o.id == widget.opportunityId)
+        ? opportunityGroup
+        : const <Opportunity>[];
+
     return DefaultTabController(
       length: 5,
       child: Scaffold(
@@ -187,6 +215,8 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
         ),
         body: Column(
           children: [
+            if (siblings.isNotEmpty)
+              _buildOpportunitySwitcher(siblings, showAll),
             Expanded(
               child: TabBarView(
                 controller: _tabController,
@@ -207,18 +237,260 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
     );
   }
 
+  Widget _buildOpportunitySwitcher(List<Opportunity> siblings, bool showAll) {
+    // El detalle siempre entra por la primera oportunidad del grupo, así
+    // que ese es el valor que llega premarcado en el selector.
+    final current = siblings.firstWhere(
+      (o) => o.id == widget.opportunityId,
+      orElse: () => siblings.first,
+    );
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      child: CompositedTransformTarget(
+        link: _opportunitySwitcherLink,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(24),
+          onTap: () => _toggleOpportunitySwitcher(siblings, current),
+          child: Container(
+            key: _opportunitySwitcherKey,
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF1F1F1),
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    showAll && currentIndex != 0 ? 'Todos' : 'Equipo(s): ${current.oprtNombre}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                      color: Colors.black87,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const Icon(Icons.keyboard_arrow_down),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _toggleOpportunitySwitcher(
+    List<Opportunity> siblings,
+    Opportunity current,
+  ) {
+    final showAll = ref.read(currentOpportunityShowAllProvider);
+    if (_opportunitySwitcherOverlay != null) {
+      _closeOpportunitySwitcher();
+      return;
+    }
+
+    final renderBox =
+        _opportunitySwitcherKey.currentContext!.findRenderObject()
+            as RenderBox;
+    final buttonWidth = renderBox.size.width;
+    final buttonHeight = renderBox.size.height;
+
+    _opportunitySwitcherOverlay = OverlayEntry(
+      builder: (overlayContext) {
+        return Stack(
+          children: [
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: _closeOpportunitySwitcher,
+              ),
+            ),
+            CompositedTransformFollower(
+              link: _opportunitySwitcherLink,
+              showWhenUnlinked: false,
+              offset: Offset(0, buttonHeight),
+              child: Material(
+                elevation: 4,
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                child: SizedBox(
+                  width: buttonWidth,
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    padding: EdgeInsets.zero,
+                    itemCount: currentIndex == 0 ? siblings.length : siblings.length + 1,
+                    separatorBuilder: (_, __) => const Divider(height: 1),
+                    itemBuilder: (context, index) {
+                      if (currentIndex != 0 && index == 0) {
+                        return InkWell(
+                          onTap: () => _onShowAllSelected(siblings),
+                          child: Container(
+                            color: showAll
+                                ? const Color(0xFFE8F0FE)
+                                : Colors.transparent,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            child: Row(
+                              children: [
+                                const Expanded(
+                                  child: Text(
+                                    'Todos',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 15,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                ),
+                                if (showAll)
+                                  const Icon(
+                                    Icons.check,
+                                    color: Colors.blue,
+                                    size: 20,
+                                  ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+
+                      final opportunity = siblings[currentIndex == 0 ? index : index - 1];
+                      final isSelected = !showAll && opportunity.id == current.id;
+
+                      return InkWell(
+                        onTap: () =>
+                            _onOpportunitySelected(opportunity, current, siblings),
+                        child: Container(
+                          color: isSelected
+                              ? const Color(0xFFE8F0FE)
+                              : Colors.transparent,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Equipo(s): ${opportunity.oprtNombre}',
+                                  style: TextStyle(
+                                    fontWeight: isSelected
+                                        ? FontWeight.w700
+                                        : FontWeight.w500,
+                                    fontSize: 15,
+                                    color: Colors.black87,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              if (isSelected)
+                                const Icon(
+                                  Icons.check,
+                                  color: Colors.blue,
+                                  size: 20,
+                                ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    Overlay.of(context).insert(_opportunitySwitcherOverlay!);
+  }
+
+  void _closeOpportunitySwitcher() {
+    _opportunitySwitcherOverlay?.remove();
+    _opportunitySwitcherOverlay = null;
+  }
+
+  void _onOpportunitySelected(
+    Opportunity opportunity,
+    Opportunity current,
+    List<Opportunity> siblings,
+  ) {
+    final wasShowingAll = ref.read(currentOpportunityShowAllProvider);
+    _closeOpportunitySwitcher();
+    if (opportunity.id == current.id && !wasShowingAll) return;
+    ref.read(currentOpportunityShowAllProvider.notifier).state = false;
+    if (opportunity.id == current.id && wasShowingAll) {
+      _reloadCurrentTabForOpportunity(opportunity.id);
+      setState(() {});
+      return;
+    }
+    ref.read(selectOpportunity.notifier).state = opportunity;
+    ref.read(selectedOp.notifier).state = opportunity;
+    ref.read(currentOpportunityGroupProvider.notifier).state = siblings;
+    context.pushReplacement('/opportunity_detail/${opportunity.id}');
+  }
+
+  void _onShowAllSelected(List<Opportunity> siblings) {
+    _closeOpportunitySwitcher();
+    ref.read(currentOpportunityShowAllProvider.notifier).state = true;
+    ref.read(currentOpportunityGroupProvider.notifier).state = siblings;
+    setState(() {});
+  }
+
+  void _reloadCurrentTabForOpportunity(String opportunityId) {
+    switch (currentIndex) {
+      case 1:
+        ref.read(eventsProvider.notifier).loadNextPageByObtetivo(opportunityId);
+        break;
+      case 2:
+        ref.read(activitiesProvider.notifier).loadNextPageActivitiesByOpportunities(
+              isRefresh: true,
+              opportunityId: opportunityId,
+            );
+        break;
+      case 3:
+        ref.read(docOpportunitieProvider.notifier).loadNextPage(
+              type: TypeFileOp.photo,
+            );
+        break;
+      case 4:
+        ref.read(docOpportunitieProvider.notifier).loadNextPage(
+              type: TypeFileOp.archive,
+            );
+        break;
+    }
+  }
+
+  /// Al crear un evento nuevo desde esta pantalla, si la empresa tiene más
+  /// de una oportunidad (equipo), se pregunta antes a cuál de ellas queda
+  /// asociado el evento en lugar de asumir la que está abierta.
+  Future<void> _handleNewEvent() async {
+    final target = await resolveTargetOpportunity(context, ref);
+    if (target == null) return;
+
+    ref.read(selectOpportunity.notifier).state = target;
+    ref.read(selectedOp.notifier).state = target;
+    ref
+        .read(uiProvider.notifier)
+        .onCompanyActivity(target.oprtRuc ?? '', target.razon ?? '');
+
+    if (!mounted) return;
+    context.push('/event/new');
+  }
+
   Widget _itFloatingButton(int currentIndex) {
     switch (currentIndex) {
       case 1:
         return FloatingActionButtonCustom(
           iconData: Icons.add,
-          callOnPressed: () {
-            final opportunity = ref.watch(selectedOp);
-            ref
-                .read(uiProvider.notifier)
-                .onCompanyActivity(opportunity?.oprtRuc ?? '', opportunity?.razon ?? '');
-            context.push('/event/new');
-          },
+          callOnPressed: _handleNewEvent,
         );
       case 2:
         return FloatingActionButtonCustom(
@@ -253,12 +525,22 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
 
   Widget buildEventsOportunity() {
     return EventsDetailView(
+      key: ValueKey('events-${ref.watch(currentOpportunityShowAllProvider)}-${widget.opportunityId}'),
       opportunityId: widget.opportunityId,
+      companyRuc: ref.watch(selectedOp)?.oprtRuc ?? '',
+      groupIds: ref.watch(currentOpportunityGroupProvider).map((o) => o.id).toList(),
+      showAll: ref.watch(currentOpportunityShowAllProvider),
     );
   }
 
   Widget buildActivity() {
-    return const _ActivitiesView();
+    return _ActivitiesView(
+      key: ValueKey('activities-${ref.watch(currentOpportunityShowAllProvider)}-${widget.opportunityId}'),
+      opportunityId: widget.opportunityId,
+      companyRuc: ref.watch(selectedOp)?.oprtRuc ?? '',
+      groupIds: ref.watch(currentOpportunityGroupProvider).map((o) => o.id).toList(),
+      showAll: ref.watch(currentOpportunityShowAllProvider),
+    );
   }
 
   Widget buildInformation() {
@@ -282,11 +564,25 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
   }
 
   Widget buildPhotos() {
-    return _PhotoView(_tabController);
+    return _PhotoView(
+      _tabController,
+      key: ValueKey('photos-${ref.watch(currentOpportunityShowAllProvider)}-${widget.opportunityId}'),
+      opportunityId: widget.opportunityId,
+      companyRuc: ref.watch(selectedOp)?.oprtRuc ?? '',
+      groupIds: ref.watch(currentOpportunityGroupProvider).map((o) => o.id).toList(),
+      showAll: ref.watch(currentOpportunityShowAllProvider),
+    );
   }
 
   Widget buildDocuments() {
-    return _DocumentsView(_tabController);
+    return _DocumentsView(
+      _tabController,
+      key: ValueKey('documents-${ref.watch(currentOpportunityShowAllProvider)}-${widget.opportunityId}'),
+      opportunityId: widget.opportunityId,
+      companyRuc: ref.watch(selectedOp)?.oprtRuc ?? '',
+      groupIds: ref.watch(currentOpportunityGroupProvider).map((o) => o.id).toList(),
+      showAll: ref.watch(currentOpportunityShowAllProvider),
+    );
   }
 }
 
@@ -558,106 +854,99 @@ class ContainerCustom extends StatelessWidget {
   }
 }
 
-class EventsDetailView extends ConsumerWidget {
+class EventsDetailView extends ConsumerStatefulWidget {
   final String opportunityId;
+  final String companyRuc;
+  final List<String> groupIds;
+  final bool showAll;
 
   const EventsDetailView({
     super.key,
     required this.opportunityId,
+    required this.companyRuc,
+    required this.groupIds,
+    required this.showAll,
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final eventsState = ref.watch(eventsProvider);
+  ConsumerState<EventsDetailView> createState() => _EventsDetailViewState();
+}
 
-    if (eventsState.isLoading) {
+class _EventsDetailViewState extends ConsumerState<EventsDetailView> {
+  bool _isLoading = true;
+  List<Event> _events = [];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadEvents());
+  }
+
+  Future<void> _loadEvents() async {
+    setState(() => _isLoading = true);
+    final EventsRepository repo = ref.read(eventsRepositoryProvider);
+    final loaded = widget.showAll
+        ? await repo.getEventsListByObjetive(
+            '0',
+            ruc: widget.companyRuc,
+            offset: 0,
+            top: 100,
+          )
+        : await repo.getEventsListByObjetive(widget.opportunityId);
+
+    final filtered = widget.showAll
+        ? loaded.where((event) => widget.groupIds.contains(event.evntIdOportunidad)).toList()
+        : loaded;
+
+    filtered.sort((a, b) => _eventDateTime(b).compareTo(_eventDateTime(a)));
+
+    if (!mounted) return;
+    setState(() {
+      _events = filtered;
+      _isLoading = false;
+    });
+  }
+
+  DateTime _eventDateTime(Event event) {
+    final date = event.evntFechaInicioEvento ?? DateTime.fromMillisecondsSinceEpoch(0);
+    final rawTime = event.evntHoraInicioEvento ?? '00:00:00';
+    final time = rawTime.length >= 8 ? rawTime.substring(0, 8) : '00:00:00';
+    final parts = time.split(':');
+    final hour = parts.isNotEmpty ? int.tryParse(parts[0]) ?? 0 : 0;
+    final minute = parts.length > 1 ? int.tryParse(parts[1]) ?? 0 : 0;
+    final second = parts.length > 2 ? int.tryParse(parts[2]) ?? 0 : 0;
+    return DateTime(date.year, date.month, date.day, hour, minute, second);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
       return const FullScreenLoader();
     }
 
-    if (eventsState.events.isEmpty) {
+    if (_events.isEmpty) {
       return NoExistData(
         textCenter: 'No hay eventos registrados',
-        onRefreshCallback: () async {
-          await ref
-              .read(eventsProvider.notifier)
-              .loadNextPageByObtetivo(opportunityId);
-        },
+        onRefreshCallback: _loadEvents,
         icon: Icons.graphic_eq,
       );
     }
 
     return Scaffold(
-      // appBar: AppBar(
-      //   // title: const Text('Detalles de oportunidad'),
-      //   // actions: [
-      //   //   IconButton(
-      //   //     icon: const Icon(Icons.edit),
-      //   //     onPressed: () {
-      //   //       context.push('/opportunity/${opportunity.id}');
-      //   //     },
-      //   //   ),
-      //   // ],
-      // ),
-      // floatingActionButton: FloatingActionButton(
-      //   elevation: 0,
-      //   backgroundColor: Colors.blueGrey,
-      //   onPressed: () {},
-      //   child: IconButton(
-      //     icon: const Icon(
-      //       Icons.edit,
-      //       color: Colors.white,
-      //     ),
-      //     onPressed: () {
-      //       context.push('/opportunity/${opportunity.id}');
-      //     },
-      //   ),
-      // ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ValueListenableBuilder<List<Event>>(
-              //valueListenable: _selectedEvents,
-              valueListenable: ValueNotifier(eventsState.events),
-              builder: (context, value, _) {
-                return RefreshIndicator(
-                  onRefresh: () async {
-                    await ref
-                        .read(eventsProvider.notifier)
-                        .loadNextPageByObtetivo(opportunityId);
-                  },
-                  child: value.isNotEmpty
-                      ? ListView.builder(
-                          itemCount: value.length,
-                          itemBuilder: (context, index) {
-                            final event = value[index];
-
-                            return ItemEvent(
-                                event: event,
-                                callbackOnTap: () {
-                                  //context.push('/event/${value[index].id}');
-                                  context
-                                      .push('/event_detail/${value[index].id}');
-                                });
-                          },
-                        )
-                      : ListView(
-                          children: const [
-                            Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(16.0),
-                                child: Text('Sin eventos',
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500)),
-                              ),
-                            ),
-                          ],
-                        ),
-                );
+      body: RefreshIndicator(
+        onRefresh: _loadEvents,
+        child: ListView.builder(
+          itemCount: _events.length,
+          itemBuilder: (context, index) {
+            final event = _events[index];
+            return ItemEvent(
+              event: event,
+              callbackOnTap: () {
+                context.push('/event_detail/${event.id}');
               },
-            ),
-          ),
-        ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -665,7 +954,19 @@ class EventsDetailView extends ConsumerWidget {
 
 class _PhotoView extends ConsumerStatefulWidget {
   final TabController tabController;
-  const _PhotoView(this.tabController);
+  final String opportunityId;
+  final String companyRuc;
+  final List<String> groupIds;
+  final bool showAll;
+
+  const _PhotoView(
+    this.tabController, {
+    super.key,
+    required this.opportunityId,
+    required this.companyRuc,
+    required this.groupIds,
+    required this.showAll,
+  });
 
   @override
   _PhotoViewState createState() => _PhotoViewState();
@@ -673,15 +974,48 @@ class _PhotoView extends ConsumerStatefulWidget {
 
 class _PhotoViewState extends ConsumerState<_PhotoView> {
   final ScrollController scrollController = ScrollController();
+  bool _isLoading = true;
+  List<OpDocument> _documents = [];
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .watch(docOpportunitieProvider.notifier)
-          .loadNextPage(type: TypeFileOp.photo);
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadDocuments());
     super.initState();
+  }
+
+  Future<void> _loadDocuments() async {
+    setState(() => _isLoading = true);
+    final DocOpportunitieRepository repo =
+        ref.read(docOpportunitieRepositoryProvider);
+    final merged = <OpDocument>[];
+    final seen = <String>{};
+
+    final idOp = widget.showAll ? '0' : widget.opportunityId;
+    final rucVal = widget.showAll ? widget.companyRuc : '';
+    log('📸 _PhotoView._loadDocuments -> idOportunidad: $idOp, ruc: "$rucVal", showAll: ${widget.showAll}');
+
+    final docs = await repo.getDocuments(
+      idOportunidad: idOp,
+      idTypeAdjunto: '03',
+      ruc: rucVal,
+    );
+    for (final doc in docs) {
+      if (!widget.showAll || widget.groupIds.contains(doc.oadjIdOportunidad)) {
+        if (seen.add(doc.oadjIdOportunidadAdjunto)) {
+          merged.add(doc);
+        }
+      }
+    }
+
+    merged.sort((a, b) =>
+        (int.tryParse(b.oadjIdOportunidadAdjunto) ?? 0)
+            .compareTo(int.tryParse(a.oadjIdOportunidadAdjunto) ?? 0));
+
+    if (!mounted) return;
+    setState(() {
+      _documents = merged;
+      _isLoading = false;
+    });
   }
 
   @override
@@ -690,37 +1024,41 @@ class _PhotoViewState extends ConsumerState<_PhotoView> {
     super.dispose();
   }
 
+  Future<void> _handleAddPressed() async {
+    final target = await resolveTargetOpportunity(context, ref);
+    if (target == null) return;
+    if (!mounted) return;
+    final uploaded = await showModalAdd(
+      context,
+      ref,
+      widget.tabController,
+      TypeFileOp.photo,
+      opportunityIdOverride: target.id,
+    );
+    if (uploaded) {
+      await _loadDocuments();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final docsOpState = ref.watch(docOpportunitieProvider);
+    if (_isLoading) {
+      return const FullScreenLoader();
+    }
+
     return Scaffold(
       floatingActionButton: FloatingActionButtonCustom(
-        callOnPressed: () async {
-          showModalAdd(
-            context,
-            ref,
-            widget.tabController,
-            TypeFileOp.photo,
-          ); // Pasa el controlador aquí
-        },
+        callOnPressed: _handleAddPressed,
         iconData: Icons.add,
       ),
-      body: docsOpState.documents.isEmpty
+      body: _documents.isEmpty
           ? NoExistData(
               textCenter: 'No hay fotos registrados',
-              onRefreshCallback: () async {
-                ref
-                    .watch(docOpportunitieProvider.notifier)
-                    .loadNextPage(type: TypeFileOp.photo);
-              },
+              onRefreshCallback: _loadDocuments,
               icon: Icons.graphic_eq,
             )
           : RefreshIndicator(
-              onRefresh: () async {
-                ref.read(docOpportunitieProvider.notifier).loadNextPage(
-                      type: TypeFileOp.photo,
-                    );
-              },
+              onRefresh: _loadDocuments,
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 10,
@@ -732,9 +1070,9 @@ class _PhotoViewState extends ConsumerState<_PhotoView> {
                   // physics: const BouncingScrollPhysics(),
                   physics: const AlwaysScrollableScrollPhysics(),
                   crossAxisCount: 1,
-                  itemCount: docsOpState.documents.length,
+                  itemCount: _documents.length,
                   itemBuilder: (_, index) {
-                    final document = docsOpState.documents[index];
+                    final document = _documents[index];
                     return InkWell(
                       onTap: () async {
                         String fileUrl =
@@ -761,6 +1099,7 @@ class _PhotoViewState extends ConsumerState<_PhotoView> {
                                 showSnackbar(context, value.message);
                                 if (value.response) {}
                               }
+                              _loadDocuments();
                             },
                           );
                           Navigator.pop(context);
@@ -777,7 +1116,19 @@ class _PhotoViewState extends ConsumerState<_PhotoView> {
 
 class _DocumentsView extends ConsumerStatefulWidget {
   final TabController tabController;
-  const _DocumentsView(this.tabController);
+  final String opportunityId;
+  final String companyRuc;
+  final List<String> groupIds;
+  final bool showAll;
+
+  const _DocumentsView(
+    this.tabController, {
+    super.key,
+    required this.opportunityId,
+    required this.companyRuc,
+    required this.groupIds,
+    required this.showAll,
+  });
 
   @override
   _DocumentsViewState createState() => _DocumentsViewState();
@@ -785,15 +1136,48 @@ class _DocumentsView extends ConsumerStatefulWidget {
 
 class _DocumentsViewState extends ConsumerState<_DocumentsView> {
   final ScrollController scrollController = ScrollController();
+  bool _isLoading = true;
+  List<OpDocument> _documents = [];
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .watch(docOpportunitieProvider.notifier)
-          .loadNextPage(type: TypeFileOp.archive);
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadDocuments());
     super.initState();
+  }
+
+  Future<void> _loadDocuments() async {
+    setState(() => _isLoading = true);
+    final DocOpportunitieRepository repo =
+        ref.read(docOpportunitieRepositoryProvider);
+    final merged = <OpDocument>[];
+    final seen = <String>{};
+
+    final idOp = widget.showAll ? '0' : widget.opportunityId;
+    final rucVal = widget.showAll ? widget.companyRuc : '';
+    log('📄 _DocumentsView._loadDocuments -> idOportunidad: $idOp, ruc: "$rucVal", showAll: ${widget.showAll}');
+
+    final docs = await repo.getDocuments(
+      idOportunidad: idOp,
+      idTypeAdjunto: '01',
+      ruc: rucVal,
+    );
+    for (final doc in docs) {
+      if (!widget.showAll || widget.groupIds.contains(doc.oadjIdOportunidad)) {
+        if (seen.add(doc.oadjIdOportunidadAdjunto)) {
+          merged.add(doc);
+        }
+      }
+    }
+
+    merged.sort((a, b) =>
+        (int.tryParse(b.oadjIdOportunidadAdjunto) ?? 0)
+            .compareTo(int.tryParse(a.oadjIdOportunidadAdjunto) ?? 0));
+
+    if (!mounted) return;
+    setState(() {
+      _documents = merged;
+      _isLoading = false;
+    });
   }
 
   @override
@@ -802,37 +1186,41 @@ class _DocumentsViewState extends ConsumerState<_DocumentsView> {
     super.dispose();
   }
 
+  Future<void> _handleAddPressed() async {
+    final target = await resolveTargetOpportunity(context, ref);
+    if (target == null) return;
+    if (!mounted) return;
+    final uploaded = await showModalAdd(
+      context,
+      ref,
+      widget.tabController,
+      TypeFileOp.archive,
+      opportunityIdOverride: target.id,
+    );
+    if (uploaded) {
+      await _loadDocuments();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final docsOpState = ref.watch(docOpportunitieProvider);
+    if (_isLoading) {
+      return const FullScreenLoader();
+    }
+
     return Scaffold(
       floatingActionButton: FloatingActionButtonCustom(
-        callOnPressed: () async {
-          showModalAdd(
-            context,
-            ref,
-            widget.tabController,
-            TypeFileOp.archive,
-          ); // Pasa el controlador aquí
-        },
+        callOnPressed: _handleAddPressed,
         iconData: Icons.add,
       ),
-      body: docsOpState.documents.isEmpty
+      body: _documents.isEmpty
           ? NoExistData(
               textCenter: 'No hay documentos registrados',
-              onRefreshCallback: () async {
-                ref
-                    .watch(docOpportunitieProvider.notifier)
-                    .loadNextPage(type: TypeFileOp.archive);
-              },
+              onRefreshCallback: _loadDocuments,
               icon: Icons.graphic_eq,
             )
           : RefreshIndicator(
-              onRefresh: () async {
-                ref.read(docOpportunitieProvider.notifier).loadNextPage(
-                      type: TypeFileOp.archive,
-                    );
-              },
+              onRefresh: _loadDocuments,
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 10,
@@ -844,9 +1232,9 @@ class _DocumentsViewState extends ConsumerState<_DocumentsView> {
                   // physics: const BouncingScrollPhysics(),
                   physics: const AlwaysScrollableScrollPhysics(),
                   crossAxisCount: 1,
-                  itemCount: docsOpState.documents.length,
+                  itemCount: _documents.length,
                   itemBuilder: (_, index) {
-                    final document = docsOpState.documents[index];
+                    final document = _documents[index];
                     return GestureDetector(
                       onTap: () async {
                         String fileUrl =
@@ -871,6 +1259,7 @@ class _DocumentsViewState extends ConsumerState<_DocumentsView> {
                                 showSnackbar(context, value.message);
                                 if (value.response) {}
                               }
+                              _loadDocuments();
                             },
                           );
                           Navigator.pop(context);
@@ -883,6 +1272,65 @@ class _DocumentsViewState extends ConsumerState<_DocumentsView> {
             ),
     );
   }
+}
+
+/// Si el selector superior está en una oportunidad específica, se usa esa
+/// directamente. Si está en "Todos", se pide elegir una oportunidad para
+/// guardar el nuevo registro.
+Future<Opportunity?> resolveTargetOpportunity(
+  BuildContext context,
+  WidgetRef ref,
+) async {
+  if (!ref.read(currentOpportunityShowAllProvider)) {
+    return ref.read(selectedOp);
+  }
+
+  final options = ref.read(currentOpportunityGroupProvider);
+  if (options.isEmpty) return ref.read(selectedOp);
+
+  Opportunity selected = ref.read(selectedOp) ?? options.first;
+
+  return showDialog<Opportunity>(
+    context: context,
+    builder: (dialogContext) {
+      return StatefulBuilder(
+        builder: (dialogContext, setStateDialog) {
+          return AlertDialog(
+            title: const Text('Seleccione oportunidad'),
+            content: DropdownButton<Opportunity>(
+              isExpanded: true,
+              value: selected,
+              items: options
+                  .map(
+                    (opportunity) => DropdownMenuItem<Opportunity>(
+                      value: opportunity,
+                      child: Text(
+                        'Equipo(s): ${opportunity.oprtNombre}',
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (value) {
+                if (value == null) return;
+                setStateDialog(() => selected = value);
+              },
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: const Text('Cancelar'),
+              ),
+              OutlinedButton(
+                onPressed: () => Navigator.of(dialogContext).pop(selected),
+                child: const Text('Continuar'),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
 }
 
 Future<void> _requestStoragePermission(context, fileUrl, fileName) async {
@@ -959,14 +1407,16 @@ String agregarPrefijoPeru(String numero) {
   return numero;
 }
 
-Future<dynamic> showModalAdd(
+Future<bool> showModalAdd(
   BuildContext context,
   WidgetRef ref,
   TabController tabController,
-  TypeFileOp typeFileOp,
-) {
-  // Agrega el controlador como parámetro
-  return showModalBottomSheet(
+  TypeFileOp typeFileOp, {
+  String? opportunityIdOverride,
+}) {
+  final completer = Completer<bool>();
+
+  showModalBottomSheet(
     context: context,
     builder: (BuildContext modalContext) {
       return Container(
@@ -992,33 +1442,27 @@ Future<dynamic> showModalAdd(
                     Center(child: Text('Subir Archivo')),
                   ],
                 ),
-                // minTileHeight: 12,
                 onTap: () async {
                   Navigator.pop(modalContext);
                   FilePickerResult? result =
                       await FilePicker.platform.pickFiles();
 
-                  String? fileName;
-                  String? filePath;
-
                   if (result != null) {
-                    fileName = result.files.single.name;
-                    filePath = result.files.single.path;
+                    String fileName = result.files.single.name;
+                    String filePath = result.files.single.path!;
 
                     showLoadingMessage(context);
                     await ref
                         .read(docOpportunitieProvider.notifier)
-                        .createDocument(filePath!, fileName, typeFileOp)
-                        .then((OPCreateDocumentResponse value) {
-                      if (value.message != '') {
-                        // showSnackbar(context, value.message);
-                        // if (value.response) {}
-                      }
-                      Navigator.pop(context);
-                    });
-                  } else {
-                    // El usuario canceló la selección del archivo
+                        .createDocument(
+                          filePath,
+                          fileName,
+                          typeFileOp,
+                          opportunityIdOverride: opportunityIdOverride,
+                        );
+                    Navigator.pop(context);
                   }
+                  completer.complete(result != null);
                 },
               ),
             ),
@@ -1033,29 +1477,25 @@ Future<dynamic> showModalAdd(
                   ],
                 ),
                 onTap: () async {
+                  Navigator.pop(modalContext);
                   FilePickerResult? result =
                       await FilePicker.platform.pickFiles();
 
-                  String? fileName;
-                  String? filePath;
                   if (result != null) {
-                    fileName = result.files.single.name;
-                    filePath = result.files.single.path;
+                    String fileName = result.files.single.name;
+                    String filePath = result.files.single.path!;
                     showLoadingMessage(context);
                     await ref
                         .read(docOpportunitieProvider.notifier)
-                        .createDocument(filePath!, fileName, typeFileOp)
-                        .then((OPCreateDocumentResponse value) {
-                      // if (value.message != '') {
-                      //   showSnackbar(context, value.message);
-                      //   if (value.response) {}
-                      // }
-                      Navigator.pop(context);
-                      Navigator.pop(context);
-                    });
-                  } else {
-                    // El usuario canceló la selección del archivo
+                        .createDocument(
+                          filePath,
+                          fileName,
+                          typeFileOp,
+                          opportunityIdOverride: opportunityIdOverride,
+                        );
+                    Navigator.pop(context);
                   }
+                  completer.complete(result != null);
                 },
               ),
             ),
@@ -1073,34 +1513,29 @@ Future<dynamic> showModalAdd(
                   ],
                 ),
                 onTap: () async {
+                  Navigator.pop(modalContext);
                   final pickedFile =
                       await ImagePicker().pickImage(source: ImageSource.camera);
-                  String? fileName;
-                  String? filePath;
                   if (pickedFile != null) {
-                    fileName = pickedFile.name;
-                    filePath = pickedFile.path;
+                    String fileName = pickedFile.name;
+                    String filePath = pickedFile.path;
                     showLoadingMessage(context);
                     await ref
                         .read(docOpportunitieProvider.notifier)
-                        .createDocument(filePath, fileName, typeFileOp)
-                        .then((OPCreateDocumentResponse value) {
-                      // if (value.message != '') {
-                      //   showSnackbar(context, value.message);
-                      //   if (value.response) {}
-                      // }
-                      Navigator.pop(context);
-                      Navigator.pop(context);
-                    });
-                  } else {
-                    // El usuario canceló la selección del archivo
+                        .createDocument(
+                          filePath,
+                          fileName,
+                          typeFileOp,
+                          opportunityIdOverride: opportunityIdOverride,
+                        );
+                    Navigator.pop(context);
                   }
+                  completer.complete(pickedFile != null);
                 },
               ),
             ),
             const SizedBox(height: 6),
             ListTile(
-              // minTileHeight: 12,
               title: const Center(
                 child: Text(
                   'CANCELAR',
@@ -1109,6 +1544,7 @@ Future<dynamic> showModalAdd(
               ),
               onTap: () {
                 Navigator.pop(modalContext);
+                completer.complete(false);
               },
             ),
           ],
@@ -1116,43 +1552,87 @@ Future<dynamic> showModalAdd(
       );
     },
   );
+
+  return completer.future;
 }
 
 class _ActivitiesView extends ConsumerStatefulWidget {
-  const _ActivitiesView();
+  final String opportunityId;
+  final String companyRuc;
+  final List<String> groupIds;
+  final bool showAll;
+
+  const _ActivitiesView({
+    super.key,
+    required this.opportunityId,
+    required this.companyRuc,
+    required this.groupIds,
+    required this.showAll,
+  });
 
   @override
   _ActivitiesViewState createState() => _ActivitiesViewState();
 }
 
-class _ActivitiesViewState extends ConsumerState {
+class _ActivitiesViewState extends ConsumerState<_ActivitiesView> {
   final ScrollController scrollController = ScrollController();
+  bool _isLoading = true;
+  List<Activity> _activities = [];
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadActivities());
+  }
 
-    scrollController.addListener(() {
-      if ((scrollController.position.pixels + 400) >=
-          scrollController.position.maxScrollExtent) {
-        ref
-            .read(activitiesProvider.notifier)
-            .loadNextPageActivitiesByOpportunities(
-              isRefresh: false,
-              opportunityId: ref.read(selectedOp.notifier).state?.id ?? '',
-            );
-      }
-    });
-
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
-      ref
-          .read(activitiesProvider.notifier)
-          .loadNextPageActivitiesByOpportunities(
-            isRefresh: true,
-            opportunityId: ref.read(selectedOp.notifier).state?.id ?? '',
+  Future<void> _loadActivities() async {
+    setState(() => _isLoading = true);
+    final ActivitiesRepository repo = ref.read(activitiesRepositoryProvider);
+    final loaded = widget.showAll
+        ? await repo.getActivitiesByOpportunitie(
+            opportunityId: '0',
+            ruc: widget.companyRuc,
+            search: '',
+            limit: 100,
+            offset: 0,
+          )
+        : await repo.getActivitiesByOpportunitie(
+            opportunityId: widget.opportunityId,
+            ruc: '',
+            search: '',
+            limit: 100,
+            offset: 0,
           );
-      // ref.read(activitiesProvider.notifier).onChangeNotIsActiveSearch();
+
+    final filtered = widget.showAll
+        ? loaded
+            .where((activity) =>
+                widget.groupIds.contains(activity.actiIdOportunidad))
+            .toList()
+        : loaded;
+
+    filtered.sort((a, b) {
+      final aDate = _activityDateTime(a);
+      final bDate = _activityDateTime(b);
+      return bDate.compareTo(aDate);
     });
+
+    if (!mounted) return;
+    setState(() {
+      _activities = filtered;
+      _isLoading = false;
+    });
+  }
+
+  DateTime _activityDateTime(Activity activity) {
+    final date = activity.actiFechaActividad;
+    final rawTime = activity.actiHoraActividad;
+    final time = rawTime.length >= 8 ? rawTime.substring(0, 8) : '00:00:00';
+    final parts = time.split(':');
+    final hour = parts.isNotEmpty ? int.tryParse(parts[0]) ?? 0 : 0;
+    final minute = parts.length > 1 ? int.tryParse(parts[1]) ?? 0 : 0;
+    final second = parts.length > 2 ? int.tryParse(parts[2]) ?? 0 : 0;
+    return DateTime(date.year, date.month, date.day, hour, minute, second);
   }
 
   @override
@@ -1162,24 +1642,18 @@ class _ActivitiesViewState extends ConsumerState {
   }
 
   Future<void> _refresh() async {
-    String text = ref.watch(activitiesProvider).textSearch;
-    ref.read(activitiesProvider.notifier).loadNextPageActivitiesByOpportunities(
-          isRefresh: true,
-          opportunityId: ref.read(selectedOp.notifier).state?.id ?? '',
-        );
+    await _loadActivities();
   }
 
   @override
   Widget build(BuildContext context) {
-    final activitiesState = ref.watch(activitiesProvider);
-
-    if (activitiesState.isLoading) {
+    if (_isLoading) {
       return const LoadingModal();
     }
 
-    return activitiesState.activities.isNotEmpty
+    return _activities.isNotEmpty
         ? _ListActivities(
-            activities: activitiesState.activities,
+            activities: _activities,
             onRefreshCallback: _refresh,
             scrollController: scrollController,
           )

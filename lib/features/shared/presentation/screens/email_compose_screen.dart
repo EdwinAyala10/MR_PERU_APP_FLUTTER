@@ -363,9 +363,16 @@ class _EmailComposeScreenState extends ConsumerState<EmailComposeScreen> {
     final recipients = _buildRecipients(contact.id);
     
     String oportunidadId = '0';
+    final List<Map<String, dynamic>> oportunidadEntries = [];
     if (savedOpportunityId != null && savedOpportunityId.isNotEmpty) {
-      oportunidadId = savedOpportunityId;
-      // Eliminar en background sin esperar
+      final ids = savedOpportunityId.split(',');
+      oportunidadId = ids.first.trim();
+      for (final id in ids) {
+        oportunidadEntries.add({
+          'ACTI_ID_OPORTUNIDAD': id.trim(),
+          'ACTI_COMENTARIO': comentario,
+        });
+      }
       storage.removeKey('email_opportunity_id');
     }
 
@@ -386,6 +393,7 @@ class _EmailComposeScreenState extends ConsumerState<EmailComposeScreen> {
           emailFrom: user.email,
           recipients: recipients,
           files: files,
+          oportunidadEntries: oportunidadEntries,
         ),
       );
 

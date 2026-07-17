@@ -36,10 +36,12 @@ class DocOpportunitieRepositoryImpl extends DocOpportunitieRepository {
   Future<List<OpDocument>> getDocuments({
     required String idOportunidad,
     required String idTypeAdjunto,
+    String ruc = '',
   }) {
     return datasource.getDocuments(
       idOportunidad: idOportunidad,
       idTypeAdjunto: idTypeAdjunto,
+      ruc: ruc,
     );
   }
 }

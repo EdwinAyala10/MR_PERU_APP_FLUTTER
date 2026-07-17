@@ -95,6 +95,13 @@ class ItemActivity extends StatelessWidget {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (activity.actiNombreOportunidad.isNotEmpty)
+            Text(
+              activity.actiNombreOportunidad,
+              style: const TextStyle(fontSize: 12),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           // Tipo de actividad (siempre mostrar)
           Text(activity.actiNombreTipoGestion),
           
