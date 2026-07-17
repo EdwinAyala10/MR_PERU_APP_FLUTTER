@@ -141,8 +141,21 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
 
       if (oportunidadesEnGrupo.isEmpty) continue;
 
+      // Filtrar oportunidades por estado si se especifica
+      List<dynamic> oportunidadesFiltradas = oportunidadesEnGrupo;
+      if (estado != null && estado.isNotEmpty) {
+        final estadosPermitidos = estado.split(',').map((e) => e.trim()).toSet();
+        oportunidadesFiltradas = oportunidadesEnGrupo.where((op) {
+          final opEstado = op['OPRT_ID_ESTADO_OPORTUNIDAD']?.toString() ?? '';
+          return estadosPermitidos.contains(opEstado);
+        }).toList();
+      }
+
+      // Si después del filtro no quedan oportunidades, saltar este grupo
+      if (oportunidadesFiltradas.isEmpty) continue;
+
       final List<Opportunity> todasLasOportunidades = [];
-      for (final opportunityJson in oportunidadesEnGrupo) {
+      for (final opportunityJson in oportunidadesFiltradas) {
         todasLasOportunidades.add(
           OpportunityMapper.jsonToEntity(opportunityJson),
         );
@@ -155,7 +168,7 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
       primeraOportunidad.nombrePrimeroUsuarioResponsable =
           group['NOMBRE_PRIMERO_USUARIO_RESPONSABLE'];
       primeraOportunidad.totalOportunidadesEnGrupo =
-          oportunidadesEnGrupo.length;
+          oportunidadesFiltradas.length;
       primeraOportunidad.oportunidadesDelGrupo = todasLasOportunidades;
 
       opportunities.add(primeraOportunidad);
