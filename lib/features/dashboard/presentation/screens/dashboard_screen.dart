@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_is_empty
 
 import 'package:crm_app/config/config.dart';
+import 'package:crm_app/features/activities/presentation/providers/providers.dart';
 import 'package:crm_app/features/activities/presentation/widgets/item_activity.dart';
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crm_app/features/dashboard/presentation/providers/home_notificaciones_provider.dart';
@@ -15,7 +16,6 @@ import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart'
 import 'package:flutter_app_badge/flutter_app_badge.dart';
 
 import '../../../activities/domain/domain.dart';
-import '../../../activities/presentation/providers/activities_provider.dart';
 import '../../../agenda/domain/domain.dart';
 import '../../../agenda/presentation/providers/events_provider.dart';
 import '../../../agenda/presentation/widgets/item_event_small.dart';
@@ -265,8 +265,7 @@ class _DashboardViewState extends ConsumerState {
       ref.read(notificationsProvider.notifier).requestPermission();
     });
 
-    final isGpsPermissionGranted =
-        ref.read(gpsProvider.notifier).state.isGpsPermissionGranted;
+    final isGpsPermissionGranted = ref.read(gpsProvider).isGpsPermissionGranted;
 
     if (!isGpsPermissionGranted) {
       ref.read(gpsProvider.notifier).askGpsAccess();
@@ -423,8 +422,8 @@ class _ContainerDashboardOpportunitiesStatus extends StatelessWidget {
 */
 
 class _ContainerDashboardKpis extends ConsumerStatefulWidget {
-  List<KpisByAsesor> kpis;
-  int totalObjetivos;
+  final List<KpisByAsesor> kpis;
+  final int totalObjetivos;
 
   _ContainerDashboardKpis({required this.kpis, required this.totalObjetivos});
 
@@ -436,7 +435,6 @@ class _ContainerDashboardKpisState extends ConsumerState<_ContainerDashboardKpis
   @override
   Widget build(BuildContext context) {
     final kpis = widget.kpis;
-    final user = ref.watch(authProvider).user;
     final kpisWithData = kpis
         .where((kpi) =>
             kpi.asesorCodigo.trim().isNotEmpty ||
@@ -455,8 +453,6 @@ class _ContainerDashboardKpisState extends ConsumerState<_ContainerDashboardKpis
     
     final List<Kpi> semanalKpis = asesor.semanal.toList();
     final List<Kpi> mensualKpis = asesor.mensual.toList();
-    final List<Kpi> anualKpis = asesor.anual.toList();
-
     TextStyle periodicidadTitleTextStyle = const TextStyle(
       fontWeight: FontWeight.w700,
       fontSize: 16,
@@ -528,12 +524,12 @@ class _ContainerDashboardKpisState extends ConsumerState<_ContainerDashboardKpis
                         alignment: semanalKpis.length == 1
                             ? Alignment.centerLeft
                             : Alignment.center,
-                         child: progressKpi(
-                             percentage:
-                                 (semanalKpis[i].porcentaje ?? 0).toDouble(),
-                             categoryId: semanalKpis[i].objrIdCategoria,
-                             title: semanalKpis[i].objrNombre ?? '',
-                             category: semanalKpis[i].objrNombreCategoria ?? '',
+                          child: progressKpi(
+                              percentage:
+                                  (semanalKpis[i].porcentaje ?? 0).toDouble(),
+                              categoryId: semanalKpis[i].objrIdCategoria,
+                              title: semanalKpis[i].objrNombre,
+                              category: semanalKpis[i].objrNombreCategoria ?? '',
                              subTitle:
                                  semanalKpis[i].objrNombrePeriodicidad ?? '',
                              subSubTitle:
@@ -572,12 +568,12 @@ class _ContainerDashboardKpisState extends ConsumerState<_ContainerDashboardKpis
                         alignment: mensualKpis.length == 1
                             ? Alignment.centerLeft
                             : Alignment.center,
-                         child: progressKpi(
-                             percentage:
-                                 (mensualKpis[i].porcentaje ?? 0).toDouble(),
-                             categoryId: mensualKpis[i].objrIdCategoria,
-                             title: mensualKpis[i].objrNombre ?? '',
-                             category: mensualKpis[i].objrNombreCategoria ?? '',
+                          child: progressKpi(
+                              percentage:
+                                  (mensualKpis[i].porcentaje ?? 0).toDouble(),
+                              categoryId: mensualKpis[i].objrIdCategoria,
+                              title: mensualKpis[i].objrNombre,
+                              category: mensualKpis[i].objrNombreCategoria ?? '',
                              subTitle:
                                  mensualKpis[i].objrNombrePeriodicidad ?? '',
                              subSubTitle:
@@ -727,7 +723,7 @@ class _ContainerDashboardKpisState extends ConsumerState<_ContainerDashboardKpis
 }
 
 class _ContainerDashboardActivities extends StatelessWidget {
-  List<Activity> activities;
+  final List<Activity> activities;
 
   _ContainerDashboardActivities({required this.activities});
 
@@ -808,7 +804,7 @@ class _ContainerDashboardActivities extends StatelessWidget {
 }
 
 class _ContainerDashboardOpportunities extends ConsumerWidget {
-  List<Opportunity> opportunities;
+  final List<Opportunity> opportunities;
 
   _ContainerDashboardOpportunities({required this.opportunities});
 
@@ -886,7 +882,7 @@ class _ContainerDashboardOpportunities extends ConsumerWidget {
 
                       return ItemOpportunity(
                         opportunity: opportunity,
-                        callbackOnTap: () {},
+                        callbackOnTap: null,
                       );
                     });
               }),
@@ -901,7 +897,7 @@ class _ContainerDashboardOpportunities extends ConsumerWidget {
 }
 
 class _ContainerDashboardEvents extends StatelessWidget {
-  List<Event> linkedEventsList;
+  final List<Event> linkedEventsList;
 
   _ContainerDashboardEvents({required this.linkedEventsList});
 
@@ -981,146 +977,15 @@ class _ContainerDashboardEvents extends StatelessWidget {
   }
 }
 
-class _ItemOpportunity extends StatelessWidget {
-  String title;
-  Color colorCustom;
-  String porcentaje;
-
-  _ItemOpportunity(
-      {required this.title,
-      required this.colorCustom,
-      required this.porcentaje});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-      margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: colorCustom.withOpacity(0.25),
-            spreadRadius: 2,
-            blurRadius: 4,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Stack(
-                alignment: Alignment.center,
-                children: <Widget>[
-                  SizedBox(
-                    width: 60,
-                    height: 60,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 5,
-                      value: ((int.parse(porcentaje)) / 100).toDouble(),
-                      valueColor: AlwaysStoppedAnimation<Color>(colorCustom),
-                      backgroundColor: Colors.grey,
-                    ),
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '$porcentaje %',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(
-            width: 20,
-          ),
-          Expanded(
-              child: Column(
-            children: [
-              Text(
-                title,
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              const SizedBox(
-                height: 6,
-              ),
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    children: [
-                      Text(
-                        'NO. OPPT',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600, color: Colors.black87),
-                      ),
-                      Text(
-                        '10',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600, color: Colors.black54),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Text('TOTAL',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87)),
-                      Text(
-                        '101 \$',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600, color: Colors.black54),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Text('PONDERADO',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87)),
-                      Text(
-                        '0 \$',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600, color: Colors.black54),
-                      ),
-                    ],
-                  ),
-                ],
-              )
-            ],
-          )),
-        ],
-      ),
-    );
-  }
-}
-
 class progressKpi extends StatelessWidget {
-  double percentage;
-  String categoryId;
-  String title;
-  String category;
-  String subTitle;
-  String subSubTitle;
-  String advance;
-  String total;
+  final double percentage;
+  final String categoryId;
+  final String title;
+  final String category;
+  final String subTitle;
+  final String subSubTitle;
+  final String advance;
+  final String total;
 
   progressKpi({
     super.key,

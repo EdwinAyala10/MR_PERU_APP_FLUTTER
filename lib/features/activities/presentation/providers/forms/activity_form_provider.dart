@@ -23,6 +23,7 @@ final activityFormProvider = StateNotifierProvider.autoDispose
 });
 
 class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
+  static const _defaultOpportunityComment = 'Cliente interesado en ';
   final Future<CreateUpdateActivityResponse> Function(
       Map<dynamic, dynamic> activityLike)? onSubmitCallback;
 
@@ -95,15 +96,9 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
           : state.actiIdOportunidad.value,
       'ACTI_OPORTUNIDAD': state.actiOportunidadIds.isNotEmpty
           ? state.actiOportunidadIds.map((id) {
-              final opportunityName =
-                  state.actiOportunidadNombres[id]?.trim() ?? '';
-              final opportunityComment = [baseComment, opportunityName]
-                  .where((part) => part.isNotEmpty)
-                  .join(' ');
-
               return {
                 "ACTI_ID_OPORTUNIDAD": int.tryParse(id) ?? id,
-                "ACTI_COMENTARIO": opportunityComment,
+                "ACTI_COMENTARIO": baseComment,
               };
             }).toList()
           : [
@@ -204,9 +199,13 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
     if (id.isNotEmpty && !ids.contains(id)) {
       ids.add(id);
     }
+    final nextComment = state.actiComentario.trim().isEmpty
+        ? _defaultOpportunityComment
+        : state.actiComentario;
     state = state.copyWith(
         actiIdOportunidad: Oportunidad.dirty(id),
         actiNombreOportunidad: nombre,
+        actiComentario: nextComment,
         actiOportunidadIds: ids,
         actiOportunidadNombres: {
           ...state.actiOportunidadNombres,
@@ -253,6 +252,9 @@ class ActivityFormNotifier extends StateNotifier<ActivityFormState> {
       actiOportunidadNombres: names,
       actiIdOportunidad: Oportunidad.dirty(primaryId),
       actiNombreOportunidad: primaryNombre,
+      actiComentario: state.actiComentario.trim().isEmpty
+          ? _defaultOpportunityComment
+          : state.actiComentario,
     );
   }
 

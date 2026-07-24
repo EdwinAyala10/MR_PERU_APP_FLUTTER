@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:crm_app/call_duration_service.dart';
 import 'package:crm_app/features/companies/presentation/widgets/show_loading_message.dart';
+import 'package:crm_app/features/opportunities/presentation/providers/docs_opportunitie_provider.dart';
 import 'package:crm_app/features/resource-detail/presentation/providers/resource_details_provider.dart';
 import 'package:crm_app/features/shared/widgets/loading_modal.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
@@ -169,18 +170,119 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
   final CallDurationService _callDurationService = CallDurationService();
   int _callDuration = 0;
 
+  String _selectedOpportunitySummary(
+    ActivityFormState activityForm,
+    List<Opportunity> options,
+  ) {
+    final selected = options
+        .where((opportunity) =>
+            activityForm.actiOportunidadIds.contains(opportunity.id))
+        .map((opportunity) => opportunity.oprtNombre)
+        .toList();
+
+    if (selected.isEmpty) return 'Seleccione oportunidad(es)';
+    return selected.join(', ');
+  }
+
+  Future<void> _openOpportunitySelector(
+    BuildContext context,
+    ActivityFormState activityForm,
+    List<Opportunity> options,
+  ) async {
+    final tempSelectedIds = activityForm.actiOportunidadIds.toSet();
+
+    final selected = await showModalBottomSheet<List<String>>(
+      context: context,
+      isScrollControlled: true,
+      builder: (modalContext) {
+        return StatefulBuilder(
+          builder: (modalContext, setStateModal) {
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Seleccione oportunidad(es)',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 12),
+                    Flexible(
+                      child: ListView(
+                        shrinkWrap: true,
+                        children: options.map((opportunity) {
+                          final checked =
+                              tempSelectedIds.contains(opportunity.id);
+                          return CheckboxListTile(
+                            value: checked,
+                            controlAffinity: ListTileControlAffinity.leading,
+                            contentPadding: EdgeInsets.zero,
+                            dense: true,
+                            title: Text(opportunity.oprtNombre),
+                            onChanged: (value) {
+                              setStateModal(() {
+                                if (value ?? false) {
+                                  tempSelectedIds.add(opportunity.id);
+                                } else {
+                                  tempSelectedIds.remove(opportunity.id);
+                                }
+                              });
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                            onPressed: () => Navigator.pop(modalContext),
+                            child: const Text('Cancelar'),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () => Navigator.pop(
+                              modalContext,
+                              tempSelectedIds.toList(),
+                            ),
+                            child: const Text('Aceptar'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    if (selected == null) return;
+
+    final selectedOpportunities = options
+        .where((opportunity) => selected.contains(opportunity.id))
+        .toList();
+
+    ref
+        .read(activityFormProvider(widget.activity).notifier)
+        .onOportunidadesSelected(selectedOpportunities, options);
+  }
+
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final selected = ref.read(selectOpportunity);
-      // Si la oportunidad viene de un card agrupado por empresa, se envían
-      // todos los ids de esa empresa (OPRT_ID_OPORTUNIDAD_IN); si no, el id
-      // único de la oportunidad.
-      final selectedIdsIn = (selected?.oprtIdOportunidadIn ?? '').trim();
-      final selectedOpportunityId =
-          selectedIdsIn.isNotEmpty ? selectedIdsIn : (selected?.id ?? '');
+      final selectedOpportunityId = selected?.id ?? '';
       ref
           .read(activityFormProvider(widget.activity).notifier)
           .onOportunidadChanged(
@@ -298,6 +400,9 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
     Activity activity = widget.activity;
 
     final activityForm = ref.watch(activityFormProvider(activity));
+    final opportunityGroup = ref.watch(currentOpportunityGroupProvider);
+    final showOportunidadCheckboxes = opportunityGroup.length > 1 &&
+        opportunityGroup.every((o) => o.oprtRuc == activityForm.actiRuc.value);
 
     return ListView(
       children: [
@@ -343,83 +448,143 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
                   label: 'Empresa'),
               _isLoadingOpportunities
                   ? PlaceholderInput(text: 'Cargando Oportunidades...')
-                  : Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Oportunidad',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                              color: _hasOpportunities &&
-                                      activityForm.actiIdOportunidad.value == ''
-                                  ? Colors.red
-                                  : Colors.black,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          GestureDetector(
-                            onTap: () {
-                              _openSearchOportunities(context, ref,
-                                  activityForm.actiRuc.value, activity);
-                            },
-                            child: Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Colors.grey,
+                  : (showOportunidadCheckboxes
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Oportunidad',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                                borderRadius: BorderRadius.circular(5),
                               ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      activityForm.actiIdOportunidad.value == ''
-                                          ? 'Seleccione Oportunidad'
-                                          : activityForm.actiNombreOportunidad,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: _hasOpportunities &&
-                                                activityForm.actiIdOportunidad
-                                                        .value ==
-                                                    ''
-                                            ? Colors.red
-                                            : Colors.black,
+                              const SizedBox(height: 6),
+                              InkWell(
+                                borderRadius: BorderRadius.circular(24),
+                                onTap: () => _openOpportunitySelector(
+                                  context,
+                                  activityForm,
+                                  opportunityGroup,
+                                ),
+                                child: Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF1F1F1),
+                                    borderRadius: BorderRadius.circular(24),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          _selectedOpportunitySummary(
+                                            activityForm,
+                                            opportunityGroup,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 15,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                      const Icon(Icons.keyboard_arrow_down),
+                                    ],
                                   ),
-                                  IconButton(
-                                    icon: const Icon(Icons.search),
-                                    onPressed: () {
-                                      _openSearchOportunities(context, ref,
-                                          activityForm.actiRuc.value, activity);
-                                    },
-                                  ),
-                                ],
+                                ),
                               ),
-                            ),
+                            ],
                           ),
-                          const SizedBox(height: 4),
-                          _hasOpportunities &&
-                                  activityForm.actiIdOportunidad.errorMessage !=
-                                      null
-                              ? Padding(
-                                  padding: const EdgeInsets.only(left: 4),
-                                  child: Text(
-                                    activityForm
-                                            .actiIdOportunidad.errorMessage ??
-                                        '',
-                                    style: const TextStyle(color: Colors.red),
+                        )
+                      : Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Oportunidad',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: _hasOpportunities &&
+                                          activityForm.actiIdOportunidad.value ==
+                                              ''
+                                      ? Colors.red
+                                      : Colors.black,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              GestureDetector(
+                                onTap: () {
+                                  _openSearchOportunities(context, ref,
+                                      activityForm.actiRuc.value, activity);
+                                },
+                                child: Container(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 10),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Colors.grey,
+                                    ),
+                                    borderRadius: BorderRadius.circular(5),
                                   ),
-                                )
-                              : const SizedBox(),
-                        ],
-                      ),
-                    ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          activityForm.actiIdOportunidad.value ==
+                                                  ''
+                                              ? 'Seleccione Oportunidad'
+                                              : activityForm.actiNombreOportunidad,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: _hasOpportunities &&
+                                                    activityForm.actiIdOportunidad
+                                                            .value ==
+                                                        ''
+                                                ? Colors.red
+                                                : Colors.black,
+                                          ),
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.search),
+                                        onPressed: () {
+                                          _openSearchOportunities(context, ref,
+                                              activityForm.actiRuc.value, activity);
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              _hasOpportunities &&
+                                      activityForm
+                                              .actiIdOportunidad.errorMessage !=
+                                          null
+                                  ? Padding(
+                                      padding: const EdgeInsets.only(left: 4),
+                                      child: Text(
+                                        activityForm
+                                                .actiIdOportunidad.errorMessage ??
+                                            '',
+                                        style:
+                                            const TextStyle(color: Colors.red),
+                                      ),
+                                    )
+                                  : const SizedBox(),
+                            ],
+                          ),
+                        )),
               const SizedBox(height: 6),
               CustomCompanyField(
                 label: 'Comentarios',

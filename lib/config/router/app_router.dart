@@ -7,6 +7,7 @@ import 'package:crm_app/features/kpis/presentation/screens/kpi_detail_screen.dar
 import 'package:crm_app/features/kpis/presentation/screens/kpi_reorder_by_user.dart';
 import 'package:crm_app/features/kpis/presentation/screens/kpis_list_screen.dart';
 import 'package:crm_app/features/opportunities/presentation/screens/opportunity_detail_screen.dart';
+import 'package:crm_app/features/opportunities/presentation/screens/opportunity_status_update_screen.dart';
 import 'package:crm_app/features/opportunities/presentation/screens/force_mr_activation_screen.dart';
 import 'package:crm_app/features/opportunities/presentation/screens/opportunity_summary_screen.dart';
 import 'package:crm_app/features/route-planner/presentation/screens/register_route_planner_screen.dart';
@@ -318,6 +319,12 @@ final goRouterProvider = Provider((ref) {
       GoRoute(
         path: '/opportunity_detail/:id', // /opportunity/new
         builder: (context, state) => OpportunityDetailScreen(
+          opportunityId: state.pathParameters['id'] ?? 'no-id',
+        ),
+      ),
+      GoRoute(
+        path: '/opportunity_status/:id',
+        builder: (context, state) => OpportunityStatusUpdateScreen(
           opportunityId: state.pathParameters['id'] ?? 'no-id',
         ),
       ),

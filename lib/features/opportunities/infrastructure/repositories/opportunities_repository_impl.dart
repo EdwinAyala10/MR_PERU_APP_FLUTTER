@@ -13,6 +13,12 @@ class OpportunitiesRepositoryImpl extends OpportunitiesRepository {
   }
 
   @override
+  Future<OpportunityResponse> updateOpportunityStatus(
+      Map<dynamic, dynamic> payload) {
+    return datasource.updateOpportunityStatus(payload);
+  }
+
+  @override
   Future<Opportunity> getOpportunityById(String id) {
     return datasource.getOpportunityById(id);
   }

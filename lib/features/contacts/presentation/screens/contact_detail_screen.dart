@@ -247,7 +247,9 @@ class _ViewContactDetailScreenState extends ConsumerState<_ViewContactDetailScre
                 callbackIcon2: () {
                   ref.read(sendWhatsappProvider.notifier).initialSend(
                       contact, agregarPrefijoPeru(contact.contactoTelefonoc));
-                  context.push('/text');
+                  context.push('/text').then((value) {
+                    if (value == true && mounted) setState(() {});
+                  });
                 },
               ),
               ContainerCustom(
@@ -266,7 +268,9 @@ class _ViewContactDetailScreenState extends ConsumerState<_ViewContactDetailScre
                 callbackIcon2: () {
                   ref.read(sendWhatsappProvider.notifier).initialSend(
                       contact, agregarPrefijoPeru(contact.contactoTelefonof!));
-                  context.push('/text');
+                  context.push('/text').then((value) {
+                    if (value == true && mounted) setState(() {});
+                  });
                 },
               ),
               ContainerCustom(

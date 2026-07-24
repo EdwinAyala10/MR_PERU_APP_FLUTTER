@@ -4,6 +4,9 @@ import 'dart:developer';
 import 'package:crm_app/config/config.dart';
 import 'package:crm_app/features/auth/domain/domain.dart';
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:crm_app/features/opportunities/presentation/providers/filter_active_opportunity_provider.dart';
+import 'package:crm_app/features/opportunities/presentation/widgets/custom_acctive_opportunity.dart';
+import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
 import 'package:crm_app/features/companies/presentation/delegates/search_company_local_active_delegate.dart';
 import 'package:crm_app/features/companies/presentation/providers/company_provider.dart';
 import 'package:crm_app/features/companies/presentation/search/search_company_locales_active_provider.dart';
@@ -13,7 +16,6 @@ import 'package:crm_app/features/contacts/presentation/delegates/search_contact_
 import 'package:crm_app/features/contacts/presentation/search/search_contacts_active_provider.dart';
 import 'package:crm_app/features/shared/presentation/providers/ui_provider.dart';
 import 'package:crm_app/features/shared/widgets/show_snackbar.dart';
-import 'package:flutter/rendering.dart';
 
 import '../../../companies/domain/domain.dart';
 import '../../../companies/presentation/delegates/search_company_active_delegate.dart';
@@ -63,39 +65,155 @@ class OpportunityScreen extends ConsumerWidget {
             : _OpportunityView(opportunity: opportunityState.opportunity!),
         floatingActionButton: FloatingActionButtonCustom(
             iconData: Icons.save,
-            callOnPressed: () {
+            callOnPressed: () async {
               if (opportunityState.opportunity == null) return;
 
               showLoadingMessage(context);
 
-              ref
+              final value = await ref
                   .read(opportunityFormProvider(opportunityState.opportunity!)
                       .notifier)
-                  .onFormSubmit()
-                  .then((CreateUpdateOpportunityResponse value) {
-                //if ( !value.response ) return;
-                if (value.message != '') {
-                  showSnackbar(context, value.message);
+                  .onFormSubmit();
 
-                  if (value.response) {
-                    ref
-                        .read(opportunityProvider(opportunityId).notifier)
-                        .loadOpportunity();
-                    ref
-                        .read(companyProvider(value.id!).notifier)
-                        .loadSecundaryOpportunities();
+              if (!context.mounted) return;
+              Navigator.pop(context);
 
-                    ref
-                        .read(opportunitiesProvider.notifier)
-                        .loadNextPage(isRefresh: true);
-                    //Timer(const Duration(seconds: 3), () {
-                    //context.push('/opportunities');
-                    context.pop();
-                    //});
+              if (value.message != '') {
+                showSnackbar(context, value.message);
+
+                if (value.response) {
+                  final formState =
+                      ref.read(opportunityFormProvider(opportunityState.opportunity!));
+                  final current = ref.read(selectedOp);
+                  final siblings = ref.read(currentOpportunityGroupProvider);
+
+                  // Refleja el cambio de inmediato en el detalle actual antes
+                  // de cerrar la pantalla de edición.
+                  if (current != null) {
+                    current
+                      ..oprtNombre = formState.oprtNombre.value
+                      ..oprtIdEstadoOportunidad =
+                          formState.oprtIdEstadoOportunidad.value
+                      ..oprtNobbreEstadoOportunidad =
+                          formState.oprtNobbreEstadoOportunidad
+                      ..oprtProbabilidad = formState.oprtProbabilidad
+                      ..oprtIdValor = formState.oprtIdValor
+                      ..oprtNombreValor = formState.oprtNombreValor
+                      ..oprtValor = formState.optrValor
+                      ..oprtFechaPrevistaVenta = formState.oprtFechaPrevistaVenta
+                      ..oprtRuc = formState.oprtRuc.value
+                      ..oprtRazon = formState.oprtRazon
+                      ..oprtLocalCodigo = formState.oprtLocalCodigo.value
+                      ..oprtLocalNombre = formState.oprtLocalNombre
+                      ..oprtIdContacto = formState.oprtIdContacto.value
+                      ..oprtNombreContacto = formState.oprtNombreContacto
+                      ..oprtComentario = formState.oprtComentario;
+                    ref.read(selectedOp.notifier).state = current;
+
+                    if (siblings.isNotEmpty) {
+                      final updatedGroup = siblings.map((opportunity) {
+                        if (opportunity.id != current.id) return opportunity;
+                        return current;
+                      }).toList();
+                      ref.read(currentOpportunityGroupProvider.notifier).state =
+                          updatedGroup;
+                    }
+                  }
+
+                  final opportunitiesNotifier =
+                      ref.read(opportunitiesProvider.notifier);
+                  final currentType =
+                      ref.read(opportunitiesProvider).typeOpportunity;
+                  final user = ref.read(authProvider).user;
+                  final ruc = current?.oprtRuc ??
+                      opportunityState.opportunity?.oprtRuc ??
+                      '';
+
+                  context.pop();
+
+                  ref
+                      .read(opportunityProvider(opportunityId).notifier)
+                      .loadOpportunity();
+                  ref
+                      .read(companyProvider(value.id!).notifier)
+                      .loadSecundaryOpportunities();
+
+                  if (ruc.isNotEmpty && siblings.isNotEmpty) {
+                    final allowedIds =
+                        siblings.map((opportunity) => opportunity.id).toSet();
+                    final user = ref.read(authProvider).user;
+                    unawaited(() async {
+                      final refreshedGroups = await ref
+                          .read(opportunitiesRepositoryProvider)
+                          .getListOpportunities(
+                            ruc: ruc,
+                            search: '',
+                            limit: 100,
+                            offset: 1,
+                            idUsuario: (user?.isAdmin ?? false) ? '' : (user?.code ?? ''),
+                            estado: '',
+                          );
+                      final refreshed = refreshedGroups
+                          .expand((opportunity) => opportunity.oportunidadesDelGrupo ?? [opportunity])
+                          .toList();
+                      final filtered = refreshed
+                          .where((opportunity) => allowedIds.contains(opportunity.id))
+                          .toList();
+                      if (filtered.isEmpty) return;
+                      ref.read(currentOpportunityGroupProvider.notifier).state =
+                          filtered;
+                      final selectedId = current?.id ?? opportunityId;
+                      final updatedSelected = filtered
+                          .where((opportunity) => opportunity.id == selectedId)
+                          .toList();
+                      if (updatedSelected.isNotEmpty) {
+                        ref.read(selectedOp.notifier).state = updatedSelected.first;
+                      }
+                    }());
+                  }
+
+                  if (currentType == '01,02,03,04') {
+                    opportunitiesNotifier.clearOpList();
+                    unawaited(opportunitiesNotifier.loadFiltersOpportunity(
+                      isRefresh: true,
+                      endDate: (ref.read(endDateProvider) ?? '').toString(),
+                      startDate: (ref.read(startDateProvider) ?? '').toString(),
+                      estadoOP: findFilterByType(
+                                ref.read(routePlannerProvider).filters,
+                                'ID_TIPO_OPORTUNIDAD',
+                              )
+                              ?.id ??
+                          '',
+                      endPercents:
+                          ref.read(rangeProbProvider).end.round().toString(),
+                      startPercent: ref
+                          .read(rangeProbProvider)
+                          .start
+                          .round()
+                          .toString(),
+                      startValue: ref.read(startValueProvider) != 0
+                          ? ref.read(startValueProvider).toInt().toString()
+                          : '',
+                      endValue: ref.read(startValueProvider) != 0
+                          ? ref.read(endValueProvider).toInt().toString()
+                          : '',
+                      userResponsable: (user?.isAdmin ?? false) == false
+                          ? user?.code ?? ''
+                          : findFilterByType(
+                                      ref.read(routePlannerProvider).filters,
+                                      'ID_USUARIO_RESPONSABLE',
+                                    )
+                                    ?.id ??
+                                '',
+                    ));
+                  } else if (currentType.isNotEmpty) {
+                    opportunitiesNotifier.clearOpList();
+                    unawaited(
+                      opportunitiesNotifier.loadNextPageByType(isRefresh: true),
+                    );
                   }
                 }
-                Navigator.pop(context);
-              });
+              }
             }),
       ),
     );
@@ -147,7 +265,7 @@ class _OpportunityInformationv2State
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       await ref
           .read(resourceDetailsProvider.notifier)
           .loadCatalogById(groupId: '05')
@@ -179,6 +297,7 @@ class _OpportunityInformationv2State
               nameEmpresa ?? '',
             );
       }
+
     });
   }
 
@@ -214,10 +333,18 @@ class _OpportunityInformationv2State
                   label: 'Estado',
                   value: opportunityForm.oprtIdEstadoOportunidad.value,
                   callbackChange: (String? newValue) {
+                    final estado = optionsEstado.firstWhere(
+                      (option) => option.id == newValue,
+                      orElse: () => DropdownOption(id: '', name: ''),
+                    );
                     ref
                         .read(opportunityFormProvider(widget.opportunity)
                             .notifier)
                         .onIdEstadoChanged(newValue!);
+                    ref
+                        .read(opportunityFormProvider(widget.opportunity)
+                            .notifier)
+                        .onNameEstadoChanged(estado.name);
                     if (newValue == '07') {
                       ref
                           .read(resourceDetailsProvider.notifier)
@@ -237,6 +364,14 @@ class _OpportunityInformationv2State
                     setState(() {
                       activeMotivo = false;
                     });
+                    ref
+                        .read(opportunityFormProvider(widget.opportunity)
+                            .notifier)
+                        .onIdPerdidaMotivoChanged('');
+                    ref
+                        .read(opportunityFormProvider(widget.opportunity)
+                            .notifier)
+                        .onNombrePerdidaMotivoChanged('');
                   },
                   items: optionsEstado,
                   errorMessage:
@@ -249,14 +384,18 @@ class _OpportunityInformationv2State
               label: 'Motivo',
               value: opportunityForm.oprtIdPerdidaMotivo,
               callbackChange: (String? newValue) {
-                // ref
-                //     .read(opportunityFormProvider(widget.opportunity).notifier)
-                //     .onIdEstadoChanged(newValue!);
+                final motivo = opionMotivo.firstWhere(
+                  (option) => option.id == (newValue ?? ''),
+                  orElse: () => DropdownOption(id: '', name: ''),
+                );
                 ref
                     .read(opportunityFormProvider(widget.opportunity).notifier)
                     .onIdPerdidaMotivoChanged(
                       newValue ?? '',
                     );
+                ref
+                    .read(opportunityFormProvider(widget.opportunity).notifier)
+                    .onNombrePerdidaMotivoChanged(motivo.name);
               },
               items: opionMotivo,
               // errorMessage:
@@ -914,7 +1053,7 @@ class _OpportunityInformationv2State
 
       ref
           .read(opportunityFormProvider(widget.opportunity).notifier)
-          .onContactChanged(contact.id, '${contact.contactoDesc}');
+          .onContactChanged(contact.id, contact.contactoDesc);
     });
   }
 }

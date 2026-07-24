@@ -44,6 +44,7 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
           oprtIdValor: opportunity.oprtIdValor ?? '',
           oprtNobbreEstadoOportunidad:
               opportunity.oprtNobbreEstadoOportunidad ?? '',
+          oprtNombrePerdidaMotivo: '',
           oprtNombreValor: opportunity.oprtNombreValor ?? '',
           oprtLocalNombre: opportunity.oprtLocalNombre ?? '',
           oprtProbabilidad: opportunity.oprtProbabilidad ?? '',
@@ -73,6 +74,11 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
       return CreateUpdateOpportunityResponse(response: false, message: '');
     }
 
+    final comment = state.oprtComentario.trim().isNotEmpty
+        ? state.oprtComentario.trim()
+        : (state.oprtIdEstadoOportunidad.value == '07'
+            ? state.oprtNombrePerdidaMotivo.trim()
+            : '');
     final opportunityLike = {
       'OPRT_ID_OPORTUNIDAD': (state.id == 'new') ? null : state.id,
       'OPRT_NOMBRE': state.oprtNombre.value,
@@ -90,12 +96,11 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
       'RAZON': state.oprtRazon,
       //'OPRT_RUC_INTERMEDIARIO_01': state.oprtRucIntermediario01.value,
       'OPRT_RUC_INTERMEDIARIO_02': state.oprtRucIntermediario02,
-      'OPRT_COMENTARIO': state.oprtComentario,
+      'OPRT_COMENTARIO': comment,
       'OPRT_ID_USUARIO_REGISTRO': state.oprtIdUsuarioRegistro,
       'OPRT_ID_CONTACTO': state.oprtIdContacto.value,
       'OPRT_NOBBRE_ESTADO_OPORTUNIDAD': state.oprtNobbreEstadoOportunidad,
       'OPRT_NOMBRE_VALOR': state.oprtNombreValor,
-      'OPRT_ID_PERDIDA_MOTIVO': state.oprtIdPerdidaMotivo,
       'OPT': (state.id == 'new') ? 'INSERT' : 'UPDATE',
       'OPORTUNIDAD_RESPONSABLE': state.arrayresponsables != null
           ? List<dynamic>.from(state.arrayresponsables!.map((x) => x.toJson()))
@@ -106,6 +111,9 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
                   state.arrayresponsablesEliminar!.map((x) => x.toJson()))
               : [],
     };
+    if (state.oprtIdEstadoOportunidad.value == '07') {
+      opportunityLike['OPRT_ID_PERDIDA_MOTIVO'] = state.oprtIdPerdidaMotivo;
+    }
     log("$opportunityLike");
     try {
       return await onSubmitCallback!(opportunityLike);
@@ -257,6 +265,10 @@ class OpportunityFormNotifier extends StateNotifier<OpportunityFormState> {
     );
   }
 
+  void onNombrePerdidaMotivoChanged(String value) {
+    state = state.copyWith(oprtNombrePerdidaMotivo: value);
+  }
+
   void onUsuarioChanged(UserMaster usuario) {
     bool objExist = state.arrayresponsables!
         .any((objeto) => objeto.cresIdUsuarioResponsable == usuario.code);
@@ -339,6 +351,7 @@ class OpportunityFormState {
   final String opt;
   final String optrIdOportunidadIn;
   final String oprtIdPerdidaMotivo;
+  final String oprtNombrePerdidaMotivo;
   final List<ArrayUser>? arrayresponsables;
   final List<ArrayUser>? arrayresponsablesEliminar;
   final String optrValor;
@@ -363,12 +376,13 @@ class OpportunityFormState {
       //this.oprtRucIntermediario01 = const EmpresaIntermediario.dirty(''),
       this.oprtRucIntermediario02 = '',
       this.oprtRazonIntermediario02 = '',
-      this.oprtComentario = '',
-      this.oprtIdUsuarioRegistro = '',
-      this.oprtNobbreEstadoOportunidad = '',
-      this.oprtIdPerdidaMotivo = '',
-      this.oprtNombreValor = '',
-      this.opt = '',
+       this.oprtComentario = '',
+       this.oprtIdUsuarioRegistro = '',
+       this.oprtNobbreEstadoOportunidad = '',
+       this.oprtIdPerdidaMotivo = '',
+       this.oprtNombrePerdidaMotivo = '',
+       this.oprtNombreValor = '',
+       this.opt = '',
       this.arrayresponsables,
       this.arrayresponsablesEliminar,
       this.oprtIdContacto = const StateContact.dirty(''),
@@ -401,6 +415,7 @@ class OpportunityFormState {
     List<ArrayUser>? arrayresponsables,
     List<ArrayUser>? arrayresponsablesEliminar,
     String? oprtIdPerdidaMotivo,
+    String? oprtNombrePerdidaMotivo,
     String? optrValor,
     StateContact? oprtIdContacto,
     String? oprtNombreContacto,
@@ -413,6 +428,8 @@ class OpportunityFormState {
         oprtLocalCodigo: oprtLocalCodigo ?? this.oprtLocalCodigo,
         oprtLocalNombre: oprtLocalNombre ?? this.oprtLocalNombre,
         oprtIdPerdidaMotivo: oprtIdPerdidaMotivo ?? this.oprtIdPerdidaMotivo,
+        oprtNombrePerdidaMotivo:
+            oprtNombrePerdidaMotivo ?? this.oprtNombrePerdidaMotivo,
         oprtIdEstadoOportunidad:
             oprtIdEstadoOportunidad ?? this.oprtIdEstadoOportunidad,
         oprtProbabilidad: oprtProbabilidad ?? this.oprtProbabilidad,

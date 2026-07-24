@@ -36,6 +36,10 @@ abstract class OpportunitiesDatasource {
     Map<dynamic, dynamic> opportunityLike,
   );
 
+  Future<OpportunityResponse> updateOpportunityStatus(
+    Map<dynamic, dynamic> payload,
+  );
+
   Future<List<StatusOpportunity>> getStatusOpportunityByPeriod();
 
   Future<List<Opportunity>> searchOpportunities(

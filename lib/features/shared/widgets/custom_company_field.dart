@@ -50,13 +50,26 @@ class CustomCompanyField extends StatefulWidget {
 
 class _CustomCompanyFieldState extends State<CustomCompanyField> {
   late TextEditingController _internalController;
+  late FocusNode _focusNode;
 
   @override
   void initState() {
     super.initState();
     _internalController = widget.controller ?? TextEditingController();
+    _focusNode = FocusNode();
     _internalController.text =
         widget.initialValue ?? ''; // Usar el valor inicial si está disponible
+  }
+
+  @override
+  void didUpdateWidget(covariant CustomCompanyField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.controller == null &&
+        !_focusNode.hasFocus &&
+        widget.initialValue != null &&
+        widget.initialValue != _internalController.text) {
+      _internalController.text = widget.initialValue!;
+    }
   }
 
   @override
@@ -91,6 +104,7 @@ class _CustomCompanyFieldState extends State<CustomCompanyField> {
           ),
           child: TextFormField(
             controller: _internalController,
+            focusNode: _focusNode,
             textCapitalization: widget.textCapitalization!,
             onChanged: widget.onChanged,
             onFieldSubmitted: widget.onFieldSubmitted,
@@ -165,6 +179,7 @@ class _CustomCompanyFieldState extends State<CustomCompanyField> {
     if (widget.controller == null) {
       _internalController.dispose();
     }
+    _focusNode.dispose();
     super.dispose();
   }
 }

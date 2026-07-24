@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:crm_app/config/theme/app_theme.dart';
 import 'package:crm_app/features/activities/presentation/providers/providers.dart';
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crm_app/features/opportunities/presentation/providers/filter_active_opportunity_provider.dart';
@@ -34,7 +33,21 @@ class OpportunitiesScreen extends ConsumerStatefulWidget {
 class _OpportunitiesScreenState extends ConsumerState<OpportunitiesScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  bool activeFilter = true;
+
+  String _typeForIndex(int index) {
+    switch (index) {
+      case 0:
+        return "01,02,03,04";
+      case 1:
+        return "05";
+      case 2:
+        return "06";
+      case 3:
+        return "07";
+      default:
+        return "01,02,03,04";
+    }
+  }
 
   @override
   void initState() {
@@ -43,20 +56,8 @@ class _OpportunitiesScreenState extends ConsumerState<OpportunitiesScreen>
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
         log("Tab seleccionada: ${_tabController.index}");
-        if (_tabController.index == 0) {
-          log("CUSTOM LOGIC FOR ACTIVO");
-          setState(() {
-            activeFilter = true;
-          });
-          return;
-        } else {
-          // ref.read(routePlannerProvider.notifier).clearValues();
-          // resetAllProvidersFilterOP(ref);
-          ref.read(searchControllerProvider).text = "";
-        }
-        setState(() {
-          activeFilter = false;
-        });
+        ref.read(searchControllerProvider).text = "";
+        setState(() {});
       }
     });
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -126,24 +127,20 @@ class _OpportunitiesScreenState extends ConsumerState<OpportunitiesScreen>
             textAlign: TextAlign.center,
           ),
           actions: [
-            Visibility(
-              visible: activeFilter,
-              child: IconButton(
-                onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    constraints: BoxConstraints(
-                      maxHeight: MediaQuery.of(context).size.height * 0.9,
-                      minHeight: MediaQuery.of(context).size.height * 0.9,
-                    ),
-                    // builder: (context) => const FilterOpportunityActive(),
-                    builder: (context) => const FilterActivityOpportunity(),
-                  );
-                },
-                icon: const Icon(
-                  Icons.filter_alt_sharp,
-                ),
+            IconButton(
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.9,
+                    minHeight: MediaQuery.of(context).size.height * 0.9,
+                  ),
+                  builder: (context) => const FilterActivityOpportunity(),
+                );
+              },
+              icon: const Icon(
+                Icons.filter_alt_sharp,
               ),
             ),
           ],
@@ -192,31 +189,9 @@ class _OpportunitiesScreenState extends ConsumerState<OpportunitiesScreen>
           children: [
             const _SearchComponent(),
             Expanded(
-              child: TabBarView(
-                physics: const NeverScrollableScrollPhysics(),
-                controller: _tabController,
-                children: const [
-                  Center(
-                    child: _OpportunitiesViewCustom(
-                      type: "01,02,03,04",
-                    ),
-                  ),
-                  Center(
-                    child: _OpportunitiesView(
-                      type: "05",
-                    ),
-                  ),
-                  Center(
-                    child: _OpportunitiesView(
-                      type: "06",
-                    ),
-                  ),
-                  Center(
-                    child: _OpportunitiesView(
-                      type: "07",
-                    ),
-                  ),
-                ],
+              child: _OpportunitiesView(
+                key: ValueKey(_typeForIndex(_tabController.index)),
+                type: _typeForIndex(_tabController.index),
               ),
             ),
 
@@ -237,23 +212,60 @@ class _OpportunitiesScreenState extends ConsumerState<OpportunitiesScreen>
 
 class _OpportunitiesView extends ConsumerStatefulWidget {
   final String type;
-  const _OpportunitiesView({required this.type});
+  const _OpportunitiesView({super.key, required this.type});
   @override
   _OpportunitiesViewState createState() => _OpportunitiesViewState();
 }
 
 class _OpportunitiesViewState extends ConsumerState<_OpportunitiesView> {
   final ScrollController scrollController = ScrollController();
+
+  bool get _usesActiveFilters => widget.type == "01,02,03,04";
+
+  void _loadOpportunities({required bool isRefresh}) {
+    final notifier = ref.read(opportunitiesProvider.notifier);
+    if (_usesActiveFilters) {
+      final user = ref.read(authProvider).user;
+      notifier.loadFiltersOpportunity(
+        isRefresh: isRefresh,
+        endDate: (ref.read(endDateProvider) ?? '').toString(),
+        startDate: (ref.read(startDateProvider) ?? '').toString(),
+        estadoOP: findFilterByType(
+                  ref.read(routePlannerProvider).filters,
+                  "ID_TIPO_OPORTUNIDAD",
+                )
+                ?.id ??
+            '',
+        endPercents: ref.read(rangeProbProvider).end.round().toString(),
+        startPercent: ref.read(rangeProbProvider).start.round().toString(),
+        startValue: ref.read(startValueProvider) != 0
+            ? ref.read(startValueProvider).toInt().toString()
+            : '',
+        endValue: ref.read(startValueProvider) != 0
+            ? ref.read(endValueProvider).toInt().toString()
+            : '',
+        userResponsable: (user?.isAdmin ?? false) == false
+            ? user?.code ?? ''
+            : findFilterByType(
+                        ref.read(routePlannerProvider).filters,
+                        "ID_USUARIO_RESPONSABLE",
+                      )
+                    ?.id ??
+                '',
+      );
+      return;
+    }
+
+    notifier.loadNextPageByType(isRefresh: isRefresh);
+  }
+
   @override
   void initState() {
     super.initState();
     scrollController.addListener(() {
       if (scrollController.position.pixels >=
           scrollController.position.maxScrollExtent - 200) {
-        print('CARGANDO MAS');
-        ref
-            .read(opportunitiesProvider.notifier)
-            .loadNextPageByType(isRefresh: false);
+        _loadOpportunities(isRefresh: false);
       }
     });
 
@@ -266,9 +278,7 @@ class _OpportunitiesViewState extends ConsumerState<_OpportunitiesView> {
       ref
           .read(opportunitiesProvider.notifier)
           .onChangeNotIsActiveSearchSinRefresh();
-      ref
-          .read(opportunitiesProvider.notifier)
-          .loadNextPageByType(isRefresh: true);
+      _loadOpportunities(isRefresh: true);
       log('HERE SE LLAMA AQUI ');
     });
   }
@@ -280,11 +290,8 @@ class _OpportunitiesViewState extends ConsumerState<_OpportunitiesView> {
   }
 
   Future<void> _refresh() async {
-    //String text = ref.watch(opportunitiesProvider).textSearch;
     ref.read(opportunitiesProvider.notifier).clearOpList();
-    ref
-        .read(opportunitiesProvider.notifier)
-        .loadNextPageByType(isRefresh: true);
+    _loadOpportunities(isRefresh: true);
   }
 
   @override
@@ -337,6 +344,7 @@ class __SearchComponentState extends ConsumerState<_SearchComponent> {
           TextFormField(
             style: const TextStyle(fontSize: 14.0),
             controller: ref.read(searchControllerProvider),
+            textInputAction: TextInputAction.search,
             onChanged: (String value) {
               if (_debounce?.isActive ?? false) _debounce?.cancel();
               _debounce = Timer(const Duration(milliseconds: 500), () {
@@ -382,6 +390,7 @@ class __SearchComponentState extends ConsumerState<_SearchComponent> {
               });
             },
             onFieldSubmitted: (value) {
+              FocusScope.of(context).unfocus();
               _debounce?.cancel();
               ref.read(opportunitiesProvider.notifier).clearOpList();
 
@@ -441,6 +450,7 @@ class __SearchComponentState extends ConsumerState<_SearchComponent> {
           if (ref.watch(opportunitiesProvider).textSearch != "")
             IconButton(
               onPressed: () {
+                FocusScope.of(context).unfocus();
                 _debounce?.cancel();
                 ref.read(opportunitiesProvider.notifier).clearOpList();
 
@@ -489,146 +499,6 @@ class __SearchComponentState extends ConsumerState<_SearchComponent> {
         ],
       ),
     );
-  }
-}
-
-class _OpportunitiesViewCustom extends ConsumerStatefulWidget {
-  final String type;
-  const _OpportunitiesViewCustom({required this.type});
-  @override
-  _OpportunitiesViewCustomState createState() =>
-      _OpportunitiesViewCustomState();
-}
-
-class _OpportunitiesViewCustomState
-    extends ConsumerState<_OpportunitiesViewCustom> {
-  final ScrollController scrollController = ScrollController();
-  @override
-  void initState() {
-    super.initState();
-    scrollController.addListener(() {
-      if (scrollController.position.pixels >=
-          scrollController.position.maxScrollExtent - 200) {
-        final user = ref.read(authProvider).user;
-        ref.read(opportunitiesProvider.notifier).loadFiltersOpportunity(
-              isRefresh: false,
-              endDate: (ref.read(endDateProvider) ?? "").toString(),
-              startDate: (ref.read(startDateProvider) ?? "").toString(),
-              estadoOP: findFilterByType(ref.read(routePlannerProvider).filters,
-                          "ID_TIPO_OPORTUNIDAD")
-                      ?.id ??
-                  '',
-              endPercents: ref.read(rangeProbProvider).end.round().toString(),
-              startPercent:
-                  ref.read(rangeProbProvider).start.round().toString(),
-              startValue: ref.read(startValueProvider) != 0
-                  ? ref.read(startValueProvider).toInt().toString()
-                  : "",
-              endValue: ref.read(startValueProvider) != 0
-                  ? ref.read(endValueProvider).toInt().toString()
-                  : "",
-              userResponsable: (user?.isAdmin ?? false) == false
-                  ? user?.code ?? ""
-                  : findFilterByType(ref.read(routePlannerProvider).filters,
-                              "ID_USUARIO_RESPONSABLE")
-                          ?.id ??
-                      '',
-            );
-      }
-    });
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(opportunitiesProvider.notifier).clearOpList();
-      ref
-          .read(opportunitiesProvider.notifier)
-          .updateTypeOpportunity(widget.type);
-      ref
-          .read(opportunitiesProvider.notifier)
-          .onChangeNotIsActiveSearchSinRefresh();
-      final user = ref.read(authProvider).user;
-      ref.read(opportunitiesProvider.notifier).loadFiltersOpportunity(
-            isRefresh: true,
-            endDate: (ref.read(endDateProvider) ?? "").toString(),
-            startDate: (ref.read(startDateProvider) ?? "").toString(),
-            estadoOP: findFilterByType(ref.read(routePlannerProvider).filters,
-                        "ID_TIPO_OPORTUNIDAD")
-                    ?.id ??
-                '',
-            endPercents: ref.read(rangeProbProvider).end.round().toString(),
-            startPercent: ref.read(rangeProbProvider).start.round().toString(),
-            startValue: ref.read(startValueProvider) != 0
-                ? ref.read(startValueProvider).toInt().toString()
-                : "",
-            endValue: ref.read(startValueProvider) != 0
-                ? ref.read(endValueProvider).toInt().toString()
-                : "",
-            userResponsable: (user?.isAdmin ?? false) == false
-                ? user?.code ?? ""
-                : findFilterByType(ref.read(routePlannerProvider).filters,
-                            "ID_USUARIO_RESPONSABLE")
-                        ?.id ??
-                    '',
-          );
-      log('HERE SE LLAMA AQUI ');
-    });
-  }
-
-  @override
-  void dispose() {
-    scrollController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _refresh() async {
-    //String text = ref.watch(opportunitiesProvider).textSearch;
-    ref.read(opportunitiesProvider.notifier).clearOpList();
-    final user = ref.read(authProvider).user;
-    ref.read(opportunitiesProvider.notifier).loadFiltersOpportunity(
-          isRefresh: true,
-          endDate: (ref.read(endDateProvider) ?? "").toString(),
-          startDate: (ref.read(startDateProvider) ?? "").toString(),
-          estadoOP: findFilterByType(ref.read(routePlannerProvider).filters,
-                      "ID_TIPO_OPORTUNIDAD")
-                  ?.id ??
-              '',
-          endPercents: ref.read(rangeProbProvider).end.round().toString(),
-          startPercent: ref.read(rangeProbProvider).start.round().toString(),
-          startValue: ref.read(startValueProvider) != 0
-              ? ref.read(startValueProvider).toInt().toString()
-              : "",
-          endValue: ref.read(startValueProvider) != 0
-              ? ref.read(endValueProvider).toInt().toString()
-              : "",
-          userResponsable: (user?.isAdmin ?? false) == false
-              ? user?.code ?? ""
-              : findFilterByType(ref.read(routePlannerProvider).filters,
-                          "ID_USUARIO_RESPONSABLE")
-                      ?.id ??
-                  '',
-        );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final opportunitiesState = ref.watch(opportunitiesProvider);
-    final isReload = opportunitiesState.isReload;
-
-    if (opportunitiesState.isLoading) {
-      return const LoadingModal();
-    }
-
-    return opportunitiesState.opportunities.isNotEmpty
-        ? _ListOpportunities(
-            opportunities: opportunitiesState.opportunities,
-            onRefreshCallback: _refresh,
-            isReload: isReload,
-            scrollController: scrollController,
-          )
-        : NoExistData(
-            textCenter: 'No hay actividades registradas',
-            onRefreshCallback: _refresh,
-            icon: Icons.graphic_eq,
-          );
   }
 }
 /*
@@ -712,6 +582,49 @@ class _ListOpportunities extends ConsumerStatefulWidget {
 }
 
 class _ListOpportunitiesState extends ConsumerState<_ListOpportunities> {
+  Future<void> _refreshCurrentType() async {
+    final notifier = ref.read(opportunitiesProvider.notifier);
+    final currentType = ref.read(opportunitiesProvider).typeOpportunity;
+
+    notifier.clearOpList();
+
+    if (currentType == '01,02,03,04') {
+      final user = ref.read(authProvider).user;
+      await notifier.loadFiltersOpportunity(
+        isRefresh: true,
+        endDate: (ref.read(endDateProvider) ?? '').toString(),
+        startDate: (ref.read(startDateProvider) ?? '').toString(),
+        estadoOP: findFilterByType(
+                  ref.read(routePlannerProvider).filters,
+                  "ID_TIPO_OPORTUNIDAD",
+                )
+                ?.id ??
+            '',
+        endPercents: ref.read(rangeProbProvider).end.round().toString(),
+        startPercent: ref.read(rangeProbProvider).start.round().toString(),
+        startValue: ref.read(startValueProvider) != 0
+            ? ref.read(startValueProvider).toInt().toString()
+            : '',
+        endValue: ref.read(startValueProvider) != 0
+            ? ref.read(endValueProvider).toInt().toString()
+            : '',
+        userResponsable: (user?.isAdmin ?? false) == false
+            ? user?.code ?? ''
+            : findFilterByType(
+                        ref.read(routePlannerProvider).filters,
+                        "ID_USUARIO_RESPONSABLE",
+                      )
+                    ?.id ??
+                '',
+      );
+      return;
+    }
+
+    if (currentType.isNotEmpty) {
+      await notifier.loadNextPageByType(isRefresh: true);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final GlobalKey<RefreshIndicatorState> refreshIndicatorKey =
@@ -737,35 +650,50 @@ class _ListOpportunitiesState extends ConsumerState<_ListOpportunities> {
                   ),
                 )),
           )
-        : RefreshIndicator(
-            notificationPredicate: defaultScrollNotificationPredicate,
-            onRefresh: widget.onRefreshCallback,
-            child: ListView.separated(
-              itemCount: widget.opportunities.length,
-              controller: widget.scrollController,
-              separatorBuilder: (BuildContext context, int index) =>
-                  const Divider(height: 4, thickness: 0.5),
-              itemBuilder: (context, index) {
-                final opportunity = widget.opportunities[index];
+        : GestureDetector(
+            onTap: () {
+              FocusScope.of(context).unfocus();
+            },
+            child: RefreshIndicator(
+              notificationPredicate: defaultScrollNotificationPredicate,
+              onRefresh: widget.onRefreshCallback,
+              child: ListView.separated(
+                itemCount: widget.opportunities.length,
+                controller: widget.scrollController,
+                separatorBuilder: (BuildContext context, int index) =>
+                    const Divider(height: 4, thickness: 0.5),
+                itemBuilder: (context, index) {
+                  final opportunity = widget.opportunities[index];
 
-                if (index + 1 == widget.opportunities.length) {
-                  if (widget.isReload) {
-                    return const Center(child: CircularProgressIndicator());
+                  if (index + 1 == widget.opportunities.length) {
+                    if (widget.isReload) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
                   }
-                }
 
-                return ItemOpportunity(
-                  opportunity: opportunity,
-                  callbackOnTap: () {
-                    ref.read(selectedOp.notifier).state = opportunity;
-                    ref.read(selectOpportunity.notifier).state = opportunity;
-                    ref.read(currentOpportunityShowAllProvider.notifier).state = false;
+                  return ItemOpportunity(
+                    opportunity: opportunity,
+                    callbackOnTap: (tappedOpportunity, groupOpportunities) async {
+                    List<Opportunity> resolvedGroup = groupOpportunities.isNotEmpty
+                        ? groupOpportunities
+                        : [tappedOpportunity];
+
+                    ref.read(selectedOp.notifier).state = tappedOpportunity;
+                    ref.read(selectOpportunity.notifier).state = tappedOpportunity;
+                    ref
+                        .read(currentOpportunityShowAllProvider.notifier)
+                        .state = false;
+                    ref.read(currentOpportunityGroupProvider.notifier).state =
+                        resolvedGroup;
                     ref.read(currentOpportunityDetailTabProvider.notifier).state = 0;
-                    context.push('/opportunity_detail/${opportunity.id}');
+                    await context.push('/opportunity_detail/${tappedOpportunity.id}');
+                    if (!mounted) return;
+                    await _refreshCurrentType();
                     log("Estoy entrandoo aqui");
                   },
                 );
               },
+            ),
             ),
           );
   }

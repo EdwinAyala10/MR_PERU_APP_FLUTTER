@@ -1,5 +1,6 @@
 import 'package:crm_app/config/config.dart';
 import 'package:crm_app/features/activities/presentation/providers/providers.dart';
+import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crm_app/features/contacts/domain/domain.dart';
 import 'package:crm_app/features/contacts/presentation/providers/providers.dart';
 import 'package:crm_app/features/opportunities/presentation/providers/providers.dart';
@@ -14,12 +15,15 @@ import '../../domain/domain.dart';
 
 class ItemOpportunity extends ConsumerStatefulWidget {
   final Opportunity opportunity;
-  final Function()? callbackOnTap;
+  final Future<void> Function(
+    Opportunity tappedOpportunity,
+    List<Opportunity> group,
+  )? callbackOnTap;
 
   const ItemOpportunity({
     super.key,
     required this.opportunity,
-    required this.callbackOnTap,
+    this.callbackOnTap,
   });
 
   @override
@@ -27,6 +31,82 @@ class ItemOpportunity extends ConsumerStatefulWidget {
 }
 
 class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
+  bool _isOpeningDetail = false;
+
+  Future<void> _handleOpportunityTap(
+    Opportunity tappedOpportunity,
+    List<Opportunity> opportunities,
+  ) async {
+    if (_isOpeningDetail) return;
+
+    // Cerrar teclado inmediatamente antes de cualquier navegación
+    FocusScope.of(context).unfocus();
+    
+    _isOpeningDetail = true;
+
+    try {
+      if (widget.callbackOnTap != null) {
+        await widget.callbackOnTap!(tappedOpportunity, opportunities);
+        return;
+      }
+
+      // Sin importar qué equipo se toque dentro del card de la
+      // empresa, el detalle siempre abre en el primero del grupo; el
+      // selector de arriba permite saltar a los demás equipos.
+      final target = opportunities.first;
+      if (!mounted) return;
+
+      ref.read(selectOpportunity.notifier).state = target;
+      ref.read(selectedOp.notifier).state = target;
+      ref.read(currentOpportunityShowAllProvider.notifier).state = false;
+      ref.read(currentOpportunityDetailTabProvider.notifier).state = 0;
+      ref.read(currentOpportunityGroupProvider.notifier).state = opportunities;
+      await context.push('/opportunity_detail/${target.id}');
+    } finally {
+      if (mounted) {
+        _isOpeningDetail = false;
+      }
+    }
+  }
+
+  Future<void> _refreshOpportunitiesList() async {
+    final notifier = ref.read(opportunitiesProvider.notifier);
+    final currentType = ref.read(opportunitiesProvider).typeOpportunity;
+    notifier.clearOpList();
+    if (currentType.isEmpty) {
+      await notifier.loadNextPage(isRefresh: true);
+      return;
+    }
+    await notifier.loadNextPageByType(isRefresh: true);
+  }
+
+  Future<List<Opportunity>> _loadCompanyGroup(
+    Opportunity target,
+    List<Opportunity> fallback,
+  ) async {
+    final ruc = target.oprtRuc ?? '';
+    if (ruc.isEmpty) return fallback;
+
+    final user = ref.read(authProvider).user;
+    final groups = await ref.read(opportunitiesRepositoryProvider).getListOpportunities(
+          ruc: ruc,
+          search: '',
+          limit: 100,
+          offset: 1,
+          idUsuario: (user?.isAdmin ?? false) ? '' : (user?.code ?? ''),
+          estado: '',
+        );
+
+    final all = groups
+        .expand((opportunity) => opportunity.oportunidadesDelGrupo ?? [opportunity])
+        .toList();
+    final companyGroup = all
+        .where((opportunity) => opportunity.empresaKey == target.empresaKey)
+        .toList();
+
+    return companyGroup.isNotEmpty ? companyGroup : fallback;
+  }
+
   ({Color? background, Color? border})? _staleColors(Opportunity opportunity) {
     final hasActivity = (opportunity.actiIdTipoGestion ?? '').isNotEmpty &&
         (opportunity.actiFechaRegistro ?? '').isNotEmpty;
@@ -170,29 +250,18 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
       final opportunity = entry.value;
       final isLast = index == opportunities.length - 1;
 
-      return Container(
-        padding: const EdgeInsets.fromLTRB(12, 2, 12, 4),
-        decoration: BoxDecoration(
-          border: isLast
-              ? null
-              : Border(
-                  bottom: BorderSide(color: Colors.grey.shade200, width: 1),
-                ),
-        ),
-        child: InkWell(
-          onTap: () {
-            // Sin importar qué equipo se toque dentro del card de la
-            // empresa, el detalle siempre abre en el primero del grupo; el
-            // selector de arriba permite saltar a los demás equipos.
-            final target = opportunities.first;
-            ref.read(selectOpportunity.notifier).state = target;
-            ref.read(selectedOp.notifier).state = target;
-            ref.read(currentOpportunityShowAllProvider.notifier).state = false;
-            ref.read(currentOpportunityDetailTabProvider.notifier).state = 0;
-            ref.read(currentOpportunityGroupProvider.notifier).state =
-                opportunities;
-            context.push('/opportunity_detail/${target.id}');
-          },
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => _handleOpportunityTap(opportunity, opportunities),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(12, 2, 12, 4),
+          decoration: BoxDecoration(
+            border: isLast
+                ? null
+                : Border(
+                    bottom: BorderSide(color: Colors.grey.shade200, width: 1),
+                  ),
+          ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -218,7 +287,7 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
                         ),
                       ),
                     Text(
-                      'Equipo(s): ${opportunity.oprtNombre}',
+                      opportunity.oprtNombre,
                       style: const TextStyle(
                         fontWeight: FontWeight.w600,
                         color: Colors.black87,
@@ -244,8 +313,6 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
                     if ((opportunity.actiFechaRegistro ?? '').isNotEmpty)
                        Row(
@@ -374,16 +441,20 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
     }
     if (!mounted) return;
 
-    // La actividad que se registre debe quedar asociada a TODAS las
-    // oportunidades de la empresa agrupada (no solo a la del contacto
-    // elegido), usando el mismo campo que ya trae la API para listas de ids
-    // (OPRT_ID_OPORTUNIDAD_IN).
-    elegido.oprtIdOportunidadIn = _joinedOpportunityIds(opportunities);
+    // WhatsApp debe mantenerse asociado a una sola oportunidad, como estaba
+    // antes de agrupar la UI. Solo correo mantiene la asociación múltiple del
+    // grupo cuando corresponde.
+    if (action == _OppAction.email) {
+      elegido.oprtIdOportunidadIn = _joinedOpportunityIds(opportunities);
+    } else {
+      elegido.oprtIdOportunidadIn = '';
+    }
 
     // Se arma el contacto con los datos que ya trae la oportunidad (id,
     // nombre, teléfono, ruc, razón) sin ir a la red, para que la acción sea
     // inmediata. La pantalla de correo carga el contacto completo por id.
     final contact = _contactFromOpportunity(elegido);
+    ref.read(currentOpportunityGroupProvider.notifier).state = opportunities;
 
     switch (action) {
       case _OppAction.call:
@@ -426,14 +497,29 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
     Opportunity seleccion = contactos.first;
     return showDialog<Opportunity>(
       context: context,
-      builder: (context) {
+      barrierColor: Colors.black.withValues(alpha: 0.5),
+      builder: (dialogContext) {
         return StatefulBuilder(
-          builder: (context, setStateDialog) {
+          builder: (dialogContext, setStateDialog) {
             return AlertDialog(
-              title: const Text('Seleccione contacto'),
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              title: const Text(
+                'Seleccione contacto',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
               content: DropdownButton<Opportunity>(
                 isExpanded: true,
                 value: seleccion,
+                underline: Container(
+                  height: 1,
+                  color: Colors.grey.shade300,
+                ),
                 items: contactos
                     .map(
                       (o) => DropdownMenuItem<Opportunity>(
@@ -443,6 +529,10 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
                               ? o.oprtNombreContacto!
                               : (o.contactId ?? ''),
                           overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
                         ),
                       ),
                     )
@@ -453,21 +543,27 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
                 },
               ),
               actions: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.grey.shade700,
                   ),
-                  onPressed: () => Navigator.of(context).pop(seleccion),
-                  child: const Text('Siguiente'),
+                  child: const Text('Cancelar'),
                 ),
                 ElevatedButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(seleccion),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
+                    backgroundColor: const Color(0xFF2196F3),
                     foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 28,
+                      vertical: 12,
+                    ),
                   ),
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cancelar'),
+                  child: const Text('Continuar'),
                 ),
               ],
             );
@@ -495,7 +591,12 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
           agregarPrefijoPeru(contact.contactoTelefonoc),
           opportunity: opportunity,
         );
-    context.push('/text');
+    context.push('/text').then((value) async {
+      if (value == true && mounted) {
+        await _refreshOpportunitiesList();
+        if (mounted) setState(() {});
+      }
+    });
   }
 
   void _runEmail(Contact contact, Opportunity opportunity) {

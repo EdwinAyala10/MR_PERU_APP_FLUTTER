@@ -2,5 +2,5 @@
   "java.compile.nullAnalysis.mode": "automatic",
   "java.configuration.updateBuildConfiguration": "interactive",
   "kiroAgent.configureMCP": "Disabled",
-  "dart.flutterSdkPath": "~/Documents/development/flutter/flutter_3.32.2-stable"
+  "dart.flutterSdkPath": "~/Documents/development/flutter/flutter_3.38.2-stable"
 }

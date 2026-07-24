@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:crm_app/config/constants/environment.dart';
+import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crm_app/features/activities/domain/domain.dart';
 import 'package:crm_app/features/activities/domain/repositories/activities_repository.dart';
 import 'package:crm_app/features/activities/presentation/providers/activities_provider.dart';
@@ -101,6 +102,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   int currentIndex = 0;
+  bool _isLoadingCompanyGroup = true;
 
   final LayerLink _opportunitySwitcherLink = LayerLink();
   final GlobalKey _opportunitySwitcherKey = GlobalKey();
@@ -116,12 +118,9 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
     );
     currentIndex = _tabController.index;
     _tabController.addListener(_handleTabChange);
-
-    // WidgetsBinding.instance?.addPostFrameCallback((_) {
-    //   ref
-    //       .watch(companyProvider(widget.company.ruc).notifier)
-    //       .loadSecundaryDetails();
-    // });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refreshOpportunityContext();
+    });
   }
 
   @override
@@ -139,14 +138,80 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
         _tabController.index;
   }
 
+  Future<void> _refreshOpportunityContext() async {
+    final current = ref.read(selectedOp);
+    final loadedOpportunity = ref.read(opportunityProvider(widget.opportunityId)).opportunity;
+    final baseOpportunity = current ?? loadedOpportunity;
+    final ruc = baseOpportunity?.oprtRuc ?? '';
+    final companyKey = baseOpportunity?.empresaKey;
+
+    if (mounted) {
+      setState(() {
+        _isLoadingCompanyGroup = true;
+      });
+    }
+
+    ref.read(opportunityProvider(widget.opportunityId).notifier).loadOpportunity();
+
+    if (ruc.isEmpty || companyKey == null) {
+      if (mounted) {
+        setState(() {
+          _isLoadingCompanyGroup = false;
+        });
+      }
+      return;
+    }
+
+    final user = ref.read(authProvider).user;
+    final refreshedGroups = await ref.read(opportunitiesRepositoryProvider).getListOpportunities(
+          ruc: ruc,
+          search: '',
+          limit: 100,
+          offset: 1,
+          idUsuario: (user?.isAdmin ?? false) ? '' : (user?.code ?? ''),
+          estado: '',
+        );
+    final refreshed = refreshedGroups
+        .expand((opportunity) => opportunity.oportunidadesDelGrupo ?? [opportunity])
+        .toList();
+    final filtered = refreshed
+        .where((opportunity) => opportunity.empresaKey == companyKey)
+        .toList();
+
+    if (filtered.isEmpty) {
+      if (mounted) {
+        setState(() {
+          _isLoadingCompanyGroup = false;
+        });
+      }
+      return;
+    }
+
+    ref.read(currentOpportunityGroupProvider.notifier).state = filtered;
+
+    final selectedId = ref.read(selectedOp)?.id ?? baseOpportunity?.id ?? widget.opportunityId;
+    final updatedSelected = filtered.where((o) => o.id == selectedId).toList();
+    if (updatedSelected.isNotEmpty) {
+      ref.read(selectedOp.notifier).state = updatedSelected.first;
+      ref.read(selectOpportunity.notifier).state = updatedSelected.first;
+    } else if (baseOpportunity != null) {
+      ref.read(selectedOp.notifier).state = filtered.first;
+      ref.read(selectOpportunity.notifier).state = filtered.first;
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _isLoadingCompanyGroup = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final opportunityGroup = ref.watch(currentOpportunityGroupProvider);
     final showAll = ref.watch(currentOpportunityShowAllProvider);
-    final siblings = opportunityGroup.length > 1 &&
-            opportunityGroup.any((o) => o.id == widget.opportunityId)
-        ? opportunityGroup
-        : const <Opportunity>[];
+    final currentOpportunityId = ref.watch(selectedOp)?.id ?? widget.opportunityId;
+    final siblings =
+        opportunityGroup.length > 1 ? opportunityGroup : const <Opportunity>[];
 
     return DefaultTabController(
       length: 5,
@@ -204,93 +269,58 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
           ),
           actions: [
             IconButton(
+              icon: const Icon(Icons.autorenew_rounded),
+              onPressed: () async {
+                await _refreshOpportunityContext();
+                if (!mounted) return;
+                final targetId = ref.read(selectedOp)?.id ?? widget.opportunityId;
+                final result = await context.push('/opportunity_status/$targetId');
+                if (!mounted) return;
+                if (result is Map<String, dynamic>) {
+                  final nextId = result['targetOpportunityId'] as String?;
+                  final routeChanged = result['routeChanged'] == true;
+                  if (routeChanged && nextId != null && nextId.isNotEmpty) {
+                    ref.read(currentOpportunityShowAllProvider.notifier).state = false;
+                    ref.read(currentOpportunityDetailTabProvider.notifier).state = 0;
+                    final nextOpportunity = ref
+                        .read(currentOpportunityGroupProvider)
+                        .where((opportunity) => opportunity.id == nextId)
+                        .toList();
+                    if (nextOpportunity.isNotEmpty) {
+                      ref.read(selectedOp.notifier).state = nextOpportunity.first;
+                      ref.read(selectOpportunity.notifier).state = nextOpportunity.first;
+                    }
+                    _reloadCurrentTabForOpportunity(nextId);
+                    setState(() {});
+                    return;
+                  }
+                }
+                await _refreshOpportunityContext();
+              },
+            ),
+            IconButton(
               icon: const Icon(Icons.edit),
               onPressed: () async {
-                final options = ref.read(currentOpportunityGroupProvider);
-                if (options.isEmpty) {
-                  // Si no hay opciones, editar directamente la oportunidad actual
-                  context.push('/opportunity/${widget.opportunityId}');
-                  return;
-                }
-                
-                // SIEMPRE mostrar el modal para seleccionar qué oportunidad editar
-                Opportunity selected = ref.read(selectedOp) ?? options.first;
-                
-                final selectedOpportunity = await showDialog<Opportunity>(
-                  context: context,
-                  barrierColor: Colors.black.withOpacity(0.5),
-                  builder: (dialogContext) {
-                    return StatefulBuilder(
-                      builder: (dialogContext, setStateDialog) {
-                        return AlertDialog(
-                          backgroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          title: const Text(
-                            'Seleccione oportunidad',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          content: DropdownButton<Opportunity>(
-                            isExpanded: true,
-                            value: selected,
-                            items: options
-                                .map(
-                                  (opportunity) => DropdownMenuItem<Opportunity>(
-                                    value: opportunity,
-                                    child: Text(
-                                      'Equipo(s): ${opportunity.oprtNombre}',
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: (value) {
-                              if (value == null) return;
-                              setStateDialog(() => selected = value);
-                            },
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(dialogContext).pop(),
-                              style: TextButton.styleFrom(
-                                foregroundColor: Colors.grey.shade700,
-                              ),
-                              child: const Text('Cancelar'),
-                            ),
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.of(dialogContext).pop(selected);
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF2196F3),
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                              ),
-                              child: const Text('Continuar'),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                );
-                
-                if (selectedOpportunity != null) {
-                  context.push('/opportunity/${selectedOpportunity.id}');
-                }
+                // Si ya hay una oportunidad específica seleccionada (no
+                // "Todos"), se edita directamente sin preguntar. Solo se
+                // muestra el selector cuando el switcher está en "Todos".
+                final target = await resolveTargetOpportunity(context, ref);
+                if (target == null) return;
+                await context.push('/opportunity/${target.id}');
+                if (!mounted) return;
+                await _refreshOpportunityContext();
               },
             ),
           ],
         ),
         body: Column(
           children: [
-            if (siblings.isNotEmpty)
+            if (_isLoadingCompanyGroup)
+              const Padding(
+                padding: EdgeInsets.fromLTRB(16, 12, 16, 4),
+                child: LinearProgressIndicator(minHeight: 3),
+              )
+            else if (siblings.isNotEmpty)
               _buildOpportunitySwitcher(siblings, showAll),
             Expanded(
               child: TabBarView(
@@ -298,10 +328,10 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
                 physics: const NeverScrollableScrollPhysics(), // Desactiva el scroll
                 children: [
                   buildInformation(),
-                  buildEventsOportunity(),
-                  buildActivity(),
-                  buildPhotos(),
-                  buildDocuments()
+                  buildEventsOportunity(currentOpportunityId),
+                  buildActivity(currentOpportunityId),
+                  buildPhotos(currentOpportunityId),
+                  buildDocuments(currentOpportunityId)
                 ],
               ),
             ),
@@ -313,10 +343,9 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
   }
 
   Widget _buildOpportunitySwitcher(List<Opportunity> siblings, bool showAll) {
-    // El detalle siempre entra por la primera oportunidad del grupo, así
-    // que ese es el valor que llega premarcado en el selector.
+    final selected = ref.read(selectedOp);
     final current = siblings.firstWhere(
-      (o) => o.id == widget.opportunityId,
+      (o) => o.id == selected?.id,
       orElse: () => siblings.first,
     );
 
@@ -339,7 +368,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
               children: [
                 Expanded(
                   child: Text(
-                    showAll && currentIndex != 0 ? 'Todos' : 'Equipo(s): ${current.oprtNombre}',
+                    showAll && currentIndex != 0 ? 'Todos' : current.oprtNombre,
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 15,
@@ -453,7 +482,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
                             children: [
                               Expanded(
                                 child: Text(
-                                  'Equipo(s): ${opportunity.oprtNombre}',
+                                  opportunity.oprtNombre,
                                   style: TextStyle(
                                     fontWeight: isSelected
                                         ? FontWeight.w700
@@ -509,7 +538,8 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
     ref.read(selectOpportunity.notifier).state = opportunity;
     ref.read(selectedOp.notifier).state = opportunity;
     ref.read(currentOpportunityGroupProvider.notifier).state = siblings;
-    context.pushReplacement('/opportunity_detail/${opportunity.id}');
+    _reloadCurrentTabForOpportunity(opportunity.id);
+    setState(() {});
   }
 
   void _onShowAllSelected(List<Opportunity> siblings) {
@@ -598,20 +628,20 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
     }
   }
 
-  Widget buildEventsOportunity() {
+  Widget buildEventsOportunity(String currentOpportunityId) {
     return EventsDetailView(
-      key: ValueKey('events-${ref.watch(currentOpportunityShowAllProvider)}-${widget.opportunityId}'),
-      opportunityId: widget.opportunityId,
+      key: ValueKey('events-${ref.watch(currentOpportunityShowAllProvider)}-$currentOpportunityId'),
+      opportunityId: currentOpportunityId,
       companyRuc: ref.watch(selectedOp)?.oprtRuc ?? '',
       groupIds: ref.watch(currentOpportunityGroupProvider).map((o) => o.id).toList(),
       showAll: ref.watch(currentOpportunityShowAllProvider),
     );
   }
 
-  Widget buildActivity() {
+  Widget buildActivity(String currentOpportunityId) {
     return _ActivitiesView(
-      key: ValueKey('activities-${ref.watch(currentOpportunityShowAllProvider)}-${widget.opportunityId}'),
-      opportunityId: widget.opportunityId,
+      key: ValueKey('activities-${ref.watch(currentOpportunityShowAllProvider)}-$currentOpportunityId'),
+      opportunityId: currentOpportunityId,
       companyRuc: ref.watch(selectedOp)?.oprtRuc ?? '',
       groupIds: ref.watch(currentOpportunityGroupProvider).map((o) => o.id).toList(),
       showAll: ref.watch(currentOpportunityShowAllProvider),
@@ -620,7 +650,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
 
   Widget buildInformation() {
     return OpportunityDetailView(
-      opportunityId: widget.opportunityId,
+      opportunityId: ref.watch(selectedOp)?.id ?? widget.opportunityId,
       onGenerateSummary: () async {
         final prefsNotifier = ref.read(forceMrPreferencesProvider.notifier);
         final hasAccepted = await prefsNotifier.hasAccepted();
@@ -638,22 +668,22 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
     );
   }
 
-  Widget buildPhotos() {
+  Widget buildPhotos(String currentOpportunityId) {
     return _PhotoView(
       _tabController,
-      key: ValueKey('photos-${ref.watch(currentOpportunityShowAllProvider)}-${widget.opportunityId}'),
-      opportunityId: widget.opportunityId,
+      key: ValueKey('photos-${ref.watch(currentOpportunityShowAllProvider)}-$currentOpportunityId'),
+      opportunityId: currentOpportunityId,
       companyRuc: ref.watch(selectedOp)?.oprtRuc ?? '',
       groupIds: ref.watch(currentOpportunityGroupProvider).map((o) => o.id).toList(),
       showAll: ref.watch(currentOpportunityShowAllProvider),
     );
   }
 
-  Widget buildDocuments() {
+  Widget buildDocuments(String currentOpportunityId) {
     return _DocumentsView(
       _tabController,
-      key: ValueKey('documents-${ref.watch(currentOpportunityShowAllProvider)}-${widget.opportunityId}'),
-      opportunityId: widget.opportunityId,
+      key: ValueKey('documents-${ref.watch(currentOpportunityShowAllProvider)}-$currentOpportunityId'),
+      opportunityId: currentOpportunityId,
       companyRuc: ref.watch(selectedOp)?.oprtRuc ?? '',
       groupIds: ref.watch(currentOpportunityGroupProvider).map((o) => o.id).toList(),
       showAll: ref.watch(currentOpportunityShowAllProvider),
@@ -674,9 +704,12 @@ class OpportunityDetailView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final opportunityState = ref.watch(opportunityProvider(opportunityId));
-    final opportunity = opportunityState.opportunity;
+    final selected = ref.watch(selectedOp);
+    final opportunity = selected?.id == opportunityId
+        ? selected
+        : opportunityState.opportunity;
 
-    if (opportunityState.isLoading) {
+    if (opportunityState.isLoading && opportunity == null) {
       return const FullScreenLoader();
     }
 
@@ -1391,7 +1424,7 @@ Future<Opportunity?> resolveTargetOpportunity(
                     (opportunity) => DropdownMenuItem<Opportunity>(
                       value: opportunity,
                       child: Text(
-                        'Equipo(s): ${opportunity.oprtNombre}',
+                        opportunity.oprtNombre,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),

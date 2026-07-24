@@ -340,7 +340,7 @@ class _ActivityInformationv2State
                             controlAffinity: ListTileControlAffinity.leading,
                             contentPadding: EdgeInsets.zero,
                             dense: true,
-                            title: Text('Equipo(s): ${opportunity.oprtNombre}'),
+                            title: Text(opportunity.oprtNombre),
                             onChanged: (value) {
                               setStateModal(() {
                                 if (value ?? false) {

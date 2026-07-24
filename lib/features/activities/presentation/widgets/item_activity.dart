@@ -309,12 +309,6 @@ class ItemActivity extends StatelessWidget {
           : 'De: $contacto';
     }
 
-    // Para otros tipos de actividades, usar actiIdTipoRegistro
-    // '01' = Manual/Saliente, '02' = Entrante/Recibido
-    if (activity.actiIdTipoRegistro == '02') {
-      return 'De: $contacto';
-    } else {
-      return 'A: $contacto';
-    }
+    return 'A: $contacto';
   }
 }

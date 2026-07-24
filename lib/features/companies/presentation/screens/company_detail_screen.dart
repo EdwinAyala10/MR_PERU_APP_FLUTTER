@@ -923,9 +923,7 @@ class _ListOpportunities extends StatelessWidget {
             final group = groups[index];
             return ItemOpportunity(
                 opportunity: group,
-                callbackOnTap: () {
-                  context.push('/opportunity_detail/${group.id}');
-                });
+                callbackOnTap: null);
           },
         ),
       ),

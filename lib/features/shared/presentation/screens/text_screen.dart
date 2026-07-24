@@ -27,8 +27,7 @@ class TextScreen extends ConsumerWidget {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
-              context.replace('/send_whatsapp');
-              //context.pop();
+              context.pop();
             },
           ),
           /*actions: [
@@ -41,8 +40,10 @@ class TextScreen extends ConsumerWidget {
           ],*/
         ),
         floatingActionButton: FloatingActionButtonCustom(
-          callOnPressed: () {
-            context.replace('/send_whatsapp');
+          callOnPressed: () async {
+            final result = await context.push('/send_whatsapp');
+            if (!context.mounted) return;
+            context.pop(result == true);
           }, 
           iconData: Icons.check_sharp
         ),

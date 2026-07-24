@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:crm_app/features/auth/domain/domain.dart';
 import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 
@@ -73,6 +71,58 @@ class OpportunitiesNotifier extends StateNotifier<OpportunitiesState> {
     } catch (e) {
       return CreateUpdateOpportunityResponse(
           response: false, message: 'Error, revisar con su administrador.');
+    }
+  }
+
+  Future<CreateUpdateOpportunityResponse> updateOpportunitiesStatus({
+    required List<String> opportunityIds,
+    required String estadoId,
+    String motivoId = '',
+  }) async {
+    try {
+      // Asegurar que opportunityIds no esté vacío
+      if (opportunityIds.isEmpty) {
+        return CreateUpdateOpportunityResponse(
+          response: false,
+          message: 'No se han seleccionado oportunidades',
+        );
+      }
+
+      final oportunidadesArray = opportunityIds
+          .map(
+            (id) => {
+              'OPRT_ID_OPORTUNIDAD': int.tryParse(id) ?? id,
+            },
+          )
+          .toList();
+
+      final payload = <String, dynamic>{
+        'OPRT_ID_ESTADO_OPORTUNIDAD': estadoId,
+        'OPRT_ID_PERDIDA_MOTIVO': motivoId.isNotEmpty ? motivoId : '',
+        'OPRT_ID_USUARIO_REGISTRO': user.code,
+        'OPRT_OPORTUNIDAD': oportunidadesArray,
+      };
+
+      final response =
+          await opportunitiesRepository.updateOpportunityStatus(payload);
+
+      final message = response.message;
+      if (!response.status) {
+        return CreateUpdateOpportunityResponse(
+          response: false,
+          message: message,
+        );
+      }
+
+      return CreateUpdateOpportunityResponse(
+        response: true,
+        message: message,
+      );
+    } catch (e) {
+      return CreateUpdateOpportunityResponse(
+        response: false,
+        message: 'Error, revisar con su administrador.',
+      );
     }
   }
 

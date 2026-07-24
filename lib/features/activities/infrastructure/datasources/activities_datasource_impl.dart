@@ -30,40 +30,87 @@ class ActivitiesDatasourceImpl extends ActivitiesDatasource {
         activityLike.remove('ACTI_ID_ACTIVIDAD');
       }
 
+      // Se envía como form-data con notación de corchetes (igual que el
+      // envío de correo en email_datasource_impl.dart), ya que el backend
+      // solo arma los arrays (ACTI_OPORTUNIDAD, ACTIVIDADES_CONTACTO, etc.)
+      // a partir de un body de formulario, no de un array JSON anidado.
+      final formData = _toFormData(activityLike);
+
+      print('ACTIVIDAD -> endpoint: $url');
+      for (final field in formData.fields) {
+        if (field.key.startsWith('ACTI_OPORTUNIDAD') ||
+            field.key == 'ACTI_ID_OPORTUNIDAD') {
+          print('ACTIVIDAD -> ${field.key} = ${field.value}');
+        }
+      }
+
       final response = await dio.request(url,
-          data: activityLike, options: Options(method: method));
+          data: formData, options: Options(method: method));
 
       final ActivityResponse activityResponse =
           ActivityResponseMapper.jsonToEntity(response.data);
 
-      if (activityResponse.status == true) {
+      final responseData = response.data;
+      if (activityResponse.status == true &&
+          responseData is Map &&
+          responseData['data'] is Map) {
         activityResponse.activity =
-            ActivityMapper.jsonToEntity(response.data['data']);
+            ActivityMapper.jsonToEntity(responseData['data']);
       }
 
       return activityResponse;
     } on DioException catch (e) {
-      if (e.response!.statusCode == 404) throw ActivityNotFound();
-      throw Exception();
+      print(
+          'ACTIVIDAD -> error dio: status ${e.response?.statusCode}, data ${e.response?.data}, message ${e.message}');
+      if (e.response?.statusCode == 404) throw ActivityNotFound();
+      rethrow;
     } catch (e) {
-      throw Exception();
+      print('ACTIVIDAD -> error inesperado: $e');
+      rethrow;
     }
+  }
+
+  /// Aplana un mapa tipo `{'ACTI_OPORTUNIDAD': [{'ACTI_ID_OPORTUNIDAD': '1', ...}, ...]}`
+  /// a campos de formulario `ACTI_OPORTUNIDAD[0][ACTI_ID_OPORTUNIDAD]`, etc,
+  /// igual que `SendEmailRequest.toFormData()`.
+  FormData _toFormData(Map<dynamic, dynamic> data) {
+    final formData = FormData();
+    data.forEach((key, value) {
+      if (value is List) {
+        for (var i = 0; i < value.length; i++) {
+          final item = value[i];
+          if (item is Map) {
+            item.forEach((subKey, subValue) {
+              formData.fields.add(
+                MapEntry('$key[$i][$subKey]', subValue?.toString() ?? ''),
+              );
+            });
+          } else {
+            formData.fields.add(MapEntry('$key[$i]', item?.toString() ?? ''));
+          }
+        }
+      } else {
+        formData.fields.add(MapEntry(key.toString(), value?.toString() ?? ''));
+      }
+    });
+    return formData;
   }
 
   @override
   Future<Activity> getActivityById(String id) async {
     try {
       final response = await dio.get('/actividad/listar-actividad-by-id/$id');
-      
+
       // DEBUG: Verificar qué actividad devuelve el backend
       print('========== BACKEND RESPONSE DEBUG ==========');
       print('Requested Activity ID: $id');
-      print('Returned Activity ID: ${response.data['data']['ACTI_ID_ACTIVIDAD']}');
-      
+      print(
+          'Returned Activity ID: ${response.data['data']['ACTI_ID_ACTIVIDAD']}');
+
       final emlsJson = response.data['data']['EMLS_JSON_EMAIL_MICROSOFT'];
       if (emlsJson != null) {
         print('Has EMLS_JSON_EMAIL_MICROSOFT: YES');
-        final attachments = emlsJson is String 
+        final attachments = emlsJson is String
             ? jsonDecode(emlsJson)['attachments']
             : emlsJson['attachments'];
         if (attachments is List) {
@@ -76,7 +123,7 @@ class ActivitiesDatasourceImpl extends ActivitiesDatasource {
         print('Has EMLS_JSON_EMAIL_MICROSOFT: NO');
       }
       print('============================================');
-      
+
       final Activity activity =
           ActivityMapper.jsonToEntity(response.data['data']);
 

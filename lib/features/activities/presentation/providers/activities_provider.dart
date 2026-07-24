@@ -10,8 +10,9 @@ final activitiesProvider =
   final activitiesRepository = ref.watch(activitiesRepositoryProvider);
   final user = ref.watch(authProvider).user;
 
-  return ActivitiesNotifier(activitiesRepository: activitiesRepository,
-      user: user!,
+  return ActivitiesNotifier(
+    activitiesRepository: activitiesRepository,
+    user: user!,
   );
 });
 
@@ -19,10 +20,10 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
   final ActivitiesRepository activitiesRepository;
   final User user;
 
-  ActivitiesNotifier({required this.activitiesRepository,
+  ActivitiesNotifier({
+    required this.activitiesRepository,
     required this.user,
-  })
-      : super(
+  }) : super(
           ActivitiesState(),
         ) {
     loadNextPage(isRefresh: true);
@@ -37,7 +38,7 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
       final message = activityResponse.message;
 
       if (activityResponse.status) {
-        final activity = activityResponse.activity as Activity;
+        final activity = activityResponse.activity;
         /*final activity = activityResponse.activity as Activity;
         final isActivityInList =
             state.activities.any((element) => element.id == activity.id);
@@ -55,7 +56,9 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
                 .toList());*/
 
         return CreateUpdateActivityResponse(
-            response: true, message: message, id: activity.actiRuc);
+            response: true,
+            message: message,
+            id: activity?.actiRuc ?? activityLike['ACTI_RUC']?.toString());
       }
 
       return CreateUpdateActivityResponse(response: false, message: message);
@@ -98,7 +101,7 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
       if (state.isLoading) return;
       state = state.copyWith(isLoading: true);
     } else {
-      if (state.isReload || state.isLastPage) return;  
+      if (state.isReload || state.isLastPage) return;
       state = state.copyWith(isReload: true);
     }
 
@@ -113,16 +116,12 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
     }
 
     final activities = await activitiesRepository.getActivities(
-        search: search, 
-        limit: sLimit, 
-        offset: sOffset,
-        idUsuario: user.code
-        );
+        search: search, limit: sLimit, offset: sOffset, idUsuario: user.code);
 
     if (activities.isEmpty) {
       //state = state.copyWith(isLoading: false, isLastPage: true);
       if (isRefresh) {
-        state = state.copyWith(isLoading: false, isLastPage: true);    
+        state = state.copyWith(isLoading: false, isLastPage: true);
       } else {
         state = state.copyWith(isReload: false, isLastPage: true);
       }
@@ -142,26 +141,23 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
 
       if (isRefresh) {
         state = state.copyWith(
-          isLastPage: false,
-          isLoading: false,
-          offset: newOffset,
-          //activities: [...state.activities, ...activities]
-          activities: newActivities);
+            isLastPage: false,
+            isLoading: false,
+            offset: newOffset,
+            //activities: [...state.activities, ...activities]
+            activities: newActivities);
       } else {
         state = state.copyWith(
-          isLastPage: false,
-          isReload: false,
-          offset: newOffset,
-          //activities: [...state.activities, ...activities]
-          activities: newActivities);
+            isLastPage: false,
+            isReload: false,
+            offset: newOffset,
+            //activities: [...state.activities, ...activities]
+            activities: newActivities);
       }
-
-      
     }
-
   }
 
-  Future<void> onDeleteState()async{
+  Future<void> onDeleteState() async {
     state = state.copyWith(
       isLoading: true,
       activities: [],
@@ -224,7 +220,6 @@ class ActivitiesNotifier extends StateNotifier<ActivitiesState> {
         //activities: [...state.activities, ...activities]
         activities: newActivities);
   }
-
 }
 
 class ActivitiesState {

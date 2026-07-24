@@ -1,17 +1,26 @@
+import 'dart:async';
 import 'dart:io';
 
 import '../providers/send_whatsapp_provider.dart';
 import '../../widgets/floating_action_button_custom.dart';
+import '../../widgets/show_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class SendWhatsappScreen extends ConsumerWidget {
+class SendWhatsappScreen extends ConsumerStatefulWidget {
   const SendWhatsappScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SendWhatsappScreen> createState() => _SendWhatsappScreenState();
+}
+
+class _SendWhatsappScreenState extends ConsumerState<SendWhatsappScreen> {
+  bool _isSending = false;
+
+  @override
+  Widget build(BuildContext context) {
     final params = ref.watch(sendWhatsappProvider);
 
     /*if (isViewText) {
@@ -29,28 +38,35 @@ class SendWhatsappScreen extends ConsumerWidget {
         ),
       ),
       floatingActionButton: FloatingActionButtonCustom(
-          callOnPressed: () async {
+          callOnPressed: _isSending
+              ? null
+              : () async {
+                  setState(() => _isSending = true);
+                  String phone = agregarPrefijoPeru(params.phone ?? '');
+                  String message = params.message ?? '';
 
-            ref
-            .read(sendWhatsappProvider.notifier)
-            .sendActivityMessage();
+                  final opened = await whatsapp(phone, message);
+                  if (!context.mounted) return;
+                  if (!opened) {
+                    setState(() => _isSending = false);
+                    showSnackbar(context, 'No se pudo abrir WhatsApp');
+                    return;
+                  }
 
-            //context.push('/send_whatsapp');
-            context.pop();
+                  unawaited(
+                    ref.read(sendWhatsappProvider.notifier).sendActivityMessage(),
+                  );
+                  if (!context.mounted) return;
+                  context.pop(true);
 
-            String phone = agregarPrefijoPeru(params.phone ?? '');
-            String message = params.message ?? '';
-
-            await whatsapp(phone, message);
-
-            /*if (await canLaunchUrl(Uri.parse(whatsappUrl))) {
-              await launchUrl(Uri.parse(whatsappUrl));
+                  /*if (await canLaunchUrl(Uri.parse(whatsappUrl))) {
+               await launchUrl(Uri.parse(whatsappUrl));
             } else {
               throw 'Could not launch $whatsappUrl';
             }*/
-            /*FlutterOpenWhatsapp.sendSingleMessage(
+                  /*FlutterOpenWhatsapp.sendSingleMessage(
                 agregarPrefijoPeru(params.phone ?? ''), params.message);*/
-          },
+                },
           iconData: Icons.send),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -104,7 +120,7 @@ String limpiarNumero(String numero) {
   }
 }
 
-whatsapp(String contact, String text) async {
+Future<bool> whatsapp(String contact, String text) async {
   String androidUrl = "whatsapp://send?phone=$contact&text=$text";
   String iosUrl = "https://wa.me/$contact?text=${Uri.parse(text)}";
 
@@ -113,15 +129,28 @@ whatsapp(String contact, String text) async {
   try {
     if (Platform.isIOS) {
       if (await canLaunchUrl(Uri.parse(iosUrl))) {
-        await launchUrl(Uri.parse(iosUrl));
+        return await launchUrl(Uri.parse(iosUrl));
+      } else {
+        return await launchUrl(
+          Uri.parse(webUrl),
+          mode: LaunchMode.externalApplication,
+        );
       }
     } else {
       if (await canLaunchUrl(Uri.parse(androidUrl))) {
-        await launchUrl(Uri.parse(androidUrl));
+        return await launchUrl(Uri.parse(androidUrl));
+      } else {
+        return await launchUrl(
+          Uri.parse(webUrl),
+          mode: LaunchMode.externalApplication,
+        );
       }
     }
   } catch (e) {
-    await launchUrl(Uri.parse(webUrl), mode: LaunchMode.externalApplication);
+    return await launchUrl(
+      Uri.parse(webUrl),
+      mode: LaunchMode.externalApplication,
+    );
   }
 }
 

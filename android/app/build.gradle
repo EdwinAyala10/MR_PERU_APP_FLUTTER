@@ -30,6 +30,7 @@ def keystorePropertiesFile = rootProject.file('key.properties')
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
+def hasReleaseKeystore = keystorePropertiesFile.exists() && keystoreProperties['storeFile']
 
 android {
     namespace "com.mr_peru.crm_app"
@@ -54,7 +55,7 @@ android {
         applicationId "com.mr_peru.crm_app"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion 23
+        minSdkVersion flutter.minSdkVersion
         targetSdkVersion 36
         versionCode 32
         versionName "2.4.4"
@@ -84,7 +85,8 @@ android {
     buildTypes {
         release {
             debuggable false
-            signingConfig signingConfigs.release
+            // Fallback to debug signing so release APKs can still be packaged locally.
+            signingConfig hasReleaseKeystore ? signingConfigs.release : signingConfigs.debug
             ndk {
                 debugSymbolLevel 'SYMBOL_TABLE'
             }

@@ -14,6 +14,9 @@ abstract class OpportunitiesRepository {
   Future<OpportunityResponse> createUpdateOpportunity(
     Map<dynamic, dynamic> opportunityLike,
   );
+  Future<OpportunityResponse> updateOpportunityStatus(
+    Map<dynamic, dynamic> payload,
+  );
   Future<List<StatusOpportunity>> getStatusOpportunityByPeriod();
   Future<List<Opportunity>> searchOpportunities(String ruc, String query);
   Future<List<Opportunity>> getListOpportunities({

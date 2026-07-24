@@ -94,7 +94,7 @@ class NotificationService {
       ),
     );
     
-    Overlay.of(context).insert(_overlayEntry!);
+    Overlay.of(context, rootOverlay: true).insert(_overlayEntry!);
     
     // Auto dismiss after duration
     _timer = Timer(Duration(milliseconds: duration), _dismiss);

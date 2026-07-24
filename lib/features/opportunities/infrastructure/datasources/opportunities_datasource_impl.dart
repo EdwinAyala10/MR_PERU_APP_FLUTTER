@@ -55,6 +55,35 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
   }
 
   @override
+  Future<OpportunityResponse> updateOpportunityStatus(
+      Map<dynamic, dynamic> payload) async {
+    try {
+      final response = await dio.post(
+        '/oportunidad/actualizar-estado-oportunidad',
+        data: payload,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      return OpportunityResponseMapper.jsonToEntity(response.data);
+    } on DioException catch (e) {
+      final responseData = e.response?.data;
+      if (responseData is Map) {
+        return OpportunityResponseMapper.jsonToEntity(
+          Map<dynamic, dynamic>.from(responseData),
+        );
+      }
+      if (e.response?.statusCode == 404) throw OpportunityNotFound();
+      throw Exception();
+    } catch (e) {
+      throw Exception();
+    }
+  }
+
+  @override
   Future<Opportunity> getOpportunityById(String id) async {
     try {
       final response =
@@ -148,6 +177,49 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
         oportunidadesFiltradas = oportunidadesEnGrupo.where((op) {
           final opEstado = op['OPRT_ID_ESTADO_OPORTUNIDAD']?.toString() ?? '';
           return estadosPermitidos.contains(opEstado);
+        }).toList();
+      }
+
+      if (estadoOP != null && estadoOP.isNotEmpty) {
+        final estadosOportunidad = estadoOP.split(',').map((e) => e.trim()).toSet();
+        oportunidadesFiltradas = oportunidadesFiltradas.where((op) {
+          final opEstado = op['OPRT_ID_ESTADO_OPORTUNIDAD']?.toString() ?? '';
+          return estadosOportunidad.contains(opEstado);
+        }).toList();
+      }
+
+      final probDesde = double.tryParse((startPercent ?? '').trim());
+      final probHasta = double.tryParse((endPercent ?? '').trim());
+      if (probDesde != null || probHasta != null) {
+        oportunidadesFiltradas = oportunidadesFiltradas.where((op) {
+          final prob = double.tryParse((op['OPRT_PROBABILIDAD'] ?? '').toString()) ?? 0;
+          if (probDesde != null && prob < probDesde) return false;
+          if (probHasta != null && prob > probHasta) return false;
+          return true;
+        }).toList();
+      }
+
+      final valorDesde = double.tryParse((startValue ?? '').trim()) ?? 0;
+      final valorHasta = double.tryParse((endValue ?? '').trim()) ?? 0;
+      if (valorDesde > 0 || valorHasta > 0) {
+        oportunidadesFiltradas = oportunidadesFiltradas.where((op) {
+          final valor = double.tryParse((op['OPRT_VALOR'] ?? '').toString()) ?? 0;
+          if (valorDesde > 0 && valor < valorDesde) return false;
+          if (valorHasta > 0 && valor > valorHasta) return false;
+          return true;
+        }).toList();
+      }
+
+      final fechaDesde = DateTime.tryParse((startDate ?? '').trim());
+      final fechaHasta = DateTime.tryParse((endDate ?? '').trim());
+      if (fechaDesde != null || fechaHasta != null) {
+        oportunidadesFiltradas = oportunidadesFiltradas.where((op) {
+          final rawFecha = (op['OPRT_FECHA_PREVISTA_VENTA'] ?? '').toString();
+          final fecha = DateTime.tryParse(rawFecha);
+          if (fecha == null) return false;
+          if (fechaDesde != null && fecha.isBefore(fechaDesde)) return false;
+          if (fechaHasta != null && fecha.isAfter(fechaHasta)) return false;
+          return true;
         }).toList();
       }
 
