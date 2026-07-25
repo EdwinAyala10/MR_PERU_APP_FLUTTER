@@ -31,7 +31,7 @@ class Opportunity {
   String? oprtIdContacto;
   String? oprtNombreContacto;
   String? actiIdTipoGestion;
-  String? actiNombreTipoGestion;  
+  String? actiNombreTipoGestion;
   String? actiFechaRegistro;
   String? nombreUsuarioResponsable;
   String? actiComentario;
@@ -43,6 +43,7 @@ class Opportunity {
   String? nombrePrimeroUsuarioResponsable;
   int? totalOportunidadesEnGrupo;
   List<Opportunity>? oportunidadesDelGrupo;
+  List<Opportunity>? visibleOportunidadesDelGrupo;
 
   Opportunity({
     required this.id,
@@ -75,7 +76,7 @@ class Opportunity {
     this.oprtIdContacto,
     this.oprtNombreContacto,
     this.actiIdTipoGestion,
-    this.actiNombreTipoGestion, 
+    this.actiNombreTipoGestion,
     this.actiFechaRegistro,
     this.nombreUsuarioResponsable,
     this.actiComentario,
@@ -87,6 +88,7 @@ class Opportunity {
     this.nombrePrimeroUsuarioResponsable,
     this.totalOportunidadesEnGrupo,
     this.oportunidadesDelGrupo,
+    this.visibleOportunidadesDelGrupo,
   });
 
   /// Clave de empresa (RUC + local). Se usa para agrupar/fusionar
@@ -110,11 +112,13 @@ class Opportunity {
       if (rep == null) {
         o.isFirstInGroup = true;
         o.oportunidadesDelGrupo = [o];
+        o.visibleOportunidadesDelGrupo = [o];
         o.totalOportunidadesEnGrupo = 1;
         representantes[o.empresaKey] = o;
         orden.add(o);
       } else {
         rep.oportunidadesDelGrupo!.add(o);
+        rep.visibleOportunidadesDelGrupo!.add(o);
         rep.totalOportunidadesEnGrupo = rep.oportunidadesDelGrupo!.length;
       }
     }

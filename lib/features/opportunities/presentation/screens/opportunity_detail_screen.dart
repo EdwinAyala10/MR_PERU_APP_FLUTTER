@@ -44,6 +44,19 @@ import '../providers/providers.dart';
 import '../../../shared/shared.dart';
 import 'package:intl/intl.dart';
 
+/// Cachés en memoria (stale-while-revalidate) del contenido de cada tab del
+/// detalle, indexados por una clave que combina showAll + oportunidad + ruc.
+/// Permiten mostrar al instante lo ya visto al cambiar de oportunidad o al
+/// poner "Todos", mientras se refresca en segundo plano.
+final _eventsTabCacheProvider =
+    StateProvider<Map<String, List<Event>>>((ref) => {});
+final _activitiesTabCacheProvider =
+    StateProvider<Map<String, List<Activity>>>((ref) => {});
+final _photosTabCacheProvider =
+    StateProvider<Map<String, List<OpDocument>>>((ref) => {});
+final _documentsTabCacheProvider =
+    StateProvider<Map<String, List<OpDocument>>>((ref) => {});
+
 class OpportunityDetailScreen extends ConsumerWidget {
   final String opportunityId;
 
@@ -102,7 +115,10 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   int currentIndex = 0;
-  bool _isLoadingCompanyGroup = true;
+  // Inicia en false: si el grupo ya viene sembrado desde el punto de entrada
+  // no se muestra el LinearProgressIndicator inicial. Solo se pone en true
+  // dentro de _refreshOpportunityGroupFull() cuando realmente se recarga.
+  bool _isLoadingCompanyGroup = false;
 
   final LayerLink _opportunitySwitcherLink = LayerLink();
   final GlobalKey _opportunitySwitcherKey = GlobalKey();
@@ -119,8 +135,61 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
     currentIndex = _tabController.index;
     _tabController.addListener(_handleTabChange);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _refreshOpportunityContext();
+      final group = ref.read(currentOpportunityGroupProvider);
+      final selected = ref.read(selectedOp);
+      final opportunity =
+          ref.read(opportunityProvider(widget.opportunityId)).opportunity;
+
+      // Caso 1: No hay contexto inicial (deep link, URL directa).
+      // Aquí sí se muestra el loader porque no hay nada que mostrar.
+      if (group.isEmpty || selected == null) {
+        _refreshOpportunityGroupFull();
+        return;
+      }
+
+      // Caso 2: Inconsistencia entre widget.opportunityId y selectedOp.
+      if (selected.id != widget.opportunityId && opportunity == null) {
+        _refreshOpportunityGroupFull();
+        return;
+      }
+
+      // Caso 3 (normal): Ya hay contexto sembrado. La navegación fue
+      // instantánea. Se completa el grupo en SEGUNDO PLANO para traer todas
+      // las oportunidades de la empresa (todos los estados) sin bloquear la
+      // UI ni recargar las tabs (actividades, fotos, eventos).
+      _refreshOpportunityGroupSilent();
+
+      // Se prearman en segundo plano los datos COMPLETOS (con responsable) de
+      // todas las oportunidades del grupo, para que al cambiar de oportunidad
+      // ya esté todo listo y el responsable no aparezca con retraso.
+      _prefetchGroupFullDetails();
     });
+  }
+
+  /// Precarga los datos completos (getOpportunityById, que incluye el
+  /// responsable) de cada oportunidad del grupo y los guarda en el caché
+  /// persistente [fullOpportunityCacheProvider].
+  void _prefetchGroupFullDetails() {
+    final group = ref.read(currentOpportunityGroupProvider);
+    for (final op in group) {
+      unawaited(_prefetchFullOpportunity(op.id));
+    }
+  }
+
+  Future<void> _prefetchFullOpportunity(String id) async {
+    if (id.isEmpty) return;
+    if (ref.read(fullOpportunityCacheProvider).containsKey(id)) return;
+    try {
+      final full = await ref
+          .read(opportunitiesRepositoryProvider)
+          .getOpportunityById(id);
+      final cache =
+          Map<String, Opportunity>.from(ref.read(fullOpportunityCacheProvider));
+      cache[id] = full;
+      ref.read(fullOpportunityCacheProvider.notifier).state = cache;
+    } catch (_) {
+      // Prefetch best-effort: si falla, la vista igual cargará por demanda.
+    }
   }
 
   @override
@@ -138,12 +207,95 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
         _tabController.index;
   }
 
-  Future<void> _refreshOpportunityContext() async {
-    final current = ref.read(selectedOp);
-    final loadedOpportunity = ref.read(opportunityProvider(widget.opportunityId)).opportunity;
-    final baseOpportunity = current ?? loadedOpportunity;
-    final ruc = baseOpportunity?.oprtRuc ?? '';
-    final companyKey = baseOpportunity?.empresaKey;
+  Future<void> _refreshCurrentOpportunity() async {
+    final currentId = ref.read(selectedOp)?.id ?? widget.opportunityId;
+    await ref.read(opportunityProvider(currentId).notifier).loadOpportunity();
+
+    final updated = ref.read(opportunityProvider(currentId)).opportunity;
+    if (updated == null) return;
+
+    final group = ref.read(currentOpportunityGroupProvider);
+    if (group.isNotEmpty) {
+      final updatedGroup = group.map((opportunity) {
+        return opportunity.id == currentId ? updated : opportunity;
+      }).toList();
+      ref.read(currentOpportunityGroupProvider.notifier).state = updatedGroup;
+    }
+
+    // Se refresca el caché de datos completos con la versión actualizada.
+    final cache =
+        Map<String, Opportunity>.from(ref.read(fullOpportunityCacheProvider));
+    cache[currentId] = updated;
+    ref.read(fullOpportunityCacheProvider.notifier).state = cache;
+
+    ref.read(selectedOp.notifier).state = updated;
+    ref.read(selectOpportunity.notifier).state = updated;
+  }
+
+  /// Completa el grupo de la empresa en segundo plano SIN mostrar loader y
+  /// SIN recargar las tabs. Solo actualiza la lista del switcher para que
+  /// muestre todas las oportunidades de la empresa (todos los estados).
+  /// No toca selectedOp para evitar que las tabs se reconstruyan/recarguen.
+  Future<void> _refreshOpportunityGroupSilent() async {
+    final currentId = ref.read(selectedOp)?.id ?? widget.opportunityId;
+
+    // Se carga la oportunidad completa para obtener un empresaKey confiable
+    // (el objeto que viene de la lista filtrada a veces no trae el
+    // oprtLocalCodigo, y sin él el filtro por empresaKey queda vacío y el
+    // grupo no se actualiza en el primer intento).
+    await ref.read(opportunityProvider(currentId).notifier).loadOpportunity();
+
+    final loaded = ref.read(opportunityProvider(currentId)).opportunity;
+    final base = loaded ?? ref.read(selectedOp);
+    final ruc = base?.oprtRuc ?? '';
+    if (ruc.isEmpty) return;
+
+    final user = ref.read(authProvider).user;
+    final refreshedGroups =
+        await ref.read(opportunitiesRepositoryProvider).getListOpportunities(
+              ruc: ruc,
+              search: '',
+              limit: 100,
+              offset: 1,
+              idUsuario: (user?.isAdmin ?? false) ? '' : (user?.code ?? ''),
+              estado: '',
+            );
+    final refreshed = refreshedGroups
+        .expand(
+            (opportunity) => opportunity.oportunidadesDelGrupo ?? [opportunity])
+        .toList();
+
+    // Todas las oportunidades de la empresa (mismo RUC), sin importar estado.
+    final byRuc = refreshed
+        .where((opportunity) => (opportunity.oprtRuc ?? '') == ruc)
+        .toList();
+
+    // Se actualiza el caché por RUC para que próximas entradas sean instantáneas.
+    if (byRuc.isNotEmpty) {
+      final newCache = Map<String, List<Opportunity>>.from(
+          ref.read(companyGroupCacheProvider));
+      newCache[ruc] = byRuc;
+      ref.read(companyGroupCacheProvider.notifier).state = newCache;
+    }
+
+    // Se muestran TODAS las oportunidades de la misma empresa (mismo RUC), sin
+    // importar el estado (activo, pausa, ganado, perdida) ni el local.
+    final result = byRuc;
+
+    if (result.isEmpty) return;
+    if (!mounted) return;
+
+    // Solo se actualiza el grupo (para el switcher). No se toca selectedOp
+    // ni se recargan las tabs.
+    ref.read(currentOpportunityGroupProvider.notifier).state = result;
+
+    // Al conocerse el grupo completo, se prearman los datos completos (con
+    // responsable) de todas sus oportunidades para que el cambio sea instantáneo.
+    _prefetchGroupFullDetails();
+  }
+
+  Future<void> _refreshOpportunityGroupFull() async {
+    final currentId = ref.read(selectedOp)?.id ?? widget.opportunityId;
 
     if (mounted) {
       setState(() {
@@ -151,9 +303,15 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
       });
     }
 
-    ref.read(opportunityProvider(widget.opportunityId).notifier).loadOpportunity();
+    await ref.read(opportunityProvider(currentId).notifier).loadOpportunity();
 
-    if (ruc.isEmpty || companyKey == null) {
+    final current = ref.read(selectedOp);
+    final loadedOpportunity =
+        ref.read(opportunityProvider(currentId)).opportunity;
+    final baseOpportunity = current ?? loadedOpportunity;
+    final ruc = baseOpportunity?.oprtRuc ?? '';
+
+    if (ruc.isEmpty) {
       if (mounted) {
         setState(() {
           _isLoadingCompanyGroup = false;
@@ -163,19 +321,23 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
     }
 
     final user = ref.read(authProvider).user;
-    final refreshedGroups = await ref.read(opportunitiesRepositoryProvider).getListOpportunities(
-          ruc: ruc,
-          search: '',
-          limit: 100,
-          offset: 1,
-          idUsuario: (user?.isAdmin ?? false) ? '' : (user?.code ?? ''),
-          estado: '',
-        );
+    final refreshedGroups =
+        await ref.read(opportunitiesRepositoryProvider).getListOpportunities(
+              ruc: ruc,
+              search: '',
+              limit: 100,
+              offset: 1,
+              idUsuario: (user?.isAdmin ?? false) ? '' : (user?.code ?? ''),
+              estado: '',
+            );
     final refreshed = refreshedGroups
-        .expand((opportunity) => opportunity.oportunidadesDelGrupo ?? [opportunity])
+        .expand(
+            (opportunity) => opportunity.oportunidadesDelGrupo ?? [opportunity])
         .toList();
+    // Todas las oportunidades de la misma empresa (mismo RUC), sin importar
+    // estado ni local.
     final filtered = refreshed
-        .where((opportunity) => opportunity.empresaKey == companyKey)
+        .where((opportunity) => (opportunity.oprtRuc ?? '') == ruc)
         .toList();
 
     if (filtered.isEmpty) {
@@ -189,7 +351,8 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
 
     ref.read(currentOpportunityGroupProvider.notifier).state = filtered;
 
-    final selectedId = ref.read(selectedOp)?.id ?? baseOpportunity?.id ?? widget.opportunityId;
+    final selectedId =
+        ref.read(selectedOp)?.id ?? baseOpportunity?.id ?? currentId;
     final updatedSelected = filtered.where((o) => o.id == selectedId).toList();
     if (updatedSelected.isNotEmpty) {
       ref.read(selectedOp.notifier).state = updatedSelected.first;
@@ -209,7 +372,8 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
   Widget build(BuildContext context) {
     final opportunityGroup = ref.watch(currentOpportunityGroupProvider);
     final showAll = ref.watch(currentOpportunityShowAllProvider);
-    final currentOpportunityId = ref.watch(selectedOp)?.id ?? widget.opportunityId;
+    final currentOpportunityId =
+        ref.watch(selectedOp)?.id ?? widget.opportunityId;
     final siblings =
         opportunityGroup.length > 1 ? opportunityGroup : const <Opportunity>[];
 
@@ -271,31 +435,41 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
             IconButton(
               icon: const Icon(Icons.autorenew_rounded),
               onPressed: () async {
-                await _refreshOpportunityContext();
-                if (!mounted) return;
-                final targetId = ref.read(selectedOp)?.id ?? widget.opportunityId;
-                final result = await context.push('/opportunity_status/$targetId');
+                final targetId =
+                    ref.read(selectedOp)?.id ?? widget.opportunityId;
+                final result =
+                    await context.push('/opportunity_status/$targetId');
                 if (!mounted) return;
                 if (result is Map<String, dynamic>) {
                   final nextId = result['targetOpportunityId'] as String?;
                   final routeChanged = result['routeChanged'] == true;
                   if (routeChanged && nextId != null && nextId.isNotEmpty) {
-                    ref.read(currentOpportunityShowAllProvider.notifier).state = false;
-                    ref.read(currentOpportunityDetailTabProvider.notifier).state = 0;
+                    ref.read(currentOpportunityShowAllProvider.notifier).state =
+                        false;
+                    ref
+                        .read(currentOpportunityDetailTabProvider.notifier)
+                        .state = 0;
                     final nextOpportunity = ref
                         .read(currentOpportunityGroupProvider)
                         .where((opportunity) => opportunity.id == nextId)
                         .toList();
                     if (nextOpportunity.isNotEmpty) {
-                      ref.read(selectedOp.notifier).state = nextOpportunity.first;
-                      ref.read(selectOpportunity.notifier).state = nextOpportunity.first;
+                      ref.read(selectedOp.notifier).state =
+                          nextOpportunity.first;
+                      ref.read(selectOpportunity.notifier).state =
+                          nextOpportunity.first;
                     }
                     _reloadCurrentTabForOpportunity(nextId);
                     setState(() {});
+                    // Se cargan los datos completos (con responsable) del nuevo
+                    // objetivo y se refresca el caché, para que el responsable
+                    // no quede en blanco tras cambiar de estado.
+                    await _refreshCurrentOpportunity();
                     return;
                   }
+
+                  await _refreshCurrentOpportunity();
                 }
-                await _refreshOpportunityContext();
               },
             ),
             IconButton(
@@ -306,9 +480,11 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
                 // muestra el selector cuando el switcher está en "Todos".
                 final target = await resolveTargetOpportunity(context, ref);
                 if (target == null) return;
-                await context.push('/opportunity/${target.id}');
+                final didEdit = await context.push('/opportunity/${target.id}');
                 if (!mounted) return;
-                await _refreshOpportunityContext();
+                if (didEdit == true) {
+                  await _refreshCurrentOpportunity();
+                }
               },
             ),
           ],
@@ -325,7 +501,8 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
             Expanded(
               child: TabBarView(
                 controller: _tabController,
-                physics: const NeverScrollableScrollPhysics(), // Desactiva el scroll
+                physics:
+                    const NeverScrollableScrollPhysics(), // Desactiva el scroll
                 children: [
                   buildInformation(),
                   buildEventsOportunity(currentOpportunityId),
@@ -398,8 +575,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
     }
 
     final renderBox =
-        _opportunitySwitcherKey.currentContext!.findRenderObject()
-            as RenderBox;
+        _opportunitySwitcherKey.currentContext!.findRenderObject() as RenderBox;
     final buttonWidth = renderBox.size.width;
     final buttonHeight = renderBox.size.height;
 
@@ -426,7 +602,9 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
                   child: ListView.separated(
                     shrinkWrap: true,
                     padding: EdgeInsets.zero,
-                    itemCount: currentIndex == 0 ? siblings.length : siblings.length + 1,
+                    itemCount: currentIndex == 0
+                        ? siblings.length
+                        : siblings.length + 1,
                     separatorBuilder: (_, __) => const Divider(height: 1),
                     itemBuilder: (context, index) {
                       if (currentIndex != 0 && index == 0) {
@@ -464,12 +642,14 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
                         );
                       }
 
-                      final opportunity = siblings[currentIndex == 0 ? index : index - 1];
-                      final isSelected = !showAll && opportunity.id == current.id;
+                      final opportunity =
+                          siblings[currentIndex == 0 ? index : index - 1];
+                      final isSelected =
+                          !showAll && opportunity.id == current.id;
 
                       return InkWell(
-                        onTap: () =>
-                            _onOpportunitySelected(opportunity, current, siblings),
+                        onTap: () => _onOpportunitySelected(
+                            opportunity, current, siblings),
                         child: Container(
                           color: isSelected
                               ? const Color(0xFFE8F0FE)
@@ -538,7 +718,6 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
     ref.read(selectOpportunity.notifier).state = opportunity;
     ref.read(selectedOp.notifier).state = opportunity;
     ref.read(currentOpportunityGroupProvider.notifier).state = siblings;
-    _reloadCurrentTabForOpportunity(opportunity.id);
     setState(() {});
   }
 
@@ -555,7 +734,9 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
         ref.read(eventsProvider.notifier).loadNextPageByObtetivo(opportunityId);
         break;
       case 2:
-        ref.read(activitiesProvider.notifier).loadNextPageActivitiesByOpportunities(
+        ref
+            .read(activitiesProvider.notifier)
+            .loadNextPageActivitiesByOpportunities(
               isRefresh: true,
               opportunityId: opportunityId,
             );
@@ -611,7 +792,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
                 opportunity?.razon ?? '';
             ref.read(fromOpportunity.notifier).state = true;
             ref.read(uiProvider.notifier).deleteCompanyActivity();
-            context.push('/activity/new').then((value){
+            context.push('/activity/new').then((value) {
               ref
                   .read(activitiesProvider.notifier)
                   .loadNextPageActivitiesByOpportunities(
@@ -630,20 +811,24 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
 
   Widget buildEventsOportunity(String currentOpportunityId) {
     return EventsDetailView(
-      key: ValueKey('events-${ref.watch(currentOpportunityShowAllProvider)}-$currentOpportunityId'),
+      key: ValueKey(
+          'events-${ref.watch(currentOpportunityShowAllProvider)}-$currentOpportunityId'),
       opportunityId: currentOpportunityId,
       companyRuc: ref.watch(selectedOp)?.oprtRuc ?? '',
-      groupIds: ref.watch(currentOpportunityGroupProvider).map((o) => o.id).toList(),
+      groupIds:
+          ref.watch(currentOpportunityGroupProvider).map((o) => o.id).toList(),
       showAll: ref.watch(currentOpportunityShowAllProvider),
     );
   }
 
   Widget buildActivity(String currentOpportunityId) {
     return _ActivitiesView(
-      key: ValueKey('activities-${ref.watch(currentOpportunityShowAllProvider)}-$currentOpportunityId'),
+      key: ValueKey(
+          'activities-${ref.watch(currentOpportunityShowAllProvider)}-$currentOpportunityId'),
       opportunityId: currentOpportunityId,
       companyRuc: ref.watch(selectedOp)?.oprtRuc ?? '',
-      groupIds: ref.watch(currentOpportunityGroupProvider).map((o) => o.id).toList(),
+      groupIds:
+          ref.watch(currentOpportunityGroupProvider).map((o) => o.id).toList(),
       showAll: ref.watch(currentOpportunityShowAllProvider),
     );
   }
@@ -654,15 +839,17 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
       onGenerateSummary: () async {
         final prefsNotifier = ref.read(forceMrPreferencesProvider.notifier);
         final hasAccepted = await prefsNotifier.hasAccepted();
-        
+
         if (!mounted) return;
-        
+
         if (hasAccepted) {
           // Ya aceptó Force MR, ir directo al resumen
-          context.push('/opportunity_summary/${widget.opportunityId}');
+          context.push(
+              '/opportunity_summary/${ref.read(selectedOp)?.id ?? widget.opportunityId}');
         } else {
           // Primera vez, mostrar activación
-          context.push('/force_mr_activation/${widget.opportunityId}');
+          context.push(
+              '/force_mr_activation/${ref.read(selectedOp)?.id ?? widget.opportunityId}');
         }
       },
     );
@@ -671,10 +858,12 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
   Widget buildPhotos(String currentOpportunityId) {
     return _PhotoView(
       _tabController,
-      key: ValueKey('photos-${ref.watch(currentOpportunityShowAllProvider)}-$currentOpportunityId'),
+      key: ValueKey(
+          'photos-${ref.watch(currentOpportunityShowAllProvider)}-$currentOpportunityId'),
       opportunityId: currentOpportunityId,
       companyRuc: ref.watch(selectedOp)?.oprtRuc ?? '',
-      groupIds: ref.watch(currentOpportunityGroupProvider).map((o) => o.id).toList(),
+      groupIds:
+          ref.watch(currentOpportunityGroupProvider).map((o) => o.id).toList(),
       showAll: ref.watch(currentOpportunityShowAllProvider),
     );
   }
@@ -682,10 +871,12 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
   Widget buildDocuments(String currentOpportunityId) {
     return _DocumentsView(
       _tabController,
-      key: ValueKey('documents-${ref.watch(currentOpportunityShowAllProvider)}-$currentOpportunityId'),
+      key: ValueKey(
+          'documents-${ref.watch(currentOpportunityShowAllProvider)}-$currentOpportunityId'),
       opportunityId: currentOpportunityId,
       companyRuc: ref.watch(selectedOp)?.oprtRuc ?? '',
-      groupIds: ref.watch(currentOpportunityGroupProvider).map((o) => o.id).toList(),
+      groupIds:
+          ref.watch(currentOpportunityGroupProvider).map((o) => o.id).toList(),
       showAll: ref.watch(currentOpportunityShowAllProvider),
     );
   }
@@ -705,9 +896,21 @@ class OpportunityDetailView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final opportunityState = ref.watch(opportunityProvider(opportunityId));
     final selected = ref.watch(selectedOp);
-    final opportunity = selected?.id == opportunityId
-        ? selected
-        : opportunityState.opportunity;
+
+    // Se prefiere el objeto COMPLETO (con responsable/arrayresponsables). El
+    // orden de prioridad es:
+    //   1) caché persistente prearmado (fullOpportunityCacheProvider): al
+    //      entrar al detalle se precargan TODAS las oportunidades del grupo,
+    //      así que normalmente ya está completo desde el primer render.
+    //   2) el objeto cargado por opportunityProvider (getOpportunityById).
+    //   3) selectedOp como respaldo instantáneo (viene de la lista/grupo y NO
+    //      trae responsables), solo mientras el completo termina de cargar.
+    final cached = ref.watch(fullOpportunityCacheProvider)[opportunityId];
+    final loaded = opportunityState.opportunity;
+    final opportunity = cached ??
+        ((loaded != null && loaded.id == opportunityId)
+            ? loaded
+            : (selected?.id == opportunityId ? selected : loaded));
 
     if (opportunityState.isLoading && opportunity == null) {
       return const FullScreenLoader();
@@ -990,8 +1193,22 @@ class _EventsDetailViewState extends ConsumerState<EventsDetailView> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadEvents());
   }
 
+  String get _cacheKey =>
+      '${widget.showAll}|${widget.opportunityId}|${widget.companyRuc}';
+
   Future<void> _loadEvents() async {
-    setState(() => _isLoading = true);
+    // Si hay datos en caché, se muestran al instante (sin loader) y se
+    // refresca en segundo plano. Si no, se muestra el loader.
+    final cached = ref.read(_eventsTabCacheProvider)[_cacheKey];
+    if (cached != null) {
+      setState(() {
+        _events = cached;
+        _isLoading = false;
+      });
+    } else {
+      setState(() => _isLoading = true);
+    }
+
     final EventsRepository repo = ref.read(eventsRepositoryProvider);
     final loaded = widget.showAll
         ? await repo.getEventsListByObjetive(
@@ -1003,10 +1220,18 @@ class _EventsDetailViewState extends ConsumerState<EventsDetailView> {
         : await repo.getEventsListByObjetive(widget.opportunityId);
 
     final filtered = widget.showAll
-        ? loaded.where((event) => widget.groupIds.contains(event.evntIdOportunidad)).toList()
+        ? loaded
+            .where((event) => widget.groupIds.contains(event.evntIdOportunidad))
+            .toList()
         : loaded;
 
     filtered.sort((a, b) => _eventDateTime(b).compareTo(_eventDateTime(a)));
+
+    // Se actualiza el caché para próximas visitas.
+    final newCache =
+        Map<String, List<Event>>.from(ref.read(_eventsTabCacheProvider));
+    newCache[_cacheKey] = filtered;
+    ref.read(_eventsTabCacheProvider.notifier).state = newCache;
 
     if (!mounted) return;
     setState(() {
@@ -1016,7 +1241,8 @@ class _EventsDetailViewState extends ConsumerState<EventsDetailView> {
   }
 
   DateTime _eventDateTime(Event event) {
-    final date = event.evntFechaInicioEvento ?? DateTime.fromMillisecondsSinceEpoch(0);
+    final date =
+        event.evntFechaInicioEvento ?? DateTime.fromMillisecondsSinceEpoch(0);
     final rawTime = event.evntHoraInicioEvento ?? '00:00:00';
     final time = rawTime.length >= 8 ? rawTime.substring(0, 8) : '00:00:00';
     final parts = time.split(':');
@@ -1091,8 +1317,21 @@ class _PhotoViewState extends ConsumerState<_PhotoView> {
     super.initState();
   }
 
+  String get _cacheKey =>
+      'photo|${widget.showAll}|${widget.opportunityId}|${widget.companyRuc}';
+
   Future<void> _loadDocuments() async {
-    setState(() => _isLoading = true);
+    // Muestra caché al instante (sin loader) y refresca en segundo plano.
+    final cached = ref.read(_photosTabCacheProvider)[_cacheKey];
+    if (cached != null) {
+      setState(() {
+        _documents = cached;
+        _isLoading = false;
+      });
+    } else {
+      setState(() => _isLoading = true);
+    }
+
     final DocOpportunitieRepository repo =
         ref.read(docOpportunitieRepositoryProvider);
     final merged = <OpDocument>[];
@@ -1115,9 +1354,14 @@ class _PhotoViewState extends ConsumerState<_PhotoView> {
       }
     }
 
-    merged.sort((a, b) =>
-        (int.tryParse(b.oadjIdOportunidadAdjunto) ?? 0)
-            .compareTo(int.tryParse(a.oadjIdOportunidadAdjunto) ?? 0));
+    merged.sort((a, b) => (int.tryParse(b.oadjIdOportunidadAdjunto) ?? 0)
+        .compareTo(int.tryParse(a.oadjIdOportunidadAdjunto) ?? 0));
+
+    // Actualiza el caché para próximas visitas.
+    final newCache =
+        Map<String, List<OpDocument>>.from(ref.read(_photosTabCacheProvider));
+    newCache[_cacheKey] = merged;
+    ref.read(_photosTabCacheProvider.notifier).state = newCache;
 
     if (!mounted) return;
     setState(() {
@@ -1253,8 +1497,21 @@ class _DocumentsViewState extends ConsumerState<_DocumentsView> {
     super.initState();
   }
 
+  String get _cacheKey =>
+      'archive|${widget.showAll}|${widget.opportunityId}|${widget.companyRuc}';
+
   Future<void> _loadDocuments() async {
-    setState(() => _isLoading = true);
+    // Muestra caché al instante (sin loader) y refresca en segundo plano.
+    final cached = ref.read(_documentsTabCacheProvider)[_cacheKey];
+    if (cached != null) {
+      setState(() {
+        _documents = cached;
+        _isLoading = false;
+      });
+    } else {
+      setState(() => _isLoading = true);
+    }
+
     final DocOpportunitieRepository repo =
         ref.read(docOpportunitieRepositoryProvider);
     final merged = <OpDocument>[];
@@ -1277,9 +1534,14 @@ class _DocumentsViewState extends ConsumerState<_DocumentsView> {
       }
     }
 
-    merged.sort((a, b) =>
-        (int.tryParse(b.oadjIdOportunidadAdjunto) ?? 0)
-            .compareTo(int.tryParse(a.oadjIdOportunidadAdjunto) ?? 0));
+    merged.sort((a, b) => (int.tryParse(b.oadjIdOportunidadAdjunto) ?? 0)
+        .compareTo(int.tryParse(a.oadjIdOportunidadAdjunto) ?? 0));
+
+    // Actualiza el caché para próximas visitas.
+    final newCache = Map<String, List<OpDocument>>.from(
+        ref.read(_documentsTabCacheProvider));
+    newCache[_cacheKey] = merged;
+    ref.read(_documentsTabCacheProvider.notifier).state = newCache;
 
     if (!mounted) return;
     setState(() {
@@ -1717,8 +1979,21 @@ class _ActivitiesViewState extends ConsumerState<_ActivitiesView> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadActivities());
   }
 
+  String get _cacheKey =>
+      '${widget.showAll}|${widget.opportunityId}|${widget.companyRuc}';
+
   Future<void> _loadActivities() async {
-    setState(() => _isLoading = true);
+    // Muestra caché al instante (sin loader) y refresca en segundo plano.
+    final cached = ref.read(_activitiesTabCacheProvider)[_cacheKey];
+    if (cached != null) {
+      setState(() {
+        _activities = cached;
+        _isLoading = false;
+      });
+    } else {
+      setState(() => _isLoading = true);
+    }
+
     final ActivitiesRepository repo = ref.read(activitiesRepositoryProvider);
     final loaded = widget.showAll
         ? await repo.getActivitiesByOpportunitie(
@@ -1748,6 +2023,12 @@ class _ActivitiesViewState extends ConsumerState<_ActivitiesView> {
       final bDate = _activityDateTime(b);
       return bDate.compareTo(aDate);
     });
+
+    // Actualiza el caché para próximas visitas.
+    final newCache =
+        Map<String, List<Activity>>.from(ref.read(_activitiesTabCacheProvider));
+    newCache[_cacheKey] = filtered;
+    ref.read(_activitiesTabCacheProvider.notifier).state = newCache;
 
     if (!mounted) return;
     setState(() {
@@ -1871,129 +2152,6 @@ class _ListActivitiesState extends ConsumerState<_ListActivities> {
           );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // import 'package:flutter/material.dart';
 // import 'package:flutter_riverpod/flutter_riverpod.dart';

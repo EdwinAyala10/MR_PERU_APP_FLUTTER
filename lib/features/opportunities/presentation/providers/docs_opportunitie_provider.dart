@@ -24,6 +24,23 @@ final currentOpportunityDetailTabProvider = StateProvider<int>((ref) => 0);
 
 final currentOpportunityShowAllProvider = StateProvider<bool>((ref) => false);
 
+/// Caché en memoria del grupo completo (todas las oportunidades, sin importar
+/// su estado) de cada empresa, indexado por RUC. Se llena por prefetch al
+/// dibujar las tarjetas de la lista, de modo que al entrar al detalle el
+/// switcher muestre todas las oportunidades desde el PRIMER intento, sin
+/// esperar una petición de red.
+final companyGroupCacheProvider =
+    StateProvider<Map<String, List<Opportunity>>>((ref) => {});
+
+/// Caché persistente de oportunidades COMPLETAS (getOpportunityById), indexado
+/// por id de oportunidad. A diferencia de [opportunityProvider] (autoDispose),
+/// este caché no se destruye al cambiar de oportunidad, por lo que conserva
+/// datos completos como el responsable (arrayresponsables). Se llena por
+/// prefetch de todo el grupo al entrar al detalle, para que al cambiar de
+/// oportunidad todo ya esté armado y no haya "parpadeo" del responsable.
+final fullOpportunityCacheProvider =
+    StateProvider<Map<String, Opportunity>>((ref) => {});
+
 final docOpportunitieProvider =
     StateNotifierProvider<DocumentsNotifier, DocumentsState>(
   (ref) {

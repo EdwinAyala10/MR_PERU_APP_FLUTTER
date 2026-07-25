@@ -92,7 +92,8 @@ class _OpportunityStatusUpdateScreenState
 
   String _selectedOpportunitySummary(List<Opportunity> options) {
     final selected = options
-        .where((opportunity) => _selectedOpportunityIds.contains(opportunity.id))
+        .where(
+            (opportunity) => _selectedOpportunityIds.contains(opportunity.id))
         .map((opportunity) => opportunity.oprtNombre)
         .toList();
 
@@ -132,12 +133,14 @@ class _OpportunityStatusUpdateScreenState
                     const SizedBox(height: 18),
                     ConstrainedBox(
                       constraints: BoxConstraints(
-                        maxHeight: MediaQuery.of(dialogContext).size.height * 0.38,
+                        maxHeight:
+                            MediaQuery.of(dialogContext).size.height * 0.38,
                       ),
                       child: ListView(
                         shrinkWrap: true,
                         children: options.map((opportunity) {
-                          final checked = tempSelectedIds.contains(opportunity.id);
+                          final checked =
+                              tempSelectedIds.contains(opportunity.id);
                           return CheckboxListTile(
                             value: checked,
                             controlAffinity: ListTileControlAffinity.leading,
@@ -193,7 +196,8 @@ class _OpportunityStatusUpdateScreenState
                               elevation: 2,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(28),
-                                side: const BorderSide(color: Color(0xFFE3E6EA)),
+                                side:
+                                    const BorderSide(color: Color(0xFFE3E6EA)),
                               ),
                               padding: const EdgeInsets.symmetric(vertical: 14),
                             ),
@@ -255,7 +259,8 @@ class _OpportunityStatusUpdateScreenState
     final ruc = selected?.oprtRuc ?? current.oprtRuc ?? '';
     if (ruc.isNotEmpty && siblings.isNotEmpty) {
       final user = ref.read(authProvider).user;
-      final refreshedGroups = await opportunitiesRepository.getListOpportunities(
+      final refreshedGroups =
+          await opportunitiesRepository.getListOpportunities(
         ruc: ruc,
         search: '',
         limit: 100,
@@ -264,7 +269,8 @@ class _OpportunityStatusUpdateScreenState
         estado: '',
       );
       final refreshed = refreshedGroups
-          .expand((opportunity) => opportunity.oportunidadesDelGrupo ?? [opportunity])
+          .expand((opportunity) =>
+              opportunity.oportunidadesDelGrupo ?? [opportunity])
           .toList();
 
       final movedOpportunities = refreshed
@@ -291,14 +297,16 @@ class _OpportunityStatusUpdateScreenState
         targetOpportunity = movedInsideDestination.isNotEmpty
             ? movedInsideDestination.first
             : destinationGroup.first;
-        ref.read(currentOpportunityGroupProvider.notifier).state = destinationGroup;
+        ref.read(currentOpportunityGroupProvider.notifier).state =
+            destinationGroup;
         ref.read(selectedOp.notifier).state = targetOpportunity;
         ref.read(currentOpportunityShowAllProvider.notifier).state = false;
       }
     }
 
     if (targetOpportunity != null) {
-      final updated = await opportunitiesRepository.getOpportunityById(targetOpportunity.id);
+      final updated = await opportunitiesRepository
+          .getOpportunityById(targetOpportunity.id);
       ref.read(selectedOp.notifier).state = updated;
       targetOpportunity = updated;
     }
@@ -311,9 +319,11 @@ class _OpportunityStatusUpdateScreenState
 
     return {
       'targetOpportunityId': targetOpportunity?.id ?? current.id,
-      'targetOpportunityName': targetOpportunity?.oprtNombre ?? current.oprtNombre,
+      'targetOpportunityName':
+          targetOpportunity?.oprtNombre ?? current.oprtNombre,
       'tabLabel': _statusTabLabel(_selectedEstadoId),
-      'routeChanged': (targetOpportunity?.id ?? current.id) != widget.opportunityId,
+      'routeChanged':
+          (targetOpportunity?.id ?? current.id) != widget.opportunityId,
     };
   }
 
@@ -332,7 +342,9 @@ class _OpportunityStatusUpdateScreenState
     }
 
     showLoadingMessage(context);
-    final response = await ref.read(opportunitiesProvider.notifier).updateOpportunitiesStatus(
+    final response = await ref
+        .read(opportunitiesProvider.notifier)
+        .updateOpportunitiesStatus(
           opportunityIds: _selectedOpportunityIds.toList(),
           estadoId: _selectedEstadoId,
           motivoId: _selectedEstadoId == '07' ? _selectedMotivoId : '',
@@ -358,8 +370,10 @@ class _OpportunityStatusUpdateScreenState
   @override
   Widget build(BuildContext context) {
     final selected = ref.watch(selectedOp);
-    final loaded = ref.watch(opportunityProvider(widget.opportunityId)).opportunity;
-    final current = selected?.id == widget.opportunityId ? selected : (loaded ?? selected);
+    final loaded =
+        ref.watch(opportunityProvider(widget.opportunityId)).opportunity;
+    final current =
+        selected?.id == widget.opportunityId ? selected : (loaded ?? selected);
 
     if (current == null) {
       return const Scaffold(body: FullScreenLoader());

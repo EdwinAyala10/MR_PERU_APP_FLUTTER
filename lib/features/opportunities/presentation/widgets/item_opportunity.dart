@@ -1,6 +1,5 @@
 import 'package:crm_app/config/config.dart';
 import 'package:crm_app/features/activities/presentation/providers/providers.dart';
-import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crm_app/features/contacts/domain/domain.dart';
 import 'package:crm_app/features/contacts/presentation/providers/providers.dart';
 import 'package:crm_app/features/opportunities/presentation/providers/providers.dart';
@@ -33,6 +32,27 @@ class ItemOpportunity extends ConsumerStatefulWidget {
 class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
   bool _isOpeningDetail = false;
 
+  /// Resuelve el grupo a sembrar priorizando el caché (todos los estados).
+  /// El caché [companyGroupCacheProvider] se llena cuando se visita un detalle
+  /// (no por prefetch masivo en la lista, que saturaba y hacía perder taps).
+  /// Si el caché aún no está listo, usa el grupo parcial recibido de la lista.
+  List<Opportunity> _resolveSeedGroup(
+    Opportunity tapped,
+    List<Opportunity> fallback,
+  ) {
+    final ruc = tapped.oprtRuc ?? '';
+    final cached = ref.read(companyGroupCacheProvider)[ruc];
+    if (cached == null || cached.isEmpty) {
+      final fullGroup = widget.opportunity.oportunidadesDelGrupo;
+      if (fullGroup != null && fullGroup.isNotEmpty) return fullGroup;
+      return fallback;
+    }
+
+    // Todas las oportunidades de la misma empresa (mismo RUC), sin importar
+    // estado ni local.
+    return cached;
+  }
+
   Future<void> _handleOpportunityTap(
     Opportunity tappedOpportunity,
     List<Opportunity> opportunities,
@@ -41,26 +61,33 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
 
     // Cerrar teclado inmediatamente antes de cualquier navegación
     FocusScope.of(context).unfocus();
-    
+
     _isOpeningDetail = true;
 
     try {
+      // Se prioriza el grupo completo cacheado (todos los estados). Si el
+      // prefetch aún no terminó, se usa el grupo parcial y el detalle lo
+      // completa en segundo plano.
+      final seedGroup = _resolveSeedGroup(tappedOpportunity, opportunities);
+
+      // Flujo con callback (desde la pantalla de oportunidades): se delega
+      // la siembra de providers y el push, ya con el grupo completo.
       if (widget.callbackOnTap != null) {
-        await widget.callbackOnTap!(tappedOpportunity, opportunities);
+        await widget.callbackOnTap!(tappedOpportunity, seedGroup);
         return;
       }
 
-      // Sin importar qué equipo se toque dentro del card de la
-      // empresa, el detalle siempre abre en el primero del grupo; el
-      // selector de arriba permite saltar a los demás equipos.
-      final target = opportunities.first;
-      if (!mounted) return;
+      // Flujo sin callback (dashboard/company/kpi): sin importar qué equipo
+      // se toque dentro del card de la empresa, el detalle siempre abre en
+      // el primero del grupo; el selector de arriba permite saltar a los
+      // demás equipos. Navegación instantánea, sin diálogo de carga.
+      final target = seedGroup.first;
 
       ref.read(selectOpportunity.notifier).state = target;
       ref.read(selectedOp.notifier).state = target;
       ref.read(currentOpportunityShowAllProvider.notifier).state = false;
       ref.read(currentOpportunityDetailTabProvider.notifier).state = 0;
-      ref.read(currentOpportunityGroupProvider.notifier).state = opportunities;
+      ref.read(currentOpportunityGroupProvider.notifier).state = seedGroup;
       await context.push('/opportunity_detail/${target.id}');
     } finally {
       if (mounted) {
@@ -78,33 +105,6 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
       return;
     }
     await notifier.loadNextPageByType(isRefresh: true);
-  }
-
-  Future<List<Opportunity>> _loadCompanyGroup(
-    Opportunity target,
-    List<Opportunity> fallback,
-  ) async {
-    final ruc = target.oprtRuc ?? '';
-    if (ruc.isEmpty) return fallback;
-
-    final user = ref.read(authProvider).user;
-    final groups = await ref.read(opportunitiesRepositoryProvider).getListOpportunities(
-          ruc: ruc,
-          search: '',
-          limit: 100,
-          offset: 1,
-          idUsuario: (user?.isAdmin ?? false) ? '' : (user?.code ?? ''),
-          estado: '',
-        );
-
-    final all = groups
-        .expand((opportunity) => opportunity.oportunidadesDelGrupo ?? [opportunity])
-        .toList();
-    final companyGroup = all
-        .where((opportunity) => opportunity.empresaKey == target.empresaKey)
-        .toList();
-
-    return companyGroup.isNotEmpty ? companyGroup : fallback;
   }
 
   ({Color? background, Color? border})? _staleColors(Opportunity opportunity) {
@@ -148,11 +148,12 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
     // oportunidades. Si llega una oportunidad suelta (flujos que aún no vienen
     // agrupados), se pinta como un grupo de una sola oportunidad para que el
     // widget nunca se comporte distinto según quién lo alimente.
-    final grupo = widget.opportunity.oportunidadesDelGrupo;
-    final opportunities = (grupo != null && grupo.isNotEmpty)
-        ? grupo
-        : [widget.opportunity];
-    print('ITEM_OPPORTUNITY: ${widget.opportunity.razon} -> ${opportunities.length} oportunidades: ${opportunities.map((o) => o.id).join(",")}');
+    final grupo = widget.opportunity.visibleOportunidadesDelGrupo ??
+        widget.opportunity.oportunidadesDelGrupo;
+    final opportunities =
+        (grupo != null && grupo.isNotEmpty) ? grupo : [widget.opportunity];
+    print(
+        'ITEM_OPPORTUNITY: ${widget.opportunity.razon} -> ${opportunities.length} oportunidades: ${opportunities.map((o) => o.id).join(",")}');
     return _buildGroupCard(opportunities);
   }
 
@@ -315,10 +316,10 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
                         ),
                       ),
                     if ((opportunity.actiFechaRegistro ?? '').isNotEmpty)
-                       Row(
-                         children: [
-                           const Icon(Icons.calendar_month, size: 14),
-                           const SizedBox(width: 4),
+                      Row(
+                        children: [
+                          const Icon(Icons.calendar_month, size: 14),
+                          const SizedBox(width: 4),
                           Expanded(
                             child: Text(
                               opportunity.actiFechaRegistro ?? '',
@@ -333,7 +334,7 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
                   ],
                 ),
               ),
-               const SizedBox(width: 6),
+              const SizedBox(width: 6),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -407,8 +408,7 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
           const SizedBox(width: 8),
           InkWell(
             borderRadius: const BorderRadius.all(Radius.circular(25)),
-            onTap: () =>
-                _handleContactAction(opportunities, _OppAction.email),
+            onTap: () => _handleContactAction(opportunities, _OppAction.email),
             child: Container(
               width: 30,
               height: 30,

@@ -147,7 +147,7 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
       "SEARCH": search,
       "OFFSET": offset,
       "TOP": limit,
-      "OPRT_ID_ESTADO_OPORTUNIDAD": estadoOP??'', 
+      "OPRT_ID_ESTADO_OPORTUNIDAD": estadoOP ?? '',
       "ID_USUARIO_RESPONSABLE": idUsuario ?? '',
       "ESTADO": estado ?? '',
       "PROBABILIDAD_DESDE": startPercent ?? '',
@@ -156,7 +156,6 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
       "VALOR_HASTA": endValue ?? '',
       "FECHAPREVISTADEVENTA_DESDE": startDate ?? '',
       "FECHAPREVISTADEVENTA_HASTA": endDate ?? ''
-
     };
     final response = await dio.post(
       '/oportunidad/listar-oportunidades-agrupado-empresa',
@@ -170,10 +169,21 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
 
       if (oportunidadesEnGrupo.isEmpty) continue;
 
+      // Se conserva SIEMPRE el grupo completo de empresa en memoria para que
+      // el detalle navegue con todas las oportunidades, aunque la lista
+      // visible esté filtrada por estado/fecha/probabilidad/etc.
+      final List<Opportunity> grupoCompleto = [];
+      for (final opportunityJson in oportunidadesEnGrupo) {
+        grupoCompleto.add(
+          OpportunityMapper.jsonToEntity(opportunityJson),
+        );
+      }
+
       // Filtrar oportunidades por estado si se especifica
       List<dynamic> oportunidadesFiltradas = oportunidadesEnGrupo;
       if (estado != null && estado.isNotEmpty) {
-        final estadosPermitidos = estado.split(',').map((e) => e.trim()).toSet();
+        final estadosPermitidos =
+            estado.split(',').map((e) => e.trim()).toSet();
         oportunidadesFiltradas = oportunidadesEnGrupo.where((op) {
           final opEstado = op['OPRT_ID_ESTADO_OPORTUNIDAD']?.toString() ?? '';
           return estadosPermitidos.contains(opEstado);
@@ -181,7 +191,8 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
       }
 
       if (estadoOP != null && estadoOP.isNotEmpty) {
-        final estadosOportunidad = estadoOP.split(',').map((e) => e.trim()).toSet();
+        final estadosOportunidad =
+            estadoOP.split(',').map((e) => e.trim()).toSet();
         oportunidadesFiltradas = oportunidadesFiltradas.where((op) {
           final opEstado = op['OPRT_ID_ESTADO_OPORTUNIDAD']?.toString() ?? '';
           return estadosOportunidad.contains(opEstado);
@@ -192,7 +203,8 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
       final probHasta = double.tryParse((endPercent ?? '').trim());
       if (probDesde != null || probHasta != null) {
         oportunidadesFiltradas = oportunidadesFiltradas.where((op) {
-          final prob = double.tryParse((op['OPRT_PROBABILIDAD'] ?? '').toString()) ?? 0;
+          final prob =
+              double.tryParse((op['OPRT_PROBABILIDAD'] ?? '').toString()) ?? 0;
           if (probDesde != null && prob < probDesde) return false;
           if (probHasta != null && prob > probHasta) return false;
           return true;
@@ -203,7 +215,8 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
       final valorHasta = double.tryParse((endValue ?? '').trim()) ?? 0;
       if (valorDesde > 0 || valorHasta > 0) {
         oportunidadesFiltradas = oportunidadesFiltradas.where((op) {
-          final valor = double.tryParse((op['OPRT_VALOR'] ?? '').toString()) ?? 0;
+          final valor =
+              double.tryParse((op['OPRT_VALOR'] ?? '').toString()) ?? 0;
           if (valorDesde > 0 && valor < valorDesde) return false;
           if (valorHasta > 0 && valor > valorHasta) return false;
           return true;
@@ -239,9 +252,9 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
           group['OPRT_PRIMERA_FECHA_REGISTRO'];
       primeraOportunidad.nombrePrimeroUsuarioResponsable =
           group['NOMBRE_PRIMERO_USUARIO_RESPONSABLE'];
-      primeraOportunidad.totalOportunidadesEnGrupo =
-          oportunidadesFiltradas.length;
-      primeraOportunidad.oportunidadesDelGrupo = todasLasOportunidades;
+      primeraOportunidad.totalOportunidadesEnGrupo = grupoCompleto.length;
+      primeraOportunidad.oportunidadesDelGrupo = grupoCompleto;
+      primeraOportunidad.visibleOportunidadesDelGrupo = todasLasOportunidades;
 
       opportunities.add(primeraOportunidad);
     }

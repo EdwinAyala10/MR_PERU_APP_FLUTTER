@@ -69,14 +69,19 @@ class _OpportunitiesScreenState extends ConsumerState<OpportunitiesScreen>
   }
 
   Future<void> _showPendingEmailFeedback() async {
-    final showSyncMessage = await KeyValueStorageServiceImpl().getValue<bool>('show_sync_message');
-    final emailSentTick = await KeyValueStorageServiceImpl().getValue<int>('email_sent_tick');
-    final lastShownTick = await KeyValueStorageServiceImpl().getValue<int>('email_sent_tick_shown') ?? 0;
+    final showSyncMessage =
+        await KeyValueStorageServiceImpl().getValue<bool>('show_sync_message');
+    final emailSentTick =
+        await KeyValueStorageServiceImpl().getValue<int>('email_sent_tick');
+    final lastShownTick = await KeyValueStorageServiceImpl()
+            .getValue<int>('email_sent_tick_shown') ??
+        0;
 
     if (!mounted) return;
 
     if (showSyncMessage == true) {
-      await KeyValueStorageServiceImpl().setKeyValue<bool>('show_sync_message', false);
+      await KeyValueStorageServiceImpl()
+          .setKeyValue<bool>('show_sync_message', false);
       Future.delayed(const Duration(milliseconds: 500), () {
         if (!mounted) return;
         NotificationService().showSuccess(
@@ -89,7 +94,8 @@ class _OpportunitiesScreenState extends ConsumerState<OpportunitiesScreen>
     }
 
     if (emailSentTick != null && emailSentTick > lastShownTick) {
-      await KeyValueStorageServiceImpl().setKeyValue<int>('email_sent_tick_shown', emailSentTick);
+      await KeyValueStorageServiceImpl()
+          .setKeyValue<int>('email_sent_tick_shown', emailSentTick);
     }
   }
 
@@ -231,10 +237,9 @@ class _OpportunitiesViewState extends ConsumerState<_OpportunitiesView> {
         endDate: (ref.read(endDateProvider) ?? '').toString(),
         startDate: (ref.read(startDateProvider) ?? '').toString(),
         estadoOP: findFilterByType(
-                  ref.read(routePlannerProvider).filters,
-                  "ID_TIPO_OPORTUNIDAD",
-                )
-                ?.id ??
+              ref.read(routePlannerProvider).filters,
+              "ID_TIPO_OPORTUNIDAD",
+            )?.id ??
             '',
         endPercents: ref.read(rangeProbProvider).end.round().toString(),
         startPercent: ref.read(rangeProbProvider).start.round().toString(),
@@ -247,10 +252,9 @@ class _OpportunitiesViewState extends ConsumerState<_OpportunitiesView> {
         userResponsable: (user?.isAdmin ?? false) == false
             ? user?.code ?? ''
             : findFilterByType(
-                        ref.read(routePlannerProvider).filters,
-                        "ID_USUARIO_RESPONSABLE",
-                      )
-                    ?.id ??
+                  ref.read(routePlannerProvider).filters,
+                  "ID_USUARIO_RESPONSABLE",
+                )?.id ??
                 '',
       );
       return;
@@ -582,49 +586,6 @@ class _ListOpportunities extends ConsumerStatefulWidget {
 }
 
 class _ListOpportunitiesState extends ConsumerState<_ListOpportunities> {
-  Future<void> _refreshCurrentType() async {
-    final notifier = ref.read(opportunitiesProvider.notifier);
-    final currentType = ref.read(opportunitiesProvider).typeOpportunity;
-
-    notifier.clearOpList();
-
-    if (currentType == '01,02,03,04') {
-      final user = ref.read(authProvider).user;
-      await notifier.loadFiltersOpportunity(
-        isRefresh: true,
-        endDate: (ref.read(endDateProvider) ?? '').toString(),
-        startDate: (ref.read(startDateProvider) ?? '').toString(),
-        estadoOP: findFilterByType(
-                  ref.read(routePlannerProvider).filters,
-                  "ID_TIPO_OPORTUNIDAD",
-                )
-                ?.id ??
-            '',
-        endPercents: ref.read(rangeProbProvider).end.round().toString(),
-        startPercent: ref.read(rangeProbProvider).start.round().toString(),
-        startValue: ref.read(startValueProvider) != 0
-            ? ref.read(startValueProvider).toInt().toString()
-            : '',
-        endValue: ref.read(startValueProvider) != 0
-            ? ref.read(endValueProvider).toInt().toString()
-            : '',
-        userResponsable: (user?.isAdmin ?? false) == false
-            ? user?.code ?? ''
-            : findFilterByType(
-                        ref.read(routePlannerProvider).filters,
-                        "ID_USUARIO_RESPONSABLE",
-                      )
-                    ?.id ??
-                '',
-      );
-      return;
-    }
-
-    if (currentType.isNotEmpty) {
-      await notifier.loadNextPageByType(isRefresh: true);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final GlobalKey<RefreshIndicatorState> refreshIndicatorKey =
@@ -673,27 +634,31 @@ class _ListOpportunitiesState extends ConsumerState<_ListOpportunities> {
 
                   return ItemOpportunity(
                     opportunity: opportunity,
-                    callbackOnTap: (tappedOpportunity, groupOpportunities) async {
-                    List<Opportunity> resolvedGroup = groupOpportunities.isNotEmpty
-                        ? groupOpportunities
-                        : [tappedOpportunity];
+                    callbackOnTap:
+                        (tappedOpportunity, groupOpportunities) async {
+                      List<Opportunity> resolvedGroup =
+                          groupOpportunities.isNotEmpty
+                              ? groupOpportunities
+                              : [tappedOpportunity];
 
-                    ref.read(selectedOp.notifier).state = tappedOpportunity;
-                    ref.read(selectOpportunity.notifier).state = tappedOpportunity;
-                    ref
-                        .read(currentOpportunityShowAllProvider.notifier)
-                        .state = false;
-                    ref.read(currentOpportunityGroupProvider.notifier).state =
-                        resolvedGroup;
-                    ref.read(currentOpportunityDetailTabProvider.notifier).state = 0;
-                    await context.push('/opportunity_detail/${tappedOpportunity.id}');
-                    if (!mounted) return;
-                    await _refreshCurrentType();
-                    log("Estoy entrandoo aqui");
-                  },
-                );
-              },
-            ),
+                      ref.read(selectedOp.notifier).state = tappedOpportunity;
+                      ref.read(selectOpportunity.notifier).state =
+                          tappedOpportunity;
+                      ref
+                          .read(currentOpportunityShowAllProvider.notifier)
+                          .state = false;
+                      ref.read(currentOpportunityGroupProvider.notifier).state =
+                          resolvedGroup;
+                      ref
+                          .read(currentOpportunityDetailTabProvider.notifier)
+                          .state = 0;
+                      await context
+                          .push('/opportunity_detail/${tappedOpportunity.id}');
+                      if (!mounted) return;
+                    },
+                  );
+                },
+              ),
             ),
           );
   }

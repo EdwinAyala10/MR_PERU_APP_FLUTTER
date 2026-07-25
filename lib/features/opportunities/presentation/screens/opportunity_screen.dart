@@ -82,8 +82,8 @@ class OpportunityScreen extends ConsumerWidget {
                 showSnackbar(context, value.message);
 
                 if (value.response) {
-                  final formState =
-                      ref.read(opportunityFormProvider(opportunityState.opportunity!));
+                  final formState = ref.read(
+                      opportunityFormProvider(opportunityState.opportunity!));
                   final current = ref.read(selectedOp);
                   final siblings = ref.read(currentOpportunityGroupProvider);
 
@@ -100,7 +100,8 @@ class OpportunityScreen extends ConsumerWidget {
                       ..oprtIdValor = formState.oprtIdValor
                       ..oprtNombreValor = formState.oprtNombreValor
                       ..oprtValor = formState.optrValor
-                      ..oprtFechaPrevistaVenta = formState.oprtFechaPrevistaVenta
+                      ..oprtFechaPrevistaVenta =
+                          formState.oprtFechaPrevistaVenta
                       ..oprtRuc = formState.oprtRuc.value
                       ..oprtRazon = formState.oprtRazon
                       ..oprtLocalCodigo = formState.oprtLocalCodigo.value
@@ -129,7 +130,7 @@ class OpportunityScreen extends ConsumerWidget {
                       opportunityState.opportunity?.oprtRuc ??
                       '';
 
-                  context.pop();
+                  context.pop(true);
 
                   ref
                       .read(opportunityProvider(opportunityId).notifier)
@@ -150,14 +151,19 @@ class OpportunityScreen extends ConsumerWidget {
                             search: '',
                             limit: 100,
                             offset: 1,
-                            idUsuario: (user?.isAdmin ?? false) ? '' : (user?.code ?? ''),
+                            idUsuario: (user?.isAdmin ?? false)
+                                ? ''
+                                : (user?.code ?? ''),
                             estado: '',
                           );
                       final refreshed = refreshedGroups
-                          .expand((opportunity) => opportunity.oportunidadesDelGrupo ?? [opportunity])
+                          .expand((opportunity) =>
+                              opportunity.oportunidadesDelGrupo ??
+                              [opportunity])
                           .toList();
                       final filtered = refreshed
-                          .where((opportunity) => allowedIds.contains(opportunity.id))
+                          .where((opportunity) =>
+                              allowedIds.contains(opportunity.id))
                           .toList();
                       if (filtered.isEmpty) return;
                       ref.read(currentOpportunityGroupProvider.notifier).state =
@@ -167,7 +173,8 @@ class OpportunityScreen extends ConsumerWidget {
                           .where((opportunity) => opportunity.id == selectedId)
                           .toList();
                       if (updatedSelected.isNotEmpty) {
-                        ref.read(selectedOp.notifier).state = updatedSelected.first;
+                        ref.read(selectedOp.notifier).state =
+                            updatedSelected.first;
                       }
                     }());
                   }
@@ -179,18 +186,14 @@ class OpportunityScreen extends ConsumerWidget {
                       endDate: (ref.read(endDateProvider) ?? '').toString(),
                       startDate: (ref.read(startDateProvider) ?? '').toString(),
                       estadoOP: findFilterByType(
-                                ref.read(routePlannerProvider).filters,
-                                'ID_TIPO_OPORTUNIDAD',
-                              )
-                              ?.id ??
+                            ref.read(routePlannerProvider).filters,
+                            'ID_TIPO_OPORTUNIDAD',
+                          )?.id ??
                           '',
                       endPercents:
                           ref.read(rangeProbProvider).end.round().toString(),
-                      startPercent: ref
-                          .read(rangeProbProvider)
-                          .start
-                          .round()
-                          .toString(),
+                      startPercent:
+                          ref.read(rangeProbProvider).start.round().toString(),
                       startValue: ref.read(startValueProvider) != 0
                           ? ref.read(startValueProvider).toInt().toString()
                           : '',
@@ -200,11 +203,10 @@ class OpportunityScreen extends ConsumerWidget {
                       userResponsable: (user?.isAdmin ?? false) == false
                           ? user?.code ?? ''
                           : findFilterByType(
-                                      ref.read(routePlannerProvider).filters,
-                                      'ID_USUARIO_RESPONSABLE',
-                                    )
-                                    ?.id ??
-                                '',
+                                ref.read(routePlannerProvider).filters,
+                                'ID_USUARIO_RESPONSABLE',
+                              )?.id ??
+                              '',
                     ));
                   } else if (currentType.isNotEmpty) {
                     opportunitiesNotifier.clearOpList();
@@ -297,7 +299,6 @@ class _OpportunityInformationv2State
               nameEmpresa ?? '',
             );
       }
-
     });
   }
 
@@ -724,7 +725,8 @@ class _OpportunityInformationv2State
                           height: 50,
                           onPressed: () {
                             if (opportunityForm.oprtRuc.value == "") {
-                              showSnackbar(context, 'Debe seleccionar una empresa');
+                              showSnackbar(
+                                  context, 'Debe seleccionar una empresa');
                               return;
                             }
                             ref.read(isFromOpportunity.notifier).state = true;
@@ -737,20 +739,21 @@ class _OpportunityInformationv2State
                                     opportunityForm.oprtRuc.value,
                                   );
                               log("Tihs cotact $contact");
-                              if(contact.isNotEmpty){
-                                  ref
-                                  .read(opportunityFormProvider(widget.opportunity).notifier)
-                                  .onContactChanged(contact[0].id, contact[0].contactoDesc);
-                                  ref
-                                  .read(searchQueryContactsProvider.notifier)
-                                  .update((state) => '');
-                                  ref.read(isFromOpportunity.notifier).state = false;
-                                  log(opportunityForm.oprtIdContacto.value);
-                                  log("${opportunityForm.oprtNombreContacto}");
-
-
-                               }
-
+                              if (contact.isNotEmpty) {
+                                ref
+                                    .read(opportunityFormProvider(
+                                            widget.opportunity)
+                                        .notifier)
+                                    .onContactChanged(
+                                        contact[0].id, contact[0].contactoDesc);
+                                ref
+                                    .read(searchQueryContactsProvider.notifier)
+                                    .update((state) => '');
+                                ref.read(isFromOpportunity.notifier).state =
+                                    false;
+                                log(opportunityForm.oprtIdContacto.value);
+                                log("${opportunityForm.oprtNombreContacto}");
+                              }
                             });
                           },
                           child: const Icon(
