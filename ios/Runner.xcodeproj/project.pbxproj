@@ -290,7 +290,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" embed_and_thin";
+			shellScript = "export FLUTTER_ROOT=/Users/chapitec/Documents/development/flutter/flutter_3.38.2-stable\nexport PATH=/Users/chapitec/Documents/development/flutter/flutter_3.38.2-stable/bin:$PATH\n/bin/sh \"/Users/chapitec/Documents/development/flutter/flutter_3.38.2-stable/packages/flutter_tools/bin/xcode_backend.sh\" embed_and_thin";
 		};
 		86D4FF00472105F0EFAD8DE8 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -322,7 +322,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build";
+			shellScript = "export FLUTTER_ROOT=/Users/chapitec/Documents/development/flutter/flutter_3.38.2-stable\nexport PATH=/Users/chapitec/Documents/development/flutter/flutter_3.38.2-stable/bin:$PATH\n/bin/sh \"/Users/chapitec/Documents/development/flutter/flutter_3.38.2-stable/packages/flutter_tools/bin/xcode_backend.sh\" build";
 		};
 		D8A89A8B0EBDA87897933CF8 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;

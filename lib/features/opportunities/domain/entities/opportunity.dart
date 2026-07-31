@@ -33,6 +33,7 @@ class Opportunity {
   String? actiIdTipoGestion;
   String? actiNombreTipoGestion;
   String? actiFechaRegistro;
+  String? actiFechaRegistroDias;
   String? nombreUsuarioResponsable;
   String? actiComentario;
   String? emlsAsunto;
@@ -78,6 +79,7 @@ class Opportunity {
     this.actiIdTipoGestion,
     this.actiNombreTipoGestion,
     this.actiFechaRegistro,
+    this.actiFechaRegistroDias,
     this.nombreUsuarioResponsable,
     this.actiComentario,
     this.emlsAsunto,

@@ -49,11 +49,10 @@ class EventScreen extends ConsumerWidget {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
           appBar: AppBar(
-            title:
-                Text('${eventState.id == 'new' ? 'Crear' : 'Editar'} Evento',
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600
-                ),),
+            title: Text(
+              '${eventState.id == 'new' ? 'Crear' : 'Editar'} Evento',
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
             /*leading: IconButton(
               icon: const Icon(Icons.close),
               onPressed: () {
@@ -88,7 +87,9 @@ class EventScreen extends ConsumerWidget {
 
                         if (value.response) {
                           ref.read(eventsProvider.notifier).loadNextPage();
-                          ref.read(companyProvider(value.id!).notifier).loadSecundaryEvents();
+                          ref
+                              .read(companyProvider(value.id!).notifier)
+                              .loadSecundaryEvents();
 
                           //Timer(const Duration(seconds: 3), () {
                           //context.replace('/agenda');
@@ -98,9 +99,7 @@ class EventScreen extends ConsumerWidget {
                       }
 
                       Navigator.pop(context);
-
                     });
-
                   },
                 )
               : null),
@@ -124,7 +123,6 @@ class _EventView extends ConsumerWidget {
   }
 }
 
-
 class _EventInformation extends ConsumerStatefulWidget {
   final Event event;
 
@@ -135,63 +133,213 @@ class _EventInformation extends ConsumerStatefulWidget {
 }
 
 class __EventInformationState extends ConsumerState<_EventInformation> {
+  List<Opportunity> _selectorOpportunities(String ruc) {
+    final options = <Opportunity>[];
+    final seenIds = <String>{};
+    for (final opportunity in ref.read(currentOpportunityGroupProvider)) {
+      if (opportunity.oprtRuc != ruc) continue;
+      if (seenIds.add(opportunity.id)) {
+        options.add(opportunity);
+      }
+    }
+    return options;
+  }
+
+  String _selectedOpportunitySummary(EventFormState eventForm) {
+    if (eventForm.evntIdOportunidad.value == '') {
+      return 'Seleccione oportunidad';
+    }
+    return eventForm.evntNombreOportunidad ?? '';
+  }
+
+  Future<void> _openOpportunitySelector(
+    BuildContext context,
+    EventFormState eventForm,
+    List<Opportunity> options,
+  ) async {
+    final selected = await showModalBottomSheet<Opportunity>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (dialogContext) {
+        Opportunity? tempSelected = options.firstWhere(
+          (opportunity) => opportunity.id == eventForm.evntIdOportunidad.value,
+          orElse: () => options.first,
+        );
+
+        return StatefulBuilder(
+          builder: (dialogContext, setStateDialog) {
+            return SafeArea(
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                ),
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Seleccione oportunidad',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxHeight:
+                            MediaQuery.of(dialogContext).size.height * 0.38,
+                      ),
+                      child: ListView(
+                        shrinkWrap: true,
+                        children: options.map((opportunity) {
+                          final checked = tempSelected?.id == opportunity.id;
+                          return CheckboxListTile(
+                            value: checked,
+                            controlAffinity: ListTileControlAffinity.leading,
+                            contentPadding: EdgeInsets.zero,
+                            dense: true,
+                            activeColor: const Color(0xFF1F8FBF),
+                            title: Text(
+                              opportunity.oprtNombre,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            onChanged: (value) {
+                              if (!(value ?? false)) return;
+                              setStateDialog(() => tempSelected = opportunity);
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                            onPressed: () => Navigator.of(dialogContext).pop(),
+                            style: TextButton.styleFrom(
+                              foregroundColor: const Color(0xFF1F8FBF),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                            ),
+                            child: const Text(
+                              'Cancelar',
+                              style: TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () =>
+                                Navigator.of(dialogContext).pop(tempSelected),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: const Color(0xFF1F8FBF),
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(28),
+                                side: const BorderSide(
+                                  color: Color(0xFFE3E6EA),
+                                ),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                            ),
+                            child: const Text(
+                              'Aceptar',
+                              style: TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    if (selected == null) return;
+
+    ref
+        .read(eventFormProvider(widget.event).notifier)
+        .onOportunidadChanged(selected.id, selected.oprtNombre);
+  }
 
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-    
-    
       String? idEmpresa = ref.read(uiProvider).idCompanyAct;
       String? nameEmpresa = ref.read(uiProvider).nameCompanyAct;
+      final cameFromOpportunity = ref.read(fromOpportunityEventProvider);
+      final opportunity = ref.read(selectedOp);
+
+      if (widget.event.id == 'new' &&
+          cameFromOpportunity &&
+          opportunity != null) {
+        ref
+            .read(
+              eventFormProvider(widget.event).notifier,
+            )
+            .onEmpresaChanged(
+              opportunity.oprtRuc ?? '',
+              opportunity.razon ?? '',
+            );
+
+        ref.read(eventFormProvider(widget.event).notifier).onOportunidadChanged(
+              opportunity.id,
+              opportunity.oprtNombre,
+            );
+
+        if ((opportunity.contactId ?? '').isNotEmpty) {
+          ref.read(eventFormProvider(widget.event).notifier).onContactoChanged(
+                Contact(
+                  id: opportunity.contactId!,
+                  ruc: opportunity.oprtRuc ?? '',
+                  razon: opportunity.razon,
+                  contactoTitulo: '',
+                  contactoDesc: opportunity.oprtNombreContacto ?? '',
+                  contactoCargo: '',
+                  contactoTelefonoc: opportunity.contacTelefono ?? '',
+                  contactoEmail: '',
+                ),
+              );
+        }
+        return;
+      }
 
       if (widget.event.id == "new" && idEmpresa != "") {
         ref
-          .read(
-            eventFormProvider(widget.event).notifier,
-          )
-          .onEmpresaChanged(
-            idEmpresa ?? '',
-            nameEmpresa ?? '',
-          );
-
-        // Si el evento se crea desde el detalle de una oportunidad, esta
-        // ya viene premarcada (onEmpresaChanged la resetea, por eso se
-        // vuelve a asignar después).
-        final opportunity = ref.read(selectedOp);
-        if (opportunity != null && opportunity.oprtRuc == idEmpresa) {
-          ref
-              .read(eventFormProvider(widget.event).notifier)
-              .onOportunidadChanged(
-                opportunity.id,
-                opportunity.oprtNombre,
-              );
-
-          if ((opportunity.contactId ?? '').isNotEmpty) {
-            ref.read(eventFormProvider(widget.event).notifier).onContactoChanged(
-                  Contact(
-                    id: opportunity.contactId!,
-                    ruc: opportunity.oprtRuc ?? '',
-                    razon: opportunity.razon,
-                    contactoTitulo: '',
-                    contactoDesc: opportunity.oprtNombreContacto ?? '',
-                    contactoCargo: '',
-                    contactoTelefonoc: opportunity.contacTelefono ?? '',
-                    contactoEmail: '',
-                  ),
-                );
-          }
-        }
+            .read(
+              eventFormProvider(widget.event).notifier,
+            )
+            .onEmpresaChanged(
+              idEmpresa ?? '',
+              nameEmpresa ?? '',
+            );
       }
-
     });
-    
   }
 
   @override
   Widget build(BuildContext context) {
-     List<DropdownOption> optionsTipoGestion = [
+    final eventForm = ref.watch(eventFormProvider(widget.event));
+    final selectorOptions = _selectorOpportunities(eventForm.evntRuc.value);
+    final showOportunidadSelector = selectorOptions.isNotEmpty;
+    List<DropdownOption> optionsTipoGestion = [
       DropdownOption(id: '', name: 'Selecciona'),
       DropdownOption(id: '01', name: 'Comentario'),
       DropdownOption(id: '02', name: 'Llamada Telefónica'),
@@ -207,8 +355,6 @@ class __EventInformationState extends ConsumerState<_EventInformation> {
       DropdownOption(id: '5', name: '1 SEMANA ANTES'),
     ];
 
-    final eventForm = ref.watch(eventFormProvider(widget.event));
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -219,8 +365,9 @@ class __EventInformationState extends ConsumerState<_EventInformation> {
             label: 'Asunto *',
             initialValue: eventForm.evntAsunto.value,
             errorMessage: eventForm.evntAsunto.errorMessage,
-            onChanged:
-                ref.read(eventFormProvider(widget.event).notifier).onAsuntoChanged,
+            onChanged: ref
+                .read(eventFormProvider(widget.event).notifier)
+                .onAsuntoChanged,
           ),
           SelectCustomForm(
             label: 'Tipo de gestión',
@@ -246,10 +393,9 @@ class __EventInformationState extends ConsumerState<_EventInformation> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color:
-                        eventForm.evntRuc.errorMessage != null
-                            ? Colors.red[400]
-                            : null,
+                    color: eventForm.evntRuc.errorMessage != null
+                        ? Colors.red[400]
+                        : null,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -262,8 +408,9 @@ class __EventInformationState extends ConsumerState<_EventInformation> {
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     decoration: BoxDecoration(
                       border: Border.all(
-                        color: eventForm.evntRuc.errorMessage != null ? Colors.red : Colors.grey
-                      ),
+                          color: eventForm.evntRuc.errorMessage != null
+                              ? Colors.red
+                              : Colors.grey),
                       borderRadius: BorderRadius.circular(5),
                     ),
                     child: Row(
@@ -274,9 +421,10 @@ class __EventInformationState extends ConsumerState<_EventInformation> {
                                 ? 'Seleccione empresa'
                                 : eventForm.evntRazon ?? '',
                             style: TextStyle(
-                              fontSize: 16,
-                              color: eventForm.evntRuc.errorMessage != null ? Colors.red : Colors.black
-                            ),
+                                fontSize: 16,
+                                color: eventForm.evntRuc.errorMessage != null
+                                    ? Colors.red
+                                    : Colors.black),
                           ),
                         ),
                         IconButton(
@@ -314,34 +462,29 @@ class __EventInformationState extends ConsumerState<_EventInformation> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color:
-                        eventForm.evntLocalCodigo.errorMessage != null
-                            ? Colors.red[400]
-                            : null,
+                    color: eventForm.evntLocalCodigo.errorMessage != null
+                        ? Colors.red[400]
+                        : null,
                   ),
                 ),
                 const SizedBox(height: 6),
                 GestureDetector(
                   onTap: () {
-                    
                     if (eventForm.evntRuc.value == "") {
-                        showSnackbar(context, 'Debe seleccionar una empresa');
-                        return;
+                      showSnackbar(context, 'Debe seleccionar una empresa');
+                      return;
                     }
 
                     _openSearchCompanyLocales(
                         context, ref, eventForm.evntRuc.value);
-
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     decoration: BoxDecoration(
                       border: Border.all(
-                          color:
-                              eventForm.evntLocalCodigo.errorMessage !=
-                                      null
-                                  ? Colors.red
-                                  : Colors.grey),
+                          color: eventForm.evntLocalCodigo.errorMessage != null
+                              ? Colors.red
+                              : Colors.grey),
                       borderRadius: BorderRadius.circular(5),
                     ),
                     child: Row(
@@ -353,8 +496,7 @@ class __EventInformationState extends ConsumerState<_EventInformation> {
                                 : eventForm.evntLocalNombre ?? '',
                             style: TextStyle(
                                 fontSize: 16,
-                                color: eventForm
-                                            .evntLocalCodigo.errorMessage !=
+                                color: eventForm.evntLocalCodigo.errorMessage !=
                                         null
                                     ? Colors.red
                                     : null),
@@ -363,10 +505,10 @@ class __EventInformationState extends ConsumerState<_EventInformation> {
                         IconButton(
                           icon: const Icon(Icons.search),
                           onPressed: () {
-                            
                             if (eventForm.evntRuc.value == "") {
-                                showSnackbar(context, 'Debe seleccionar una empresa');
-                                return;
+                              showSnackbar(
+                                  context, 'Debe seleccionar una empresa');
+                              return;
                             }
 
                             _openSearchCompanyLocales(
@@ -383,14 +525,9 @@ class __EventInformationState extends ConsumerState<_EventInformation> {
           if (eventForm.evntLocalCodigo.errorMessage != null)
             Text(
               eventForm.evntLocalCodigo.errorMessage ?? 'Requerido',
-              style: TextStyle(
-                color: Colors.red[400],
-                fontSize: 12
-              ),
+              style: TextStyle(color: Colors.red[400], fontSize: 12),
             ),
           const SizedBox(height: 10),
-          
-
 
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -515,23 +652,24 @@ class __EventInformationState extends ConsumerState<_EventInformation> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                
-                
-                optionsRecordatorio.length > 1 ? SelectCustomForm(
-                  label: 'Recordatorio de cita',
-                  value: eventForm.evntIdRecordatorio.toString(),
-                  callbackChange: (String? newValue) {
-                    DropdownOption searchDropdown =
-                        optionsRecordatorio.where((option) => option.id == newValue!).first;
+                optionsRecordatorio.length > 1
+                    ? SelectCustomForm(
+                        label: 'Recordatorio de cita',
+                        value: eventForm.evntIdRecordatorio.toString(),
+                        callbackChange: (String? newValue) {
+                          DropdownOption searchDropdown = optionsRecordatorio
+                              .where((option) => option.id == newValue!)
+                              .first;
 
-                    ref
-                        .read(eventFormProvider(widget.event).notifier)
-                        .onRecordatorioChanged(int.parse(newValue ?? '1'), searchDropdown.name);
-                  },
-                  items: optionsRecordatorio,
-                  //errorMessage: eventForm.evntIdRecordatorio.errorMessage,
-                ): PlaceholderInput(text: 'Cargando...'),
-
+                          ref
+                              .read(eventFormProvider(widget.event).notifier)
+                              .onRecordatorioChanged(int.parse(newValue ?? '1'),
+                                  searchDropdown.name);
+                        },
+                        items: optionsRecordatorio,
+                        //errorMessage: eventForm.evntIdRecordatorio.errorMessage,
+                      )
+                    : PlaceholderInput(text: 'Cargando...'),
               ],
             ),
           ),
@@ -575,21 +713,18 @@ class __EventInformationState extends ConsumerState<_EventInformation> {
                           children: eventForm.arraycontacto != null
                               ? List<Widget>.from(
                                   eventForm.arraycontacto!.map((item) => Chip(
-                                        backgroundColor:
-                                            primaryColor,
+                                        backgroundColor: primaryColor,
                                         deleteIconColor: Colors.white,
                                         label: Text(item.contactoDesc ?? '',
                                             style: const TextStyle(
-                                              
-                                              color: Colors.white,
-                                                fontSize:
-                                                    12)),
+                                                color: Colors.white,
+                                                fontSize: 12)),
                                         onDeleted: () {
                                           ref
-                                            .read(
-                                                eventFormProvider(widget.event)
-                                                    .notifier)
-                                            .onDeleteContactoChanged(item);
+                                              .read(eventFormProvider(
+                                                      widget.event)
+                                                  .notifier)
+                                              .onDeleteContactoChanged(item);
                                         },
                                       )))
                               : [],
@@ -611,10 +746,10 @@ class __EventInformationState extends ConsumerState<_EventInformation> {
                                                     12)), // Aquí deberías colocar el texto que deseas mostrar en el chip para cada elemento de la lista
                                         onDeleted: () {
                                           ref
-                                            .read(
-                                                eventFormProvider(widget.event)
-                                                    .notifier)
-                                            .onDeleteResponsableChanged(item);
+                                              .read(eventFormProvider(
+                                                      widget.event)
+                                                  .notifier)
+                                              .onDeleteResponsableChanged(item);
                                           // Aquí puedes manejar la eliminación del chip si es necesario
                                         },
                                       )))
@@ -662,7 +797,8 @@ class __EventInformationState extends ConsumerState<_EventInformation> {
                                       Text('Invitar contactos de la empresa')),
                               onTap: () {
                                 Navigator.pop(context);
-                                _openSearchContacts(context, ref, eventForm.evntRuc.value);
+                                _openSearchContacts(
+                                    context, ref, eventForm.evntRuc.value);
                               },
                             ),
                             const Divider(),
@@ -701,9 +837,13 @@ class __EventInformationState extends ConsumerState<_EventInformation> {
               ),
             ],
           ),
-          if(!eventForm.arraycontacto!.isNotEmpty || !eventForm.arrayresponsable!.isNotEmpty)
-          const Text('* Es obligatorio seleccionar un contacto y un personal',
-              style: TextStyle(fontWeight: FontWeight.w400, fontSize: 13.0, color: Colors.red)),
+          if (!eventForm.arraycontacto!.isNotEmpty ||
+              !eventForm.arrayresponsable!.isNotEmpty)
+            const Text('* Es obligatorio seleccionar un contacto y un personal',
+                style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 13.0,
+                    color: Colors.red)),
           /*const SizedBox(height: 20),
           CustomCompanyField(
             label: 'Email de usuarios externos',
@@ -738,56 +878,96 @@ class __EventInformationState extends ConsumerState<_EventInformation> {
                   ),
                 ),
                 const SizedBox(height: 6),
-                GestureDetector(
-                  onTap: () {
-                    if (eventForm.evntRuc.value == "") {
-                      showSnackbar(context, 'Primero seleccione una empresa');
-                      return;
-                    }
-                    _openSearchOportunities(
-                        context, ref, eventForm.evntRuc.value);
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: eventForm.evntIdOportunidad.errorMessage != null ? Colors.red : Colors.grey,
-                        
-                      ),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            eventForm.evntIdOportunidad.value == ''
-                                ? 'Seleccione Oportunidad'
-                                : eventForm.evntNombreOportunidad ?? '',
-                            style: TextStyle(
-                                fontSize: 16,
-                                color:
-                                    eventForm.evntIdOportunidad.errorMessage !=
-                                            null
-                                        ? Colors.red[400]
-                                        : Colors.black),
+                showOportunidadSelector
+                    ? InkWell(
+                        borderRadius: BorderRadius.circular(24),
+                        onTap: () => _openOpportunitySelector(
+                          context,
+                          eventForm,
+                          selectorOptions,
+                        ),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF1F1F1),
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  _selectedOpportunitySummary(eventForm),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 15,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ),
+                              const Icon(Icons.keyboard_arrow_down),
+                            ],
                           ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.search),
-                          onPressed: () {
-                            if (eventForm.evntRuc.value == "") {
-                              showSnackbar(
-                                  context, 'Primero seleccione una empresa');
-                              return;
-                            }
-                            _openSearchOportunities(
-                                context, ref, eventForm.evntRuc.value);
-                          },
+                      )
+                    : GestureDetector(
+                        onTap: () {
+                          if (eventForm.evntRuc.value == "") {
+                            showSnackbar(
+                                context, 'Primero seleccione una empresa');
+                            return;
+                          }
+                          _openSearchOportunities(
+                              context, ref, eventForm.evntRuc.value);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: eventForm.evntIdOportunidad.errorMessage !=
+                                      null
+                                  ? Colors.red
+                                  : Colors.grey,
+                            ),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  eventForm.evntIdOportunidad.value == ''
+                                      ? 'Seleccione Oportunidad'
+                                      : eventForm.evntNombreOportunidad ?? '',
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      color: eventForm.evntIdOportunidad
+                                                  .errorMessage !=
+                                              null
+                                          ? Colors.red[400]
+                                          : Colors.black),
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.search),
+                                onPressed: () {
+                                  if (eventForm.evntRuc.value == "") {
+                                    showSnackbar(context,
+                                        'Primero seleccione una empresa');
+                                    return;
+                                  }
+                                  _openSearchOportunities(
+                                      context, ref, eventForm.evntRuc.value);
+                                },
+                              ),
+                            ],
+                          ),
                         ),
-                      ],
-                    ),
-                  ),
-                ),
+                      ),
               ],
             ),
           ),
@@ -836,9 +1016,7 @@ class __EventInformationState extends ConsumerState<_EventInformation> {
         ],
       ),
     );
- 
   }
-
 
   void _openSearchOportunities(
       BuildContext context, WidgetRef ref, String ruc) async {
@@ -846,19 +1024,20 @@ class __EventInformationState extends ConsumerState<_EventInformation> {
     final searchQuery = ref.read(searchQueryOpportunitiesProvider);
 
     showSearch<Opportunity?>(
-            query: searchQuery,
-            context: context,
-            delegate: SearchOpportunityDelegate(
-                ruc: ruc,
-                initialOpportunities: searchedOpportunities,
-                searchOpportunities: ref
-                    .read(searchedOpportunitiesProvider.notifier)
-                    .searchOpportunitiesByQuery,
-                resetSearchQuery: () {
-                    ref.read(searchQueryOpportunitiesProvider.notifier).update((state) => '');
-                },
-            ))
-        .then((opportunity) {
+        query: searchQuery,
+        context: context,
+        delegate: SearchOpportunityDelegate(
+          ruc: ruc,
+          initialOpportunities: searchedOpportunities,
+          searchOpportunities: ref
+              .read(searchedOpportunitiesProvider.notifier)
+              .searchOpportunitiesByQuery,
+          resetSearchQuery: () {
+            ref
+                .read(searchQueryOpportunitiesProvider.notifier)
+                .update((state) => '');
+          },
+        )).then((opportunity) {
       if (opportunity == null) return;
 
       ref
@@ -870,22 +1049,23 @@ class __EventInformationState extends ConsumerState<_EventInformation> {
   void _openSearchCompanies(
       BuildContext context, WidgetRef ref, String dni) async {
     final searchedCompanies = ref.read(searchedCompaniesProvider);
-    final searchQuery = ref.read(searchQueryCompaniesProvider);
+    ref.read(searchQueryCompaniesProvider.notifier).update((state) => '');
 
     showSearch<Company?>(
-            query: searchQuery,
-            context: context,
-            delegate: SearchCompanyDelegate(
-                dni: dni,
-                initialCompanies: searchedCompanies,
-                searchCompanies: ref
-                    .read(searchedCompaniesProvider.notifier)
-                    .searchCompaniesByQuery,
-                resetSearchQuery: () {
-                    ref.read(searchQueryCompaniesProvider.notifier).update((state) => '');
-                },
-            ))
-        .then((company) {
+        query: '',
+        context: context,
+        delegate: SearchCompanyDelegate(
+          dni: dni,
+          initialCompanies: searchedCompanies,
+          searchCompanies: ref
+              .read(searchedCompaniesProvider.notifier)
+              .searchCompaniesByQuery,
+          resetSearchQuery: () {
+            ref
+                .read(searchQueryCompaniesProvider.notifier)
+                .update((state) => '');
+          },
+        )).then((company) {
       if (company == null) return;
 
       ref
@@ -894,27 +1074,30 @@ class __EventInformationState extends ConsumerState<_EventInformation> {
     });
   }
 
-  void _openSearchContacts(BuildContext context, WidgetRef ref, String ruc) async {
+  void _openSearchContacts(
+      BuildContext context, WidgetRef ref, String ruc) async {
     final searchedContacts = ref.read(searchedContactsProvider);
     final searchQuery = ref.read(searchQueryContactsProvider);
 
     showSearch<Contact?>(
-            query: searchQuery,
-            context: context,
-            delegate: SearchContactDelegate(
-              ruc: ruc,
-                initialContacts: searchedContacts,
-                searchContacts: ref
-                    .read(searchedContactsProvider.notifier)
-                    .searchContactsByQuery,
-                resetSearchQuery: () {
-                  ref.read(searchQueryContactsProvider.notifier).update((state) => '');
-                },
-            ))
-        .then((contact) {
+        query: searchQuery,
+        context: context,
+        delegate: SearchContactDelegate(
+          ruc: ruc,
+          initialContacts: searchedContacts,
+          searchContacts:
+              ref.read(searchedContactsProvider.notifier).searchContactsByQuery,
+          resetSearchQuery: () {
+            ref
+                .read(searchQueryContactsProvider.notifier)
+                .update((state) => '');
+          },
+        )).then((contact) {
       if (contact == null) return;
 
-      ref.read(eventFormProvider(widget.event).notifier).onContactoChanged(contact);
+      ref
+          .read(eventFormProvider(widget.event).notifier)
+          .onContactoChanged(contact);
     });
   }
 
@@ -924,23 +1107,23 @@ class __EventInformationState extends ConsumerState<_EventInformation> {
     final user = ref.watch(authProvider).user;
 
     showSearch<UserMaster?>(
-            query: searchQuery,
-            context: context,
-            delegate: SearchUserDelegate(
-              //userCurrent: user!,
-              idItemDelete: user!.code,
-              initialUsers: searchedUsers,
-              searchUsers: ref
-                  .read(searchedUsersProvider.notifier)
-                  .searchUsersByQuery,
-              resetSearchQuery: () {
-                ref.read(searchQueryUsersProvider.notifier).update((state) => '');
-              },
-            ))
-        .then((user) {
+        query: searchQuery,
+        context: context,
+        delegate: SearchUserDelegate(
+          //userCurrent: user!,
+          idItemDelete: user!.code,
+          initialUsers: searchedUsers,
+          searchUsers:
+              ref.read(searchedUsersProvider.notifier).searchUsersByQuery,
+          resetSearchQuery: () {
+            ref.read(searchQueryUsersProvider.notifier).update((state) => '');
+          },
+        )).then((user) {
       if (user == null) return;
 
-      ref.read(eventFormProvider(widget.event).notifier).onResponsableChanged(user);
+      ref
+          .read(eventFormProvider(widget.event).notifier)
+          .onResponsableChanged(user);
     });
   }
 
@@ -950,26 +1133,25 @@ class __EventInformationState extends ConsumerState<_EventInformation> {
     final searchQuery = ref.read(searchQueryCompanyLocalesProvider);
 
     showSearch<CompanyLocal?>(
-            query: searchQuery,
-            context: context,
-            delegate: SearchCompanyLocalDelegate(
-                ruc: ruc,
-                initialCompanyLocales: searchedCompanyLocales,
-                searchCompanyLocales: ref
-                    .read(searchedCompanyLocalesProvider.notifier)
-                    .searchCompanyLocalesByQuery,
-                resetSearchQuery: () {
-                    ref.read(searchQueryCompanyLocalesProvider.notifier).update((state) => '');
-                },
-            ))
-        .then((companyLocal) {
+        query: searchQuery,
+        context: context,
+        delegate: SearchCompanyLocalDelegate(
+          ruc: ruc,
+          initialCompanyLocales: searchedCompanyLocales,
+          searchCompanyLocales: ref
+              .read(searchedCompanyLocalesProvider.notifier)
+              .searchCompanyLocalesByQuery,
+          resetSearchQuery: () {
+            ref
+                .read(searchQueryCompanyLocalesProvider.notifier)
+                .update((state) => '');
+          },
+        )).then((companyLocal) {
       if (companyLocal == null) return;
 
-      ref
-          .read(eventFormProvider(widget.event).notifier)
-          .onLocalChanged(companyLocal.id,
-              '${companyLocal.localNombre} ${companyLocal.localDireccion}');
-
+      ref.read(eventFormProvider(widget.event).notifier).onLocalChanged(
+          companyLocal.id,
+          '${companyLocal.localNombre} ${companyLocal.localDireccion}');
     });
   }
 
@@ -1014,5 +1196,4 @@ class __EventInformationState extends ConsumerState<_EventInformation> {
       }
     }
   }
-
 }

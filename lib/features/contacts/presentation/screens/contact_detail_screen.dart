@@ -34,7 +34,8 @@ class _ContactDetailScreenState extends ConsumerState<ContactDetailScreen> {
 
   @override
   initializedServices() async {
-    await KeyValueStorageServiceImpl().setKeyValue('current_contact_id', widget.contactId);
+    await KeyValueStorageServiceImpl()
+        .setKeyValue('current_contact_id', widget.contactId);
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       ref
           .read(contactProvider(widget.contactId).notifier)
@@ -76,8 +77,8 @@ class _ViewContactDetailScreen extends ConsumerStatefulWidget {
       _ViewContactDetailScreenState();
 }
 
-class _ViewContactDetailScreenState extends ConsumerState<_ViewContactDetailScreen>
-    {
+class _ViewContactDetailScreenState
+    extends ConsumerState<_ViewContactDetailScreen> {
   bool _microsoftSynced = false;
 
   @override
@@ -87,15 +88,18 @@ class _ViewContactDetailScreenState extends ConsumerState<_ViewContactDetailScre
   }
 
   Future<void> _loadMicrosoftSyncState() async {
-    final synced = await KeyValueStorageServiceImpl().getValue<bool>('microsoft_synced');
-    final showMessage = await KeyValueStorageServiceImpl().getValue<bool>('show_sync_message');
+    final synced =
+        await KeyValueStorageServiceImpl().getValue<bool>('microsoft_synced');
+    final showMessage =
+        await KeyValueStorageServiceImpl().getValue<bool>('show_sync_message');
     if (!mounted) return;
     setState(() {
       _microsoftSynced = synced == true;
     });
 
     if (showMessage == true) {
-      await KeyValueStorageServiceImpl().setKeyValue<bool>('show_sync_message', false);
+      await KeyValueStorageServiceImpl()
+          .setKeyValue<bool>('show_sync_message', false);
       // Delay para asegurar que el overlay esté listo
       Future.delayed(const Duration(milliseconds: 500), () {
         if (!mounted) return;
@@ -107,7 +111,6 @@ class _ViewContactDetailScreenState extends ConsumerState<_ViewContactDetailScre
         );
       });
     }
-
   }
 
   @override
@@ -157,10 +160,10 @@ class _ViewContactDetailScreenState extends ConsumerState<_ViewContactDetailScre
             context.go('/contacts');
           },
         ),
-        title: const Text('Detalles del contacto',
-        style: TextStyle(
-          fontWeight: FontWeight.w500
-        ),),
+        title: const Text(
+          'Detalles del contacto',
+          style: TextStyle(fontWeight: FontWeight.w500),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
@@ -355,16 +358,17 @@ class ContainerCustom extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 6),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  text,
-                  maxLines: 10,
-                  style: const TextStyle(
-                    fontSize: 16,
+                Expanded(
+                  child: Text(
+                    text,
+                    maxLines: 10,
+                    style: const TextStyle(
+                      fontSize: 16,
+                    ),
                   ),
                 ),
-                const Expanded(child: SizedBox()),
                 icon2 != null
                     ? IconButton(
                         icon: icon2!,

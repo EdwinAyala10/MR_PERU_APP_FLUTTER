@@ -116,8 +116,8 @@ class OpportunityScreen extends ConsumerWidget {
                         if (opportunity.id != current.id) return opportunity;
                         return current;
                       }).toList();
-                      ref.read(currentOpportunityGroupProvider.notifier).state =
-                          updatedGroup;
+                        ref.read(currentOpportunityGroupProvider.notifier).state =
+                            normalizeOpportunityGroup(updatedGroup);
                     }
                   }
 
@@ -166,8 +166,8 @@ class OpportunityScreen extends ConsumerWidget {
                               allowedIds.contains(opportunity.id))
                           .toList();
                       if (filtered.isEmpty) return;
-                      ref.read(currentOpportunityGroupProvider.notifier).state =
-                          filtered;
+                        ref.read(currentOpportunityGroupProvider.notifier).state =
+                            normalizeOpportunityGroup(filtered);
                       final selectedId = current?.id ?? opportunityId;
                       final updatedSelected = filtered
                           .where((opportunity) => opportunity.id == selectedId)
@@ -501,11 +501,11 @@ class _OpportunityInformationv2State
                 Text(
                   'Empresa principal',
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 14,
                     fontWeight: FontWeight.bold,
                     color: opportunityForm.oprtRuc.errorMessage != null
                         ? Colors.red
-                        : Colors.grey,
+                        : Colors.black87,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -514,9 +514,9 @@ class _OpportunityInformationv2State
                     _openSearch(context, ref, 'ruc',
                         opportunityForm.oprtIdUsuarioRegistro);
                   },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(
                       border: Border.all(
                         color: opportunityForm.oprtRuc.errorMessage != null
                             ? Colors.red
@@ -942,10 +942,10 @@ class _OpportunityInformationv2State
   void _openSearch(
       BuildContext context, WidgetRef ref, String type, String dni) async {
     final searchedCompanies = ref.read(searchedCompaniesProvider);
-    final searchQuery = ref.read(searchQueryCompaniesProvider);
+    ref.read(searchQueryCompaniesProvider.notifier).update((state) => '');
 
     showSearch<Company?>(
-        query: searchQuery,
+        query: '',
         context: context,
         delegate: SearchCompanyDelegate(
           dni: dni,

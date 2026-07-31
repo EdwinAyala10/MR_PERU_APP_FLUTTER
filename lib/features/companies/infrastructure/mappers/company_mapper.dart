@@ -3,6 +3,13 @@ import '../../../kpis/domain/entities/array_user.dart';
 
 class CompanyMapper {
   static jsonToEntity(Map<dynamic, dynamic> json) {
+    final ruc = (json['RUC'] ?? '').toString().trim();
+    final razon = (json['RAZON'] ?? '').toString().trim();
+    final razonComercial = (json['RAZON_COMERCIAL'] ?? '').toString().trim();
+    final resolvedRuc = ruc.isNotEmpty ? ruc : razon;
+    final resolvedRazon =
+        ruc.isEmpty && razonComercial.isNotEmpty ? razonComercial : razon;
+
     // Parsear LOCAL_COORDENADAS (formato: array de objetos con "LOCAL_COORDENADAS": "lng,lat")
     List<String>? localCoordenadas;
     if (json['LOCAL_COORDENADAS'] != null) {
@@ -40,9 +47,9 @@ class CompanyMapper {
     }
 
     return Company(
-      rucId: json['RUC'] ?? '',
-      ruc: json['RUC'] ?? '',
-      razon: json['RAZON'] ?? '',
+      rucId: resolvedRuc,
+      ruc: resolvedRuc,
+      razon: resolvedRazon,
       direccion: json['DIRECCION'] ?? '',
       telefono: json['TELEFONO'] ?? '',
       email: json['EMAIL'] ?? '',
@@ -69,6 +76,7 @@ class CompanyMapper {
       calificacion: json['CALIFICACION'] ?? '',
       nombreCalificacion: json['NOMBRE_CALIFICACION'] ?? '',
       visibleTodos: json['VISIBLE_TODOS'] ?? '',
+      estadoVisible: json['ESTADO_VISIBLE'] ?? '',
       codigoPostal: json['CODIGO_POSTAL'] ?? '',
       clienteNombreEstado: json['CLIENTE_NOMBRE_ESTADO'] ?? '',
       idUsuarioRegistro: json['ID_USUARIO_REGISTRO'] ?? '',
@@ -79,7 +87,7 @@ class CompanyMapper {
       localDistrito: json['LOCAL_DISTRITO'] ?? '',
       localCantidad: json['LOCAL_CANTIDAD'] ?? '',
       userreporteName: json['USERREPORT_NAME'] ?? '',
-      razonComercial: json['RAZON_COMERCIAL'] ?? '',
+      razonComercial: razonComercial,
       localCoordenadas: localCoordenadas,
       actiComentario: json['ACTI_COMENTARIO'] ?? '',
       cchkUltimaVisita: cchkUltimaVisita,

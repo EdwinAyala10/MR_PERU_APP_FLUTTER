@@ -20,15 +20,82 @@ final selectedOp = StateProvider<Opportunity?>((ref) => null);
 final currentOpportunityGroupProvider =
     StateProvider<List<Opportunity>>((ref) => []);
 
+List<Opportunity> normalizeOpportunityGroup(List<Opportunity> opportunities) {
+  final normalized = <Opportunity>[];
+  final seenKeys = <String>{};
+
+  for (final opportunity in opportunities) {
+    final key = [
+      opportunity.id,
+      opportunity.oprtNombre,
+      opportunity.oprtRuc,
+      opportunity.oprtLocalCodigo,
+    ].join('|');
+
+    if (seenKeys.add(key)) {
+      normalized.add(opportunity);
+    }
+  }
+
+  return normalized;
+}
+
+String opportunitySectionTypeFromStatus(String? statusId) {
+  switch ((statusId ?? '').trim()) {
+    case '01':
+    case '02':
+    case '03':
+    case '04':
+      return '01,02,03,04';
+    case '05':
+      return '05';
+    case '06':
+      return '06';
+    case '07':
+      return '07';
+    default:
+      return '';
+  }
+}
+
+List<Opportunity> filterOpportunityGroupBySection(
+  List<Opportunity> opportunities,
+  String type,
+) {
+  if (type.trim().isEmpty) return normalizeOpportunityGroup(opportunities);
+
+  final allowed = type
+      .split(',')
+      .map((value) => value.trim())
+      .where((value) => value.isNotEmpty)
+      .toSet();
+
+  return normalizeOpportunityGroup(
+    opportunities.where((opportunity) {
+      return allowed.contains((opportunity.oprtIdEstadoOportunidad ?? '').trim());
+    }).toList(),
+  );
+}
+
+String resolveOpportunitySectionType({
+  required String preferredType,
+  Opportunity? reference,
+}) {
+  if (preferredType.trim().isNotEmpty) return preferredType.trim();
+  return opportunitySectionTypeFromStatus(reference?.oprtIdEstadoOportunidad);
+}
+
+String companyGroupCacheKey(String ruc, String sectionType) {
+  return '${ruc.trim()}|${sectionType.trim()}';
+}
+
 final currentOpportunityDetailTabProvider = StateProvider<int>((ref) => 0);
 
 final currentOpportunityShowAllProvider = StateProvider<bool>((ref) => false);
 
-/// Caché en memoria del grupo completo (todas las oportunidades, sin importar
-/// su estado) de cada empresa, indexado por RUC. Se llena por prefetch al
-/// dibujar las tarjetas de la lista, de modo que al entrar al detalle el
-/// switcher muestre todas las oportunidades desde el PRIMER intento, sin
-/// esperar una petición de red.
+/// Caché en memoria del grupo por empresa y bandeja (estado), indexado por
+/// `RUC|ESTADO`, para no mezclar Activo/En pausa/Ganada/Perdida al volver a
+/// entrar al detalle.
 final companyGroupCacheProvider =
     StateProvider<Map<String, List<Opportunity>>>((ref) => {});
 

@@ -24,8 +24,10 @@ import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../activities/domain/domain.dart';
+import '../../../activities/presentation/providers/activity_provider.dart';
 import '../../../activities/presentation/widgets/item_activity.dart';
 import '../../../agenda/domain/domain.dart';
+import '../../../agenda/presentation/providers/event_provider.dart';
 import '../../../agenda/presentation/widgets/item_event.dart';
 import '../widgets/item_company_local.dart';
 import '../../../contacts/domain/domain.dart';
@@ -114,9 +116,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
     _tabController.addListener(_handleTabChange);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .watch(companyProvider(widget.company.ruc).notifier)
-          .loadCompany();
+      ref.watch(companyProvider(widget.company.ruc).notifier).loadCompany();
       ref
           .watch(companyProvider(widget.company.ruc).notifier)
           .loadSecundaryDetails();
@@ -321,9 +321,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
   }
 
   Future<void> _refreshCompany() async {
-    await ref
-        .watch(companyProvider(widget.company.ruc).notifier)
-        .loadCompany();
+    await ref.watch(companyProvider(widget.company.ruc).notifier).loadCompany();
     await ref
         .watch(companyProvider(widget.company.ruc).notifier)
         .loadSecundaryDetails();
@@ -338,93 +336,99 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
         child: Container(
           padding: const EdgeInsets.all(20.0),
           child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('GENERAL', style: styleTitle),
-            spacingHeight,
-            _buildInfoField('Nombre de la empresa', widget.company.razon,
-                styleLabel, styleContent),
-            _buildInfoField('Razon comercial',
-                widget.company.razonComercial ?? '', styleLabel, styleContent),
-            _buildInfoField(
-                'RUC', widget.company.ruc, styleLabel, styleContent),
-            _buildInfoField('Rubro', widget.company.nombreRubro ?? '',
-                styleLabel, styleContent),
-            _buildInfoField('Tipo', widget.company.clienteNombreTipo ?? '',
-                styleLabel, styleContent),
-            _buildInfoField('Estado', widget.company.clienteNombreEstado ?? '',
-                styleLabel, styleContent),
-            _buildInfoField(
-                'Calificación',
-                widget.company.nombreCalificacion ?? '',
-                styleLabel,
-                styleContent),
-            if (widget.company.arrayresponsables != null &&
-                widget.company.arrayresponsables!.isNotEmpty)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Responsables', style: styleTitle),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8.2,
-                    runSpacing: 6,
-                    children:
-                        widget.company.arrayresponsables!.map((responsable) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: secondaryColor,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          responsable.userreportName ?? '',
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ),
-            const SizedBox(height: 10), // Espaciado adicional
-            _buildInfoField(
-                'Empresa visible para todos',
-                widget.company.visibleTodos == "1" ? 'SI' : 'NO',
-                styleLabel,
-                styleContent),
-            widget.company.seguimientoComentario != ""
-                ? _buildInfoField(
-                    'Comentarios',
-                    widget.company.seguimientoComentario ?? '',
-                    styleLabel,
-                    styleContent)
-                : const SizedBox(),
-            widget.company.observaciones != ""
-                ? _buildInfoField(
-                    'Recomendación',
-                    widget.company.observaciones ?? '',
-                    styleLabel,
-                    styleContent)
-                : const SizedBox(),
-            const SizedBox(height: 20), // Espaciado adicional
-            Text('DATOS DE CONTACTO', style: styleTitle),
-            spacingHeight,
-            widget.company.email != ""
-                ? _buildInfoField('Teléfono', widget.company.telefono ?? '',
-                    styleLabel, styleContent)
-                : const SizedBox(),
-            widget.company.email != ""
-                ? _buildInfoField('Email', widget.company.email ?? '',
-                    styleLabel, styleContent)
-                : const SizedBox(),
-            _buildInfoField(
-                'Web', widget.company.website ?? '-', styleLabel, styleContent),
-            const SizedBox(height: 20), // Espaciado adicional
-          ],
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('GENERAL', style: styleTitle),
+              spacingHeight,
+              _buildInfoField('Nombre de la empresa', widget.company.razon,
+                  styleLabel, styleContent),
+              _buildInfoField(
+                  'Razon comercial',
+                  widget.company.razonComercial ?? '',
+                  styleLabel,
+                  styleContent),
+              _buildInfoField(
+                  'RUC', widget.company.ruc, styleLabel, styleContent),
+              _buildInfoField('Rubro', widget.company.nombreRubro ?? '',
+                  styleLabel, styleContent),
+              _buildInfoField('Tipo', widget.company.clienteNombreTipo ?? '',
+                  styleLabel, styleContent),
+              _buildInfoField(
+                  'Estado',
+                  widget.company.clienteNombreEstado ?? '',
+                  styleLabel,
+                  styleContent),
+              _buildInfoField(
+                  'Calificación',
+                  widget.company.nombreCalificacion ?? '',
+                  styleLabel,
+                  styleContent),
+              if (widget.company.arrayresponsables != null &&
+                  widget.company.arrayresponsables!.isNotEmpty)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Responsables', style: styleTitle),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8.2,
+                      runSpacing: 6,
+                      children:
+                          widget.company.arrayresponsables!.map((responsable) {
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: secondaryColor,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            responsable.userreportName ?? '',
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              const SizedBox(height: 10), // Espaciado adicional
+              _buildInfoField(
+                  'Empresa visible para todos',
+                  widget.company.visibleTodos == "1" ? 'SI' : 'NO',
+                  styleLabel,
+                  styleContent),
+              widget.company.seguimientoComentario != ""
+                  ? _buildInfoField(
+                      'Comentarios',
+                      widget.company.seguimientoComentario ?? '',
+                      styleLabel,
+                      styleContent)
+                  : const SizedBox(),
+              widget.company.observaciones != ""
+                  ? _buildInfoField(
+                      'Recomendación',
+                      widget.company.observaciones ?? '',
+                      styleLabel,
+                      styleContent)
+                  : const SizedBox(),
+              const SizedBox(height: 20), // Espaciado adicional
+              Text('DATOS DE CONTACTO', style: styleTitle),
+              spacingHeight,
+              widget.company.email != ""
+                  ? _buildInfoField('Teléfono', widget.company.telefono ?? '',
+                      styleLabel, styleContent)
+                  : const SizedBox(),
+              widget.company.email != ""
+                  ? _buildInfoField('Email', widget.company.email ?? '',
+                      styleLabel, styleContent)
+                  : const SizedBox(),
+              _buildInfoField('Web', widget.company.website ?? '-', styleLabel,
+                  styleContent),
+              const SizedBox(height: 20), // Espaciado adicional
+            ],
+          ),
         ),
       ),
-    ),
     );
   }
 
@@ -698,6 +702,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
               ref
                   .read(uiProvider.notifier)
                   .onCompanyActivity(widget.company.ruc, widget.company.razon);
+              ref.read(fromOpportunity.notifier).state = false;
               context.push('/activity/new');
             },
             iconData: Icons.add);
@@ -708,6 +713,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
               ref
                   .read(uiProvider.notifier)
                   .onCompanyActivity(widget.company.ruc, widget.company.razon);
+              ref.read(fromOpportunityEventProvider.notifier).state = false;
               context.push('/event/new');
             },
             iconData: Icons.add);
@@ -921,9 +927,7 @@ class _ListOpportunities extends StatelessWidget {
               const Divider(),
           itemBuilder: (context, index) {
             final group = groups[index];
-            return ItemOpportunity(
-                opportunity: group,
-                callbackOnTap: null);
+            return ItemOpportunity(opportunity: group, callbackOnTap: null);
           },
         ),
       ),

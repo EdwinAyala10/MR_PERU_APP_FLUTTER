@@ -19,6 +19,19 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
             baseUrl: Environment.apiUrl,
             headers: {'Authorization': 'Bearer $accessToken'}));
 
+  List<Opportunity> _uniqueOpportunities(List<Opportunity> opportunities) {
+    final unique = <Opportunity>[];
+    final seenIds = <String>{};
+
+    for (final opportunity in opportunities) {
+      if (seenIds.add(opportunity.id)) {
+        unique.add(opportunity);
+      }
+    }
+
+    return unique;
+  }
+
   @override
   Future<OpportunityResponse> createUpdateOpportunity(
       Map<dynamic, dynamic> opportunityLike) async {
@@ -108,21 +121,14 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
     int limit = 10,
     String idUsuario = '',
   }) async {
-    final data = {
-      "RUC": ruc,
-      "SEARCH": search,
-      "OFFSET": offset,
-      "TOP": limit,
-      "ID_USUARIO_RESPONSABLE": idUsuario
-    };
-    log(data.toString());
-    final response = await dio
-        .post('/oportunidad/listar-oportunidades-by-ruc-est', data: data);
-    final List<Opportunity> opportunities = [];
-    for (final opportunity in response.data['data'] ?? []) {
-      opportunities.add(OpportunityMapper.jsonToEntity(opportunity));
-    }
-    return opportunities;
+    return getListOpportunities(
+      ruc: ruc,
+      search: search,
+      offset: offset,
+      limit: limit,
+      idUsuario: idUsuario,
+      estado: '',
+    );
   }
 
   @override
@@ -141,7 +147,6 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
     String? startPercent,
     String? endPercent,
   }) async {
-    log("THIS END PERCENT: $endPercent");
     final data = {
       "RUC": ruc,
       "SEARCH": search,
@@ -157,109 +162,98 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
       "FECHAPREVISTADEVENTA_DESDE": startDate ?? '',
       "FECHAPREVISTADEVENTA_HASTA": endDate ?? ''
     };
+
     final response = await dio.post(
       '/oportunidad/listar-oportunidades-agrupado-empresa',
       data: data,
     );
 
-    final List<Opportunity> opportunities = [];
+    final Map<String, Opportunity> groupedOpportunities = {};
+    final bool isActivosRequest = (estado ?? '').trim() == '01,02,03,04';
+    final bool isEnPausaRequest = (estado ?? '').trim() == '05';
 
     for (final group in response.data['data'] ?? []) {
       final List<dynamic> oportunidadesEnGrupo = group['OPORTUNIDAD'] ?? [];
 
       if (oportunidadesEnGrupo.isEmpty) continue;
 
-      // Se conserva SIEMPRE el grupo completo de empresa en memoria para que
-      // el detalle navegue con todas las oportunidades, aunque la lista
-      // visible esté filtrada por estado/fecha/probabilidad/etc.
-      final List<Opportunity> grupoCompleto = [];
+      final List<Opportunity> oportunidadesParseadas = [];
       for (final opportunityJson in oportunidadesEnGrupo) {
-        grupoCompleto.add(
-          OpportunityMapper.jsonToEntity(opportunityJson),
-        );
+        try {
+          oportunidadesParseadas.add(
+            OpportunityMapper.jsonToEntity(opportunityJson),
+          );
+        } catch (e) {
+          log(
+            'OPPORTUNITY PARSE ERROR (grupoCompleto) id=${opportunityJson['OPRT_ID_OPORTUNIDAD']} '
+            'fechaPrevista=${opportunityJson['OPRT_FECHA_PREVISTA_VENTA']} '
+            'fechaRegistro=${opportunityJson['OPRT_FECHA_REGISTRO']} error=$e',
+          );
+        }
       }
 
-      // Filtrar oportunidades por estado si se especifica
-      List<dynamic> oportunidadesFiltradas = oportunidadesEnGrupo;
-      if (estado != null && estado.isNotEmpty) {
-        final estadosPermitidos =
-            estado.split(',').map((e) => e.trim()).toSet();
-        oportunidadesFiltradas = oportunidadesEnGrupo.where((op) {
-          final opEstado = op['OPRT_ID_ESTADO_OPORTUNIDAD']?.toString() ?? '';
-          return estadosPermitidos.contains(opEstado);
-        }).toList();
+      if (oportunidadesParseadas.isEmpty) continue;
+
+      final primeraOportunidad = oportunidadesParseadas[0];
+      final empresaKey =
+          '${primeraOportunidad.oprtRuc ?? ''}-${primeraOportunidad.oprtLocalCodigo ?? ''}';
+      final existing = groupedOpportunities[empresaKey];
+
+      if (existing == null) {
+        primeraOportunidad.isFirstInGroup = true;
+        primeraOportunidad.oprtPrimeraFechaRegistro =
+            group['OPRT_PRIMERA_FECHA_REGISTRO'];
+        primeraOportunidad.nombrePrimeroUsuarioResponsable =
+            group['NOMBRE_PRIMERO_USUARIO_RESPONSABLE'];
+        primeraOportunidad.oportunidadesDelGrupo =
+            _uniqueOpportunities(oportunidadesParseadas);
+        primeraOportunidad.visibleOportunidadesDelGrupo =
+            _uniqueOpportunities(oportunidadesParseadas);
+        primeraOportunidad.totalOportunidadesEnGrupo =
+            primeraOportunidad.oportunidadesDelGrupo!.length;
+
+        groupedOpportunities[empresaKey] = primeraOportunidad;
+        continue;
       }
 
-      if (estadoOP != null && estadoOP.isNotEmpty) {
-        final estadosOportunidad =
-            estadoOP.split(',').map((e) => e.trim()).toSet();
-        oportunidadesFiltradas = oportunidadesFiltradas.where((op) {
-          final opEstado = op['OPRT_ID_ESTADO_OPORTUNIDAD']?.toString() ?? '';
-          return estadosOportunidad.contains(opEstado);
-        }).toList();
-      }
-
-      final probDesde = double.tryParse((startPercent ?? '').trim());
-      final probHasta = double.tryParse((endPercent ?? '').trim());
-      if (probDesde != null || probHasta != null) {
-        oportunidadesFiltradas = oportunidadesFiltradas.where((op) {
-          final prob =
-              double.tryParse((op['OPRT_PROBABILIDAD'] ?? '').toString()) ?? 0;
-          if (probDesde != null && prob < probDesde) return false;
-          if (probHasta != null && prob > probHasta) return false;
-          return true;
-        }).toList();
-      }
-
-      final valorDesde = double.tryParse((startValue ?? '').trim()) ?? 0;
-      final valorHasta = double.tryParse((endValue ?? '').trim()) ?? 0;
-      if (valorDesde > 0 || valorHasta > 0) {
-        oportunidadesFiltradas = oportunidadesFiltradas.where((op) {
-          final valor =
-              double.tryParse((op['OPRT_VALOR'] ?? '').toString()) ?? 0;
-          if (valorDesde > 0 && valor < valorDesde) return false;
-          if (valorHasta > 0 && valor > valorHasta) return false;
-          return true;
-        }).toList();
-      }
-
-      final fechaDesde = DateTime.tryParse((startDate ?? '').trim());
-      final fechaHasta = DateTime.tryParse((endDate ?? '').trim());
-      if (fechaDesde != null || fechaHasta != null) {
-        oportunidadesFiltradas = oportunidadesFiltradas.where((op) {
-          final rawFecha = (op['OPRT_FECHA_PREVISTA_VENTA'] ?? '').toString();
-          final fecha = DateTime.tryParse(rawFecha);
-          if (fecha == null) return false;
-          if (fechaDesde != null && fecha.isBefore(fechaDesde)) return false;
-          if (fechaHasta != null && fecha.isAfter(fechaHasta)) return false;
-          return true;
-        }).toList();
-      }
-
-      // Si después del filtro no quedan oportunidades, saltar este grupo
-      if (oportunidadesFiltradas.isEmpty) continue;
-
-      final List<Opportunity> todasLasOportunidades = [];
-      for (final opportunityJson in oportunidadesFiltradas) {
-        todasLasOportunidades.add(
-          OpportunityMapper.jsonToEntity(opportunityJson),
-        );
-      }
-
-      final primeraOportunidad = todasLasOportunidades[0];
-      primeraOportunidad.isFirstInGroup = true;
-      primeraOportunidad.oprtPrimeraFechaRegistro =
-          group['OPRT_PRIMERA_FECHA_REGISTRO'];
-      primeraOportunidad.nombrePrimeroUsuarioResponsable =
-          group['NOMBRE_PRIMERO_USUARIO_RESPONSABLE'];
-      primeraOportunidad.totalOportunidadesEnGrupo = grupoCompleto.length;
-      primeraOportunidad.oportunidadesDelGrupo = grupoCompleto;
-      primeraOportunidad.visibleOportunidadesDelGrupo = todasLasOportunidades;
-
-      opportunities.add(primeraOportunidad);
+      existing.oportunidadesDelGrupo = _uniqueOpportunities([
+        ...(existing.oportunidadesDelGrupo ?? []),
+        ...oportunidadesParseadas,
+      ]);
+      existing.visibleOportunidadesDelGrupo = _uniqueOpportunities([
+        ...(existing.visibleOportunidadesDelGrupo ?? []),
+        ...oportunidadesParseadas,
+      ]);
+      existing.totalOportunidadesEnGrupo =
+          existing.oportunidadesDelGrupo?.length ?? 0;
     }
 
-    return opportunities;
+    final result = groupedOpportunities.values.toList();
+
+    if (isActivosRequest || isEnPausaRequest) {
+      final rawGroups = (response.data['data'] as List? ?? []).length;
+      final rawStates = <String, int>{};
+      for (final group in response.data['data'] ?? []) {
+        for (final opportunityJson in group['OPORTUNIDAD'] ?? []) {
+          final state =
+              (opportunityJson['OPRT_ID_ESTADO_OPORTUNIDAD'] ?? '').toString();
+          rawStates[state] = (rawStates[state] ?? 0) + 1;
+        }
+      }
+
+      final finalIds = result
+          .map(
+            (group) =>
+                '${group.razon} -> ${(group.visibleOportunidadesDelGrupo ?? group.oportunidadesDelGrupo ?? []).map((op) => op.id).join(",")}',
+          )
+          .join(' | ');
+
+      log(
+        '${isActivosRequest ? 'ACTIVOS' : 'EN_PAUSA'} CHECK => requestEstado=${estado ?? ''}, rawGroups=$rawGroups, rawStates=$rawStates, finalGroups=${result.length}, finalVisible=$finalIds',
+      );
+    }
+
+    return result;
   }
 
   @override

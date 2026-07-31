@@ -8,7 +8,8 @@ import 'package:intl/intl.dart';
 class EventDetailScreen extends ConsumerWidget {
   final String eventId;
 
-  const EventDetailScreen({super.key, 
+  const EventDetailScreen({
+    super.key,
     required this.eventId,
   });
 
@@ -44,15 +45,18 @@ class EventDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Detalles de evento', style: TextStyle(
-          fontWeight: FontWeight.w500
-        ),),
+        title: const Text(
+          'Detalles de evento',
+          style: TextStyle(fontWeight: FontWeight.w500),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
-            onPressed: event.evntIdTipoRegistro == '01' ? () {
-              context.push('/event/${event.id}');
-            } : null,
+            onPressed: event.evntIdTipoRegistro == '01'
+                ? () {
+                    context.push('/event/${event.id}');
+                  }
+                : null,
           ),
         ],
       ),
@@ -87,112 +91,109 @@ class EventDetailScreen extends ConsumerWidget {
               ),
               ContainerCustom(
                 label: 'Fecha',
-                text:  DateFormat('dd-MM-yyyy').format(
-                        event.evntFechaInicioEvento ?? DateTime.now()),
+                text: DateFormat('dd-MM-yyyy')
+                    .format(event.evntFechaInicioEvento ?? DateTime.now()),
               ),
-              event.todoDia == "0" 
-              ? ContainerCustom(
-                label: 'Hora inicio',
-                text: DateFormat('hh:mm a').format(
-                              event.evntHoraInicioEvento != null
-                                  ? DateFormat('HH:mm:ss').parse(
-                                      event.evntHoraInicioEvento ?? '')
-                                  : DateTime.now()),
-              ) :  const SizedBox(),
-              event.todoDia == "0" 
-              ? ContainerCustom(
-                label: 'Hora fin',
-                text: DateFormat('hh:mm a').format(
-                              event.evntHoraFinEvento != null
-                                  ? DateFormat('HH:mm:ss').parse(
-                                      event.evntHoraFinEvento ?? '')
-                                  : DateTime.now()),
-              ) : const SizedBox(),
+              event.todoDia == "0"
+                  ? ContainerCustom(
+                      label: 'Hora inicio',
+                      text: DateFormat('hh:mm a').format(
+                          event.evntHoraInicioEvento != null
+                              ? DateFormat('HH:mm:ss')
+                                  .parse(event.evntHoraInicioEvento ?? '')
+                              : DateTime.now()),
+                    )
+                  : const SizedBox(),
+              event.todoDia == "0"
+                  ? ContainerCustom(
+                      label: 'Hora fin',
+                      text: DateFormat('hh:mm a').format(
+                          event.evntHoraFinEvento != null
+                              ? DateFormat('HH:mm:ss')
+                                  .parse(event.evntHoraFinEvento ?? '')
+                              : DateTime.now()),
+                    )
+                  : const SizedBox(),
               ContainerCustom(
                 label: 'Recordatorio de cita',
                 text: event.evntNombreRecordatorio ?? '',
               ),
-
               if (event.arraycontacto != null &&
-                event.arraycontacto!.isNotEmpty)
-              Container(
-                padding: const EdgeInsets.symmetric( horizontal: 10 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Contactos', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      children:
-                          event.arraycontacto!.map((arr) {
-                        return Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.blue[300],
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            arr.contactoDesc ?? '',
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ],
+                  event.arraycontacto!.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Contactos',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600, fontSize: 16)),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        children: event.arraycontacto!.map((arr) {
+                          return Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.blue[300],
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              arr.contactoDesc ?? '',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
               SizedBox(
                 height: 10,
               ),
               if (event.arrayresponsable != null &&
-                event.arrayresponsable!.isNotEmpty)
-              Container(
-                padding: const EdgeInsets.symmetric( horizontal: 10 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Personal', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      children:
-                          event.arrayresponsable!.map((arr) {
-                        return Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.blue[300],
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            arr.userreportName ?? '',
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ],
+                  event.arrayresponsable!.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Personal',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600, fontSize: 16)),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        children: event.arrayresponsable!.map((arr) {
+                          return Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.blue[300],
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              arr.userreportName ?? '',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-
               SizedBox(
                 height: 10,
               ),
-
               ContainerCustom(
                 label: 'Oportunidad',
                 text: event.evntNombreOportunidad ?? '',
               ),
-
-
-              
               ContainerCustom(
                 label: 'Responsable',
                 text: event.evntNombreUsuarioResponsable ?? '',
               ),
-
               ContainerCustom(
                 label: 'Comentario',
                 text: event.evntComentario ?? '',
@@ -249,16 +250,17 @@ class ContainerCustom extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 6),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  text,
-                  maxLines: 10,
-                  style: const TextStyle(
-                    fontSize: 16,
+                Expanded(
+                  child: Text(
+                    text,
+                    maxLines: 10,
+                    style: const TextStyle(
+                      fontSize: 16,
+                    ),
                   ),
                 ),
-                const Expanded(child: SizedBox()),
                 icon2 != null
                     ? IconButton(
                         icon: icon2!,

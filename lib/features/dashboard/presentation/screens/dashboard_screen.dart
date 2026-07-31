@@ -17,6 +17,7 @@ import 'package:flutter_app_badge/flutter_app_badge.dart';
 
 import '../../../activities/domain/domain.dart';
 import '../../../agenda/domain/domain.dart';
+import '../../../agenda/presentation/providers/event_provider.dart';
 import '../../../agenda/presentation/providers/events_provider.dart';
 import '../../../agenda/presentation/widgets/item_event_small.dart';
 import '../../../kpis/presentation/providers/kpis_by_asesor_provider.dart';
@@ -191,6 +192,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
             style: const TextStyle(fontSize: 16, color: Colors.white),
             onPressed: () {
               ref.read(uiProvider.notifier).deleteCompanyActivity();
+              ref.read(fromOpportunity.notifier).state = false;
               //context.go('/activity/no-id');
               context.push('/activity/new');
               _animationController.reverse();
@@ -205,6 +207,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
             onPressed: () {
               //context.go('/event/new');
               ref.read(uiProvider.notifier).deleteCompanyActivity();
+              ref.read(fromOpportunityEventProvider.notifier).state = false;
               context.push('/event/new');
               _animationController.reverse();
             },
@@ -428,10 +431,12 @@ class _ContainerDashboardKpis extends ConsumerStatefulWidget {
   _ContainerDashboardKpis({required this.kpis, required this.totalObjetivos});
 
   @override
-  ConsumerState<_ContainerDashboardKpis> createState() => _ContainerDashboardKpisState();
+  ConsumerState<_ContainerDashboardKpis> createState() =>
+      _ContainerDashboardKpisState();
 }
 
-class _ContainerDashboardKpisState extends ConsumerState<_ContainerDashboardKpis> {
+class _ContainerDashboardKpisState
+    extends ConsumerState<_ContainerDashboardKpis> {
   @override
   Widget build(BuildContext context) {
     final kpis = widget.kpis;
@@ -450,7 +455,7 @@ class _ContainerDashboardKpisState extends ConsumerState<_ContainerDashboardKpis
 
     // El backend ya filtra según el usuario (admin o vendedor)
     final asesor = kpisWithData.first;
-    
+
     final List<Kpi> semanalKpis = asesor.semanal.toList();
     final List<Kpi> mensualKpis = asesor.mensual.toList();
     TextStyle periodicidadTitleTextStyle = const TextStyle(
@@ -524,18 +529,18 @@ class _ContainerDashboardKpisState extends ConsumerState<_ContainerDashboardKpis
                         alignment: semanalKpis.length == 1
                             ? Alignment.centerLeft
                             : Alignment.center,
-                          child: progressKpi(
-                              percentage:
-                                  (semanalKpis[i].porcentaje ?? 0).toDouble(),
-                              categoryId: semanalKpis[i].objrIdCategoria,
-                              title: semanalKpis[i].objrNombre,
-                              category: semanalKpis[i].objrNombreCategoria ?? '',
-                             subTitle:
-                                 semanalKpis[i].objrNombrePeriodicidad ?? '',
-                             subSubTitle:
-                                 semanalKpis[i].objrNombreAsignacion ?? '',
-                               advance: semanalKpis[i].totalRegistro.toString(),
-                               total: convertTypeCategory(semanalKpis[i])),
+                        child: progressKpi(
+                            percentage:
+                                (semanalKpis[i].porcentaje ?? 0).toDouble(),
+                            categoryId: semanalKpis[i].objrIdCategoria,
+                            title: semanalKpis[i].objrNombre,
+                            category: semanalKpis[i].objrNombreCategoria ?? '',
+                            subTitle:
+                                semanalKpis[i].objrNombrePeriodicidad ?? '',
+                            subSubTitle:
+                                semanalKpis[i].objrNombreAsignacion ?? '',
+                            advance: semanalKpis[i].totalRegistro.toString(),
+                            total: convertTypeCategory(semanalKpis[i])),
                       ),
                     ),
                 ],
@@ -568,18 +573,18 @@ class _ContainerDashboardKpisState extends ConsumerState<_ContainerDashboardKpis
                         alignment: mensualKpis.length == 1
                             ? Alignment.centerLeft
                             : Alignment.center,
-                          child: progressKpi(
-                              percentage:
-                                  (mensualKpis[i].porcentaje ?? 0).toDouble(),
-                              categoryId: mensualKpis[i].objrIdCategoria,
-                              title: mensualKpis[i].objrNombre,
-                              category: mensualKpis[i].objrNombreCategoria ?? '',
-                             subTitle:
-                                 mensualKpis[i].objrNombrePeriodicidad ?? '',
-                             subSubTitle:
-                             mensualKpis[i].objrNombreAsignacion ?? '',
-                              advance: mensualKpis[i].totalRegistro.toString(),
-                              total: convertTypeCategory(mensualKpis[i])),
+                        child: progressKpi(
+                            percentage:
+                                (mensualKpis[i].porcentaje ?? 0).toDouble(),
+                            categoryId: mensualKpis[i].objrIdCategoria,
+                            title: mensualKpis[i].objrNombre,
+                            category: mensualKpis[i].objrNombreCategoria ?? '',
+                            subTitle:
+                                mensualKpis[i].objrNombrePeriodicidad ?? '',
+                            subSubTitle:
+                                mensualKpis[i].objrNombreAsignacion ?? '',
+                            advance: mensualKpis[i].totalRegistro.toString(),
+                            total: convertTypeCategory(mensualKpis[i])),
                       ),
                     ),
                 ],
@@ -696,7 +701,7 @@ class _ContainerDashboardKpisState extends ConsumerState<_ContainerDashboardKpis
 
   String convertTypeCategory(Kpi kpi) {
     String res = kpi.objrCantidad ?? '';
-    
+
     // Solo agregar "K" si es categoría '05' (Oportunidades Ganadas)
     if (kpi.objrIdCategoria == '05') {
       try {
@@ -717,7 +722,7 @@ class _ContainerDashboardKpisState extends ConsumerState<_ContainerDashboardKpis
         res = '0';
       }
     }
-    
+
     return res;
   }
 }
@@ -849,22 +854,22 @@ class _ContainerDashboardOpportunities extends ConsumerWidget {
                 Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                   child: ElevatedButton(
-                     onPressed: () {
-                       resetAllProvidersFilterOP(ref);
-                       ref.read(searchControllerProvider).text = '';
-                       ref.read(opportunitiesProvider.notifier).clearOpList();
-                       ref
-                           .read(opportunitiesProvider.notifier)
-                           .updateTypeOpportunity('01,02,03,04');
-                       ref
-                           .read(opportunitiesProvider.notifier)
-                           .onChangeNotIsActiveSearchSinRefresh();
-                       context.push('/opportunities');
-                       // Acción cuando se presiona el botón
-                     },
-                     child: const Text('Ver más'),
-                   ),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      resetAllProvidersFilterOP(ref);
+                      ref.read(searchControllerProvider).text = '';
+                      ref.read(opportunitiesProvider.notifier).clearOpList();
+                      ref
+                          .read(opportunitiesProvider.notifier)
+                          .updateTypeOpportunity('01,02,03,04');
+                      ref
+                          .read(opportunitiesProvider.notifier)
+                          .onChangeNotIsActiveSearchSinRefresh();
+                      context.push('/opportunities');
+                      // Acción cuando se presiona el botón
+                    },
+                    child: const Text('Ver más'),
+                  ),
                 ),
               ],
             ),
@@ -1021,7 +1026,7 @@ class progressKpi extends StatelessWidget {
     if (categoryId == '08') {
       // Para oportunidad sin seguimiento, el color depende del TOTAL_REGISTRO
       final totalRegistro = int.tryParse(advance) ?? 0;
-      
+
       if (totalRegistro == 0) return Colors.grey;
       if (totalRegistro <= 2) return Colors.amber;
       return Colors.red;
@@ -1034,10 +1039,9 @@ class progressKpi extends StatelessWidget {
     if (categoryId == '08') return 1.0;
 
     // Normalizar porcentaje si viene en formato incorrecto
-    final normalizedPercentage = percentage > 1000 
-        ? (percentage / 10000) 
-        : (percentage / 100);
-    
+    final normalizedPercentage =
+        percentage > 1000 ? (percentage / 10000) : (percentage / 100);
+
     return normalizedPercentage.clamp(0.0, 1.0);
   }
 

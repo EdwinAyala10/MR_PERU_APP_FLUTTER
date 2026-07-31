@@ -648,7 +648,7 @@ class _ListOpportunitiesState extends ConsumerState<_ListOpportunities> {
                           .read(currentOpportunityShowAllProvider.notifier)
                           .state = false;
                       ref.read(currentOpportunityGroupProvider.notifier).state =
-                          resolvedGroup;
+                          normalizeOpportunityGroup(resolvedGroup);
                       ref
                           .read(currentOpportunityDetailTabProvider.notifier)
                           .state = 0;

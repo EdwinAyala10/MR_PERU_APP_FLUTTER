@@ -13,6 +13,7 @@ import 'package:crm_app/features/activities/presentation/widgets/item_activity.d
 import 'package:crm_app/features/agenda/domain/entities/event.dart';
 import 'package:crm_app/features/agenda/domain/repositories/events_repository.dart';
 import 'package:crm_app/features/agenda/presentation/providers/events_provider.dart';
+import 'package:crm_app/features/agenda/presentation/providers/event_provider.dart';
 import 'package:crm_app/features/agenda/presentation/providers/events_repository_provider.dart';
 import 'package:crm_app/features/agenda/presentation/widgets/item_event.dart';
 import 'package:crm_app/features/opportunities/domain/entities/op_document.dart';
@@ -135,7 +136,9 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
     currentIndex = _tabController.index;
     _tabController.addListener(_handleTabChange);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final group = ref.read(currentOpportunityGroupProvider);
+      final group = normalizeOpportunityGroup(
+        ref.read(currentOpportunityGroupProvider),
+      );
       final selected = ref.read(selectedOp);
       final opportunity =
           ref.read(opportunityProvider(widget.opportunityId)).opportunity;
@@ -219,7 +222,8 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
       final updatedGroup = group.map((opportunity) {
         return opportunity.id == currentId ? updated : opportunity;
       }).toList();
-      ref.read(currentOpportunityGroupProvider.notifier).state = updatedGroup;
+      ref.read(currentOpportunityGroupProvider.notifier).state =
+          normalizeOpportunityGroup(updatedGroup);
     }
 
     // Se refresca el caché de datos completos con la versión actualizada.
@@ -234,7 +238,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
 
   /// Completa el grupo de la empresa en segundo plano SIN mostrar loader y
   /// SIN recargar las tabs. Solo actualiza la lista del switcher para que
-  /// muestre todas las oportunidades de la empresa (todos los estados).
+  /// muestre las oportunidades de la misma seccion actual.
   /// No toca selectedOp para evitar que las tabs se reconstruyan/recarguen.
   Future<void> _refreshOpportunityGroupSilent() async {
     final currentId = ref.read(selectedOp)?.id ?? widget.opportunityId;
@@ -248,6 +252,10 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
     final loaded = ref.read(opportunityProvider(currentId)).opportunity;
     final base = loaded ?? ref.read(selectedOp);
     final ruc = base?.oprtRuc ?? '';
+    final sectionType = resolveOpportunitySectionType(
+      preferredType: ref.read(opportunitiesProvider).typeOpportunity,
+      reference: base,
+    );
     if (ruc.isEmpty) return;
 
     final user = ref.read(authProvider).user;
@@ -258,36 +266,35 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
               limit: 100,
               offset: 1,
               idUsuario: (user?.isAdmin ?? false) ? '' : (user?.code ?? ''),
-              estado: '',
+              estado: sectionType,
             );
     final refreshed = refreshedGroups
         .expand(
             (opportunity) => opportunity.oportunidadesDelGrupo ?? [opportunity])
         .toList();
 
-    // Todas las oportunidades de la empresa (mismo RUC), sin importar estado.
     final byRuc = refreshed
         .where((opportunity) => (opportunity.oprtRuc ?? '') == ruc)
         .toList();
+    final sectionGroup = normalizeOpportunityGroup(byRuc);
 
     // Se actualiza el caché por RUC para que próximas entradas sean instantáneas.
-    if (byRuc.isNotEmpty) {
+    if (sectionGroup.isNotEmpty) {
       final newCache = Map<String, List<Opportunity>>.from(
           ref.read(companyGroupCacheProvider));
-      newCache[ruc] = byRuc;
+      newCache[companyGroupCacheKey(ruc, sectionType)] = sectionGroup;
       ref.read(companyGroupCacheProvider.notifier).state = newCache;
     }
 
-    // Se muestran TODAS las oportunidades de la misma empresa (mismo RUC), sin
-    // importar el estado (activo, pausa, ganado, perdida) ni el local.
-    final result = byRuc;
+    final result = sectionGroup;
 
     if (result.isEmpty) return;
     if (!mounted) return;
 
     // Solo se actualiza el grupo (para el switcher). No se toca selectedOp
     // ni se recargan las tabs.
-    ref.read(currentOpportunityGroupProvider.notifier).state = result;
+    ref.read(currentOpportunityGroupProvider.notifier).state =
+        normalizeOpportunityGroup(result);
 
     // Al conocerse el grupo completo, se prearman los datos completos (con
     // responsable) de todas sus oportunidades para que el cambio sea instantáneo.
@@ -310,6 +317,10 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
         ref.read(opportunityProvider(currentId)).opportunity;
     final baseOpportunity = current ?? loadedOpportunity;
     final ruc = baseOpportunity?.oprtRuc ?? '';
+    final sectionType = resolveOpportunitySectionType(
+      preferredType: ref.read(opportunitiesProvider).typeOpportunity,
+      reference: baseOpportunity,
+    );
 
     if (ruc.isEmpty) {
       if (mounted) {
@@ -328,17 +339,17 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
               limit: 100,
               offset: 1,
               idUsuario: (user?.isAdmin ?? false) ? '' : (user?.code ?? ''),
-              estado: '',
+              estado: sectionType,
             );
     final refreshed = refreshedGroups
         .expand(
             (opportunity) => opportunity.oportunidadesDelGrupo ?? [opportunity])
         .toList();
-    // Todas las oportunidades de la misma empresa (mismo RUC), sin importar
-    // estado ni local.
-    final filtered = refreshed
-        .where((opportunity) => (opportunity.oprtRuc ?? '') == ruc)
-        .toList();
+    final filtered = normalizeOpportunityGroup(
+      refreshed
+          .where((opportunity) => (opportunity.oprtRuc ?? '') == ruc)
+          .toList(),
+    );
 
     if (filtered.isEmpty) {
       if (mounted) {
@@ -349,7 +360,8 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
       return;
     }
 
-    ref.read(currentOpportunityGroupProvider.notifier).state = filtered;
+    ref.read(currentOpportunityGroupProvider.notifier).state =
+        normalizeOpportunityGroup(filtered);
 
     final selectedId =
         ref.read(selectedOp)?.id ?? baseOpportunity?.id ?? currentId;
@@ -370,7 +382,8 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
 
   @override
   Widget build(BuildContext context) {
-    final opportunityGroup = ref.watch(currentOpportunityGroupProvider);
+    final opportunityGroup =
+        normalizeOpportunityGroup(ref.watch(currentOpportunityGroupProvider));
     final showAll = ref.watch(currentOpportunityShowAllProvider);
     final currentOpportunityId =
         ref.watch(selectedOp)?.id ?? widget.opportunityId;
@@ -717,14 +730,16 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
     }
     ref.read(selectOpportunity.notifier).state = opportunity;
     ref.read(selectedOp.notifier).state = opportunity;
-    ref.read(currentOpportunityGroupProvider.notifier).state = siblings;
+    ref.read(currentOpportunityGroupProvider.notifier).state =
+        normalizeOpportunityGroup(siblings);
     setState(() {});
   }
 
   void _onShowAllSelected(List<Opportunity> siblings) {
     _closeOpportunitySwitcher();
     ref.read(currentOpportunityShowAllProvider.notifier).state = true;
-    ref.read(currentOpportunityGroupProvider.notifier).state = siblings;
+    ref.read(currentOpportunityGroupProvider.notifier).state =
+        normalizeOpportunityGroup(siblings);
     setState(() {});
   }
 
@@ -763,6 +778,7 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
 
     ref.read(selectOpportunity.notifier).state = target;
     ref.read(selectedOp.notifier).state = target;
+    ref.read(fromOpportunityEventProvider.notifier).state = true;
     ref
         .read(uiProvider.notifier)
         .onCompanyActivity(target.oprtRuc ?? '', target.razon ?? '');
@@ -1129,16 +1145,17 @@ class ContainerCustom extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 6),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  text,
-                  maxLines: 10,
-                  style: const TextStyle(
-                    fontSize: 16,
+                Expanded(
+                  child: Text(
+                    text,
+                    maxLines: 10,
+                    style: const TextStyle(
+                      fontSize: 16,
+                    ),
                   ),
                 ),
-                const Expanded(child: SizedBox()),
                 icon2 != null
                     ? IconButton(
                         icon: icon2!,
@@ -1655,10 +1672,17 @@ Future<Opportunity?> resolveTargetOpportunity(
     return ref.read(selectedOp);
   }
 
-  final options = ref.read(currentOpportunityGroupProvider);
+  final options = normalizeOpportunityGroup(
+    ref.read(currentOpportunityGroupProvider),
+  );
+
   if (options.isEmpty) return ref.read(selectedOp);
 
-  Opportunity selected = ref.read(selectedOp) ?? options.first;
+  final currentSelected = ref.read(selectedOp);
+  Opportunity selected = options.firstWhere(
+    (opportunity) => opportunity.id == currentSelected?.id,
+    orElse: () => options.first,
+  );
 
   return showDialog<Opportunity>(
     context: context,

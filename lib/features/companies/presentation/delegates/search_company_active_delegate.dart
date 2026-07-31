@@ -195,10 +195,28 @@ class _CompanyItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final textStyles = Theme.of(context).textTheme;
     final size = MediaQuery.of(context).size;
+    final canSelect = company.estadoVisible == '1';
+    final razonComercial = company.razonComercial?.trim() ?? '';
+    final showRazonComercial =
+        razonComercial.isNotEmpty && razonComercial != company.razon.trim();
+    final textColor = canSelect ? Colors.black87 : Colors.black38;
+    final subtitleColor = canSelect ? Colors.black54 : Colors.black38;
 
     return GestureDetector(
       onTap: () {
-        onCompanySelected(context, company);
+        if (canSelect) {
+          onCompanySelected(context, company);
+          return;
+        }
+
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'No se puede seleccionar esta empresa, Usted no es responsable.',
+            ),
+          ),
+        );
       },
       child: FadeIn(
         child: Padding(
@@ -208,7 +226,10 @@ class _CompanyItem extends StatelessWidget {
               // Image
               SizedBox(
                 width: size.width * 0.16,
-                child: const Icon(Icons.blinds_outlined),
+                child: Icon(
+                  Icons.blinds_outlined,
+                  color: canSelect ? Colors.black54 : Colors.black26,
+                ),
               ),
 
               // Description
@@ -219,12 +240,46 @@ class _CompanyItem extends StatelessWidget {
                   children: [
                     Text(
                       company.razon,
-                      style: textStyles.titleMedium,
+                      style: textStyles.titleMedium?.copyWith(color: textColor),
                     ),
+                    if (showRazonComercial)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          razonComercial,
+                          style: textStyles.bodyMedium?.copyWith(
+                            color: canSelect
+                                ? Colors.blueGrey.shade600
+                                : Colors.black38,
+                          ),
+                        ),
+                      ),
+                    if (!canSelect)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          'Solo lectura',
+                          style: textStyles.bodySmall?.copyWith(
+                            color: Colors.black45,
+                          ),
+                        ),
+                      ),
                     Row(
                       children: [
-                        const Text('RUC: ', style: TextStyle( color: Colors.black87, fontWeight: FontWeight.w600 )),
-                        Text(company.ruc, style: const TextStyle( color: Colors.black87, fontWeight: FontWeight.w400 ),),
+                        Text(
+                          'RUC: ',
+                          style: TextStyle(
+                            color: textColor,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          company.ruc,
+                          style: TextStyle(
+                            color: subtitleColor,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
                       ],
                     )
                   ],

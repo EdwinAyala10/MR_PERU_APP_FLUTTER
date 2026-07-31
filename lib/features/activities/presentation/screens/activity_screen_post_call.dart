@@ -184,6 +184,21 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
     return selected.join(', ');
   }
 
+  List<Opportunity> _selectorOpportunities(
+    String ruc,
+    List<Opportunity> opportunities,
+  ) {
+    final options = <Opportunity>[];
+    final seenIds = <String>{};
+    for (final opportunity in opportunities) {
+      if (opportunity.oprtRuc != ruc) continue;
+      if (seenIds.add(opportunity.id)) {
+        options.add(opportunity);
+      }
+    }
+    return options;
+  }
+
   Future<void> _openOpportunitySelector(
     BuildContext context,
     ActivityFormState activityForm,
@@ -401,8 +416,9 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
 
     final activityForm = ref.watch(activityFormProvider(activity));
     final opportunityGroup = ref.watch(currentOpportunityGroupProvider);
-    final showOportunidadCheckboxes = opportunityGroup.length > 1 &&
-        opportunityGroup.every((o) => o.oprtRuc == activityForm.actiRuc.value);
+    final selectorOptions =
+        _selectorOpportunities(activityForm.actiRuc.value, opportunityGroup);
+    final showOportunidadSelector = selectorOptions.isNotEmpty;
 
     return ListView(
       children: [
@@ -448,7 +464,7 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
                   label: 'Empresa'),
               _isLoadingOpportunities
                   ? PlaceholderInput(text: 'Cargando Oportunidades...')
-                  : (showOportunidadCheckboxes
+                  : (showOportunidadSelector
                       ? Padding(
                           padding: const EdgeInsets.symmetric(vertical: 4.0),
                           child: Column(
@@ -467,7 +483,7 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
                                 onTap: () => _openOpportunitySelector(
                                   context,
                                   activityForm,
-                                  opportunityGroup,
+                                  selectorOptions,
                                 ),
                                 child: Container(
                                   width: double.infinity,
@@ -485,7 +501,7 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
                                         child: Text(
                                           _selectedOpportunitySummary(
                                             activityForm,
-                                            opportunityGroup,
+                                            selectorOptions,
                                           ),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
@@ -515,7 +531,8 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold,
                                   color: _hasOpportunities &&
-                                          activityForm.actiIdOportunidad.value ==
+                                          activityForm
+                                                  .actiIdOportunidad.value ==
                                               ''
                                       ? Colors.red
                                       : Colors.black,
@@ -528,8 +545,8 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
                                       activityForm.actiRuc.value, activity);
                                 },
                                 child: Container(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 10),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
                                   decoration: BoxDecoration(
                                     border: Border.all(
                                       color: Colors.grey,
@@ -540,14 +557,17 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
                                     children: [
                                       Expanded(
                                         child: Text(
-                                          activityForm.actiIdOportunidad.value ==
+                                          activityForm.actiIdOportunidad
+                                                      .value ==
                                                   ''
                                               ? 'Seleccione Oportunidad'
-                                              : activityForm.actiNombreOportunidad,
+                                              : activityForm
+                                                  .actiNombreOportunidad,
                                           style: TextStyle(
                                             fontSize: 16,
                                             color: _hasOpportunities &&
-                                                    activityForm.actiIdOportunidad
+                                                    activityForm
+                                                            .actiIdOportunidad
                                                             .value ==
                                                         ''
                                                 ? Colors.red
@@ -558,8 +578,11 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
                                       IconButton(
                                         icon: const Icon(Icons.search),
                                         onPressed: () {
-                                          _openSearchOportunities(context, ref,
-                                              activityForm.actiRuc.value, activity);
+                                          _openSearchOportunities(
+                                              context,
+                                              ref,
+                                              activityForm.actiRuc.value,
+                                              activity);
                                         },
                                       ),
                                     ],
@@ -574,8 +597,8 @@ class _ActivityViewState extends ConsumerState<_ActivityView> {
                                   ? Padding(
                                       padding: const EdgeInsets.only(left: 4),
                                       child: Text(
-                                        activityForm
-                                                .actiIdOportunidad.errorMessage ??
+                                        activityForm.actiIdOportunidad
+                                                .errorMessage ??
                                             '',
                                         style:
                                             const TextStyle(color: Colors.red),

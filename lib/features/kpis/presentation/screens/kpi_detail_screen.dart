@@ -219,17 +219,16 @@ class KpiDetailScreen extends ConsumerWidget {
     }
 
     final isCategoryWithoutPercentage = kpi.objrIdCategoria == '08';
-    
+
     // Normalizar porcentaje si viene en formato incorrecto
     final porcentaje = kpi.porcentaje ?? 0;
-    final normalizedPercentage = porcentaje > 1000 
-        ? (porcentaje / 10000) 
-        : (porcentaje / 100);
-    
+    final normalizedPercentage =
+        porcentaje > 1000 ? (porcentaje / 10000) : (porcentaje / 100);
+
     final indicatorValue = isCategoryWithoutPercentage
         ? 1.0
         : normalizedPercentage.clamp(0.0, 1.0);
-    
+
     // Formatear indicatorLabel
     String indicatorLabel;
     if (isCategoryWithoutPercentage) {
@@ -253,7 +252,7 @@ class KpiDetailScreen extends ConsumerWidget {
     // Formatear totalRegistro a K si es >= 1000
     final totalRegistro = kpi.totalRegistro ?? 0;
     String formattedTotal;
-    
+
     if (totalRegistro >= 1000) {
       final double thousands = totalRegistro / 1000;
       if (thousands % 1 == 0) {
@@ -264,7 +263,7 @@ class KpiDetailScreen extends ConsumerWidget {
     } else {
       formattedTotal = '$totalRegistro';
     }
-    
+
     final progressText = isCategoryWithoutPercentage
         ? '$totalRegistro'
         : '$formattedTotal/${convertTypeCategory(kpi)}';
@@ -326,8 +325,10 @@ class KpiDetailScreen extends ConsumerWidget {
       );
     }
 
-    final categoria =
-        ref.read(kpisByCatNotifierProvider.notifier).kpiProviders?.objrIdCategoria;
+    final categoria = ref
+        .read(kpisByCatNotifierProvider.notifier)
+        .kpiProviders
+        ?.objrIdCategoria;
     final esCategoriaOportunidad = categoria == TypeCategory.nuevaOportunidad ||
         categoria == TypeCategory.oportunidadesGanadas ||
         categoria == TypeCategory.oportunidadSinSeguimiento;
@@ -640,16 +641,17 @@ class ContainerCustom extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 6),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  text,
-                  maxLines: 10,
-                  style: const TextStyle(
-                    fontSize: 16,
+                Expanded(
+                  child: Text(
+                    text,
+                    maxLines: 10,
+                    style: const TextStyle(
+                      fontSize: 16,
+                    ),
                   ),
                 ),
-                const Expanded(child: SizedBox()),
                 icon2 != null
                     ? IconButton(
                         icon: icon2!,
@@ -686,29 +688,29 @@ String agregarPrefijoPeru(String numero) {
   return numero;
 }
 
-  String convertTypeCategory(Kpi kpi) {
-    String res = kpi.objrCantidad ?? '';
-    
-    // Solo agregar "K" si es categoría '05' (Oportunidades Ganadas)
-    if (kpi.objrIdCategoria == '05') {
-      try {
-        final double value = double.parse(res);
-        if (value % 1 == 0) {
-          res = '${value.toInt()}K';
-        } else {
-          res = '${value.toStringAsFixed(1)}K';
-        }
-      } catch (e) {
-        res = '0K';
+String convertTypeCategory(Kpi kpi) {
+  String res = kpi.objrCantidad ?? '';
+
+  // Solo agregar "K" si es categoría '05' (Oportunidades Ganadas)
+  if (kpi.objrIdCategoria == '05') {
+    try {
+      final double value = double.parse(res);
+      if (value % 1 == 0) {
+        res = '${value.toInt()}K';
+      } else {
+        res = '${value.toStringAsFixed(1)}K';
       }
-    } else {
-      // Para otras categorías, solo mostrar el número sin "K"
-      try {
-        res = (double.parse(res).toInt()).toString();
-      } catch (e) {
-        res = '0';
-      }
+    } catch (e) {
+      res = '0K';
     }
-    
-    return res;
+  } else {
+    // Para otras categorías, solo mostrar el número sin "K"
+    try {
+      res = (double.parse(res).toInt()).toString();
+    } catch (e) {
+      res = '0';
+    }
   }
+
+  return res;
+}

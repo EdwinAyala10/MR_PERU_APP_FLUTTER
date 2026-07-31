@@ -32,7 +32,7 @@ class ItemOpportunity extends ConsumerStatefulWidget {
 class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
   bool _isOpeningDetail = false;
 
-  /// Resuelve el grupo a sembrar priorizando el caché (todos los estados).
+  /// Resuelve el grupo a sembrar priorizando el caché de la misma sección.
   /// El caché [companyGroupCacheProvider] se llena cuando se visita un detalle
   /// (no por prefetch masivo en la lista, que saturaba y hacía perder taps).
   /// Si el caché aún no está listo, usa el grupo parcial recibido de la lista.
@@ -40,17 +40,24 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
     Opportunity tapped,
     List<Opportunity> fallback,
   ) {
+    final currentType = ref.read(opportunitiesProvider).typeOpportunity;
+    final sectionType = resolveOpportunitySectionType(
+      preferredType: currentType,
+      reference: tapped,
+    );
     final ruc = tapped.oprtRuc ?? '';
-    final cached = ref.read(companyGroupCacheProvider)[ruc];
+    final cached = ref.read(companyGroupCacheProvider)[
+      companyGroupCacheKey(ruc, sectionType)
+    ];
     if (cached == null || cached.isEmpty) {
       final fullGroup = widget.opportunity.oportunidadesDelGrupo;
-      if (fullGroup != null && fullGroup.isNotEmpty) return fullGroup;
-      return fallback;
+      if (fullGroup != null && fullGroup.isNotEmpty) {
+        return normalizeOpportunityGroup(fullGroup);
+      }
+      return normalizeOpportunityGroup(fallback);
     }
 
-    // Todas las oportunidades de la misma empresa (mismo RUC), sin importar
-    // estado ni local.
-    return cached;
+    return normalizeOpportunityGroup(cached);
   }
 
   Future<void> _handleOpportunityTap(
@@ -87,7 +94,8 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
       ref.read(selectedOp.notifier).state = target;
       ref.read(currentOpportunityShowAllProvider.notifier).state = false;
       ref.read(currentOpportunityDetailTabProvider.notifier).state = 0;
-      ref.read(currentOpportunityGroupProvider.notifier).state = seedGroup;
+      ref.read(currentOpportunityGroupProvider.notifier).state =
+          normalizeOpportunityGroup(seedGroup);
       await context.push('/opportunity_detail/${target.id}');
     } finally {
       if (mounted) {
@@ -110,36 +118,63 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
   ({Color? background, Color? border})? _staleColors(Opportunity opportunity) {
     final hasActivity = (opportunity.actiIdTipoGestion ?? '').isNotEmpty &&
         (opportunity.actiFechaRegistro ?? '').isNotEmpty;
+    final activityDays = int.tryParse(
+      (opportunity.actiFechaRegistroDias ?? '').trim(),
+    );
 
     if (!hasActivity) {
+      if ((activityDays ?? 0) > 15) {
+        return (
+          background: const Color(0xFFFFEBEE),
+          border: const Color(0xFFEF5350),
+        );
+      }
+
       return (
         background: const Color(0xFFFFFDE7),
         border: const Color(0xFFFFEB3B),
       );
     }
 
-    final lastActivityDate =
-        DateTime.tryParse(opportunity.actiFechaRegistro ?? '');
-    if (lastActivityDate == null) return null;
-
-    final daysWithoutActivity =
-        DateTime.now().difference(lastActivityDate).inDays;
-
-    if (daysWithoutActivity > 15) {
+    if ((activityDays ?? 0) > 15) {
       return (
         background: const Color(0xFFFFEBEE),
         border: const Color(0xFFEF5350),
       );
     }
 
-    if (daysWithoutActivity > 7) {
+    if ((activityDays ?? 0) >= 8) {
       return (
-        background: const Color(0xFFFFF3E0),
-        border: const Color(0xFFFF9800),
+        background: const Color(0xFFFFFDE7),
+        border: const Color(0xFFFFEB3B),
       );
     }
 
     return null;
+  }
+
+  ({Color background, Color text}) _lastActivityBadgeColors(
+    Opportunity opportunity,
+  ) {
+    final staleColors = _staleColors(opportunity);
+    if (staleColors?.border == const Color(0xFFEF5350)) {
+      return (
+        background: staleColors?.background ?? Colors.white,
+        text: Colors.blue,
+      );
+    }
+
+    if (staleColors != null) {
+      return (
+        background: staleColors.background ?? Colors.white,
+        text: Colors.red,
+      );
+    }
+
+    return (
+      background: Colors.white,
+      text: const Color(0xFF649C9A),
+    );
   }
 
   @override
@@ -152,14 +187,15 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
         widget.opportunity.oportunidadesDelGrupo;
     final opportunities =
         (grupo != null && grupo.isNotEmpty) ? grupo : [widget.opportunity];
-    print(
-        'ITEM_OPPORTUNITY: ${widget.opportunity.razon} -> ${opportunities.length} oportunidades: ${opportunities.map((o) => o.id).join(",")}');
     return _buildGroupCard(opportunities);
   }
 
   Widget _buildGroupCard(List<Opportunity> opportunities) {
     final firstOpportunity = opportunities.first;
-    final staleColors = _staleColors(firstOpportunity);
+    final isSingleOpportunity = opportunities.length == 1;
+    final firstStaleColors = _staleColors(firstOpportunity);
+    final lastStaleColors = _staleColors(opportunities.last);
+    final hasActions = _distinctContacts(opportunities).isNotEmpty;
 
     // Se mantienen cargados los contactos de la empresa para que, al abrir el
     // correo, la pantalla de compose ya tenga el contacto y prellene el correo
@@ -170,10 +206,10 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-      decoration: staleColors != null
+      decoration: isSingleOpportunity && firstStaleColors != null
           ? BoxDecoration(
-              color: staleColors.background,
-              border: Border.all(color: staleColors.border!, width: 1.5),
+              color: firstStaleColors.background,
+              border: Border.all(color: firstStaleColors.border!, width: 1.5),
               borderRadius: BorderRadius.circular(4),
             )
           : BoxDecoration(
@@ -184,72 +220,143 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 6, 12, 2),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        firstOpportunity.razon ?? '',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
+          Container(
+            decoration: !isSingleOpportunity && firstStaleColors != null
+                ? BoxDecoration(
+                    color: firstStaleColors.background,
+                    border: Border(
+                      top: BorderSide(
+                        color: firstStaleColors.border!,
+                        width: 1.5,
                       ),
-                      if ((firstOpportunity.oprtLocalNombre ?? '').isNotEmpty)
+                      left: BorderSide(
+                        color: firstStaleColors.border!,
+                        width: 1.5,
+                      ),
+                      right: BorderSide(
+                        color: firstStaleColors.border!,
+                        width: 1.5,
+                      ),
+                    ),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(4),
+                      topRight: Radius.circular(4),
+                    ),
+                  )
+                : null,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 6, 12, 2),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Text(
-                          firstOpportunity.oprtLocalNombre ?? '',
+                          firstOpportunity.razon ?? '',
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 14,
-                            color: Colors.black87,
                           ),
                         ),
+                        if ((firstOpportunity.oprtLocalNombre ?? '').isNotEmpty)
+                          Text(
+                            firstOpportunity.oprtLocalNombre ?? '',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              color: Colors.black87,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        firstOpportunity.oprtPrimeraFechaRegistro ?? '',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.blue,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        firstOpportunity.nombrePrimeroUsuarioResponsable ?? '',
+                        style: const TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 11,
+                        ),
+                      ),
                     ],
                   ),
-                ),
-                const SizedBox(width: 6),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      firstOpportunity.oprtPrimeraFechaRegistro ?? '',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.blue,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Text(
-                      firstOpportunity.nombrePrimeroUsuarioResponsable ?? '',
-                      style: const TextStyle(
-                        color: Colors.blue,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-          ..._buildGroupRows(opportunities),
-          if (_distinctContacts(opportunities).isNotEmpty)
-            _buildActionRow(opportunities),
+          ..._buildGroupRows(
+            opportunities,
+            isSingleOpportunity: isSingleOpportunity,
+            hasActionRow: hasActions,
+          ),
+          if (hasActions)
+            _buildActionRow(
+              opportunities,
+              isSingleOpportunity: isSingleOpportunity,
+              staleColors: !isSingleOpportunity ? lastStaleColors : null,
+            ),
         ],
       ),
     );
   }
 
-  List<Widget> _buildGroupRows(List<Opportunity> opportunities) {
+  List<Widget> _buildGroupRows(
+    List<Opportunity> opportunities, {
+    required bool isSingleOpportunity,
+    required bool hasActionRow,
+  }) {
     return opportunities.asMap().entries.map((entry) {
       final index = entry.key;
       final opportunity = entry.value;
       final isLast = index == opportunities.length - 1;
+      final isFirst = index == 0;
+      final staleColors = _staleColors(opportunity);
+      final previousStaleColors =
+          index > 0 ? _staleColors(opportunities[index - 1]) : null;
+      final nextStaleColors =
+          !isLast ? _staleColors(opportunities[index + 1]) : null;
+      final startsColoredSegment = staleColors != null &&
+          !isFirst &&
+          previousStaleColors?.border != staleColors.border;
+      final endsColoredSegment = staleColors != null &&
+          (isLast || nextStaleColors?.border != staleColors.border);
+
+      Border? rowBorder;
+      if (!isSingleOpportunity && staleColors != null) {
+        rowBorder = Border(
+          left: BorderSide(color: staleColors.border!, width: 1.5),
+          right: BorderSide(color: staleColors.border!, width: 1.5),
+          top: startsColoredSegment
+              ? BorderSide(color: staleColors.border!, width: 1.5)
+              : BorderSide.none,
+          bottom: isLast
+              ? (hasActionRow
+                  ? BorderSide.none
+                  : BorderSide(color: staleColors.border!, width: 1.5))
+              : BorderSide(
+                  color: staleColors.border!,
+                  width: 1,
+                ),
+        );
+      } else if (!isLast) {
+        rowBorder = Border(
+          bottom: BorderSide(color: Colors.grey.shade200, width: 1),
+        );
+      }
 
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
@@ -257,11 +364,8 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
         child: Container(
           padding: const EdgeInsets.fromLTRB(12, 2, 12, 4),
           decoration: BoxDecoration(
-            border: isLast
-                ? null
-                : Border(
-                    bottom: BorderSide(color: Colors.grey.shade200, width: 1),
-                  ),
+            color: !isSingleOpportunity ? staleColors?.background : null,
+            border: rowBorder,
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -307,13 +411,30 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
                     const SizedBox(height: 2),
                     if ((opportunity.actiComentario ?? '').isNotEmpty ||
                         (opportunity.actiNombreTipoGestion ?? '').isNotEmpty)
-                      Text(
-                        'Ult.act: ${(opportunity.actiComentario ?? '').isNotEmpty ? opportunity.actiComentario : opportunity.actiNombreTipoGestion ?? ''}',
-                        style: const TextStyle(
-                          color: Colors.red,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                        ),
+                      Builder(
+                        builder: (context) {
+                          final badgeColors =
+                              _lastActivityBadgeColors(opportunity);
+                          return Container(
+                            margin: const EdgeInsets.only(top: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: badgeColors.background,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              'Ult.act: ${(opportunity.actiComentario ?? '').isNotEmpty ? opportunity.actiComentario : opportunity.actiNombreTipoGestion ?? ''}',
+                              style: TextStyle(
+                                color: badgeColors.text,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     if ((opportunity.actiFechaRegistro ?? '').isNotEmpty)
                       Row(
@@ -383,8 +504,26 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
     return orden;
   }
 
-  Widget _buildActionRow(List<Opportunity> opportunities) {
+  Widget _buildActionRow(
+    List<Opportunity> opportunities, {
+    required bool isSingleOpportunity,
+    required ({Color? background, Color? border})? staleColors,
+  }) {
     return Container(
+      decoration: !isSingleOpportunity && staleColors != null
+          ? BoxDecoration(
+              color: staleColors.background,
+              border: Border(
+                left: BorderSide(color: staleColors.border!, width: 1.5),
+                right: BorderSide(color: staleColors.border!, width: 1.5),
+                bottom: BorderSide(color: staleColors.border!, width: 1.5),
+              ),
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(4),
+                bottomRight: Radius.circular(4),
+              ),
+            )
+          : null,
       padding: const EdgeInsets.fromLTRB(12, 0, 12, 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -454,7 +593,8 @@ class _ItemOpportunityState extends ConsumerState<ItemOpportunity> {
     // nombre, teléfono, ruc, razón) sin ir a la red, para que la acción sea
     // inmediata. La pantalla de correo carga el contacto completo por id.
     final contact = _contactFromOpportunity(elegido);
-    ref.read(currentOpportunityGroupProvider.notifier).state = opportunities;
+    ref.read(currentOpportunityGroupProvider.notifier).state =
+        normalizeOpportunityGroup(opportunities);
 
     switch (action) {
       case _OppAction.call:

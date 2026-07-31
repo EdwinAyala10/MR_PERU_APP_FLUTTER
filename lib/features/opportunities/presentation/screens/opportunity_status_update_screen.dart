@@ -83,9 +83,16 @@ class _OpportunityStatusUpdateScreenState
 
   List<Opportunity> _resolveOpportunityOptions(Opportunity current) {
     final siblings = ref.read(currentOpportunityGroupProvider);
-    final sameCompany = siblings
+    final sectionType = resolveOpportunitySectionType(
+      preferredType: ref.read(opportunitiesProvider).typeOpportunity,
+      reference: current,
+    );
+    final sameCompany = filterOpportunityGroupBySection(
+      siblings
         .where((opportunity) => opportunity.empresaKey == current.empresaKey)
-        .toList();
+        .toList(),
+      sectionType,
+    );
     if (sameCompany.isNotEmpty) return sameCompany;
     return [current];
   }
@@ -257,6 +264,10 @@ class _OpportunityStatusUpdateScreenState
 
     final siblings = ref.read(currentOpportunityGroupProvider);
     final ruc = selected?.oprtRuc ?? current.oprtRuc ?? '';
+    final currentSectionType = resolveOpportunitySectionType(
+      preferredType: type,
+      reference: current,
+    );
     if (ruc.isNotEmpty && siblings.isNotEmpty) {
       final user = ref.read(authProvider).user;
       final refreshedGroups =
@@ -266,7 +277,9 @@ class _OpportunityStatusUpdateScreenState
         limit: 100,
         offset: 1,
         idUsuario: (user?.isAdmin ?? false) ? '' : (user?.code ?? ''),
-        estado: '',
+        estado: opportunitySectionTypeFromStatus(_selectedEstadoId).isNotEmpty
+            ? opportunitySectionTypeFromStatus(_selectedEstadoId)
+            : currentSectionType,
       );
       final refreshed = refreshedGroups
           .expand((opportunity) =>
@@ -286,9 +299,23 @@ class _OpportunityStatusUpdateScreenState
         targetOpportunity = movedOpportunities.first;
       }
 
-      destinationGroup = refreshed.where((opportunity) {
-        return opportunity.empresaKey == current.empresaKey;
-      }).toList();
+      final targetSectionType =
+          opportunitySectionTypeFromStatus(_selectedEstadoId).isNotEmpty
+              ? opportunitySectionTypeFromStatus(_selectedEstadoId)
+              : currentSectionType;
+      final companyGroupInTargetSection = normalizeOpportunityGroup(
+        refreshed.where((opportunity) {
+          return opportunity.empresaKey == current.empresaKey;
+        }).toList(),
+      );
+
+      if (targetSectionType != currentSectionType) {
+        destinationGroup = companyGroupInTargetSection
+            .where((opportunity) => selectedIds.contains(opportunity.id))
+            .toList();
+      } else {
+        destinationGroup = companyGroupInTargetSection;
+      }
 
       if (destinationGroup.isNotEmpty) {
         final movedInsideDestination = destinationGroup
@@ -298,7 +325,7 @@ class _OpportunityStatusUpdateScreenState
             ? movedInsideDestination.first
             : destinationGroup.first;
         ref.read(currentOpportunityGroupProvider.notifier).state =
-            destinationGroup;
+            normalizeOpportunityGroup(destinationGroup);
         ref.read(selectedOp.notifier).state = targetOpportunity;
         ref.read(currentOpportunityShowAllProvider.notifier).state = false;
       }
@@ -393,8 +420,6 @@ class _OpportunityStatusUpdateScreenState
       }
     }
 
-    final showMultiSelector = options.length > 1;
-
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -457,9 +482,7 @@ class _OpportunityStatusUpdateScreenState
               const SizedBox(height: 6),
               InkWell(
                 borderRadius: BorderRadius.circular(24),
-                onTap: showMultiSelector
-                    ? () => _openOpportunitySelector(options)
-                    : null,
+                onTap: () => _openOpportunitySelector(options),
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(
@@ -484,8 +507,7 @@ class _OpportunityStatusUpdateScreenState
                           ),
                         ),
                       ),
-                      if (showMultiSelector)
-                        const Icon(Icons.keyboard_arrow_down),
+                      const Icon(Icons.keyboard_arrow_down),
                     ],
                   ),
                 ),

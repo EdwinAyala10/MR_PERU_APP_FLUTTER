@@ -9,6 +9,8 @@ import 'package:intl/intl.dart';
 
 import 'events_repository_provider.dart';
 
+final fromOpportunityEventProvider = StateProvider<bool>((ref) => false);
+
 final eventProvider =
     StateNotifierProvider.family<EventNotifier, EventState, String>((ref, id) {
   final eventsRepository = ref.watch(eventsRepositoryProvider);
@@ -83,7 +85,7 @@ class EventNotifier extends StateNotifier<EventState> {
       }
 
       final event = await eventsRepository.getEventById(state.id);
-      log('FFF'+ '${event.evntLocalCodigo}');
+      log('FFF' + '${event.evntLocalCodigo}');
       state = state.copyWith(isLoading: false, event: event);
     } catch (e) {
       log(e.toString());

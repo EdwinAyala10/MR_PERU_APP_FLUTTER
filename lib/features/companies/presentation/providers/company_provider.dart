@@ -96,6 +96,7 @@ class CompanyNotifier extends StateNotifier<CompanyState> {
       idUsuarioRegistro: user.code,
       idUsuarioActualizacion: user.code,
       visibleTodos: '1',
+      estadoVisible: '1',
       email: '',
       codigoPostal: '',
       tipocliente: '',

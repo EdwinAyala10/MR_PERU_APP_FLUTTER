@@ -111,7 +111,8 @@ class ActivityScreen extends ConsumerWidget {
                                               ?.id ??
                                           '',
                                     );
-                                ref.read(fromOpportunity.notifier).state = false;
+                                ref.read(fromOpportunity.notifier).state =
+                                    false;
                                 context.pop();
                               } else {
                                 ref
@@ -178,6 +179,9 @@ class _ActivityInformationv2State
   void initState() {
     super.initState();
 
+    final op = ref.read(selectedOp);
+    final cameFromOpportunity = ref.read(fromOpportunity);
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await ref
           .read(resourceDetailsProvider.notifier)
@@ -187,6 +191,46 @@ class _ActivityInformationv2State
                   optionsTipoGestion = value;
                 })
               });
+
+      if (widget.activity.id == 'new' && cameFromOpportunity && op != null) {
+        ref
+            .read(
+              activityFormProvider(widget.activity).notifier,
+            )
+            .onRucChanged(
+              op.oprtRuc ?? '',
+              op.razon ?? '',
+            );
+
+        ref
+            .read(activityFormProvider(widget.activity).notifier)
+            .onOportunidadChanged(op.id, op.oprtNombre);
+
+        if ((op.contactId ?? '').isNotEmpty) {
+          ref
+              .read(activityFormProvider(widget.activity).notifier)
+              .onContactoChanged(
+                Contact(
+                  id: op.contactId!,
+                  ruc: op.oprtRuc ?? '',
+                  razon: op.razon,
+                  contactoTitulo: '',
+                  contactoDesc: op.oprtNombreContacto ?? '',
+                  contactoCargo: '',
+                  contactoTelefonoc: op.contacTelefono ?? '',
+                  contactoEmail: '',
+                ),
+              );
+        }
+
+        if ((op.oprtRuc ?? '').isNotEmpty) {
+          setState(() {
+            _isEmpresaNotSelected = false;
+          });
+          _checkOpportunities(op.oprtRuc ?? '');
+        }
+        return;
+      }
 
       String? idEmpresa = ref.read(uiProvider).idCompanyAct;
       String? nameEmpresa = ref.read(uiProvider).nameCompanyAct;
@@ -210,46 +254,6 @@ class _ActivityInformationv2State
         });
       }
     });
-    final op = ref.read(selectedOp);
-    ref
-        .read(searchedCompaniesProvider.notifier)
-        .searchCompaniesByQuery(
-            op?.oprtIdUsuarioRegistro ?? '', op?.oprtRuc ?? '')
-        .then(
-      (company) {
-        if (company.length != 1) return;
-        ref
-            .read(
-              activityFormProvider(widget.activity).notifier,
-            )
-            .onRucChanged(
-              company[0].ruc,
-              company[0].razon,
-            );
-        if (op != null) {
-          ref
-              .read(activityFormProvider(widget.activity).notifier)
-              .onOportunidadChanged(op.id, op.oprtNombre);
-
-          if ((op.contactId ?? '').isNotEmpty) {
-            ref.read(activityFormProvider(widget.activity).notifier).onContactoChanged(
-                  Contact(
-                    id: op.contactId!,
-                    ruc: op.oprtRuc ?? '',
-                    razon: op.razon,
-                    contactoTitulo: '',
-                    contactoDesc: op.oprtNombreContacto ?? '',
-                    contactoCargo: '',
-                    contactoTelefonoc: op.contacTelefono ?? '',
-                    contactoEmail: '',
-                  ),
-                );
-          }
-        }
-        // Verificar oportunidades cuando se carga desde selectedOp
-        _checkOpportunities(company[0].ruc);
-      },
-    );
   }
 
   Future<void> _checkOpportunities(String ruc) async {
@@ -304,6 +308,21 @@ class _ActivityInformationv2State
     return selected.join(', ');
   }
 
+  List<Opportunity> _selectorOpportunities(
+    String ruc,
+    List<Opportunity> opportunities,
+  ) {
+    final options = <Opportunity>[];
+    final seenIds = <String>{};
+    for (final opportunity in opportunities) {
+      if (opportunity.oprtRuc != ruc) continue;
+      if (seenIds.add(opportunity.id)) {
+        options.add(opportunity);
+      }
+    }
+    return options;
+  }
+
   Future<void> _openOpportunitySelector(
     BuildContext context,
     ActivityFormState activityForm,
@@ -334,7 +353,8 @@ class _ActivityInformationv2State
                       child: ListView(
                         shrinkWrap: true,
                         children: options.map((opportunity) {
-                          final checked = tempSelectedIds.contains(opportunity.id);
+                          final checked =
+                              tempSelectedIds.contains(opportunity.id);
                           return CheckboxListTile(
                             value: checked,
                             controlAffinity: ListTileControlAffinity.leading,
@@ -399,8 +419,9 @@ class _ActivityInformationv2State
   Widget build(BuildContext context) {
     final activityForm = ref.watch(activityFormProvider(widget.activity));
     final opportunityGroup = ref.watch(currentOpportunityGroupProvider);
-    final showOportunidadCheckboxes = opportunityGroup.length > 1 &&
-        opportunityGroup.every((o) => o.oprtRuc == activityForm.actiRuc.value);
+    final selectorOptions =
+        _selectorOpportunities(activityForm.actiRuc.value, opportunityGroup);
+    final showOportunidadSelector = selectorOptions.isNotEmpty;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -554,7 +575,7 @@ class _ActivityInformationv2State
           const SizedBox(height: 10),
           _isLoadingOpportunities
               ? PlaceholderInput(text: 'Cargando Oportunidades...')
-              : (showOportunidadCheckboxes
+              : (showOportunidadSelector
                   ? Padding(
                       padding: const EdgeInsets.all(4.0),
                       child: Column(
@@ -573,7 +594,7 @@ class _ActivityInformationv2State
                             onTap: () => _openOpportunitySelector(
                               context,
                               activityForm,
-                              opportunityGroup,
+                              selectorOptions,
                             ),
                             child: Container(
                               width: double.infinity,
@@ -591,7 +612,7 @@ class _ActivityInformationv2State
                                     child: Text(
                                       _selectedOpportunitySummary(
                                         activityForm,
-                                        opportunityGroup,
+                                        selectorOptions,
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -681,14 +702,12 @@ class _ActivityInformationv2State
                           ),
                         ),
                         (_hasOpportunities || _isEmpresaNotSelected) &&
-                                activityForm
-                                        .actiIdOportunidad.errorMessage !=
+                                activityForm.actiIdOportunidad.errorMessage !=
                                     null
                             ? Padding(
                                 padding: const EdgeInsets.only(left: 4),
                                 child: Text(
-                                  activityForm
-                                          .actiIdOportunidad.errorMessage ??
+                                  activityForm.actiIdOportunidad.errorMessage ??
                                       '',
                                   style: const TextStyle(color: Colors.red),
                                 ),
@@ -736,8 +755,7 @@ class _ActivityInformationv2State
                     showSnackbar(context, 'Debe seleccionar una empresa');
                     return;
                   }
-                  _openSearchContacts(
-                      context, ref, activityForm.actiRuc.value);
+                  _openSearchContacts(context, ref, activityForm.actiRuc.value);
                 },
                 child: const Row(
                   children: [
@@ -917,10 +935,10 @@ class _ActivityInformationv2State
     String dni,
   ) async {
     final searchedCompanies = ref.read(searchedCompaniesProvider);
-    final searchQuery = ref.read(searchQueryCompaniesProvider);
+    ref.read(searchQueryCompaniesProvider.notifier).update((state) => '');
 
     showSearch<Company?>(
-      query: searchQuery,
+      query: '',
       context: context,
       delegate: SearchCompanyDelegate(
         dni: dni,

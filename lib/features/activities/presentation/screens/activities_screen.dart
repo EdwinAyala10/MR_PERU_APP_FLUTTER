@@ -84,6 +84,7 @@ class ActivitiesScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButtonCustom(
           iconData: Icons.add,
           callOnPressed: () {
+            ref.read(fromOpportunity.notifier).state = false;
             ref.read(uiProvider.notifier).deleteCompanyActivity();
             context.push('/activity/new');
             /*showModalBottomSheet(

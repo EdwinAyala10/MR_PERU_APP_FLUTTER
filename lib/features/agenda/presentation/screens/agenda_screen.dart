@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:crm_app/features/activities/presentation/providers/activity_provider.dart';
 import 'package:crm_app/features/agenda/presentation/providers/event_provider.dart';
 import 'package:crm_app/features/companies/presentation/providers/companies_provider.dart';
 import 'package:crm_app/features/companies/presentation/providers/company_provider.dart';
@@ -40,6 +41,8 @@ class AgendaScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButtonCustom(
           iconData: Icons.add,
           callOnPressed: () {
+            ref.read(fromOpportunityEventProvider.notifier).state = false;
+            ref.read(fromOpportunity.notifier).state = false;
             ref.read(uiProvider.notifier).deleteCompanyActivity();
 
             context.push('/event/new');

@@ -26,6 +26,7 @@ class Company {
   String? calificacion;
   String? nombreCalificacion;
   String? visibleTodos;
+  String? estadoVisible;
   String? codigoPostal;
   String? usuarioRegistro;
   String? idUsuarioRegistro;
@@ -87,6 +88,7 @@ class Company {
       this.calificacion,
       this.nombreCalificacion,
       this.visibleTodos,
+      this.estadoVisible,
       this.codigoPostal,
       this.clienteNombreTipo,
       this.fechaActualizacion,
