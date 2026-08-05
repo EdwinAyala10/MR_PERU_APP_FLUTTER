@@ -58,25 +58,6 @@ String opportunitySectionTypeFromStatus(String? statusId) {
   }
 }
 
-List<Opportunity> filterOpportunityGroupBySection(
-  List<Opportunity> opportunities,
-  String type,
-) {
-  if (type.trim().isEmpty) return normalizeOpportunityGroup(opportunities);
-
-  final allowed = type
-      .split(',')
-      .map((value) => value.trim())
-      .where((value) => value.isNotEmpty)
-      .toSet();
-
-  return normalizeOpportunityGroup(
-    opportunities.where((opportunity) {
-      return allowed.contains((opportunity.oprtIdEstadoOportunidad ?? '').trim());
-    }).toList(),
-  );
-}
-
 String resolveOpportunitySectionType({
   required String preferredType,
   Opportunity? reference,

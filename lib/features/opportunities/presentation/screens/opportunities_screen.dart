@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:crm_app/features/activities/presentation/providers/providers.dart';
-import 'package:crm_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:crm_app/features/opportunities/presentation/providers/filter_active_opportunity_provider.dart';
 import 'package:crm_app/features/opportunities/presentation/widgets/custom_acctive_opportunity.dart';
 import 'package:crm_app/features/route-planner/presentation/providers/route_planner_provider.dart';
@@ -57,6 +56,8 @@ class _OpportunitiesScreenState extends ConsumerState<OpportunitiesScreen>
       if (!_tabController.indexIsChanging) {
         log("Tab seleccionada: ${_tabController.index}");
         ref.read(searchControllerProvider).text = "";
+      }
+      if (mounted) {
         setState(() {});
       }
     });
@@ -108,6 +109,7 @@ class _OpportunitiesScreenState extends ConsumerState<OpportunitiesScreen>
   @override
   Widget build(BuildContext context) {
     final scaffoldKey = GlobalKey<ScaffoldState>();
+    final isActivosTab = _typeForIndex(_tabController.index) == '01,02,03,04';
     return DefaultTabController(
       length: 4,
       child: Scaffold(
@@ -118,6 +120,7 @@ class _OpportunitiesScreenState extends ConsumerState<OpportunitiesScreen>
             controller: _tabController,
             onTap: (int index) {
               log("message: $index");
+              setState(() {});
               _tabController.animateTo(index);
             },
             tabs: const [
@@ -133,22 +136,23 @@ class _OpportunitiesScreenState extends ConsumerState<OpportunitiesScreen>
             textAlign: TextAlign.center,
           ),
           actions: [
-            IconButton(
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.9,
-                    minHeight: MediaQuery.of(context).size.height * 0.9,
-                  ),
-                  builder: (context) => const FilterActivityOpportunity(),
-                );
-              },
-              icon: const Icon(
-                Icons.filter_alt_sharp,
+            if (isActivosTab)
+              IconButton(
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height * 0.9,
+                      minHeight: MediaQuery.of(context).size.height * 0.9,
+                    ),
+                    builder: (context) => const FilterActivityOpportunity(),
+                  );
+                },
+                icon: const Icon(
+                  Icons.filter_alt_sharp,
+                ),
               ),
-            ),
           ],
           /*actions: [
             if (isActiveSearch) const SizedBox(width: 58),
@@ -231,11 +235,10 @@ class _OpportunitiesViewState extends ConsumerState<_OpportunitiesView> {
   void _loadOpportunities({required bool isRefresh}) {
     final notifier = ref.read(opportunitiesProvider.notifier);
     if (_usesActiveFilters) {
-      final user = ref.read(authProvider).user;
       notifier.loadFiltersOpportunity(
         isRefresh: isRefresh,
-        endDate: (ref.read(endDateProvider) ?? '').toString(),
-        startDate: (ref.read(startDateProvider) ?? '').toString(),
+        endDate: formatOpportunityFilterDate(ref.read(endDateProvider)),
+        startDate: formatOpportunityFilterDate(ref.read(startDateProvider)),
         estadoOP: findFilterByType(
               ref.read(routePlannerProvider).filters,
               "ID_TIPO_OPORTUNIDAD",
@@ -243,19 +246,15 @@ class _OpportunitiesViewState extends ConsumerState<_OpportunitiesView> {
             '',
         endPercents: ref.read(rangeProbProvider).end.round().toString(),
         startPercent: ref.read(rangeProbProvider).start.round().toString(),
-        startValue: ref.read(startValueProvider) != 0
+        startValue: (ref.read(startValueProvider) != 0 ||
+                ref.read(endValueProvider) != 0)
             ? ref.read(startValueProvider).toInt().toString()
             : '',
-        endValue: ref.read(startValueProvider) != 0
+        endValue: (ref.read(startValueProvider) != 0 ||
+                ref.read(endValueProvider) != 0)
             ? ref.read(endValueProvider).toInt().toString()
             : '',
-        userResponsable: (user?.isAdmin ?? false) == false
-            ? user?.code ?? ''
-            : findFilterByType(
-                  ref.read(routePlannerProvider).filters,
-                  "ID_USUARIO_RESPONSABLE",
-                )?.id ??
-                '',
+        userResponsable: resolveResponsibleFilterValue(ref),
       );
       return;
     }
@@ -356,14 +355,14 @@ class __SearchComponentState extends ConsumerState<_SearchComponent> {
                     .read(opportunitiesProvider.notifier)
                     .onChangeTextSearch(value, () {
                   ref.read(opportunitiesProvider.notifier).clearOpList();
-                  final user = ref.read(authProvider).user;
                   ref
                       .read(opportunitiesProvider.notifier)
                       .loadFiltersOpportunity(
                         isRefresh: true,
-                        endDate: (ref.read(endDateProvider) ?? "").toString(),
-                        startDate:
-                            (ref.read(startDateProvider) ?? "").toString(),
+                        endDate:
+                            formatOpportunityFilterDate(ref.read(endDateProvider)),
+                        startDate: formatOpportunityFilterDate(
+                            ref.read(startDateProvider)),
                         estadoOP: findFilterByType(
                                     ref.read(routePlannerProvider).filters,
                                     "ID_TIPO_OPORTUNIDAD")
@@ -376,19 +375,15 @@ class __SearchComponentState extends ConsumerState<_SearchComponent> {
                             .start
                             .round()
                             .toString(),
-                        startValue: ref.read(startValueProvider) != 0
+                        startValue: (ref.read(startValueProvider) != 0 ||
+                                ref.read(endValueProvider) != 0)
                             ? ref.read(startValueProvider).toInt().toString()
                             : "",
-                        endValue: ref.read(startValueProvider) != 0
+                        endValue: (ref.read(startValueProvider) != 0 ||
+                                ref.read(endValueProvider) != 0)
                             ? ref.read(endValueProvider).toInt().toString()
                             : "",
-                        userResponsable: (user?.isAdmin ?? false) == false
-                            ? user?.code ?? ""
-                            : findFilterByType(
-                                        ref.read(routePlannerProvider).filters,
-                                        "ID_USUARIO_RESPONSABLE")
-                                    ?.id ??
-                                '',
+                        userResponsable: resolveResponsibleFilterValue(ref),
                       );
                 });
               });
@@ -400,11 +395,12 @@ class __SearchComponentState extends ConsumerState<_SearchComponent> {
 
               ref.read(opportunitiesProvider.notifier).onChangeTextSearch(value,
                   () {
-                final user = ref.read(authProvider).user;
                 ref.read(opportunitiesProvider.notifier).loadFiltersOpportunity(
                       isRefresh: true,
-                      endDate: (ref.read(endDateProvider) ?? "").toString(),
-                      startDate: (ref.read(startDateProvider) ?? "").toString(),
+                      endDate:
+                          formatOpportunityFilterDate(ref.read(endDateProvider)),
+                      startDate: formatOpportunityFilterDate(
+                          ref.read(startDateProvider)),
                       estadoOP: findFilterByType(
                                   ref.read(routePlannerProvider).filters,
                                   "ID_TIPO_OPORTUNIDAD")
@@ -414,19 +410,15 @@ class __SearchComponentState extends ConsumerState<_SearchComponent> {
                           ref.read(rangeProbProvider).end.round().toString(),
                       startPercent:
                           ref.read(rangeProbProvider).start.round().toString(),
-                      startValue: ref.read(startValueProvider) != 0
+                      startValue: (ref.read(startValueProvider) != 0 ||
+                              ref.read(endValueProvider) != 0)
                           ? ref.read(startValueProvider).toInt().toString()
                           : "",
-                      endValue: ref.read(startValueProvider) != 0
+                      endValue: (ref.read(startValueProvider) != 0 ||
+                              ref.read(endValueProvider) != 0)
                           ? ref.read(endValueProvider).toInt().toString()
                           : "",
-                      userResponsable: (user?.isAdmin ?? false) == false
-                          ? user?.code ?? ""
-                          : findFilterByType(
-                                      ref.read(routePlannerProvider).filters,
-                                      "ID_USUARIO_RESPONSABLE")
-                                  ?.id ??
-                              '',
+                      userResponsable: resolveResponsibleFilterValue(ref),
                     );
               });
             },
@@ -461,14 +453,14 @@ class __SearchComponentState extends ConsumerState<_SearchComponent> {
                 ref
                     .read(opportunitiesProvider.notifier)
                     .onChangeNotIsActiveSearch(() {
-                  final user = ref.read(authProvider).user;
                   ref
                       .read(opportunitiesProvider.notifier)
                       .loadFiltersOpportunity(
                         isRefresh: true,
-                        endDate: (ref.read(endDateProvider) ?? "").toString(),
-                        startDate:
-                            (ref.read(startDateProvider) ?? "").toString(),
+                        endDate:
+                            formatOpportunityFilterDate(ref.read(endDateProvider)),
+                        startDate: formatOpportunityFilterDate(
+                            ref.read(startDateProvider)),
                         estadoOP: findFilterByType(
                                     ref.read(routePlannerProvider).filters,
                                     "ID_TIPO_OPORTUNIDAD")
@@ -481,19 +473,15 @@ class __SearchComponentState extends ConsumerState<_SearchComponent> {
                             .start
                             .round()
                             .toString(),
-                        startValue: ref.read(startValueProvider) != 0
+                        startValue: (ref.read(startValueProvider) != 0 ||
+                                ref.read(endValueProvider) != 0)
                             ? ref.read(startValueProvider).toInt().toString()
                             : "",
-                        endValue: ref.read(startValueProvider) != 0
+                        endValue: (ref.read(startValueProvider) != 0 ||
+                                ref.read(endValueProvider) != 0)
                             ? ref.read(endValueProvider).toInt().toString()
                             : "",
-                        userResponsable: (user?.isAdmin ?? false) == false
-                            ? user?.code ?? ""
-                            : findFilterByType(
-                                        ref.read(routePlannerProvider).filters,
-                                        "ID_USUARIO_RESPONSABLE")
-                                    ?.id ??
-                                '',
+                        userResponsable: resolveResponsibleFilterValue(ref),
                       );
                 });
                 ref.read(searchControllerProvider).text = '';

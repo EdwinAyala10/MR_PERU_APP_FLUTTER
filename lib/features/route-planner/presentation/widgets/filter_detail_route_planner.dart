@@ -374,8 +374,8 @@ class FilterOptionContainer extends StatelessWidget {
             onSelect(id, name, type, title, true);
           }
         } else {
-          Navigator.pop(context);
           onSelect(id, name, type, title, false);
+          Navigator.pop(context);
         }
       },
       child: Container(

@@ -197,10 +197,9 @@ class __EventInformationState extends ConsumerState<_EventInformation> {
                       child: ListView(
                         shrinkWrap: true,
                         children: options.map((opportunity) {
-                          final checked = tempSelected?.id == opportunity.id;
-                          return CheckboxListTile(
-                            value: checked,
-                            controlAffinity: ListTileControlAffinity.leading,
+                          return RadioListTile<String>(
+                            value: opportunity.id,
+                            groupValue: tempSelected?.id,
                             contentPadding: EdgeInsets.zero,
                             dense: true,
                             activeColor: const Color(0xFF1F8FBF),
@@ -213,7 +212,7 @@ class __EventInformationState extends ConsumerState<_EventInformation> {
                               ),
                             ),
                             onChanged: (value) {
-                              if (!(value ?? false)) return;
+                              if (value == null) return;
                               setStateDialog(() => tempSelected = opportunity);
                             },
                           );
@@ -879,39 +878,24 @@ class __EventInformationState extends ConsumerState<_EventInformation> {
                 ),
                 const SizedBox(height: 6),
                 showOportunidadSelector
-                    ? InkWell(
-                        borderRadius: BorderRadius.circular(24),
-                        onTap: () => _openOpportunitySelector(
-                          context,
-                          eventForm,
-                          selectorOptions,
+                    ? Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
                         ),
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF1F1F1),
-                            borderRadius: BorderRadius.circular(24),
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  _selectedOpportunitySummary(eventForm),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 15,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                              ),
-                              const Icon(Icons.keyboard_arrow_down),
-                            ],
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF1F1F1),
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        child: Text(
+                          _selectedOpportunitySummary(eventForm),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                            color: Colors.black87,
                           ),
                         ),
                       )

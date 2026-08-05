@@ -163,6 +163,21 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
       "FECHAPREVISTADEVENTA_HASTA": endDate ?? ''
     };
 
+    final activeFilterSnapshot = {
+      'SEARCH': search,
+      'OFFSET': offset,
+      'TOP': limit,
+      'ID_USUARIO_RESPONSABLE': idUsuario ?? '',
+      'OPRT_ID_ESTADO_OPORTUNIDAD': estadoOP ?? '',
+      'ESTADO': estado ?? '',
+      'PROBABILIDAD_DESDE': startPercent ?? '',
+      'PROBABILIDAD_HASTA': endPercent ?? '',
+      'VALOR_DESDE': startValue ?? '',
+      'VALOR_HASTA': endValue ?? '',
+      'FECHAPREVISTADEVENTA_DESDE': startDate ?? '',
+      'FECHAPREVISTADEVENTA_HASTA': endDate ?? '',
+    };
+
     final response = await dio.post(
       '/oportunidad/listar-oportunidades-agrupado-empresa',
       data: data,
@@ -193,6 +208,11 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
       }
 
       if (oportunidadesParseadas.isEmpty) continue;
+
+      // A partir de aqui se confia en backend como fuente de verdad. El
+      // servicio agrupado ya debe devolver `OPORTUNIDAD` segun los parametros
+      // enviados (ESTADO, filtros, busqueda, etc.), por lo que frontend no
+      // vuelve a filtrar localmente por estado/valor/probabilidad/fecha.
 
       final primeraOportunidad = oportunidadesParseadas[0];
       final empresaKey =
@@ -233,11 +253,19 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
     if (isActivosRequest || isEnPausaRequest) {
       final rawGroups = (response.data['data'] as List? ?? []).length;
       final rawStates = <String, int>{};
+      final rawValues = <String>[];
+      final rawDates = <String>[];
       for (final group in response.data['data'] ?? []) {
         for (final opportunityJson in group['OPORTUNIDAD'] ?? []) {
           final state =
               (opportunityJson['OPRT_ID_ESTADO_OPORTUNIDAD'] ?? '').toString();
           rawStates[state] = (rawStates[state] ?? 0) + 1;
+          rawValues.add(
+            '${opportunityJson['OPRT_ID_OPORTUNIDAD']}:${opportunityJson['OPRT_VALOR']}',
+          );
+          rawDates.add(
+            '${opportunityJson['OPRT_ID_OPORTUNIDAD']}:${opportunityJson['OPRT_FECHA_PREVISTA_VENTA']}',
+          );
         }
       }
 
@@ -251,6 +279,15 @@ class OpportunitiesDatasourceImpl extends OpportunitiesDatasource {
       log(
         '${isActivosRequest ? 'ACTIVOS' : 'EN_PAUSA'} CHECK => requestEstado=${estado ?? ''}, rawGroups=$rawGroups, rawStates=$rawStates, finalGroups=${result.length}, finalVisible=$finalIds',
       );
+
+      if (isActivosRequest) {
+        log(
+          'ACTIVOS FILTER REQUEST => $activeFilterSnapshot',
+        );
+        log(
+          'ACTIVOS FILTER RESPONSE => rawValues=$rawValues, rawDates=$rawDates',
+        );
+      }
     }
 
     return result;

@@ -83,15 +83,13 @@ class _OpportunityStatusUpdateScreenState
 
   List<Opportunity> _resolveOpportunityOptions(Opportunity current) {
     final siblings = ref.read(currentOpportunityGroupProvider);
-    final sectionType = resolveOpportunitySectionType(
-      preferredType: ref.read(opportunitiesProvider).typeOpportunity,
-      reference: current,
-    );
-    final sameCompany = filterOpportunityGroupBySection(
+    // El grupo ya viene filtrado por bandeja desde backend (parámetro ESTADO),
+    // por eso solo se toma la misma empresa y se normaliza; no se vuelve a
+    // filtrar por estado en frontend.
+    final sameCompany = normalizeOpportunityGroup(
       siblings
-        .where((opportunity) => opportunity.empresaKey == current.empresaKey)
-        .toList(),
-      sectionType,
+          .where((opportunity) => opportunity.empresaKey == current.empresaKey)
+          .toList(),
     );
     if (sameCompany.isNotEmpty) return sameCompany;
     return [current];
@@ -299,23 +297,16 @@ class _OpportunityStatusUpdateScreenState
         targetOpportunity = movedOpportunities.first;
       }
 
-      final targetSectionType =
-          opportunitySectionTypeFromStatus(_selectedEstadoId).isNotEmpty
-              ? opportunitySectionTypeFromStatus(_selectedEstadoId)
-              : currentSectionType;
-      final companyGroupInTargetSection = normalizeOpportunityGroup(
+      // El grupo destino se toma completo desde backend (ya viene filtrado por
+      // la bandeja destino con el parámetro ESTADO). Así, al mover una o varias
+      // oportunidades, el detalle muestra TODAS las de esa empresa que quedan en
+      // la bandeja destino (las que ya estaban + las recién movidas), no solo
+      // las movidas.
+      destinationGroup = normalizeOpportunityGroup(
         refreshed.where((opportunity) {
           return opportunity.empresaKey == current.empresaKey;
         }).toList(),
       );
-
-      if (targetSectionType != currentSectionType) {
-        destinationGroup = companyGroupInTargetSection
-            .where((opportunity) => selectedIds.contains(opportunity.id))
-            .toList();
-      } else {
-        destinationGroup = companyGroupInTargetSection;
-      }
 
       if (destinationGroup.isNotEmpty) {
         final movedInsideDestination = destinationGroup

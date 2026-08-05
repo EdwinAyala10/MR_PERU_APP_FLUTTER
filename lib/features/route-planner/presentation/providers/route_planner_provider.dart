@@ -661,6 +661,14 @@ class RoutePlannerNotifier extends StateNotifier<RoutePlannerState> {
     state = state.copyWith(filtersSuccess: state.filters, selectedItems: []);
   }
 
+  void setDraftFilters(List<FilterOption> filters) {
+    state = state.copyWith(filters: filters);
+  }
+
+  void clearDraftFilters() {
+    state = state.copyWith(filters: []);
+  }
+
   Future<List<DropdownOption>> loadFilterRuc(String search) async {
     //state = state.copyWith(isLoading: true);
 

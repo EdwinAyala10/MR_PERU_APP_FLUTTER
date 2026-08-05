@@ -157,9 +157,10 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
       }
 
       // Caso 3 (normal): Ya hay contexto sembrado. La navegación fue
-      // instantánea. Se completa el grupo en SEGUNDO PLANO para traer todas
-      // las oportunidades de la empresa (todos los estados) sin bloquear la
-      // UI ni recargar las tabs (actividades, fotos, eventos).
+      // instantánea. Se completa el grupo en SEGUNDO PLANO trayendo desde
+      // backend solo las oportunidades de la empresa que pertenecen a la
+      // bandeja actual (parámetro ESTADO), sin bloquear la UI ni recargar las
+      // tabs (actividades, fotos, eventos).
       _refreshOpportunityGroupSilent();
 
       // Se prearman en segundo plano los datos COMPLETOS (con responsable) de
@@ -784,7 +785,12 @@ class _CompanyDetailViewState extends ConsumerState<_CompanyDetailView>
         .onCompanyActivity(target.oprtRuc ?? '', target.razon ?? '');
 
     if (!mounted) return;
-    context.push('/event/new');
+    context.push('/event/new').then((_) {
+      if (!mounted) return;
+      _reloadCurrentTabForOpportunity(
+        ref.read(selectedOp)?.id ?? target.id,
+      );
+    });
   }
 
   Widget _itFloatingButton(int currentIndex) {

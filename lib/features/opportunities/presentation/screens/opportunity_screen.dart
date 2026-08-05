@@ -86,6 +86,16 @@ class OpportunityScreen extends ConsumerWidget {
                       opportunityFormProvider(opportunityState.opportunity!));
                   final current = ref.read(selectedOp);
                   final siblings = ref.read(currentOpportunityGroupProvider);
+                  final currentTypeNow =
+                      ref.read(opportunitiesProvider).typeOpportunity;
+                  final newState = formState.oprtIdEstadoOportunidad.value;
+                  final updatedSectionType =
+                      opportunitySectionTypeFromStatus(newState);
+                  // Si el nuevo estado ya no pertenece a la bandeja actual, la
+                  // oportunidad editada debe salir del grupo visible de esa
+                  // bandeja (no quedarse mostrándose en Activo si pasó a Pausa).
+                  final leftCurrentSection = currentTypeNow.isNotEmpty &&
+                      updatedSectionType != currentTypeNow;
 
                   // Refleja el cambio de inmediato en el detalle actual antes
                   // de cerrar la pantalla de edición.
@@ -109,15 +119,34 @@ class OpportunityScreen extends ConsumerWidget {
                       ..oprtIdContacto = formState.oprtIdContacto.value
                       ..oprtNombreContacto = formState.oprtNombreContacto
                       ..oprtComentario = formState.oprtComentario;
-                    ref.read(selectedOp.notifier).state = current;
 
                     if (siblings.isNotEmpty) {
-                      final updatedGroup = siblings.map((opportunity) {
-                        if (opportunity.id != current.id) return opportunity;
-                        return current;
-                      }).toList();
-                        ref.read(currentOpportunityGroupProvider.notifier).state =
-                            normalizeOpportunityGroup(updatedGroup);
+                      final List<Opportunity> updatedGroup;
+                      if (leftCurrentSection) {
+                        updatedGroup = siblings
+                            .where((opportunity) => opportunity.id != current.id)
+                            .toList();
+                      } else {
+                        updatedGroup = siblings.map((opportunity) {
+                          if (opportunity.id != current.id) return opportunity;
+                          return current;
+                        }).toList();
+                      }
+                      final normalizedGroup =
+                          normalizeOpportunityGroup(updatedGroup);
+                      ref.read(currentOpportunityGroupProvider.notifier).state =
+                          normalizedGroup;
+
+                      if (leftCurrentSection) {
+                        if (normalizedGroup.isNotEmpty) {
+                          ref.read(selectedOp.notifier).state =
+                              normalizedGroup.first;
+                        }
+                      } else {
+                        ref.read(selectedOp.notifier).state = current;
+                      }
+                    } else {
+                      ref.read(selectedOp.notifier).state = current;
                     }
                   }
 
@@ -130,6 +159,19 @@ class OpportunityScreen extends ConsumerWidget {
                       opportunityState.opportunity?.oprtRuc ??
                       '';
 
+                  // Se invalida el caché por empresa (todas las bandejas) para
+                  // que al reingresar a cualquier pestaña se rearme desde
+                  // backend y no quede la oportunidad editada en la bandeja
+                  // anterior.
+                  if (ruc.isNotEmpty) {
+                    final newCache = Map<String, List<Opportunity>>.from(
+                        ref.read(companyGroupCacheProvider));
+                    newCache.removeWhere(
+                        (key, value) => key.startsWith('${ruc.trim()}|'));
+                    ref.read(companyGroupCacheProvider.notifier).state =
+                        newCache;
+                  }
+
                   context.pop(true);
 
                   ref
@@ -140,8 +182,6 @@ class OpportunityScreen extends ConsumerWidget {
                       .loadSecundaryOpportunities();
 
                   if (ruc.isNotEmpty && siblings.isNotEmpty) {
-                    final allowedIds =
-                        siblings.map((opportunity) => opportunity.id).toSet();
                     final user = ref.read(authProvider).user;
                     unawaited(() async {
                       final refreshedGroups = await ref
@@ -154,16 +194,18 @@ class OpportunityScreen extends ConsumerWidget {
                             idUsuario: (user?.isAdmin ?? false)
                                 ? ''
                                 : (user?.code ?? ''),
-                            estado: '',
+                            estado: updatedSectionType,
                           );
                       final refreshed = refreshedGroups
                           .expand((opportunity) =>
                               opportunity.oportunidadesDelGrupo ??
                               [opportunity])
                           .toList();
+                      final targetEmpresaKey =
+                          '${formState.oprtRuc.value}-${formState.oprtLocalCodigo.value}';
                       final filtered = refreshed
                           .where((opportunity) =>
-                              allowedIds.contains(opportunity.id))
+                              opportunity.empresaKey == targetEmpresaKey)
                           .toList();
                       if (filtered.isEmpty) return;
                         ref.read(currentOpportunityGroupProvider.notifier).state =
@@ -183,8 +225,10 @@ class OpportunityScreen extends ConsumerWidget {
                     opportunitiesNotifier.clearOpList();
                     unawaited(opportunitiesNotifier.loadFiltersOpportunity(
                       isRefresh: true,
-                      endDate: (ref.read(endDateProvider) ?? '').toString(),
-                      startDate: (ref.read(startDateProvider) ?? '').toString(),
+                      endDate:
+                          formatOpportunityFilterDate(ref.read(endDateProvider)),
+                      startDate: formatOpportunityFilterDate(
+                          ref.read(startDateProvider)),
                       estadoOP: findFilterByType(
                             ref.read(routePlannerProvider).filters,
                             'ID_TIPO_OPORTUNIDAD',
@@ -194,10 +238,12 @@ class OpportunityScreen extends ConsumerWidget {
                           ref.read(rangeProbProvider).end.round().toString(),
                       startPercent:
                           ref.read(rangeProbProvider).start.round().toString(),
-                      startValue: ref.read(startValueProvider) != 0
+                      startValue: (ref.read(startValueProvider) != 0 ||
+                              ref.read(endValueProvider) != 0)
                           ? ref.read(startValueProvider).toInt().toString()
                           : '',
-                      endValue: ref.read(startValueProvider) != 0
+                      endValue: (ref.read(startValueProvider) != 0 ||
+                              ref.read(endValueProvider) != 0)
                           ? ref.read(endValueProvider).toInt().toString()
                           : '',
                       userResponsable: (user?.isAdmin ?? false) == false

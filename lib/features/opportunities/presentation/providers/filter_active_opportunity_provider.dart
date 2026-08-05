@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 /// PROVIDERS OF FILTER ACTIVE SCREEN OPPORTUNITY
 ///
@@ -19,6 +20,11 @@ final startDateProvider = StateProvider<DateTime?>((ref) => null);
 final endDateProvider = StateProvider<DateTime?>((ref) => null);
 
 final selectedCodesProvider = StateProvider<Set<String>>((ref) => {});
+
+String formatOpportunityFilterDate(DateTime? date) {
+  if (date == null) return '';
+  return DateFormat('yyyy-MM-dd').format(date);
+}
 
 void resetAllProvidersFilterOP(WidgetRef ref) {
   ref.read(probstartProvider.notifier).state = 0.0;

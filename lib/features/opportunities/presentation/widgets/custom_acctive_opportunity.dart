@@ -19,6 +19,37 @@ class FilterActivityOpportunity extends ConsumerStatefulWidget {
 
 class _FilterActivityOpportunityState
     extends ConsumerState<FilterActivityOpportunity> {
+  bool _hasProbabilityFilter(RangeValues rangeProb) {
+    return rangeProb.start.round() != 0 || rangeProb.end.round() != 100;
+  }
+
+  bool _hasValueFilter() {
+    return ref.read(startValueProvider) != 0 || ref.read(endValueProvider) != 0;
+  }
+
+  bool _hasDateFilter() {
+    return ref.read(startDateProvider) != null || ref.read(endDateProvider) != null;
+  }
+
+  void _clearProbabilityFilter() {
+    ref.read(rangeProbProvider.notifier).state = const RangeValues(0, 100);
+  }
+
+  void _clearValueFilter() {
+    ref.read(startValueProvider.notifier).state = 0;
+    ref.read(endValueProvider.notifier).state = 0;
+  }
+
+  void _clearDateFilter() {
+    ref.read(startDateProvider.notifier).state = null;
+    ref.read(endDateProvider.notifier).state = null;
+  }
+
+  void _clearAllFilters() {
+    ref.read(routePlannerProvider.notifier).clearDraftFilters();
+    resetAllProvidersFilterOP(ref);
+  }
+
   @override
   Widget build(BuildContext context) {
     final double screenHeight = MediaQuery.of(context).size.height;
@@ -61,8 +92,14 @@ class _FilterActivityOpportunityState
                     ),
                   ),
                 ),
-                TextButton(
-                  onPressed: () async {
+                Row(
+                  children: [
+                    TextButton(
+                      onPressed: _clearAllFilters,
+                      child: const Text('Limpiar'),
+                    ),
+                    TextButton(
+                      onPressed: () async {
                     // Acción para aplicar fi'ltros
                     ref.read(opportunitiesProvider.notifier).clearOpList();
 
@@ -71,14 +108,14 @@ class _FilterActivityOpportunityState
 
                     Navigator.pop(context);
                     ref.read(routePlannerProvider.notifier).updateFilters();
-                    final user = ref.watch(authProvider).user;
                     ref
                         .read(opportunitiesProvider.notifier)
                         .loadFiltersOpportunity(
                           isRefresh: true,
-                          endDate: (ref.read(endDateProvider) ?? "").toString(),
-                          startDate:
-                              (ref.read(startDateProvider) ?? "").toString(),
+                          endDate:
+                              formatOpportunityFilterDate(ref.read(endDateProvider)),
+                          startDate: formatOpportunityFilterDate(
+                              ref.read(startDateProvider)),
                           estadoOP: findFilterByType(
                                       ref.read(routePlannerProvider).filters,
                                       "ID_TIPO_OPORTUNIDAD")
@@ -86,24 +123,21 @@ class _FilterActivityOpportunityState
                               '',
                           endPercents: endtP,
                           startPercent: startP,
-                          startValue: ref.read(startValueProvider) != 0
+                          startValue: (ref.read(startValueProvider) != 0 ||
+                                  ref.read(endValueProvider) != 0)
                               ? ref.read(startValueProvider).toInt().toString()
                               : "",
-                          endValue: ref.read(startValueProvider) != 0
+                          endValue: (ref.read(startValueProvider) != 0 ||
+                                  ref.read(endValueProvider) != 0)
                               ? ref.read(endValueProvider).toInt().toString()
                               : "",
-                          userResponsable: (user?.isAdmin ?? false) == false
-                              ? user?.code ?? ""
-                              : findFilterByType(
-                                          ref
-                                              .read(routePlannerProvider)
-                                              .filters,
-                                          "ID_USUARIO_RESPONSABLE")
-                                      ?.id ??
-                                  '',
+                          userResponsable:
+                              resolveResponsibleFilterValue(ref),
                         );
-                  },
-                  child: const Text('Hecho'),
+                      },
+                      child: const Text('Hecho'),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -122,8 +156,11 @@ class _FilterActivityOpportunityState
                     title: 'Probabilidad',
                     trailing: 'Selecciona',
                     type: 'PROBABILIDAD',
-                    value:
-                        '${rangeProb.start.round()}% - ${rangeProb.end.round()}%',
+                    value: _hasProbabilityFilter(rangeProb)
+                        ? '${rangeProb.start.round()}% - ${rangeProb.end.round()}%'
+                        : 'Selecciona',
+                    onClear:
+                        _hasProbabilityFilter(rangeProb) ? _clearProbabilityFilter : null,
                     ontap: () async {
                       await showModalBottomSheet(
                         context: context,
@@ -138,8 +175,10 @@ class _FilterActivityOpportunityState
                     title: 'Valor',
                     trailing: 'Selecciona',
                     type: 'VALOR',
-                    value:
-                        "${ref.watch(startValueProvider)} - ${ref.watch(endValueProvider)}",
+                    value: _hasValueFilter()
+                        ? "${ref.watch(startValueProvider)} - ${ref.watch(endValueProvider)}"
+                        : 'Selecciona',
+                    onClear: _hasValueFilter() ? _clearValueFilter : null,
                     ontap: () async {
                       await showModalBottomSheet(
                         context: context,
@@ -154,8 +193,10 @@ class _FilterActivityOpportunityState
                     title: 'Fecha prevista  de venta',
                     trailing: 'Selecciona',
                     type: 'FECHA_PREVISTA_VENTA',
-                    value:
-                        "${(startDate ?? "").toString().split(' ')[0]} - ${(endDate ?? "").toString().split(' ')[0]}",
+                    value: _hasDateFilter()
+                        ? "${formatOpportunityFilterDate(startDate)} - ${formatOpportunityFilterDate(endDate)}"
+                        : 'Selecciona',
+                    onClear: _hasDateFilter() ? _clearDateFilter : null,
                     ontap: () async {
                       await showModalBottomSheet(
                         context: context,
@@ -286,12 +327,27 @@ FilterOption? findFilterByType(List<FilterOption> filters, String type) {
   }
 }
 
+String resolveResponsibleFilterValue(WidgetRef ref) {
+  final user = ref.read(authProvider).user;
+  if ((user?.isAdmin ?? false) == false) {
+    return user?.code ?? '';
+  }
+
+  final routePlannerState = ref.read(routePlannerProvider);
+  final selected =
+      findFilterByType(routePlannerState.filtersSuccess, 'ID_USUARIO_RESPONSABLE') ??
+          findFilterByType(routePlannerState.filters, 'ID_USUARIO_RESPONSABLE');
+
+  return (selected?.id ?? '').trim();
+}
+
 class OptionContainFilter extends ConsumerWidget {
   final String title;
   final String trailing;
   final String type;
   final String? value;
   final Function()? ontap;
+  final VoidCallback? onClear;
 
   const OptionContainFilter({
     super.key,
@@ -300,6 +356,7 @@ class OptionContainFilter extends ConsumerWidget {
     required this.type,
     this.value,
     this.ontap,
+    this.onClear,
   });
 
   @override
@@ -334,6 +391,18 @@ class OptionContainFilter extends ConsumerWidget {
                 const SizedBox(
                   width: 10,
                 ),
+                if (onClear != null)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: InkWell(
+                      onTap: onClear,
+                      child: const Icon(
+                        Icons.close,
+                        size: 18,
+                        color: Color.fromARGB(255, 140, 140, 140),
+                      ),
+                    ),
+                  ),
                 const Icon(
                   Icons.arrow_forward_ios_rounded,
                   color: Color.fromARGB(255, 175, 174, 174),
@@ -442,7 +511,7 @@ class ProbabilityForm extends ConsumerWidget {
   }
 }
 
-class ValueForm extends ConsumerWidget {
+class ValueForm extends ConsumerStatefulWidget {
   final String title;
   const ValueForm({
     super.key,
@@ -450,7 +519,35 @@ class ValueForm extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ValueForm> createState() => _ValueFormState();
+}
+
+class _ValueFormState extends ConsumerState<ValueForm> {
+  late final TextEditingController _startController;
+  late final TextEditingController _endController;
+
+  @override
+  void initState() {
+    super.initState();
+    final startValue = ref.read(startValueProvider);
+    final endValue = ref.read(endValueProvider);
+    _startController = TextEditingController(
+      text: startValue == 0 ? '' : startValue.toString(),
+    );
+    _endController = TextEditingController(
+      text: endValue == 0 ? '' : endValue.toString(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _startController.dispose();
+    _endController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final double screenHeight = MediaQuery.of(context).size.height;
     final double desiredHeight = screenHeight * 0.95;
     return Container(
@@ -472,16 +569,16 @@ class ValueForm extends ConsumerWidget {
                 IconButton(
                   icon: const Icon(Icons.arrow_back),
                   onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-                Expanded(
-                  child: Center(
-                    child: Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                     Navigator.pop(context);
+                   },
+                 ),
+                 Expanded(
+                   child: Center(
+                     child: Text(
+                        widget.title,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
@@ -509,6 +606,7 @@ class ValueForm extends ConsumerWidget {
                 ),
                 const SizedBox(height: 10),
                 TextField(
+                  controller: _startController,
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
                     labelText: "Desde",
@@ -524,6 +622,7 @@ class ValueForm extends ConsumerWidget {
                   height: 10,
                 ),
                 TextField(
+                  controller: _endController,
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
                     labelText: "Hasta",
